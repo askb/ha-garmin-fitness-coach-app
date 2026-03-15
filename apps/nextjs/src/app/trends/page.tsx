@@ -59,7 +59,16 @@ export default function TrendsPage() {
       </div>
 
       {/* Summary Stats */}
-      {s && (
+      {summary.isLoading ? (
+        <div className="grid grid-cols-3 gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-card animate-pulse rounded-xl border p-3">
+              <div className="bg-muted mx-auto h-8 w-12 rounded" />
+              <div className="bg-muted mx-auto mt-1 h-3 w-16 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : s ? (
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card rounded-xl border p-3 text-center">
             <p className="text-2xl font-bold">{s.avgReadiness ?? "—"}</p>
@@ -80,7 +89,7 @@ export default function TrendsPage() {
             <p className="text-muted-foreground text-xs">Avg HRV (ms)</p>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Readiness Chart */}
       <div className="bg-card rounded-2xl border p-4">
@@ -168,10 +177,14 @@ function MiniBarChart({
           <div
             key={i}
             className="group relative flex-1"
+            style={{ height: "100%" }}
             title={`${d.date}: ${v}`}
           >
             <div
-              className={cn("w-full rounded-t-sm transition-all", colorFn(v))}
+              className={cn(
+                "absolute bottom-0 w-full rounded-t-sm transition-all",
+                colorFn(v),
+              )}
               style={{ height: `${height}%` }}
             />
           </div>
