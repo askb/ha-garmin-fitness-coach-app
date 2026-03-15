@@ -52,4 +52,4 @@ dist/
 .turbo
 
 # tanstack
-.tanstack
+.tanstacktest-results/
