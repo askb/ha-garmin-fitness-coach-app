@@ -117,11 +117,21 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
+      // Dev mode: use seed user so the app is functional without OAuth
+      if (t._config.isDev) {
+        return next({
+          ctx: {
+            session: {
+              user: { id: "seed-user-001", name: "Dev User", email: "dev@local" },
+              session: { id: "dev-session" },
+            },
+          },
+        });
+      }
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({
       ctx: {
-        // infers the `session` as non-nullable
         session: { ...ctx.session, user: ctx.session.user },
       },
     });

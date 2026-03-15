@@ -3,6 +3,7 @@
  *
  * Usage: npx tsx packages/db/src/seed.ts
  */
+import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import {
   Profile,
@@ -10,13 +11,14 @@ import {
   Activity,
 } from "./schema";
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_URL = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
 if (!DATABASE_URL) {
-  console.error("DATABASE_URL not set");
+  console.error("DATABASE_URL or POSTGRES_URL not set");
   process.exit(1);
 }
 
-const db = drizzle(DATABASE_URL);
+const pool = new pg.Pool({ connectionString: DATABASE_URL });
+const db = drizzle(pool, { casing: "snake_case" });
 
 // Pseudo-random with seed for reproducibility
 function seededRandom(seed: number) {
@@ -138,6 +140,7 @@ async function seed() {
   console.log(`✅ ${activities.length} activities created`);
 
   console.log("🎉 Seeding complete!");
+  await pool.end();
   process.exit(0);
 }
 
