@@ -1,0 +1,40 @@
+{
+  "name": "@acme/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./readiness": {
+      "types": "./src/readiness/index.ts",
+      "default": "./src/readiness/index.ts"
+    },
+    "./strain": {
+      "types": "./src/strain/index.ts",
+      "default": "./src/strain/index.ts"
+    },
+    "./coaching": {
+      "types": "./src/coaching/index.ts",
+      "default": "./src/coaching/index.ts"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --check . --ignore-path ../../.gitignore"
+  },
+  "devDependencies": {
+    "@acme/eslint-config": "workspace:*",
+    "@acme/prettier-config": "workspace:*",
+    "@acme/tsconfig": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "^3.2.1"
+  },
+  "prettier": "@acme/prettier-config"
+}

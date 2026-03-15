@@ -1,0 +1,222 @@
+import { relations, sql } from "drizzle-orm";
+import { pgTable } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod/v4";
+
+// Re-export auth schema tables
+export * from "./auth-schema";
+
+// ---------------------------------------------------------------------------
+// User Profile (extends auth user)
+// ---------------------------------------------------------------------------
+export const Profile = pgTable("profile", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull().unique(),
+  age: t.integer(),
+  sex: t.varchar({ length: 20 }),
+  massKg: t.doublePrecision(),
+  heightCm: t.doublePrecision(),
+  timezone: t.varchar({ length: 50 }).default("UTC"),
+  experienceLevel: t
+    .varchar({ length: 20 })
+    .default("intermediate"),
+  primarySports: t.jsonb().$type<string[]>().default([]),
+  goals: t
+    .jsonb()
+    .$type<{ sport: string; goalType: string; target?: string }[]>()
+    .default([]),
+  weeklyDays: t.jsonb().$type<string[]>().default([]),
+  minutesPerDay: t.integer().default(45),
+  maxHr: t.integer(),
+  restingHrBaseline: t.doublePrecision(),
+  hrvBaseline: t.doublePrecision(),
+  sleepBaseline: t.doublePrecision(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export const CreateProfileSchema = createInsertSchema(Profile, {
+  sex: z.enum(["male", "female", "other"]).optional(),
+  experienceLevel: z
+    .enum(["beginner", "intermediate", "advanced"])
+    .optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// ---------------------------------------------------------------------------
+// Daily Metrics (Garmin health data)
+// ---------------------------------------------------------------------------
+export const DailyMetric = pgTable(
+  "daily_metric",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    sleepScore: t.integer(),
+    totalSleepMinutes: t.integer(),
+    deepSleepMinutes: t.integer(),
+    remSleepMinutes: t.integer(),
+    lightSleepMinutes: t.integer(),
+    awakeMinutes: t.integer(),
+    hrv: t.doublePrecision(),
+    restingHr: t.integer(),
+    maxHr: t.integer(),
+    stressScore: t.integer(),
+    bodyBatteryStart: t.integer(),
+    bodyBatteryEnd: t.integer(),
+    steps: t.integer(),
+    calories: t.integer(),
+    garminTrainingReadiness: t.integer(),
+    garminTrainingLoad: t.doublePrecision(),
+    rawGarminData: t.jsonb(),
+    syncedAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    {
+      name: "daily_metric_user_date_unique",
+      columns: [table.userId, table.date],
+      unique: true,
+    },
+  ],
+);
+
+export const CreateDailyMetricSchema = createInsertSchema(DailyMetric).omit({
+  id: true,
+  syncedAt: true,
+});
+
+// ---------------------------------------------------------------------------
+// Activities (Garmin workout data)
+// ---------------------------------------------------------------------------
+export const Activity = pgTable("activity", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  garminActivityId: t.varchar({ length: 100 }).unique(),
+  sportType: t.varchar({ length: 50 }).notNull(),
+  subType: t.varchar({ length: 50 }),
+  startedAt: t.timestamp({ withTimezone: true }).notNull(),
+  endedAt: t.timestamp({ withTimezone: true }),
+  durationMinutes: t.doublePrecision().notNull(),
+  distanceMeters: t.doublePrecision(),
+  avgHr: t.integer(),
+  maxHr: t.integer(),
+  avgPaceSecPerKm: t.integer(),
+  calories: t.integer(),
+  trimpScore: t.doublePrecision(),
+  strainScore: t.doublePrecision(),
+  vo2maxEstimate: t.doublePrecision(),
+  rawGarminData: t.jsonb(),
+  syncedAt: t.timestamp().defaultNow().notNull(),
+}));
+
+export const CreateActivitySchema = createInsertSchema(Activity).omit({
+  id: true,
+  syncedAt: true,
+});
+
+// ---------------------------------------------------------------------------
+// Readiness Scores (computed daily)
+// ---------------------------------------------------------------------------
+export const ReadinessScore = pgTable(
+  "readiness_score",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    score: t.integer().notNull(),
+    zone: t.varchar({ length: 20 }).notNull(),
+    sleepQuantityComponent: t.doublePrecision(),
+    sleepQualityComponent: t.doublePrecision(),
+    hrvComponent: t.doublePrecision(),
+    restingHrComponent: t.doublePrecision(),
+    trainingLoadComponent: t.doublePrecision(),
+    stressComponent: t.doublePrecision(),
+    explanation: t.text(),
+    factors: t.jsonb(),
+    computedAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    {
+      name: "readiness_score_user_date_unique",
+      columns: [table.userId, table.date],
+      unique: true,
+    },
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Weekly Plans
+// ---------------------------------------------------------------------------
+export const WeeklyPlan = pgTable("weekly_plan", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  weekStart: t.date().notNull(),
+  sport: t.varchar({ length: 50 }).notNull(),
+  goalType: t.varchar({ length: 50 }).notNull(),
+  template: t.jsonb(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+// ---------------------------------------------------------------------------
+// Daily Workouts (generated recommendations)
+// ---------------------------------------------------------------------------
+export const DailyWorkout = pgTable("daily_workout", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  weeklyPlanId: t.uuid(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  sportType: t.varchar({ length: 50 }).notNull(),
+  workoutType: t.varchar({ length: 50 }).notNull(),
+  title: t.varchar({ length: 200 }).notNull(),
+  description: t.text(),
+  targetDurationMin: t.integer(),
+  targetDurationMax: t.integer(),
+  targetHrZoneLow: t.integer(),
+  targetHrZoneHigh: t.integer(),
+  targetStrainLow: t.doublePrecision(),
+  targetStrainHigh: t.doublePrecision(),
+  structure: t.jsonb(),
+  readinessZoneUsed: t.varchar({ length: 20 }),
+  status: t.varchar({ length: 20 }).default("planned"),
+  explanation: t.text(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+// ---------------------------------------------------------------------------
+// Chat Messages
+// ---------------------------------------------------------------------------
+export const ChatMessage = pgTable("chat_message", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  role: t.varchar({ length: 20 }).notNull(),
+  content: t.text().notNull(),
+  context: t.jsonb(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+// ---------------------------------------------------------------------------
+// Legacy Post table (keep for reference, can remove later)
+// ---------------------------------------------------------------------------
+export const Post = pgTable("post", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  title: t.varchar({ length: 256 }).notNull(),
+  content: t.text().notNull(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export const CreatePostSchema = createInsertSchema(Post, {
+  title: z.string().max(256),
+  content: z.string().max(256),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
