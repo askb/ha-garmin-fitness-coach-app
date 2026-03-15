@@ -21,6 +21,7 @@
     "@acme/auth": "workspace:*",
     "@acme/db": "workspace:*",
     "@acme/engine": "workspace:*",
+    "@acme/garmin": "workspace:*",
     "@acme/validators": "workspace:*",
     "@trpc/server": "catalog:",
     "superjson": "2.2.3",

@@ -1,0 +1,36 @@
+{
+  "name": "@acme/garmin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./oauth": {
+      "types": "./src/oauth.ts",
+      "default": "./src/oauth.ts"
+    },
+    "./webhook": {
+      "types": "./src/webhook.ts",
+      "default": "./src/webhook.ts"
+    },
+    "./normalize": {
+      "types": "./src/normalize.ts",
+      "default": "./src/normalize.ts"
+    },
+    "./backfill": {
+      "types": "./src/backfill.ts",
+      "default": "./src/backfill.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@acme/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -13,21 +13,15 @@ import "~/app/styles.css";
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? "https://turbo.t3.gg"
+      ? "https://garmincoach.app"
       : "http://localhost:3000",
   ),
-  title: "Create T3 Turbo",
-  description: "Simple monorepo with shared backend for web & mobile apps",
+  title: "GarminCoach — Your Personal Training Coach",
+  description:
+    "WHOOP-like coaching app powered by your Garmin data. Daily readiness scores, personalized workouts, and smart training guidance.",
   openGraph: {
-    title: "Create T3 Turbo",
-    description: "Simple monorepo with shared backend for web & mobile apps",
-    url: "https://create-t3-turbo.vercel.app",
-    siteName: "Create T3 Turbo",
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@jullerino",
-    creator: "@jullerino",
+    title: "GarminCoach",
+    description: "Daily readiness + personalized workouts from your Garmin data",
   },
 };
 

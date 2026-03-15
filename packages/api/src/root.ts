@@ -1,4 +1,5 @@
 import { authRouter } from "./router/auth";
+import { garminRouter } from "./router/garmin";
 import { postRouter } from "./router/post";
 import { profileRouter } from "./router/profile";
 import { readinessRouter } from "./router/readiness";
@@ -8,6 +9,7 @@ import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,
+  garmin: garminRouter,
   post: postRouter,
   profile: profileRouter,
   readiness: readinessRouter,

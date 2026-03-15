@@ -16,6 +16,7 @@
     "@acme/api": "workspace:*",
     "@acme/auth": "workspace:*",
     "@acme/db": "workspace:*",
+    "@acme/engine": "workspace:*",
     "@acme/ui": "workspace:*",
     "@acme/validators": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.8",
