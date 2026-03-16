@@ -352,7 +352,7 @@ export default function TrendsPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Multi-Metric Trend"
-          info="Overlay chart showing multiple health metrics on a shared timeline. Toggle metrics on/off to spot correlations — e.g., does your resting heart rate drop when sleep improves? Multi-metric views help identify cause-and-effect relationships that single charts miss."
+          info="Overlay chart of multiple health metrics on a shared timeline. Toggle metrics to spot correlations — e.g., does RHR drop when sleep improves? Method: Daily values from dailyMetrics table with configurable 7-day or 14-day rolling averages. Normalized to common scale for visual comparison."
           className="mb-4"
         />
         {chartLoading ? (
@@ -489,7 +489,7 @@ export default function TrendsPage() {
       <div>
         <SectionHeader
           title="Trend Analysis"
-          info="Statistical trend analysis showing the direction and strength of change for each metric. Upward/downward arrows indicate whether metrics are improving or declining. Based on linear regression over the selected time period — longer periods give more reliable trends."
+          info="Statistical direction and strength of change for each metric. Method: Linear regression (y = mx + b) over selected period. R² indicates trend reliability. Arrows show direction; percentage shows magnitude. Longer periods give more reliable trends. Citation: Standard statistical regression analysis."
           className="mb-3"
         />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -556,7 +556,7 @@ export default function TrendsPage() {
       <div>
         <SectionHeader
           title="Notable Changes"
-          info="Highlights significant metric changes that exceed normal variation. These are statistically meaningful shifts — not just day-to-day noise. Pay attention to clusters of changes in the same direction, which may indicate a systemic shift in your health or training status."
+          info="Highlights significant metric changes exceeding normal variation. Method: Z-score analysis — flags values where |z| > 2 standard deviations from your 30-day personal baseline. Not day-to-day noise but statistically meaningful shifts. Citation: Buchheit M (2014) Individual z-score monitoring."
           className="mb-3"
         />
         {notableChanges.isLoading ? (
@@ -613,7 +613,7 @@ export default function TrendsPage() {
         <div>
           <SectionHeader
             title="Correlation Insights"
-            info="Shows which metrics move together (positive correlation) or in opposite directions (negative correlation). Strong correlations (|r| > 0.5) suggest meaningful relationships — e.g., more sleep often correlates with lower resting heart rate. Use these to identify your personal health levers."
+            info="Shows which metrics move together (positive r) or inversely (negative r). Method: Pearson correlation coefficient between metric pairs over the selected period. Strong correlations (|r| > 0.5) suggest meaningful relationships. Correlation ≠ causation, but consistent patterns are informative. Citation: Cohen J (1988) Statistical Power Analysis."
             className="mb-3"
           />
           {correlations.isLoading ? (

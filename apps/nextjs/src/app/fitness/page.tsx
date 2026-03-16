@@ -236,7 +236,7 @@ export default function FitnessPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title={`VO2max Trend — ${chartData.length} estimates`}
-            info="VO2max is the gold standard measure of cardiorespiratory fitness — the maximum rate your body can use oxygen during exercise. Measured in mL/kg/min. Higher is better. Values typically range from 25-85 depending on age, sex, and fitness level. A 3.5 mL/kg/min improvement reduces all-cause mortality risk by ~15%."
+            info="VO2max = maximum oxygen uptake, gold standard of cardiorespiratory fitness (mL/kg/min). Estimation methods: (1) Running: VO2 = 3.5 + 0.2×speed, VO2max = VO2/%HRR. (2) Uth ratio: 15.3 × maxHR/RHR. Trend uses linear regression. A 3.5 mL/kg/min gain reduces mortality risk ~15%. Citation: ACSM (2021), Uth et al. (2004)."
             className="mb-3"
           />
           <ResponsiveContainer width="100%" height={220}>
@@ -307,7 +307,7 @@ export default function FitnessPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="Performance Comparison"
-            info="Compares your current VO2max against age/sex population percentiles from the American College of Sports Medicine (ACSM) normative data. Shows where you rank relative to the general population and what level (Superior, Excellent, Good, Fair, Poor) you fall into."
+            info="Compares your VO2max against age/sex population percentiles from ACSM normative data. Categories: Superior (top 5%), Excellent (top 20%), Good (top 40%), Fair (top 60%), Poor (bottom 40%). Method: Lookup in ACSM percentile tables by age bracket and sex. Citation: ACSM Guidelines for Exercise Testing (2021)."
             className="mb-2"
           />
           <p className="text-sm">
@@ -355,7 +355,7 @@ export default function FitnessPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Race Predictions"
-          info="Estimated race finish times based on your current VO2max using the Jack Daniels VDOT formula. These predictions assume proper race-day pacing and conditions. Use them as training targets — your actual race time depends on terrain, weather, nutrition, and mental preparation."
+          info="Estimated race times using simplified VDOT method. Formula: raceVO2 = VO2max × distance factor (5K: 95%, 10K: 90%, Half: 83%, Marathon: 78%). Time = distance / ((raceVO2 - 3.5) / 0.2). Assumes proper taper, pacing, and conditions. Citation: Daniels J (2013) Daniels' Running Formula."
           className="mb-1"
         />
         {racePredictions.isLoading ? (
@@ -405,7 +405,7 @@ export default function FitnessPage() {
         <div className="flex items-center justify-between">
           <SectionHeader
             title="Training Status"
-            info="An overview of your current training state based on recent load trends, recovery metrics, and fitness trajectory. Helps you decide whether to push harder, maintain, or back off. Combines acute training load, chronic load, and recovery indicators."
+            info="Current training state from load trends + fitness trajectory. Categories: Productive (high load + VO2max improving), Maintaining (balanced), Overreaching (high load + declining), Peaking (reduced volume + stable), Detraining (low load + declining), Recovery (low load + improving). Method: CTL/ATL slopes + VO2max trend. Citation: Meeusen et al. (2013) ECSS Overtraining Consensus."
           />
           {trainingStatus.data ? (
             <span

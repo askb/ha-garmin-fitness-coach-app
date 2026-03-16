@@ -380,7 +380,7 @@ export default function SleepDashboard() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Sleep Stages · Last 14 Nights"
-          info="Stacked bar chart showing nightly sleep stage breakdown. Deep sleep (N3) is critical for physical recovery and growth hormone release — aim for 1-2 hours. REM sleep supports memory consolidation and emotional regulation — aim for 1.5-2 hours. Light sleep transitions between stages. Awake time should be minimal (<30 min)."
+          info="Stacked bar chart of nightly sleep stage breakdown from Garmin's Firstbeat sleep analysis. Deep sleep (N3): physical recovery + growth hormone — aim for 1-2h. REM: memory + emotional regulation — aim for 1.5-2h. Light sleep transitions between stages. Method: sleepDeepMinutes, sleepRemMinutes, sleepLightMinutes from daily metrics."
           className="mb-4"
         />
         {stages.isLoading ? (
@@ -483,7 +483,7 @@ export default function SleepDashboard() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Sleep Score · Last 28 Days"
-          info="Garmin's composite sleep score (0-100) based on duration, depth, continuity, and REM/deep percentages. Scores above 75 indicate good recovery. Track the trend line — consistent scores above 70 correlate with better training adaptation. Drops below 60 may indicate stress, illness, or overtraining."
+          info="Garmin's composite sleep score (0-100) based on duration, depth, continuity, and REM/deep percentages. Scores >75 = good recovery. Consistent scores >70 correlate with better training adaptation. Drops <60 may indicate stress or overtraining. Method: sleepScore field from dailyMetrics table. Citation: Garmin Firstbeat Analytics."
           className="mb-4"
         />
         {history.isLoading ? (
@@ -556,7 +556,7 @@ export default function SleepDashboard() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="Actual vs Need"
-            info="Compares your actual sleep duration against your body's estimated sleep need (typically 7-9 hours for adults). Chronic sleep debt — even 30-60 minutes per night — accumulates and impairs reaction time, immune function, and training adaptation. The gap between actual and needed sleep is your nightly sleep debt."
+            info="Compares actual sleep duration vs estimated need (typically 7-9h for adults). Chronic debt of even 30-60 min/night impairs reaction time, immune function, and training adaptation. Method: sleepDurationMinutes vs sleepNeedMinutes from daily metrics. Citation: Hirshkowitz M et al. (2015) Sleep Recommendations."
             className="mb-4"
           />
           {history.isLoading ? (
@@ -636,7 +636,7 @@ export default function SleepDashboard() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="Sleep Debt · Last 7 Days"
-            info="Running total of accumulated sleep debt over the past week. Sleep debt is calculated as the difference between your sleep need and actual sleep each night. Research shows that sleep debt of >5 hours/week significantly impairs athletic performance and increases injury risk by up to 1.7x."
+            info="Running total of accumulated sleep debt over 7 days. Formula: Daily debt = sleepNeedMinutes - sleepDurationMinutes (if positive). Weekly debt >5 hours significantly impairs athletic performance and increases injury risk by 1.7×. Method: Cumulative sum of nightly deficits. Citation: Milewski et al. (2014) Sleep & Injury."
             className="mb-4"
           />
           {history.isLoading ? (
@@ -739,7 +739,7 @@ export default function SleepDashboard() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Sleep Timing Consistency"
-          info="Tracks your bedtime and wake time patterns. Consistent sleep timing is as important as duration — it strengthens your circadian rhythm. Irregular sleep schedules (>1 hour variation) are associated with poorer metabolic health and reduced sleep quality, even with adequate total hours."
+          info="Tracks bedtime and wake time patterns over time. Consistent timing (±30min) strengthens circadian rhythm. Irregular schedules (>1h variation) associated with poorer metabolic health and reduced sleep quality. Method: sleepStartTime and sleepEndTime from daily metrics. Citation: Phillips AJK et al. (2017) Irregular Sleep & Health."
           className="mb-4"
         />
         {history.isLoading ? (

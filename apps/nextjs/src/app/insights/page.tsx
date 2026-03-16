@@ -355,7 +355,7 @@ export default function InsightsPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="This Week"
-            info="Weekly summary comparing your key metrics (sleep, activity, heart rate, stress) against your personal baselines. Green indicators show metrics trending better than your 30-day average, while red flags areas needing attention. Use this as your quick weekly health check-in."
+            info="Weekly summary comparing key metrics against your 30-day personal baselines. Green = better than average, red = below. Method: Current week's mean vs 30-day EMA baseline for each metric (sleep, activity, RHR, stress, HRV). Threshold: >0.5 SD difference flagged. Citation: Individual monitoring using z-scores (Buchheit 2014)."
             className="mb-3"
           />
           <div className="grid grid-cols-3 gap-3">
@@ -418,7 +418,7 @@ export default function InsightsPage() {
         <div className="space-y-3">
           <SectionHeader
             title="Daily Insights"
-            info="Day-by-day breakdown of notable patterns and anomalies in your health data. The algorithm flags days where metrics deviate significantly from your personal norms — both positive achievements and potential concerns. Tap any day to see the detailed analysis."
+            info="Day-by-day notable patterns and anomalies. Method: Flags days where metrics deviate >2 SD from personal 30-day baseline (z-score analysis). Both positive achievements and concerns highlighted. Anomaly sources: HRV spikes/drops, unusual RHR, sleep disruption, training load changes. Citation: Plews et al. (2013) HRV monitoring."
           />
           {insights.map((insight, i) => (
             <InsightCardUI key={i} insight={insight} />

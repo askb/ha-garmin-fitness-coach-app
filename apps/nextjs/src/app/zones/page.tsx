@@ -374,7 +374,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Weekly Time in Zones"
-          info="Shows how many minutes you spent in each heart rate zone per week. Zone 1 (Recovery) and Zone 2 (Aerobic) build your base. Zone 3 (Tempo) improves lactate threshold. Zones 4-5 boost VO2max. Most training should be in Zones 1-2 (easy) with targeted hard efforts in Zones 4-5."
+          info="Shows minutes spent in each heart rate zone per week. Zones are from Garmin's Firstbeat HR zone classification. Zone 1 (Recovery) and Zone 2 (Aerobic) build your base — aim for 80% here. Zone 3 (Tempo) improves lactate threshold. Zones 4-5 boost VO2max. Method: Sum of hrZoneMinutes JSON field per activity, grouped by ISO week."
           className="mb-3"
         />
         {weeklyZones.isLoading ? (
@@ -442,7 +442,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Training Polarization (Seiler 80/20 Model)"
-          info="The Polarization Index (PI) measures how well your training follows the 80/20 rule — 80% easy (Zones 1-2), 20% hard (Zones 4-5), minimal time in Zone 3. Research by Dr. Stephen Seiler shows elite endurance athletes train this way. PI > 2.0 = well polarized, 1.5-2.0 = pyramidal, < 1.5 = threshold-heavy (higher injury risk)."
+          info="Measures how well your training follows the 80/20 rule. Formula: PI = ln(1/Σpi²) where pi = fraction of time in each zone bucket (easy/moderate/hard). PI > 2.0 = well polarized, 1.5-2.0 = pyramidal, < 1.5 = threshold-heavy (higher injury risk). Citation: Seiler S, Polarized Training Distribution."
           subtitle="PI > 2.0 = well polarized · 1.5–2.0 = pyramidal · < 1.5 = threshold-heavy"
           className="mb-3"
         />
@@ -575,7 +575,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Monthly Zone Distribution Shift"
-          info="Tracks how your zone distribution evolves month-over-month as a stacked area chart. A healthy progression shows increasing Zone 2 (aerobic base) percentage over time, with periodic blocks of higher intensity. Sudden spikes in Zone 4-5 without adequate Zone 1-2 base may indicate overtraining risk."
+          info="Tracks zone distribution evolution month-over-month as a stacked area chart showing percentage of time in each zone. A healthy progression shows increasing Zone 2 percentage over time with periodic high-intensity blocks. Method: Monthly aggregation of zone minutes converted to percentages. Citation: Long-term training structure analysis."
           className="mb-3"
         />
         {zoneTrends.isLoading ? (
@@ -669,7 +669,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Pace / HR Efficiency (higher = fitter)"
-          info="Cardiac efficiency index = speed (m/s) ÷ average heart rate × 1000. Higher values mean you're covering more ground per heartbeat — a key marker of aerobic fitness. An upward trend indicates improved cardiovascular efficiency. This metric is used by coaches to track aerobic development without maximal testing."
+          info="Cardiac efficiency index measures aerobic fitness improvement over time. Formula: Efficiency = (speed in m/s ÷ avgHR) × 1000. Higher values = more ground covered per heartbeat. Trend line uses linear regression (y = mx + b) to show improvement percentage. Citation: Running economy as speed per unit HR cost."
           className="mb-1"
         />
         {efficiencyTrendLine && (
@@ -776,7 +776,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Training Consistency"
-          info="A GitHub-style heatmap showing your daily training activity over time. Consistency is the #1 predictor of fitness improvement. Look for unbroken streaks and regular patterns. Gaps longer than 7 days can lead to detraining. Color intensity reflects total training minutes that day."
+          info="GitHub-style heatmap showing daily training activity. Color intensity = total training minutes that day. Consistency is the #1 predictor of fitness gains. Gaps >7 days lead to measurable detraining. Method: Daily aggregation of activity duration with sport type classification. Data: activityCalendar query grouped by date."
           className="mb-3"
         />
         {calendar.isLoading ? (
@@ -794,7 +794,7 @@ export default function ZoneAnalysisPage() {
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
         <SectionHeader
           title="Weekly Training Volume by Sport"
-          info="Stacked bar chart showing total training minutes per week, broken down by sport type. Helps you visualize training balance and spot if you're over-indexing on one activity. Gradual weekly volume increases of 5-10% are recommended to avoid overuse injuries."
+          info="Stacked bar chart of total training minutes per week, broken down by sport type (running, walking, strength, yoga, tennis, other). Method: Sum of duration minutes per activity grouped by ISO week and sport type. Gradual weekly increases of 5-10% recommended to avoid overuse injuries. Citation: Progressive overload principle."
           className="mb-3"
         />
         {volume.isLoading ? (
@@ -860,7 +860,7 @@ export default function ZoneAnalysisPage() {
         <div className="space-y-3">
           <SectionHeader
             title="Key Insights"
-            info="Auto-generated insights based on your training data patterns. These highlight notable achievements, potential issues, and areas for improvement drawn from your zone distribution, consistency, and efficiency metrics."
+            info="Auto-generated insights from your training patterns. Checks include: zone distribution balance, consistency streaks, efficiency trends, polarization status, and volume changes. Method: Rule-based analysis comparing current metrics against sport science thresholds (e.g., PI > 2.0, efficiency trend slope, active day ratio)."
           />
           <div className="grid gap-3 sm:grid-cols-2">
             {insights.map((item, i) => (

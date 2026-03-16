@@ -174,7 +174,7 @@ export default function CorrelationsPage() {
       <div>
         <SectionHeader
           title="Correlation Matrix"
-          info="A heatmap showing Pearson correlation coefficients between all your health metrics. Blue = positive correlation (metrics rise together), red = negative (one rises as the other falls). Values range from -1.0 to +1.0. Focus on strong correlations (|r| > 0.5) for actionable insights."
+          info="Heatmap of Pearson correlation coefficients (r) between all health metrics. Blue = positive correlation (metrics rise together), red = negative (inverse). Values range -1.0 to +1.0. Focus on |r| > 0.5 for actionable insights. Method: Pearson r with p-value significance testing. Citation: Cohen J (1988) — |r| 0.1=small, 0.3=medium, 0.5=large effect."
           className="mb-3"
         />
 
@@ -286,7 +286,7 @@ export default function CorrelationsPage() {
         <div>
           <SectionHeader
             title="Key Insights"
-            info="Auto-generated interpretations of the strongest correlations found in your data. Each insight explains what the relationship means for your health and training, with practical suggestions. Correlations don't prove causation, but consistent patterns across months are highly informative."
+            info="Auto-generated interpretations of strongest correlations in your data. Each insight explains the relationship and suggests practical actions. Method: Filters correlation pairs by |r| > 0.3 and p < 0.05 (statistically significant). Ranked by absolute correlation strength. Correlation ≠ causation but consistent patterns across months are highly informative."
             className="mb-3"
           />
 

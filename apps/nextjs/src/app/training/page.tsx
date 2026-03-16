@@ -84,7 +84,7 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Strain — 42 Day Trend"
-          info="Training strain (TRIMP-based) plotted over 42 days showing your acute and chronic load curves. The acute load (7-day) responds quickly to training changes while chronic load (42-day) represents your fitness base. When acute exceeds chronic significantly, you're in a fatigue-risk zone."
+          info="Training strain based on TRIMP (Training Impulse). Formula: TRIMP = duration × ΔHR/HRR × e^(k×ΔHR/HRR) where k=1.92 (male). Strain Score = 21 × (1 - e^(-TRIMP/250)). Shows acute (7-day) and chronic (42-day) exponential moving averages. Citation: Banister EW (1991), WHOOP strain model."
           className="mb-3"
         />
         {strainChart.isLoading ? (
@@ -219,7 +219,7 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Acute:Chronic Workload Ratio"
-          info="The ACWR compares your recent training (7-day acute) to your long-term average (28-day chronic). Sweet spot is 0.8-1.3. Below 0.8 = undertraining/detraining. Above 1.5 = spike in load with high injury risk. This ratio is widely used in professional sports to manage training load progressions safely."
+          info="Compares recent training load to your long-term base. Formula: ACWR = mean(strain last 7 days) / mean(strain last 28 days). Sweet spot: 0.8-1.3 (lowest injury risk). Below 0.8 = detraining. Above 1.5 = spike with high injury risk. Citation: Hulin BT et al. (2016) Br J Sports Med."
           className="mb-3"
         />
         {loads.isLoading ? (
@@ -237,7 +237,7 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Load Focus"
-          info="Shows the balance between your different training intensities. Helps identify if you're over-emphasizing one type of training. An ideal distribution depends on your goals — endurance athletes should see more aerobic load, while power athletes need more high-intensity focus."
+          info="Balance between training intensities derived from zone distribution of recent activities. Shows percentage split between aerobic (Z1-2), threshold (Z3), and high-intensity (Z4-5) work. Endurance athletes should see >70% aerobic. Method: Zone minute aggregation over selected period."
           className="mb-3"
         />
         {loads.isLoading ? (
@@ -257,7 +257,7 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Recovery Estimate"
-          info="Estimated hours until full recovery based on your recent training load, sleep quality, HRV, and resting heart rate. This is not a hard limit — listen to your body. Light activity during recovery (Zone 1) actually promotes blood flow and can speed recovery compared to complete rest."
+          info="Estimated hours until full recovery based on recent strain, sleep quality, HRV trend, and resting heart rate. Higher strain + poor sleep = longer recovery. Light Zone 1 activity during recovery promotes blood flow and speeds adaptation. Method: Composite of TRIMP decay + recovery markers."
           className="mb-3"
         />
         {recovery.isLoading ? (
@@ -297,7 +297,7 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Daily Strain — Last 14 Days"
-          info="Bar chart of daily training strain over the past 2 weeks. Look for a pattern of hard/easy alternation — consecutive high-strain days without recovery increase overtraining risk. The 48-hour rule: allow at least 48 hours between high-intensity sessions for the same muscle groups."
+          info="Bar chart of daily TRIMP-based strain scores over 2 weeks. Formula: Strain = 21 × (1 - e^(-TRIMP/250)). Look for hard/easy alternation pattern — consecutive high-strain days increase overtraining risk. The 48-hour rule: allow 48h between high-intensity sessions. Citation: Banister (1991)."
           className="mb-3"
         />
         {recentStrain.isLoading ? (
@@ -345,7 +345,7 @@ export default function TrainingLoadPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="Recommendation"
-            info="AI-generated training recommendation based on your current fatigue level, recovery status, training history, and goals. Takes into account your acute:chronic ratio, sleep quality, and recent strain patterns to suggest whether to push, maintain, or rest."
+            info="AI-generated training recommendation combining: ACWR (injury risk), TSB (freshness = CTL - ATL), sleep quality score, and recent strain pattern. Suggests push/maintain/rest based on composite readiness. Method: Rule-based engine with sport science thresholds."
             className="mb-2"
           />
           <p className="text-sm leading-relaxed">
