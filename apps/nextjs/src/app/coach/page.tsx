@@ -9,28 +9,175 @@ import { cn } from "@acme/ui";
 import { useTRPC } from "~/trpc/react";
 
 // ---------------------------------------------------------------------------
-// Quick Actions
+// Agent configuration
 // ---------------------------------------------------------------------------
 
-const QUICK_ACTIONS = [
-  { label: "How am I today?", message: "How is my readiness today?" },
-  { label: "Training advice", message: "What should my training look like today?" },
-  { label: "Sleep analysis", message: "How has my sleep been recently?" },
-  { label: "Recovery status", message: "How recovered am I?" },
+type AgentType = "sport-scientist" | "psychologist" | "nutritionist" | "recovery";
+
+interface AgentConfig {
+  id: AgentType;
+  label: string;
+  icon: string;
+  accent: string;       // tailwind text color
+  accentBg: string;     // tailwind bg color for buttons
+  accentBorder: string; // tailwind border color
+  welcome: string;
+  quickActions: readonly { label: string; message: string }[];
+}
+
+const AGENTS: AgentConfig[] = [
+  {
+    id: "sport-scientist",
+    label: "Sport Scientist",
+    icon: "🏋️",
+    accent: "text-blue-400",
+    accentBg: "bg-blue-600 hover:bg-blue-500",
+    accentBorder: "border-blue-500",
+    welcome:
+      "I'm your Sport Scientist. I analyze training loads, zone distribution, ACWR, and VO2max trends to optimize your performance. Ask me anything about your training.",
+    quickActions: [
+      { label: "Am I overtraining?", message: "Am I overtraining? Analyze my ACWR and training load." },
+      { label: "Zone distribution", message: "Analyze my heart rate zone distribution over the last 30 days." },
+      { label: "Race prep for 10K", message: "How should I prepare for a 10K race based on my current fitness?" },
+      { label: "Training advice", message: "What should my training look like today based on my readiness?" },
+    ],
+  },
+  {
+    id: "psychologist",
+    label: "Psychologist",
+    icon: "🧠",
+    accent: "text-purple-400",
+    accentBg: "bg-purple-600 hover:bg-purple-500",
+    accentBorder: "border-purple-500",
+    welcome:
+      "I'm your Sport Psychologist. I help with motivation, mental resilience, and performance psychology. Let's work on the mental side of your training.",
+    quickActions: [
+      { label: "Losing motivation", message: "I'm losing motivation to train. Can you help?" },
+      { label: "Race day prep", message: "Help me with mental preparation for race day." },
+      { label: "Stay consistent", message: "How can I stay more consistent with my training?" },
+      { label: "Handle pressure", message: "How do I handle performance pressure and anxiety?" },
+    ],
+  },
+  {
+    id: "nutritionist",
+    label: "Nutritionist",
+    icon: "🥗",
+    accent: "text-green-400",
+    accentBg: "bg-green-600 hover:bg-green-500",
+    accentBorder: "border-green-500",
+    welcome:
+      "I'm your Sports Nutritionist. I help with fueling strategies, recovery nutrition, and hydration based on your training demands.",
+    quickActions: [
+      { label: "Pre-workout fuel", message: "What should I eat before my workout?" },
+      { label: "Recovery meals", message: "What are the best recovery meal suggestions after a hard session?" },
+      { label: "Calorie needs", message: "What are my calorie and macro needs based on my current training load?" },
+      { label: "Hydration plan", message: "Help me with a hydration strategy for my training." },
+    ],
+  },
+  {
+    id: "recovery",
+    label: "Recovery",
+    icon: "💤",
+    accent: "text-teal-400",
+    accentBg: "bg-teal-600 hover:bg-teal-500",
+    accentBorder: "border-teal-500",
+    welcome:
+      "I'm your Recovery Specialist. I analyze sleep, HRV, stress, and body battery to keep you healthy and injury-free.",
+    quickActions: [
+      { label: "Enough sleep?", message: "Am I getting enough sleep? Analyze my sleep trends." },
+      { label: "Deload week?", message: "Should I take a deload week based on my current data?" },
+      { label: "Injury risk", message: "What's my current injury risk based on training load and recovery?" },
+      { label: "Recovery tips", message: "Give me specific recovery protocols for today." },
+    ],
+  },
 ] as const;
 
+function getAgentConfig(id: AgentType): AgentConfig {
+  return AGENTS.find((a) => a.id === id)!;
+}
+
 // ---------------------------------------------------------------------------
-// Message Component
+// Markdown renderer (simple: bold, lists, headers)
+// ---------------------------------------------------------------------------
+
+function renderMarkdown(text: string) {
+  const lines = text.split("\n");
+  return lines.map((line, li) => {
+    // Headers
+    if (line.startsWith("### "))
+      return (
+        <h4 key={li} className="mt-3 mb-1 text-sm font-bold text-zinc-200">
+          {renderInline(line.slice(4))}
+        </h4>
+      );
+    if (line.startsWith("## "))
+      return (
+        <h3 key={li} className="mt-3 mb-1 text-sm font-bold text-zinc-100">
+          {renderInline(line.slice(3))}
+        </h3>
+      );
+
+    // Bullet lists
+    if (/^[-•*] /.test(line))
+      return (
+        <li key={li} className="ml-4 list-disc text-sm leading-relaxed">
+          {renderInline(line.replace(/^[-•*] /, ""))}
+        </li>
+      );
+
+    // Numbered lists
+    if (/^\d+\. /.test(line))
+      return (
+        <li key={li} className="ml-4 list-decimal text-sm leading-relaxed">
+          {renderInline(line.replace(/^\d+\. /, ""))}
+        </li>
+      );
+
+    // Empty line → spacer
+    if (line.trim() === "") return <br key={li} />;
+
+    // Normal paragraph
+    return (
+      <p key={li} className="text-sm leading-relaxed">
+        {renderInline(line)}
+      </p>
+    );
+  });
+}
+
+function renderInline(text: string) {
+  // Bold **text** and _italic_
+  return text.split(/(\*\*[^*]+\*\*|_[^_]+_)/).map((seg, i) => {
+    if (seg.startsWith("**") && seg.endsWith("**"))
+      return (
+        <strong key={i} className="font-semibold">
+          {seg.slice(2, -2)}
+        </strong>
+      );
+    if (seg.startsWith("_") && seg.endsWith("_"))
+      return (
+        <em key={i} className="italic">
+          {seg.slice(1, -1)}
+        </em>
+      );
+    return <span key={i}>{seg}</span>;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Chat Bubble
 // ---------------------------------------------------------------------------
 
 function ChatBubble({
   role,
   content,
   createdAt,
+  agentConfig,
 }: {
   role: string;
   content: string;
   createdAt: string | Date;
+  agentConfig: AgentConfig;
 }) {
   const isUser = role === "user";
   const time = new Date(createdAt).toLocaleTimeString([], {
@@ -42,24 +189,22 @@ function ChatBubble({
     <div className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}>
       <div className={cn("max-w-[85%] space-y-1")}>
         {!isUser && (
-          <span className="text-xs font-medium text-zinc-400">🏋️ Coach</span>
+          <span className={cn("text-xs font-medium", agentConfig.accent)}>
+            {agentConfig.icon} {agentConfig.label}
+          </span>
         )}
         <div
           className={cn(
-            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+            "rounded-2xl px-4 py-2.5",
             isUser
               ? "bg-indigo-600 text-white"
               : "bg-zinc-700 text-zinc-100",
           )}
         >
-          {content.split("**").map((segment, i) =>
-            i % 2 === 1 ? (
-              <strong key={i} className="font-semibold">
-                {segment}
-              </strong>
-            ) : (
-              <span key={i}>{segment}</span>
-            ),
+          {isUser ? (
+            <p className="text-sm leading-relaxed">{content}</p>
+          ) : (
+            <div className="space-y-0.5">{renderMarkdown(content)}</div>
           )}
         </div>
         <p
@@ -83,9 +228,12 @@ export default function CoachPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
+  const [activeAgent, setActiveAgent] = useState<AgentType>("sport-scientist");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const agentConfig = getAgentConfig(activeAgent);
 
   const history = useQuery(
     trpc.chat.getHistory.queryOptions({ limit: 50 }),
@@ -125,7 +273,7 @@ export default function CoachPage() {
     const content = (text ?? input).trim();
     if (!content || sendMutation.isPending) return;
     setInput("");
-    sendMutation.mutate({ content });
+    sendMutation.mutate({ content, agent: activeAgent });
   }
 
   return (
@@ -141,7 +289,7 @@ export default function CoachPage() {
           </Link>
           <div>
             <h1 className="text-base font-semibold text-zinc-100">
-              🏋️ AI Coach
+              {agentConfig.icon} AI {agentConfig.label}
             </h1>
             <p className="text-xs text-zinc-500">
               Powered by your Garmin data
@@ -155,6 +303,24 @@ export default function CoachPage() {
           Clear
         </button>
       </header>
+
+      {/* Agent Selector Tabs */}
+      <div className="flex gap-1 overflow-x-auto border-b border-zinc-800 bg-zinc-900/60 px-4 py-2">
+        {AGENTS.map((agent) => (
+          <button
+            key={agent.id}
+            onClick={() => setActiveAgent(agent.id)}
+            className={cn(
+              "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+              activeAgent === agent.id
+                ? cn(agent.accentBg, "text-white")
+                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200",
+            )}
+          >
+            {agent.icon} {agent.label}
+          </button>
+        ))}
+      </div>
 
       {/* Clear confirmation dialog */}
       {showClearConfirm && (
@@ -182,11 +348,9 @@ export default function CoachPage() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 && !history.isLoading ? (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <p className="text-4xl">👋</p>
+            <p className="text-4xl">{agentConfig.icon}</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-zinc-400">
-              I&apos;m your AI Sport Scientist Coach. Ask me anything about your
-              training, recovery, sleep, or readiness. I use your actual Garmin
-              data to give personalized advice.
+              {agentConfig.welcome}
             </p>
           </div>
         ) : (
@@ -197,15 +361,17 @@ export default function CoachPage() {
                 role={msg.role}
                 content={msg.content}
                 createdAt={msg.createdAt}
+                agentConfig={agentConfig}
               />
             ))}
             {sendMutation.isPending && (
               <div className="flex justify-start">
                 <div className="max-w-[85%] space-y-1">
-                  <span className="text-xs font-medium text-zinc-400">
-                    🏋️ Coach
+                  <span className={cn("text-xs font-medium", agentConfig.accent)}>
+                    {agentConfig.icon} {agentConfig.label}
                   </span>
                   <div className="rounded-2xl bg-zinc-700 px-4 py-3 text-sm text-zinc-300">
+                    <span className="mr-2">{agentConfig.label} is thinking…</span>
                     <span className="inline-flex gap-1">
                       <span className="animate-bounce">●</span>
                       <span className="animate-bounce [animation-delay:0.15s]">●</span>
@@ -222,12 +388,16 @@ export default function CoachPage() {
       {/* Quick Actions */}
       {messages.length === 0 && !history.isLoading && (
         <div className="flex gap-2 overflow-x-auto px-4 pb-2">
-          {QUICK_ACTIONS.map((action) => (
+          {agentConfig.quickActions.map((action) => (
             <button
               key={action.label}
               onClick={() => handleSend(action.message)}
               disabled={sendMutation.isPending}
-              className="shrink-0 rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+              className={cn(
+                "shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors disabled:opacity-50",
+                agentConfig.accentBorder,
+                "bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
+              )}
             >
               {action.label}
             </button>
@@ -249,14 +419,21 @@ export default function CoachPage() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your coach…"
+            placeholder={`Ask the ${agentConfig.label}…`}
             disabled={sendMutation.isPending}
-            className="flex-1 rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-indigo-500 focus:outline-none disabled:opacity-50"
+            className={cn(
+              "flex-1 rounded-xl border bg-zinc-800 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none disabled:opacity-50",
+              `focus:${agentConfig.accentBorder}`,
+              "border-zinc-700",
+            )}
           />
           <button
             type="submit"
             disabled={!input.trim() || sendMutation.isPending}
-            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+            className={cn(
+              "rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50",
+              agentConfig.accentBg,
+            )}
           >
             Send
           </button>
