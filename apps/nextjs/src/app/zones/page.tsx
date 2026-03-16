@@ -78,9 +78,16 @@ const TOOLTIP_STYLE = {
 
 /* ─────────────── helpers ─────────────── */
 
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
 function formatWeek(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const [, m, d] = iso.split("-");
+  return `${MONTHS_SHORT[parseInt(m!, 10) - 1]} ${parseInt(d!, 10)}`;
+}
+
+function formatDateStr(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${MONTHS_SHORT[parseInt(m!, 10) - 1]} ${parseInt(d!, 10)}, ${y}`;
 }
 
 function linearRegression(points: { x: number; y: number }[]) {
@@ -931,7 +938,7 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
       if (cursor.getMonth() !== lastMonth) {
         monthLabels.push({
           col: weeks.length,
-          label: cursor.toLocaleDateString("en-US", { month: "short" }),
+          label: MONTHS_SHORT[cursor.getMonth()]!,
         });
         lastMonth = cursor.getMonth();
       }
@@ -1046,11 +1053,7 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
           }}
         >
           <p className="font-medium text-zinc-200">
-            {new Date(tooltip.date + "T00:00:00").toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+            {formatDateStr(tooltip.date)}
           </p>
           {tooltip.day ? (
             <>
