@@ -10,6 +10,7 @@ import { readinessRouter } from "./router/readiness";
 import { sleepRouter } from "./router/sleep";
 import { trendsRouter } from "./router/trends";
 import { workoutRouter } from "./router/workout";
+import { zonesRouter } from "./router/zones";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
@@ -25,6 +26,7 @@ export const appRouter = createTRPCRouter({
   sleep: sleepRouter,
   workout: workoutRouter,
   trends: trendsRouter,
+  zones: zonesRouter,
 });
 
 // export type definition of API
