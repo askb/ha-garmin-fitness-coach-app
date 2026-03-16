@@ -61,3 +61,38 @@ jobs:
           AUTH_DISCORD_ID: 'ci-placeholder'
           AUTH_DISCORD_SECRET: 'ci-placeholder'
           DEV_BYPASS_AUTH: 'true'
+
+  security-scan:
+    name: 'Security Scan'
+    runs-on: ubuntu-latest
+    needs: build-test
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: 'audit'
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 'Install dependencies'
+        run: pnpm install --frozen-lockfile
+
+      - name: 'Generate SBOM'
+        run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json --output-format json
+
+      - name: 'Grype vulnerability scan'
+        uses: anchore/scan-action@v5
+        with:
+          sbom: sbom.json
+          output-format: 'table'
+          fail-build: 'false'
+          config: '.grype.yaml'

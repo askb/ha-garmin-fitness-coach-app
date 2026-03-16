@@ -1,0 +1,147 @@
+---
+# SPDX-FileCopyrightText: 2025 Anil Belur <askb23@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: 'Release'
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions: {}
+
+jobs:
+  validate:
+    name: 'Validate'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: 'audit'
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 'Install dependencies'
+        run: pnpm install --frozen-lockfile
+
+      - name: 'Typecheck'
+        run: pnpm turbo typecheck
+
+      - name: 'Engine tests'
+        run: pnpm --filter @acme/engine test
+
+      - name: 'Build'
+        run: pnpm --filter @acme/nextjs build
+        env:
+          DATABASE_URL: 'postgresql://dummy:dummy@localhost:5432/dummy'
+          AUTH_SECRET: 'ci-secret'
+          AUTH_DISCORD_ID: 'ci-placeholder'
+          AUTH_DISCORD_SECRET: 'ci-placeholder'
+          DEV_BYPASS_AUTH: 'true'
+
+  sbom:
+    name: 'Generate SBOM'
+    runs-on: ubuntu-latest
+    needs: validate
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: 'audit'
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 'Install dependencies'
+        run: pnpm install --frozen-lockfile
+
+      - name: 'Generate CycloneDX SBOM'
+        run: |
+          npx @cyclonedx/cyclonedx-npm --output-file sbom-cyclonedx.json --output-format json
+          npx @cyclonedx/cyclonedx-npm --output-file sbom-cyclonedx.xml --output-format xml
+
+      - name: 'Upload SBOM artifacts'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-files
+          path: |
+            sbom-cyclonedx.json
+            sbom-cyclonedx.xml
+          retention-days: 90
+
+      - name: 'Security scan with Grype'
+        uses: anchore/scan-action@v5
+        id: grype
+        with:
+          sbom: sbom-cyclonedx.json
+          output-format: 'table'
+          fail-build: 'false'
+          config: '.grype.yaml'
+
+  release:
+    name: 'Create Release'
+    runs-on: ubuntu-latest
+    needs: [validate, sbom]
+    permissions:
+      contents: write
+    timeout-minutes: 5
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: 'audit'
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Download SBOM'
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-files
+          path: sbom/
+
+      - name: 'Generate changelog'
+        id: changelog
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+            git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "changelog=Initial release" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 'Create GitHub Release'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          body: |
+            ## Changes
+            ${{ steps.changelog.outputs.changelog }}
+
+            ## Security
+            SBOM files are attached as build artifacts.
+          files: |
+            sbom/sbom-cyclonedx.json
+            sbom/sbom-cyclonedx.xml
