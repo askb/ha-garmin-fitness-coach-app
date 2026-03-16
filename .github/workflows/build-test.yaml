@@ -1,0 +1,63 @@
+---
+# SPDX-FileCopyrightText: 2025 Anil Belur <askb23@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+name: 'Build & Test'
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build-test:
+    name: 'Build & Test'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: step-security/harden-runner@v2
+        with:
+          egress-policy: 'audit'
+
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 'Install dependencies'
+        run: pnpm install --frozen-lockfile
+
+      - name: 'Typecheck'
+        run: pnpm turbo typecheck
+
+      - name: 'Lint'
+        run: pnpm turbo lint
+
+      - name: 'Engine tests'
+        run: pnpm --filter @acme/engine test
+
+      - name: 'Build'
+        run: pnpm --filter @acme/nextjs build
+        env:
+          DATABASE_URL: 'postgresql://dummy:dummy@localhost:5432/dummy'
+          AUTH_SECRET: 'ci-secret'
+          AUTH_DISCORD_ID: 'ci-placeholder'
+          AUTH_DISCORD_SECRET: 'ci-placeholder'
+          DEV_BYPASS_AUTH: 'true'
