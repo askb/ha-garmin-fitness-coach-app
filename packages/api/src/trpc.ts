@@ -117,8 +117,8 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
-      // Dev mode: use seed user so the app is functional without OAuth
-      if (t._config.isDev) {
+      // Dev mode or explicit bypass: use seed user so the app is functional without OAuth
+      if (t._config.isDev || process.env.DEV_BYPASS_AUTH === "true") {
         return next({
           ctx: {
             session: {

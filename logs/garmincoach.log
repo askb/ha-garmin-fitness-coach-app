@@ -56,3 +56,2769 @@
   code: 'UNAUTHORIZED',
   digest: '3875776800'
 }
+[TRPC] chat.getHistory took 3ms to execute
+>>> tRPC Error on 'chat.getHistory' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] chat.getHistory took 1ms to execute
+>>> tRPC Error on 'chat.getHistory' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] chat.getHistory took 0ms to execute
+>>> tRPC Error on 'chat.getHistory' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getSummary took 0ms to execute
+[TRPC] trends.getMultiMetricChart took 0ms to execute
+[TRPC] trends.getLongTermTrend took 0ms to execute
+[TRPC] trends.getLongTermTrend took 1ms to execute
+[TRPC] trends.getLongTermTrend took 1ms to execute
+[TRPC] trends.getLongTermTrend took 1ms to execute
+[TRPC] trends.getNotableChanges took 1ms to execute
+[TRPC] analytics.getCorrelations took 1ms to execute
+>>> tRPC Error on 'trends.getSummary' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getMultiMetricChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getNotableChanges' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getCorrelations' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getSummary took 0ms to execute
+>>> tRPC Error on 'trends.getSummary' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 0ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getCorrelations took 1ms to execute
+>>> tRPC Error on 'analytics.getCorrelations' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getMultiMetricChart took 0ms to execute
+>>> tRPC Error on 'trends.getMultiMetricChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 1ms to execute
+[TRPC] trends.getLongTermTrend took 1ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 1ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getNotableChanges took 0ms to execute
+>>> tRPC Error on 'trends.getNotableChanges' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getCorrelations took 0ms to execute
+>>> tRPC Error on 'analytics.getCorrelations' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getSummary took 0ms to execute
+>>> tRPC Error on 'trends.getSummary' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 0ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getMultiMetricChart took 0ms to execute
+>>> tRPC Error on 'trends.getMultiMetricChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 0ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 0ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getLongTermTrend took 1ms to execute
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getNotableChanges took 1ms to execute
+>>> tRPC Error on 'trends.getNotableChanges' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getCorrelations took 0ms to execute
+[TRPC] trends.getSummary took 0ms to execute
+[TRPC] trends.getLongTermTrend took 0ms to execute
+[TRPC] trends.getLongTermTrend took 0ms to execute
+[TRPC] trends.getMultiMetricChart took 0ms to execute
+[TRPC] trends.getLongTermTrend took 0ms to execute
+[TRPC] trends.getLongTermTrend took 1ms to execute
+[TRPC] trends.getNotableChanges took 1ms to execute
+>>> tRPC Error on 'analytics.getCorrelations' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getSummary' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getMultiMetricChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getLongTermTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getNotableChanges' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] workout.getToday took 0ms to execute
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] zones.getWeeklyZoneDistribution took 1ms to execute
+[TRPC] zones.getPolarizationIndex took 1ms to execute
+[TRPC] zones.getZoneTrends took 1ms to execute
+[TRPC] zones.getEfficiencyTrend took 1ms to execute
+[TRPC] zones.getActivityCalendar took 1ms to execute
+[TRPC] zones.getVolumeByWeek took 1ms to execute
+>>> tRPC Error on 'zones.getWeeklyZoneDistribution' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getPolarizationIndex' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getZoneTrends' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getEfficiencyTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getActivityCalendar' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getVolumeByWeek' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] zones.getWeeklyZoneDistribution took 1ms to execute
+[TRPC] zones.getPolarizationIndex took 1ms to execute
+[TRPC] zones.getZoneTrends took 1ms to execute
+[TRPC] zones.getEfficiencyTrend took 1ms to execute
+[TRPC] zones.getActivityCalendar took 1ms to execute
+[TRPC] zones.getVolumeByWeek took 1ms to execute
+>>> tRPC Error on 'zones.getWeeklyZoneDistribution' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getPolarizationIndex' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getZoneTrends' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getEfficiencyTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getActivityCalendar' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getVolumeByWeek' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] zones.getWeeklyZoneDistribution took 1ms to execute
+[TRPC] zones.getPolarizationIndex took 1ms to execute
+[TRPC] zones.getZoneTrends took 1ms to execute
+[TRPC] zones.getEfficiencyTrend took 1ms to execute
+[TRPC] zones.getActivityCalendar took 1ms to execute
+[TRPC] zones.getVolumeByWeek took 1ms to execute
+>>> tRPC Error on 'zones.getWeeklyZoneDistribution' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getPolarizationIndex' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getZoneTrends' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getEfficiencyTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getActivityCalendar' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getVolumeByWeek' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] zones.getWeeklyZoneDistribution took 0ms to execute
+[TRPC] zones.getPolarizationIndex took 0ms to execute
+[TRPC] zones.getZoneTrends took 1ms to execute
+[TRPC] zones.getEfficiencyTrend took 1ms to execute
+[TRPC] zones.getActivityCalendar took 1ms to execute
+[TRPC] zones.getVolumeByWeek took 1ms to execute
+>>> tRPC Error on 'zones.getWeeklyZoneDistribution' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getPolarizationIndex' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getZoneTrends' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getEfficiencyTrend' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getActivityCalendar' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'zones.getVolumeByWeek' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getTrainingLoads took 1ms to execute
+[TRPC] analytics.getTrainingStatus took 1ms to execute
+[TRPC] analytics.getRecoveryTime took 1ms to execute
+[TRPC] trends.getChart took 1ms to execute
+[TRPC] trends.getChart took 1ms to execute
+>>> tRPC Error on 'analytics.getTrainingLoads' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getTrainingStatus' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getRecoveryTime' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getTrainingLoads took 1ms to execute
+[TRPC] analytics.getTrainingStatus took 0ms to execute
+[TRPC] analytics.getRecoveryTime took 0ms to execute
+>>> tRPC Error on 'analytics.getTrainingLoads' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getTrainingStatus' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getRecoveryTime' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getChart took 0ms to execute
+[TRPC] trends.getChart took 0ms to execute
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getTrainingLoads took 0ms to execute
+[TRPC] analytics.getTrainingStatus took 0ms to execute
+[TRPC] analytics.getRecoveryTime took 0ms to execute
+>>> tRPC Error on 'analytics.getTrainingLoads' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getTrainingStatus' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getRecoveryTime' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getChart took 0ms to execute
+[TRPC] trends.getChart took 1ms to execute
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getTrainingLoads took 1ms to execute
+[TRPC] analytics.getTrainingStatus took 1ms to execute
+[TRPC] analytics.getRecoveryTime took 1ms to execute
+[TRPC] trends.getChart took 1ms to execute
+[TRPC] trends.getChart took 1ms to execute
+>>> tRPC Error on 'analytics.getTrainingLoads' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getTrainingStatus' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getRecoveryTime' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] trends.getChart took 0ms to execute
+[TRPC] trends.getChart took 0ms to execute
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'trends.getChart' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] analytics.getTrainingLoads took 1ms to execute
+[TRPC] analytics.getTrainingStatus took 1ms to execute
+[TRPC] analytics.getRecoveryTime took 1ms to execute
+>>> tRPC Error on 'analytics.getTrainingLoads' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getTrainingStatus' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'analytics.getRecoveryTime' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 1ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 1ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 0ms to execute
+>>> tRPC Error on 'readiness.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+>>> tRPC Error on 'workout.getToday' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+[TRPC] activity.getRecent took 0ms to execute
+>>> tRPC Error on 'activity.getRecent' Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:13028)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at next (.next/server/chunks/_a1180e3e._.js:8:161)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:8:12722)
+    at v (.next/server/chunks/_a1180e3e._.js:8:74)
+    at t (.next/server/chunks/_a1180e3e._.js:5:41446)
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31713)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229) {
+  cause: undefined,
+  code: 'UNAUTHORIZED'
+}
+   ▲ Next.js 16.0.10
+   - Local:         http://localhost:3000
+   - Network:       http://0.0.0.0:3000
+
+ ✓ Starting...
+ ✓ Ready in 296ms
+>>> tRPC Error on 'readiness.getLatest' Error [TRPCError]: No procedure found on path "readiness.getLatest"
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31302)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229)
+    at async ef (.next/server/chunks/_a1180e3e._.js:5:4176)
+    at async d (.next/server/chunks/_a1180e3e._.js:113:31107)
+    at async d (.next/server/chunks/_a1180e3e._.js:113:34828) {
+  cause: undefined,
+  code: 'NOT_FOUND'
+}
+>>> tRPC Error on 'readiness.getScore' Error [TRPCError]: No procedure found on path "readiness.getScore"
+    at <unknown> (.next/server/chunks/_a1180e3e._.js:1:31302)
+    at Array.map (<anonymous>)
+    at ep (.next/server/chunks/_a1180e3e._.js:1:31229)
+    at async ef (.next/server/chunks/_a1180e3e._.js:5:4176)
+    at async d (.next/server/chunks/_a1180e3e._.js:113:31107)
+    at async d (.next/server/chunks/_a1180e3e._.js:113:34828) {
+  cause: undefined,
+  code: 'NOT_FOUND'
+}
+[TRPC] readiness.getToday took 140ms to execute
+[TRPC] workout.getToday took 143ms to execute
+[TRPC] activity.getRecent took 43ms to execute
+[TRPC] readiness.getToday took 2ms to execute
+[TRPC] workout.getDetail took 4ms to execute
+[TRPC] activity.list took 6ms to execute
