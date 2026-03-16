@@ -1,0 +1,58 @@
+   ▲ Next.js 16.0.10
+   - Local:         http://localhost:3000
+   - Network:       http://0.0.0.0:3000
+
+ ✓ Starting...
+ ✓ Ready in 293ms
+[TRPC] readiness.getToday took 1ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+[TRPC] readiness.getToday took 0ms to execute
+[TRPC] workout.getToday took 0ms to execute
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}
+ ⨯ Error [TRPCError]: UNAUTHORIZED
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50748)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at next (.next/server/chunks/ssr/_3d7f0a1b._.js:4:161)
+    at <unknown> (.next/server/chunks/ssr/_3d7f0a1b._.js:11:50442)
+    at s (.next/server/chunks/ssr/_3d7f0a1b._.js:4:74)
+    at b (.next/server/chunks/ssr/_3d7f0a1b._.js:1:142217)
+    at _ (.next/server/chunks/ssr/_3d7f0a1b._.js:1:16222) {
+  cause: undefined,
+  code: 'UNAUTHORIZED',
+  digest: '3875776800'
+}

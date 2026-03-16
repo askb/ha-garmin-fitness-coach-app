@@ -6,8 +6,9 @@
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+NEXT_DIR="${APP_DIR}/apps/nextjs"
 PORT="${GARMINCOACH_PORT:-3000}"
-PID_FILE="${APP_DIR}/.next/garmincoach.pid"
+PID_FILE="${APP_DIR}/logs/garmincoach.pid"
 LOG_FILE="${APP_DIR}/logs/garmincoach.log"
 
 mkdir -p "${APP_DIR}/logs"
@@ -55,9 +56,18 @@ stop_app
 
 # Start Next.js in production mode
 echo "Starting GarminCoach on port ${PORT}..."
-PORT=$PORT nohup node_modules/.bin/next start --hostname 0.0.0.0 --port "$PORT" \
+cd "$NEXT_DIR"
+
+# Load env vars (dotenv-cli used in dev, source .env for prod)
+set -a
+# shellcheck disable=SC1091
+source "${APP_DIR}/.env"
+set +a
+
+PORT=$PORT nohup "${NEXT_DIR}/node_modules/.bin/next" start --hostname 0.0.0.0 --port "$PORT" \
   >> "$LOG_FILE" 2>&1 &
 echo $! > "$PID_FILE"
+cd "$APP_DIR"
 
 echo "GarminCoach started (PID $(cat "$PID_FILE"))"
 echo "  Local:   http://localhost:${PORT}"
