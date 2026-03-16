@@ -142,7 +142,8 @@ function CardSkeleton() {
 export default function ZoneAnalysisPage() {
   const [period, setPeriod] = useState<Period>("365d");
   const [sport, setSport] = useState<Sport>("all");
-  const days = PERIODS.find((p) => p.value === period)!.days;
+  const periodConfig = PERIODS.find((p) => p.value === period);
+  const days = periodConfig?.days ?? 365;
   const sportType = sport === "all" ? undefined : sport;
 
   const trpc = useTRPC();
@@ -175,53 +176,59 @@ export default function ZoneAnalysisPage() {
     const items: { icon: string; text: string; color: string }[] = [];
 
     if (zoneTrends.data && zoneTrends.data.length >= 2) {
-      const first = zoneTrends.data[0]!;
-      const last = zoneTrends.data[zoneTrends.data.length - 1]!;
-      const firstZ2 = first.z2Pct ?? 0;
-      const lastZ2 = last.z2Pct ?? 0;
-      if (Math.abs(lastZ2 - firstZ2) >= 2) {
-        items.push({
-          icon: lastZ2 > firstZ2 ? "📈" : "📉",
-          text: `Zone 2 time ${lastZ2 > firstZ2 ? "increased" : "decreased"} from ${firstZ2.toFixed(0)}% to ${lastZ2.toFixed(0)}% over the period`,
-          color:
-            lastZ2 > firstZ2
-              ? "border-green-500/40 bg-green-500/10"
-              : "border-yellow-500/40 bg-yellow-500/10",
-        });
+      const first = zoneTrends.data[0];
+      const last = zoneTrends.data[zoneTrends.data.length - 1];
+      if (first && last) {
+        const firstZ2 = first.z2Pct;
+        const lastZ2 = last.z2Pct;
+        if (Math.abs(lastZ2 - firstZ2) >= 2) {
+          items.push({
+            icon: lastZ2 > firstZ2 ? "📈" : "📉",
+            text: `Zone 2 time ${lastZ2 > firstZ2 ? "increased" : "decreased"} from ${firstZ2.toFixed(0)}% to ${lastZ2.toFixed(0)}% over the period`,
+            color:
+              lastZ2 > firstZ2
+                ? "border-green-500/40 bg-green-500/10"
+                : "border-yellow-500/40 bg-yellow-500/10",
+          });
+        }
       }
     }
 
     if (polarization.data && polarization.data.length > 0) {
-      const latest = polarization.data[polarization.data.length - 1]!;
-      const pi = latest.polarizationIndex ?? 0;
-      const info = piLabel(pi);
-      items.push({
-        icon: "🎯",
-        text: `Polarization index is ${pi.toFixed(2)} — ${info.text}`,
-        color:
-          pi >= 2.0
-            ? "border-green-500/40 bg-green-500/10"
-            : pi >= 1.5
-              ? "border-yellow-500/40 bg-yellow-500/10"
-              : "border-red-500/40 bg-red-500/10",
-      });
+      const latest = polarization.data[polarization.data.length - 1];
+      if (latest) {
+        const pi = latest.polarizationIndex;
+        const info = piLabel(pi);
+        items.push({
+          icon: "🎯",
+          text: `Polarization index is ${pi.toFixed(2)} — ${info.text}`,
+          color:
+            pi >= 2.0
+              ? "border-green-500/40 bg-green-500/10"
+              : pi >= 1.5
+                ? "border-yellow-500/40 bg-yellow-500/10"
+                : "border-red-500/40 bg-red-500/10",
+        });
+      }
     }
 
     if (efficiency.data && efficiency.data.length >= 2) {
-      const first = efficiency.data[0]!;
-      const last = efficiency.data[efficiency.data.length - 1]!;
-      const firstEff = first.efficiencyIndex ?? 0;
-      const lastEff = last.efficiencyIndex ?? 0;
-      if (firstEff > 0) {
-        const pctChange = ((lastEff - firstEff) / firstEff) * 100;
-        items.push({
-          icon: pctChange >= 0 ? "⚡" : "🔻",
-          text: `Efficiency ${pctChange >= 0 ? "improved" : "declined"} by ${Math.abs(pctChange).toFixed(1)}% — ${pctChange >= 0 ? "you're getting faster at the same HR" : "review recovery & easy volume"}`,
-          color:
-            pctChange >= 0
-              ? "border-blue-500/40 bg-blue-500/10"
-              : "border-red-500/40 bg-red-500/10",
-        });
+      const first = efficiency.data[0];
+      const last = efficiency.data[efficiency.data.length - 1];
+      if (first && last) {
+        const firstEff = first.efficiencyIndex;
+        const lastEff = last.efficiencyIndex;
+        if (firstEff > 0) {
+          const pctChange = ((lastEff - firstEff) / firstEff) * 100;
+          items.push({
+            icon: pctChange >= 0 ? "⚡" : "🔻",
+            text: `Efficiency ${pctChange >= 0 ? "improved" : "declined"} by ${Math.abs(pctChange).toFixed(1)}% — ${pctChange >= 0 ? "you're getting faster at the same HR" : "review recovery & easy volume"}`,
+            color:
+              pctChange >= 0
+                ? "border-blue-500/40 bg-blue-500/10"
+                : "border-red-500/40 bg-red-500/10",
+          });
+        }
       }
     }
 
@@ -241,7 +248,7 @@ export default function ZoneAnalysisPage() {
           weekLabel: key,
         };
         existing.count += 1;
-        existing.minutes += d.totalMinutes ?? 0;
+        existing.minutes += d.totalMinutes;
         byWeek.set(key, existing);
       }
       let best = { count: 0, minutes: 0, weekLabel: "" };
@@ -267,7 +274,7 @@ export default function ZoneAnalysisPage() {
     if (!efficiency.data || efficiency.data.length < 2) return null;
     const points = efficiency.data.map((d, i) => ({
       x: i,
-      y: d.efficiencyIndex ?? 0,
+      y: d.efficiencyIndex,
     }));
     const { slope, intercept } = linearRegression(points);
     const first = { x: 0, y: intercept };
@@ -648,8 +655,7 @@ export default function ZoneAnalysisPage() {
       </div>
 
       {/* ═══════════ Section 4: Efficiency Trend ═══════════ */}
-      {(sport === "all" || sport === "running" || sport === "walking") && (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
           <h2 className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">
             Pace / HR Efficiency (higher = fitter)
           </h2>
@@ -707,7 +713,7 @@ export default function ZoneAnalysisPage() {
                   name="Efficiency"
                 >
                   {efficiency.data.map((entry, i) => {
-                    const hr = entry.avgHr ?? 120;
+                    const hr = entry.avgHr;
                     const t = Math.min(1, Math.max(0, (hr - 100) / 80));
                     const r = Math.round(59 + t * 180);
                     const g = Math.round(130 - t * 80);
@@ -721,24 +727,29 @@ export default function ZoneAnalysisPage() {
                   })}
                 </Scatter>
                 {/* Trend line rendered as two extra scatter points connected */}
-                {efficiencyTrendLine && efficiency.data.length >= 2 && (
-                  <Scatter
-                    data={[
-                      {
-                        date: efficiency.data[0]!.date,
-                        efficiencyIndex: efficiencyTrendLine.first.y,
-                      },
-                      {
-                        date: efficiency.data[efficiency.data.length - 1]!.date,
-                        efficiencyIndex: efficiencyTrendLine.last.y,
-                      },
-                    ]}
-                    line={{ stroke: "#ffffff", strokeWidth: 2, strokeDasharray: "6 3" }}
-                    shape={() => <></>}
-                    name="Trend"
-                    legendType="line"
-                  />
-                )}
+                {efficiencyTrendLine && efficiency.data.length >= 2 && (() => {
+                  const firstEntry = efficiency.data[0];
+                  const lastEntry = efficiency.data[efficiency.data.length - 1];
+                  if (!firstEntry || !lastEntry) return null;
+                  return (
+                    <Scatter
+                      data={[
+                        {
+                          date: firstEntry.date,
+                          efficiencyIndex: efficiencyTrendLine.first.y,
+                        },
+                        {
+                          date: lastEntry.date,
+                          efficiencyIndex: efficiencyTrendLine.last.y,
+                        },
+                      ]}
+                      line={{ stroke: "#ffffff", strokeWidth: 2, strokeDasharray: "6 3" }}
+                      shape={() => <></>}
+                      name="Trend"
+                      legendType="line"
+                    />
+                  );
+                })()}
               </ScatterChart>
             </ResponsiveContainer>
           ) : (
@@ -747,7 +758,6 @@ export default function ZoneAnalysisPage() {
             </p>
           )}
         </div>
-      )}
 
       {/* ═══════════ Section 5: Activity Calendar ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
@@ -890,8 +900,12 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
     const dates = data.map((d) => d.date).sort();
     if (dates.length === 0) return { weeks: [], monthLabels: [] };
 
-    const startDate = new Date(dates[0]! + "T00:00:00");
-    const endDate = new Date(dates[dates.length - 1]! + "T00:00:00");
+    const firstDate = dates[0];
+    const lastDate = dates[dates.length - 1];
+    if (!firstDate || !lastDate) return { weeks: [], monthLabels: [] };
+
+    const startDate = new Date(firstDate + "T00:00:00");
+    const endDate = new Date(lastDate + "T00:00:00");
 
     // Align to Monday
     const dayOfWeek = startDate.getDay();
@@ -927,7 +941,7 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
     if (currentWeek.length > 0) weeks.push(currentWeek);
 
     return { weeks, monthLabels };
-  }, [data, dayMap]);
+  }, [data]);
 
   const [tooltip, setTooltip] = useState<{
     x: number;
