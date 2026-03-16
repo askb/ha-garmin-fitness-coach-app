@@ -54,3 +54,4 @@ dist/
 # tanstack
 .tanstacktest-results/
 scripts/data/
+logs/
