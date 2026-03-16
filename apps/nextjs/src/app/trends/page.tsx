@@ -18,6 +18,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -349,9 +350,11 @@ export default function TrendsPage() {
 
       {/* ---- Multi-Metric Overlay Chart ---- */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-          Multi-Metric Trend
-        </h2>
+        <SectionHeader
+          title="Multi-Metric Trend"
+          info="Overlay chart showing multiple health metrics on a shared timeline. Toggle metrics on/off to spot correlations — e.g., does your resting heart rate drop when sleep improves? Multi-metric views help identify cause-and-effect relationships that single charts miss."
+          className="mb-4"
+        />
         {chartLoading ? (
           <div className="bg-muted h-64 animate-pulse rounded-lg" />
         ) : chartData.length === 0 ? (
@@ -484,9 +487,11 @@ export default function TrendsPage() {
 
       {/* ---- Trend Analysis Cards ---- */}
       <div>
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Trend Analysis
-        </h2>
+        <SectionHeader
+          title="Trend Analysis"
+          info="Statistical trend analysis showing the direction and strength of change for each metric. Upward/downward arrows indicate whether metrics are improving or declining. Based on linear regression over the selected time period — longer periods give more reliable trends."
+          className="mb-3"
+        />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {trendItems.map(({ key, query }) => {
             const t = query.data as {
@@ -549,9 +554,11 @@ export default function TrendsPage() {
 
       {/* ---- Notable Changes ---- */}
       <div>
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Notable Changes
-        </h2>
+        <SectionHeader
+          title="Notable Changes"
+          info="Highlights significant metric changes that exceed normal variation. These are statistically meaningful shifts — not just day-to-day noise. Pay attention to clusters of changes in the same direction, which may indicate a systemic shift in your health or training status."
+          className="mb-3"
+        />
         {notableChanges.isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
@@ -604,9 +611,11 @@ export default function TrendsPage() {
       {/* ---- Correlation Insights ---- */}
       {days >= 28 && (
         <div>
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-            Correlation Insights
-          </h2>
+          <SectionHeader
+            title="Correlation Insights"
+            info="Shows which metrics move together (positive correlation) or in opposite directions (negative correlation). Strong correlations (|r| > 0.5) suggest meaningful relationships — e.g., more sleep often correlates with lower resting heart rate. Use these to identify your personal health levers."
+            className="mb-3"
+          />
           {correlations.isLoading ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {[1, 2, 3, 4].map((i) => (

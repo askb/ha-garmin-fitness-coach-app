@@ -21,6 +21,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -377,9 +378,11 @@ export default function SleepDashboard() {
       {/* Sleep Stages Stacked Bar Chart                                     */}
       {/* ================================================================== */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-          Sleep Stages · Last 14 Nights
-        </h2>
+        <SectionHeader
+          title="Sleep Stages · Last 14 Nights"
+          info="Stacked bar chart showing nightly sleep stage breakdown. Deep sleep (N3) is critical for physical recovery and growth hormone release — aim for 1-2 hours. REM sleep supports memory consolidation and emotional regulation — aim for 1.5-2 hours. Light sleep transitions between stages. Awake time should be minimal (<30 min)."
+          className="mb-4"
+        />
         {stages.isLoading ? (
           <div className="bg-muted h-64 animate-pulse rounded-lg" />
         ) : stagesChartData.length === 0 ? (
@@ -478,9 +481,11 @@ export default function SleepDashboard() {
       {/* Sleep Score Trend (LineChart)                                       */}
       {/* ================================================================== */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-          Sleep Score · Last 28 Days
-        </h2>
+        <SectionHeader
+          title="Sleep Score · Last 28 Days"
+          info="Garmin's composite sleep score (0-100) based on duration, depth, continuity, and REM/deep percentages. Scores above 75 indicate good recovery. Track the trend line — consistent scores above 70 correlate with better training adaptation. Drops below 60 may indicate stress, illness, or overtraining."
+          className="mb-4"
+        />
         {history.isLoading ? (
           <div className="bg-muted h-64 animate-pulse rounded-lg" />
         ) : scoreChartData.length === 0 ? (
@@ -549,9 +554,11 @@ export default function SleepDashboard() {
         {/* Sleep vs Need Comparison                                         */}
         {/* ================================================================ */}
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-            Actual vs Need
-          </h2>
+          <SectionHeader
+            title="Actual vs Need"
+            info="Compares your actual sleep duration against your body's estimated sleep need (typically 7-9 hours for adults). Chronic sleep debt — even 30-60 minutes per night — accumulates and impairs reaction time, immune function, and training adaptation. The gap between actual and needed sleep is your nightly sleep debt."
+            className="mb-4"
+          />
           {history.isLoading ? (
             <div className="bg-muted h-56 animate-pulse rounded-lg" />
           ) : vsNeedChartData.length === 0 ? (
@@ -627,9 +634,11 @@ export default function SleepDashboard() {
         {/* Sleep Debt Tracker                                               */}
         {/* ================================================================ */}
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-            Sleep Debt · Last 7 Days
-          </h2>
+          <SectionHeader
+            title="Sleep Debt · Last 7 Days"
+            info="Running total of accumulated sleep debt over the past week. Sleep debt is calculated as the difference between your sleep need and actual sleep each night. Research shows that sleep debt of >5 hours/week significantly impairs athletic performance and increases injury risk by up to 1.7x."
+            className="mb-4"
+          />
           {history.isLoading ? (
             <div className="bg-muted h-56 animate-pulse rounded-lg" />
           ) : debtChartData.length === 0 ? (
@@ -728,9 +737,11 @@ export default function SleepDashboard() {
       {/* Sleep Timing Chart                                                 */}
       {/* ================================================================== */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-4 text-xs font-semibold uppercase tracking-wider">
-          Sleep Timing Consistency
-        </h2>
+        <SectionHeader
+          title="Sleep Timing Consistency"
+          info="Tracks your bedtime and wake time patterns. Consistent sleep timing is as important as duration — it strengthens your circadian rhythm. Irregular sleep schedules (>1 hour variation) are associated with poorer metabolic health and reduced sleep quality, even with adequate total hours."
+          className="mb-4"
+        />
         {history.isLoading ? (
           <div className="bg-muted h-56 animate-pulse rounded-lg" />
         ) : timingChartData.length === 0 ? (

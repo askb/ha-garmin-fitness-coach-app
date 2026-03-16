@@ -26,6 +26,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
 
@@ -371,9 +372,11 @@ export default function ZoneAnalysisPage() {
 
       {/* ═══════════ Section 1: Weekly Zone Distribution ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Weekly Time in Zones
-        </h2>
+        <SectionHeader
+          title="Weekly Time in Zones"
+          info="Shows how many minutes you spent in each heart rate zone per week. Zone 1 (Recovery) and Zone 2 (Aerobic) build your base. Zone 3 (Tempo) improves lactate threshold. Zones 4-5 boost VO2max. Most training should be in Zones 1-2 (easy) with targeted hard efforts in Zones 4-5."
+          className="mb-3"
+        />
         {weeklyZones.isLoading ? (
           <ChartSkeleton />
         ) : weeklyZones.data && weeklyZones.data.length > 0 ? (
@@ -437,13 +440,12 @@ export default function ZoneAnalysisPage() {
 
       {/* ═══════════ Section 2: Polarization Index ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">
-          Training Polarization (Seiler 80/20 Model)
-        </h2>
-        <p className="text-muted-foreground mb-3 text-[11px]">
-          PI &gt; 2.0 = well polarized · 1.5–2.0 = pyramidal · &lt; 1.5 =
-          threshold-heavy
-        </p>
+        <SectionHeader
+          title="Training Polarization (Seiler 80/20 Model)"
+          info="The Polarization Index (PI) measures how well your training follows the 80/20 rule — 80% easy (Zones 1-2), 20% hard (Zones 4-5), minimal time in Zone 3. Research by Dr. Stephen Seiler shows elite endurance athletes train this way. PI > 2.0 = well polarized, 1.5-2.0 = pyramidal, < 1.5 = threshold-heavy (higher injury risk)."
+          subtitle="PI > 2.0 = well polarized · 1.5–2.0 = pyramidal · < 1.5 = threshold-heavy"
+          className="mb-3"
+        />
         {polarization.isLoading ? (
           <ChartSkeleton />
         ) : polarization.data && polarization.data.length > 0 ? (
@@ -571,9 +573,11 @@ export default function ZoneAnalysisPage() {
 
       {/* ═══════════ Section 3: Monthly Zone Trend ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Monthly Zone Distribution Shift
-        </h2>
+        <SectionHeader
+          title="Monthly Zone Distribution Shift"
+          info="Tracks how your zone distribution evolves month-over-month as a stacked area chart. A healthy progression shows increasing Zone 2 (aerobic base) percentage over time, with periodic blocks of higher intensity. Sudden spikes in Zone 4-5 without adequate Zone 1-2 base may indicate overtraining risk."
+          className="mb-3"
+        />
         {zoneTrends.isLoading ? (
           <ChartSkeleton />
         ) : zoneTrends.data && zoneTrends.data.length > 0 ? (
@@ -663,114 +667,118 @@ export default function ZoneAnalysisPage() {
 
       {/* ═══════════ Section 4: Efficiency Trend ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-          <h2 className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">
-            Pace / HR Efficiency (higher = fitter)
-          </h2>
-          {efficiencyTrendLine && (
-            <p className="text-muted-foreground mb-3 text-[11px]">
-              {efficiencyTrendLine.pctImprovement >= 0 ? "↑" : "↓"}{" "}
-              {Math.abs(efficiencyTrendLine.pctImprovement).toFixed(1)}%{" "}
-              {efficiencyTrendLine.pctImprovement >= 0
-                ? "improvement"
-                : "decline"}{" "}
-              over this period
-            </p>
-          )}
-          {efficiency.isLoading ? (
-            <ChartSkeleton />
-          ) : efficiency.data && efficiency.data.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <ScatterChart>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatWeek}
-                  tick={{ fill: "#888", fontSize: 10 }}
-                  interval="preserveStartEnd"
-                  name="Date"
-                />
-                <YAxis
-                  dataKey="efficiencyIndex"
-                  tick={{ fill: "#888", fontSize: 10 }}
-                  width={40}
-                  name="Efficiency"
-                  label={{
-                    value: "Efficiency",
-                    angle: -90,
-                    position: "insideLeft",
-                    fill: "#666",
-                    fontSize: 10,
-                  }}
-                />
-                <ZAxis range={[40, 40]} />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value: unknown, name: unknown) => [
-                    typeof value === "number" ? value.toFixed(3) : String(value),
-                    String(name),
-                  ]}
-                  labelFormatter={(label: unknown) =>
-                    typeof label === "string"
-                      ? formatWeek(label)
-                      : String(label)
-                  }
-                />
-                <Scatter
-                  data={efficiency.data}
-                  name="Efficiency"
-                >
-                  {efficiency.data.map((entry, i) => {
-                    const hr = entry.avgHr;
-                    const t = Math.min(1, Math.max(0, (hr - 100) / 80));
-                    const r = Math.round(59 + t * 180);
-                    const g = Math.round(130 - t * 80);
-                    const b = Math.round(246 - t * 180);
-                    return (
-                      <Cell
-                        key={i}
-                        fill={`rgb(${r},${g},${b})`}
-                      />
-                    );
-                  })}
-                </Scatter>
-                {/* Trend line rendered as two extra scatter points connected */}
-                {efficiencyTrendLine && efficiency.data.length >= 2 && (() => {
-                  const firstEntry = efficiency.data[0];
-                  const lastEntry = efficiency.data[efficiency.data.length - 1];
-                  if (!firstEntry || !lastEntry) return null;
+        <SectionHeader
+          title="Pace / HR Efficiency (higher = fitter)"
+          info="Cardiac efficiency index = speed (m/s) ÷ average heart rate × 1000. Higher values mean you're covering more ground per heartbeat — a key marker of aerobic fitness. An upward trend indicates improved cardiovascular efficiency. This metric is used by coaches to track aerobic development without maximal testing."
+          className="mb-1"
+        />
+        {efficiencyTrendLine && (
+          <p className="text-muted-foreground mb-3 text-[11px]">
+            {efficiencyTrendLine.pctImprovement >= 0 ? "↑" : "↓"}{" "}
+            {Math.abs(efficiencyTrendLine.pctImprovement).toFixed(1)}%{" "}
+            {efficiencyTrendLine.pctImprovement >= 0
+              ? "improvement"
+              : "decline"}{" "}
+            over this period
+          </p>
+        )}
+        {efficiency.isLoading ? (
+          <ChartSkeleton />
+        ) : efficiency.data && efficiency.data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <ScatterChart>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={formatWeek}
+                tick={{ fill: "#888", fontSize: 10 }}
+                interval="preserveStartEnd"
+                name="Date"
+              />
+              <YAxis
+                dataKey="efficiencyIndex"
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={40}
+                name="Efficiency"
+                label={{
+                  value: "Efficiency",
+                  angle: -90,
+                  position: "insideLeft",
+                  fill: "#666",
+                  fontSize: 10,
+                }}
+              />
+              <ZAxis range={[40, 40]} />
+              <Tooltip
+                contentStyle={TOOLTIP_STYLE}
+                formatter={(value: unknown, name: unknown) => [
+                  typeof value === "number" ? value.toFixed(3) : String(value),
+                  String(name),
+                ]}
+                labelFormatter={(label: unknown) =>
+                  typeof label === "string"
+                    ? formatWeek(label)
+                    : String(label)
+                }
+              />
+              <Scatter
+                data={efficiency.data}
+                name="Efficiency"
+              >
+                {efficiency.data.map((entry, i) => {
+                  const hr = entry.avgHr;
+                  const t = Math.min(1, Math.max(0, (hr - 100) / 80));
+                  const r = Math.round(59 + t * 180);
+                  const g = Math.round(130 - t * 80);
+                  const b = Math.round(246 - t * 180);
                   return (
-                    <Scatter
-                      data={[
-                        {
-                          date: firstEntry.date,
-                          efficiencyIndex: efficiencyTrendLine.first.y,
-                        },
-                        {
-                          date: lastEntry.date,
-                          efficiencyIndex: efficiencyTrendLine.last.y,
-                        },
-                      ]}
-                      line={{ stroke: "#ffffff", strokeWidth: 2, strokeDasharray: "6 3" }}
-                      shape={() => <></>}
-                      name="Trend"
-                      legendType="line"
+                    <Cell
+                      key={i}
+                      fill={`rgb(${r},${g},${b})`}
                     />
                   );
-                })()}
-              </ScatterChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="text-muted-foreground py-8 text-center text-sm">
-              No efficiency data — record runs or walks with HR to see trends
-            </p>
-          )}
-        </div>
+                })}
+              </Scatter>
+              {/* Trend line rendered as two extra scatter points connected */}
+              {efficiencyTrendLine && efficiency.data.length >= 2 && (() => {
+                const firstEntry = efficiency.data[0];
+                const lastEntry = efficiency.data[efficiency.data.length - 1];
+                if (!firstEntry || !lastEntry) return null;
+                return (
+                  <Scatter
+                    data={[
+                      {
+                        date: firstEntry.date,
+                        efficiencyIndex: efficiencyTrendLine.first.y,
+                      },
+                      {
+                        date: lastEntry.date,
+                        efficiencyIndex: efficiencyTrendLine.last.y,
+                      },
+                    ]}
+                    line={{ stroke: "#ffffff", strokeWidth: 2, strokeDasharray: "6 3" }}
+                    shape={() => <></>}
+                    name="Trend"
+                    legendType="line"
+                  />
+                );
+              })()}
+            </ScatterChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No efficiency data — record runs or walks with HR to see trends
+          </p>
+        )}
+      </div>
 
       {/* ═══════════ Section 5: Activity Calendar ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Training Consistency
-        </h2>
+        <SectionHeader
+          title="Training Consistency"
+          info="A GitHub-style heatmap showing your daily training activity over time. Consistency is the #1 predictor of fitness improvement. Look for unbroken streaks and regular patterns. Gaps longer than 7 days can lead to detraining. Color intensity reflects total training minutes that day."
+          className="mb-3"
+        />
         {calendar.isLoading ? (
           <ChartSkeleton h={140} />
         ) : calendar.data && calendar.data.length > 0 ? (
@@ -784,9 +792,11 @@ export default function ZoneAnalysisPage() {
 
       {/* ═══════════ Section 6: Weekly Volume by Sport ═══════════ */}
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Weekly Training Volume by Sport
-        </h2>
+        <SectionHeader
+          title="Weekly Training Volume by Sport"
+          info="Stacked bar chart showing total training minutes per week, broken down by sport type. Helps you visualize training balance and spot if you're over-indexing on one activity. Gradual weekly volume increases of 5-10% are recommended to avoid overuse injuries."
+          className="mb-3"
+        />
         {volume.isLoading ? (
           <ChartSkeleton />
         ) : volume.data && volume.data.length > 0 ? (
@@ -848,9 +858,10 @@ export default function ZoneAnalysisPage() {
       {/* ═══════════ Section 7: Key Insights ═══════════ */}
       {insights.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-            Key Insights
-          </h2>
+          <SectionHeader
+            title="Key Insights"
+            info="Auto-generated insights based on your training data patterns. These highlight notable achievements, potential issues, and areas for improvement drawn from your zone distribution, consistency, and efficiency metrics."
+          />
           <div className="grid gap-3 sm:grid-cols-2">
             {insights.map((item, i) => (
               <div

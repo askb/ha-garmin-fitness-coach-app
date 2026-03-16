@@ -8,6 +8,7 @@ import { Button } from "@acme/ui/button";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 // ---------------------------------------------------------------------------
 // Types & constants
@@ -171,9 +172,11 @@ export default function CorrelationsPage() {
 
       {/* ---- Correlation Heatmap ---- */}
       <div>
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Correlation Matrix
-        </h2>
+        <SectionHeader
+          title="Correlation Matrix"
+          info="A heatmap showing Pearson correlation coefficients between all your health metrics. Blue = positive correlation (metrics rise together), red = negative (one rises as the other falls). Values range from -1.0 to +1.0. Focus on strong correlations (|r| > 0.5) for actionable insights."
+          className="mb-3"
+        />
 
         {correlationsQuery.isLoading ? (
           <div className="bg-card h-64 animate-pulse rounded-2xl border" />
@@ -281,9 +284,11 @@ export default function CorrelationsPage() {
       {/* ---- Top Insights Cards ---- */}
       {pairs.length > 0 && (
         <div>
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-            Key Insights
-          </h2>
+          <SectionHeader
+            title="Key Insights"
+            info="Auto-generated interpretations of the strongest correlations found in your data. Each insight explains what the relationship means for your health and training, with practical suggestions. Correlations don't prove causation, but consistent patterns across months are highly informative."
+            className="mb-3"
+          />
 
           <div className="space-y-3">
             {pairs.map((c, i) => {

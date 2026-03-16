@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
 
@@ -81,9 +82,11 @@ export default function TrainingLoadPage() {
 
       {/* ── Strain Trend (Area Chart) ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Strain — 42 Day Trend
-        </h2>
+        <SectionHeader
+          title="Strain — 42 Day Trend"
+          info="Training strain (TRIMP-based) plotted over 42 days showing your acute and chronic load curves. The acute load (7-day) responds quickly to training changes while chronic load (42-day) represents your fitness base. When acute exceeds chronic significantly, you're in a fatigue-risk zone."
+          className="mb-3"
+        />
         {strainChart.isLoading ? (
           <div className="bg-muted h-48 animate-pulse rounded-lg" />
         ) : strainChart.data && strainChart.data.length > 0 ? (
@@ -214,9 +217,11 @@ export default function TrainingLoadPage() {
 
       {/* ── ACWR Gauge ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Acute:Chronic Workload Ratio
-        </h2>
+        <SectionHeader
+          title="Acute:Chronic Workload Ratio"
+          info="The ACWR compares your recent training (7-day acute) to your long-term average (28-day chronic). Sweet spot is 0.8-1.3. Below 0.8 = undertraining/detraining. Above 1.5 = spike in load with high injury risk. This ratio is widely used in professional sports to manage training load progressions safely."
+          className="mb-3"
+        />
         {loads.isLoading ? (
           <div className="bg-muted h-12 animate-pulse rounded-lg" />
         ) : loads.data ? (
@@ -230,9 +235,11 @@ export default function TrainingLoadPage() {
 
       {/* ── Load Focus ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Load Focus
-        </h2>
+        <SectionHeader
+          title="Load Focus"
+          info="Shows the balance between your different training intensities. Helps identify if you're over-emphasizing one type of training. An ideal distribution depends on your goals — endurance athletes should see more aerobic load, while power athletes need more high-intensity focus."
+          className="mb-3"
+        />
         {loads.isLoading ? (
           <div className="flex items-center justify-center py-6">
             <div className="bg-muted h-28 w-28 animate-pulse rounded-full" />
@@ -248,9 +255,11 @@ export default function TrainingLoadPage() {
 
       {/* ── Recovery Time ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Recovery Estimate
-        </h2>
+        <SectionHeader
+          title="Recovery Estimate"
+          info="Estimated hours until full recovery based on your recent training load, sleep quality, HRV, and resting heart rate. This is not a hard limit — listen to your body. Light activity during recovery (Zone 1) actually promotes blood flow and can speed recovery compared to complete rest."
+          className="mb-3"
+        />
         {recovery.isLoading ? (
           <div className="space-y-2">
             <div className="bg-muted mx-auto h-10 w-20 animate-pulse rounded" />
@@ -286,9 +295,11 @@ export default function TrainingLoadPage() {
 
       {/* ── Recent Strain (14-day Bar Chart) ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-          Daily Strain — Last 14 Days
-        </h2>
+        <SectionHeader
+          title="Daily Strain — Last 14 Days"
+          info="Bar chart of daily training strain over the past 2 weeks. Look for a pattern of hard/easy alternation — consecutive high-strain days without recovery increase overtraining risk. The 48-hour rule: allow at least 48 hours between high-intensity sessions for the same muscle groups."
+          className="mb-3"
+        />
         {recentStrain.isLoading ? (
           <div className="bg-muted h-40 animate-pulse rounded-lg" />
         ) : recentStrain.data && recentStrain.data.length > 0 ? (
@@ -332,9 +343,11 @@ export default function TrainingLoadPage() {
       {/* ── Recommendation ── */}
       {status.data?.recommendation && (
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wider">
-            Recommendation
-          </h2>
+          <SectionHeader
+            title="Recommendation"
+            info="AI-generated training recommendation based on your current fatigue level, recovery status, training history, and goals. Takes into account your acute:chronic ratio, sleep quality, and recent strain patterns to suggest whether to push, maintain, or rest."
+            className="mb-2"
+          />
           <p className="text-sm leading-relaxed">
             {status.data.recommendation}
           </p>

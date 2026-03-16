@@ -7,6 +7,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── types ─────────────── */
 
@@ -352,9 +353,11 @@ export default function InsightsPage() {
         </div>
       ) : summaryData ? (
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-            This Week
-          </h2>
+          <SectionHeader
+            title="This Week"
+            info="Weekly summary comparing your key metrics (sleep, activity, heart rate, stress) against your personal baselines. Green indicators show metrics trending better than your 30-day average, while red flags areas needing attention. Use this as your quick weekly health check-in."
+            className="mb-3"
+          />
           <div className="grid grid-cols-3 gap-3">
             {summaryData.totalDays != null && (
               <div className="rounded-xl bg-zinc-800/60 p-3 text-center">
@@ -413,9 +416,10 @@ export default function InsightsPage() {
         </div>
       ) : insights.length > 0 ? (
         <div className="space-y-3">
-          <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-            Daily Insights
-          </h2>
+          <SectionHeader
+            title="Daily Insights"
+            info="Day-by-day breakdown of notable patterns and anomalies in your health data. The algorithm flags days where metrics deviate significantly from your personal norms — both positive achievements and potential concerns. Tap any day to see the detailed analysis."
+          />
           {insights.map((insight, i) => (
             <InsightCardUI key={i} insight={insight} />
           ))}

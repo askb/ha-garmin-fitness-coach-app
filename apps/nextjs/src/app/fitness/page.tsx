@@ -17,6 +17,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
 
@@ -233,9 +234,11 @@ export default function FitnessPage() {
       {/* ── VO2max Trend Chart ── */}
       {chartData.length > 0 && (
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
-            VO2max Trend — {chartData.length} estimates
-          </h2>
+          <SectionHeader
+            title={`VO2max Trend — ${chartData.length} estimates`}
+            info="VO2max is the gold standard measure of cardiorespiratory fitness — the maximum rate your body can use oxygen during exercise. Measured in mL/kg/min. Higher is better. Values typically range from 25-85 depending on age, sex, and fitness level. A 3.5 mL/kg/min improvement reduces all-cause mortality risk by ~15%."
+            className="mb-3"
+          />
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart
               data={trendlineData.length > 0 ? trendlineData : chartData}
@@ -302,9 +305,11 @@ export default function FitnessPage() {
       {/* ── Percentile Card ── */}
       {latestVO2max && topPercent !== null && (
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wider">
-            Performance Comparison
-          </h2>
+          <SectionHeader
+            title="Performance Comparison"
+            info="Compares your current VO2max against age/sex population percentiles from the American College of Sports Medicine (ACSM) normative data. Shows where you rank relative to the general population and what level (Superior, Excellent, Good, Fair, Poor) you fall into."
+            className="mb-2"
+          />
           <p className="text-sm">
             Your VO2max of{" "}
             <span className="font-bold text-blue-400">
@@ -348,9 +353,11 @@ export default function FitnessPage() {
 
       {/* ── Race Predictions ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wider">
-          Race Predictions
-        </h2>
+        <SectionHeader
+          title="Race Predictions"
+          info="Estimated race finish times based on your current VO2max using the Jack Daniels VDOT formula. These predictions assume proper race-day pacing and conditions. Use them as training targets — your actual race time depends on terrain, weather, nutrition, and mental preparation."
+          className="mb-1"
+        />
         {racePredictions.isLoading ? (
           <div className="space-y-3 pt-2">
             {[1, 2, 3, 4].map((i) => (
@@ -396,9 +403,10 @@ export default function FitnessPage() {
       {/* ── Training Status ── */}
       <div className="bg-card rounded-2xl border p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-            Training Status
-          </h2>
+          <SectionHeader
+            title="Training Status"
+            info="An overview of your current training state based on recent load trends, recovery metrics, and fitness trajectory. Helps you decide whether to push harder, maintain, or back off. Combines acute training load, chronic load, and recovery indicators."
+          />
           {trainingStatus.data ? (
             <span
               className={cn(
