@@ -1,5 +1,7 @@
+import { activityRouter } from "./router/activity";
 import { analyticsRouter } from "./router/analytics";
 import { authRouter } from "./router/auth";
+import { chatRouter } from "./router/chat";
 import { garminRouter } from "./router/garmin";
 import { journalRouter } from "./router/journal";
 import { postRouter } from "./router/post";
@@ -11,8 +13,10 @@ import { workoutRouter } from "./router/workout";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
+  activity: activityRouter,
   analytics: analyticsRouter,
   auth: authRouter,
+  chat: chatRouter,
   garmin: garminRouter,
   journal: journalRouter,
   post: postRouter,
