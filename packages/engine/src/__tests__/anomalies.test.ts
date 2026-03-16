@@ -4,9 +4,13 @@ import type { DailyMetricInput, Baselines } from "../types";
 
 const BASELINE: Baselines = {
   hrv: 45,
+  hrvSD: 0,
   restingHr: 62,
+  restingHrSD: 0,
   sleep: 420,
+  sleepSD: 0,
   dailyStrainCapacity: 12,
+  daysOfData: 30,
 };
 
 function makeMetric(overrides: Partial<DailyMetricInput> = {}): DailyMetricInput {
@@ -28,6 +32,18 @@ function makeMetric(overrides: Partial<DailyMetricInput> = {}): DailyMetricInput
     calories: 2200,
     garminTrainingReadiness: null,
     garminTrainingLoad: null,
+    respirationRate: null,
+    spo2: null,
+    skinTemp: null,
+    intensityMinutes: null,
+    floorsClimbed: null,
+    bodyBatteryHigh: null,
+    bodyBatteryLow: null,
+    hrvOvernight: null,
+    sleepStartTime: null,
+    sleepEndTime: null,
+    sleepNeedMinutes: null,
+    sleepDebtMinutes: null,
     ...overrides,
   };
 }
@@ -84,14 +100,15 @@ describe("detectAnomalies", () => {
 
   it("detects overreaching (ACWR > 1.5)", () => {
     const metrics = [makeMetric(), makeMetric(), makeMetric()];
-    const strains = [20, 20, 20, 5, 5, 5, 5]; // ACWR > 1.5
+    // Need 7+ strain scores for ACWR calculation (7-day acute / 28-day chronic)
+    const strains = [20, 20, 20, 20, 20, 20, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
     const alerts = detectAnomalies(metrics, BASELINE, strains);
     expect(alerts.find((a) => a.type === "overreaching")).toBeDefined();
   });
 
   it("does not flag overreaching with balanced load", () => {
     const metrics = [makeMetric(), makeMetric(), makeMetric()];
-    const strains = [10, 10, 10, 10, 10, 10, 10];
+    const strains = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10];
     const alerts = detectAnomalies(metrics, BASELINE, strains);
     expect(alerts.find((a) => a.type === "overreaching")).toBeUndefined();
   });

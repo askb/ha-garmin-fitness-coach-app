@@ -31,6 +31,11 @@ export const Profile = pgTable("profile", (t) => ({
   restingHrBaseline: t.doublePrecision(),
   hrvBaseline: t.doublePrecision(),
   sleepBaseline: t.doublePrecision(),
+  vo2maxRunning: t.doublePrecision(),
+  vo2maxCycling: t.doublePrecision(),
+  lactateThreshold: t.integer(),
+  functionalThresholdPower: t.doublePrecision(),
+  audienceMode: t.varchar({ length: 20 }).default("all"),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true })
@@ -73,6 +78,18 @@ export const DailyMetric = pgTable(
     calories: t.integer(),
     garminTrainingReadiness: t.integer(),
     garminTrainingLoad: t.doublePrecision(),
+    respirationRate: t.doublePrecision(),
+    spo2: t.doublePrecision(),
+    skinTemp: t.doublePrecision(),
+    intensityMinutes: t.integer(),
+    floorsClimbed: t.integer(),
+    bodyBatteryHigh: t.integer(),
+    bodyBatteryLow: t.integer(),
+    hrvOvernight: t.jsonb().$type<number[]>(),
+    sleepStartTime: t.varchar({ length: 10 }),
+    sleepEndTime: t.varchar({ length: 10 }),
+    sleepNeedMinutes: t.integer(),
+    sleepDebtMinutes: t.integer(),
     rawGarminData: t.jsonb(),
     syncedAt: t.timestamp().defaultNow().notNull(),
   }),
@@ -110,6 +127,43 @@ export const Activity = pgTable("activity", (t) => ({
   trimpScore: t.doublePrecision(),
   strainScore: t.doublePrecision(),
   vo2maxEstimate: t.doublePrecision(),
+  avgPower: t.doublePrecision(),
+  maxPower: t.doublePrecision(),
+  normalizedPower: t.doublePrecision(),
+  avgCadence: t.doublePrecision(),
+  maxCadence: t.doublePrecision(),
+  elevationGain: t.doublePrecision(),
+  elevationLoss: t.doublePrecision(),
+  aerobicTE: t.doublePrecision(),
+  anaerobicTE: t.doublePrecision(),
+  epocMl: t.doublePrecision(),
+  avgGroundContactTime: t.doublePrecision(),
+  gctBalance: t.doublePrecision(),
+  verticalOscillation: t.doublePrecision(),
+  verticalRatio: t.doublePrecision(),
+  strideLength: t.doublePrecision(),
+  avgRespirationRate: t.doublePrecision(),
+  laps: t
+    .jsonb()
+    .$type<
+      Array<{
+        index: number;
+        distanceMeters: number;
+        durationSeconds: number;
+        avgHr?: number;
+        avgPace?: number;
+        avgPower?: number;
+      }>
+    >(),
+  hrZoneMinutes: t
+    .jsonb()
+    .$type<{
+      zone1: number;
+      zone2: number;
+      zone3: number;
+      zone4: number;
+      zone5: number;
+    }>(),
   rawGarminData: t.jsonb(),
   syncedAt: t.timestamp().defaultNow().notNull(),
 }));
@@ -198,6 +252,148 @@ export const ChatMessage = pgTable("chat_message", (t) => ({
   context: t.jsonb(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
+
+// ---------------------------------------------------------------------------
+// VO2max Estimates (historical tracking)
+// ---------------------------------------------------------------------------
+export const VO2maxEstimate = pgTable("vo2max_estimate", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  sport: t.varchar({ length: 50 }).notNull(),
+  value: t.doublePrecision().notNull(),
+  source: t.varchar({ length: 50 }).notNull(),
+  activityId: t.uuid(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+export const CreateVO2maxEstimateSchema = createInsertSchema(
+  VO2maxEstimate,
+).omit({ id: true, createdAt: true });
+
+// ---------------------------------------------------------------------------
+// Training Status (daily training load analysis)
+// ---------------------------------------------------------------------------
+export const TrainingStatus = pgTable(
+  "training_status",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    status: t.varchar({ length: 30 }).notNull(),
+    vo2maxTrend: t.doublePrecision(),
+    acuteLoad: t.doublePrecision(),
+    chronicLoad: t.doublePrecision(),
+    trainingStressBalance: t.doublePrecision(),
+    loadRatio: t.doublePrecision(),
+    loadFocus: t.varchar({ length: 30 }),
+    explanation: t.text(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    {
+      name: "training_status_user_date_unique",
+      columns: [table.userId, table.date],
+      unique: true,
+    },
+  ],
+);
+
+export const CreateTrainingStatusSchema = createInsertSchema(
+  TrainingStatus,
+).omit({ id: true, createdAt: true });
+
+// ---------------------------------------------------------------------------
+// Journal Entries (subjective daily logging)
+// ---------------------------------------------------------------------------
+export const JournalEntry = pgTable(
+  "journal_entry",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    tags: t
+      .jsonb()
+      .$type<Record<string, number | boolean | string>>()
+      .default({}),
+    notes: t.text(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .$onUpdateFn(() => sql`now()`),
+  }),
+  (table) => [
+    {
+      name: "journal_entry_user_date_unique",
+      columns: [table.userId, table.date],
+      unique: true,
+    },
+  ],
+);
+
+export const CreateJournalEntrySchema = createInsertSchema(JournalEntry).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// ---------------------------------------------------------------------------
+// Correlation Results (computed metric correlations)
+// ---------------------------------------------------------------------------
+export const CorrelationResult = pgTable("correlation_result", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  metricA: t.varchar({ length: 100 }).notNull(),
+  metricB: t.varchar({ length: 100 }).notNull(),
+  period: t.varchar({ length: 20 }).notNull(),
+  rValue: t.doublePrecision().notNull(),
+  pValue: t.doublePrecision(),
+  sampleSize: t.integer().notNull(),
+  direction: t.varchar({ length: 20 }).notNull(),
+  insight: t.text(),
+  computedAt: t.timestamp().defaultNow().notNull(),
+}));
+
+export const CreateCorrelationResultSchema = createInsertSchema(
+  CorrelationResult,
+).omit({ id: true, computedAt: true });
+
+// ---------------------------------------------------------------------------
+// Race Predictions
+// ---------------------------------------------------------------------------
+export const RacePrediction = pgTable("race_prediction", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  distance: t.varchar({ length: 30 }).notNull(),
+  predictedSeconds: t.integer().notNull(),
+  vo2maxUsed: t.doublePrecision().notNull(),
+  method: t.varchar({ length: 30 }).notNull(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+export const CreateRacePredictionSchema = createInsertSchema(
+  RacePrediction,
+).omit({ id: true, createdAt: true });
+
+// ---------------------------------------------------------------------------
+// Workout Time Series (per-workout chart data)
+// ---------------------------------------------------------------------------
+export const WorkoutTimeSeries = pgTable("workout_time_series", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  activityId: t.uuid().notNull(),
+  timestampOffset: t.integer().notNull(),
+  heartRate: t.integer(),
+  pace: t.doublePrecision(),
+  power: t.doublePrecision(),
+  cadence: t.doublePrecision(),
+  elevation: t.doublePrecision(),
+  distance: t.doublePrecision(),
+}));
+
+export const CreateWorkoutTimeSeriesSchema = createInsertSchema(
+  WorkoutTimeSeries,
+).omit({ id: true });
 
 // ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)

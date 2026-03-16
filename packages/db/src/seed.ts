@@ -9,6 +9,9 @@ import {
   Profile,
   DailyMetric,
   Activity,
+  VO2maxEstimate,
+  TrainingStatus,
+  JournalEntry,
 } from "./schema";
 
 const DATABASE_URL = process.env.DATABASE_URL ?? process.env.POSTGRES_URL;
@@ -99,6 +102,18 @@ async function seed() {
       calories: randBetween(1800, 3200),
       garminTrainingReadiness: rand() > 0.5 ? randBetween(30, 95) : null,
       garminTrainingLoad: rand() > 0.5 ? randFloat(20, 120) : null,
+      // New expanded fields
+      respirationRate: randFloat(14, 20),
+      spo2: randBetween(94, 99),
+      skinTemp: randFloat(33.5, 37.0),
+      intensityMinutes: randBetween(0, isRestDay ? 10 : 60),
+      floorsClimbed: randBetween(2, 25),
+      bodyBatteryHigh: randBetween(70, 100),
+      bodyBatteryLow: randBetween(5, 40),
+      sleepStartTime: `${randBetween(21, 23)}:${randBetween(0, 59).toString().padStart(2, "0")}`,
+      sleepEndTime: `${randBetween(5, 7)}:${randBetween(0, 59).toString().padStart(2, "0")}`,
+      sleepNeedMinutes: 480,
+      sleepDebtMinutes: randBetween(-30, 90),
     });
 
     // Generate activities for non-rest days
@@ -124,6 +139,18 @@ async function seed() {
         trimpScore: randFloat(30, isHardDay ? 200 : 100),
         strainScore: randFloat(isHardDay ? 12 : 4, isHardDay ? 18 : 10),
         vo2maxEstimate: isRunDay ? randFloat(45, 55) : null,
+        // New running form fields
+        avgGct: isRunDay ? randBetween(220, 280) : null,
+        gctBalance: isRunDay ? randFloat(49.0, 51.5) : null,
+        verticalOscillation: isRunDay ? randFloat(7.0, 11.0) : null,
+        verticalRatio: isRunDay ? randFloat(7.5, 10.0) : null,
+        strideLength: isRunDay ? randFloat(1.0, 1.4) : null,
+        avgCadence: isRunDay ? randBetween(160, 190) : null,
+        avgPower: isRunDay ? randBetween(200, 320) : null,
+        elevationGain: isRunDay ? randBetween(20, 200) : null,
+        elevationLoss: isRunDay ? randBetween(20, 200) : null,
+        aerobicTe: isRunDay ? randFloat(2.0, 5.0) : randFloat(1.0, 3.0),
+        anaerobicTe: isHardDay ? randFloat(1.0, 4.0) : randFloat(0.0, 1.5),
       });
     }
   }
@@ -138,6 +165,67 @@ async function seed() {
     await db.insert(Activity).values(activity).onConflictDoNothing();
   }
   console.log(`✅ ${activities.length} activities created`);
+
+  // Seed VO2max estimates (weekly, for running activities)
+  const vo2maxEstimates = [];
+  for (let weeksAgo = 3; weeksAgo >= 0; weeksAgo--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - weeksAgo * 7);
+    const dateStr = date.toISOString().split("T")[0]!;
+    vo2maxEstimates.push({
+      userId,
+      date: dateStr,
+      sport: "running",
+      value: randFloat(47, 53),
+      source: "garmin",
+    });
+  }
+  for (const est of vo2maxEstimates) {
+    await db.insert(VO2maxEstimate).values(est).onConflictDoNothing();
+  }
+  console.log(`✅ ${vo2maxEstimates.length} VO2max estimates created`);
+
+  // Seed training status (weekly snapshots)
+  const statuses = ["productive", "maintaining", "productive", "productive"];
+  for (let weeksAgo = 3; weeksAgo >= 0; weeksAgo--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - weeksAgo * 7);
+    const dateStr = date.toISOString().split("T")[0]!;
+    await db.insert(TrainingStatus).values({
+      userId,
+      date: dateStr,
+      status: statuses[3 - weeksAgo]!,
+      vo2maxTrend: randFloat(-0.5, 1.5),
+      acuteLoad: randFloat(40, 80),
+      chronicLoad: randFloat(50, 70),
+      trainingStressBalance: randFloat(-15, 20),
+      loadRatio: randFloat(0.7, 1.4),
+      loadFocus: rand() > 0.5 ? "aerobic" : "mixed",
+      explanation: "Training is progressing well with adequate recovery.",
+    }).onConflictDoNothing();
+  }
+  console.log(`✅ 4 training status records created`);
+
+  // Seed journal entries (sporadic, realistic)
+  const journalTags: Record<string, string | number | boolean>[] = [
+    { alcohol: true, caffeine: 2, hydration: "good" },
+    { travel: true, stress: "high" },
+    { caffeine: 3, hydration: "poor" },
+    { alcohol: true, social: true },
+    { meditation: true, hydration: "excellent" },
+  ];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i * 5 - randBetween(0, 2));
+    const dateStr = date.toISOString().split("T")[0]!;
+    await db.insert(JournalEntry).values({
+      userId,
+      date: dateStr,
+      tags: journalTags[i]!,
+      notes: i === 0 ? "Felt sluggish after last night" : null,
+    }).onConflictDoNothing();
+  }
+  console.log(`✅ 5 journal entries created`);
 
   console.log("🎉 Seeding complete!");
   await pool.end();

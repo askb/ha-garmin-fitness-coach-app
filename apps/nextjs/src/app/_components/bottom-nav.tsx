@@ -8,6 +8,8 @@ import { cn } from "@acme/ui";
 const navItems = [
   { href: "/", label: "Today", icon: "🏠" },
   { href: "/trends", label: "Trends", icon: "📊" },
+  { href: "/training", label: "Training", icon: "💪" },
+  { href: "/sleep", label: "Sleep", icon: "🌙" },
   { href: "/settings", label: "Settings", icon: "⚙️" },
 ];
 

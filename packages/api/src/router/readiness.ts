@@ -40,6 +40,18 @@ function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
     calories: row.calories,
     garminTrainingReadiness: row.garminTrainingReadiness,
     garminTrainingLoad: row.garminTrainingLoad,
+    respirationRate: row.respirationRate ?? null,
+    spo2: row.spo2 ?? null,
+    skinTemp: row.skinTemp ?? null,
+    intensityMinutes: row.intensityMinutes ?? null,
+    floorsClimbed: row.floorsClimbed ?? null,
+    bodyBatteryHigh: row.bodyBatteryHigh ?? null,
+    bodyBatteryLow: row.bodyBatteryLow ?? null,
+    hrvOvernight: (row.hrvOvernight as number[] | null) ?? null,
+    sleepStartTime: row.sleepStartTime ?? null,
+    sleepEndTime: row.sleepEndTime ?? null,
+    sleepNeedMinutes: row.sleepNeedMinutes ?? null,
+    sleepDebtMinutes: row.sleepDebtMinutes ?? null,
   };
 }
 

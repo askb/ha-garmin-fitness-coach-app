@@ -23,10 +23,12 @@ describe("computeEMA", () => {
 });
 
 describe("getPopulationDefaults", () => {
-  it("returns male defaults", () => {
+  it("returns male defaults (no age adjustment)", () => {
     const d = getPopulationDefaults("male");
     expect(d.hrv).toBe(45);
     expect(d.restingHr).toBe(62);
+    expect(d.hrvSD).toBe(12);
+    expect(d.daysOfData).toBe(0);
   });
 
   it("returns female defaults", () => {
@@ -38,6 +40,12 @@ describe("getPopulationDefaults", () => {
   it("returns 'other' defaults for unknown sex", () => {
     const d = getPopulationDefaults(null);
     expect(d.hrv).toBe(47);
+  });
+
+  it("adjusts HRV for age", () => {
+    const young = getPopulationDefaults("male", 25);
+    const old = getPopulationDefaults("male", 55);
+    expect(young.hrv).toBeGreaterThan(old.hrv);
   });
 });
 
@@ -61,6 +69,18 @@ describe("computeBaselines", () => {
       calories: 2200,
       garminTrainingReadiness: null,
       garminTrainingLoad: null,
+      respirationRate: null,
+      spo2: null,
+      skinTemp: null,
+      intensityMinutes: null,
+      floorsClimbed: null,
+      bodyBatteryHigh: null,
+      bodyBatteryLow: null,
+      hrvOvernight: null,
+      sleepStartTime: null,
+      sleepEndTime: null,
+      sleepNeedMinutes: null,
+      sleepDebtMinutes: null,
       ...overrides,
     }));
   };
@@ -69,6 +89,8 @@ describe("computeBaselines", () => {
     const baselines = computeBaselines([], "male");
     expect(baselines.hrv).toBe(45);
     expect(baselines.restingHr).toBe(62);
+    expect(baselines.hrvSD).toBe(12);
+    expect(baselines.daysOfData).toBe(0);
   });
 
   it("blends personal data with defaults for few days", () => {

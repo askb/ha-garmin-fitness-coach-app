@@ -85,12 +85,13 @@ describe("computeACWR", () => {
   });
 
   it("returns > 1 for high acute load", () => {
-    const strains = [18, 18, 18, 5, 5, 5, 5]; // high acute, low chronic
+    // Need 28 values to distinguish acute (7d) from chronic (28d)
+    const strains = [18, 18, 18, 18, 18, 18, 18, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
     expect(computeACWR(strains)).toBeGreaterThan(1);
   });
 
   it("returns < 1 for low acute load", () => {
-    const strains = [3, 3, 3, 15, 15, 15, 15]; // low acute, high chronic
+    const strains = [3, 3, 3, 3, 3, 3, 3, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15];
     expect(computeACWR(strains)).toBeLessThan(1);
   });
 
