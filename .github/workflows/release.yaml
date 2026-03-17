@@ -89,7 +89,7 @@ jobs:
           retention-days: 90
 
       - name: 'Security scan with Grype'
-        uses: anchore/scan-action@v5
+        uses: anchore/scan-action@v7
         id: grype
         with:
           sbom: sbom-cyclonedx.json
