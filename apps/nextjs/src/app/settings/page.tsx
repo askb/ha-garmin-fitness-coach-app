@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
-import { useIngressHref } from "../_components/ingress-provider";
+import { getIngressUrl } from "../_components/ingress-provider";
 
 import { Button } from "@acme/ui/button";
 import { BottomNav } from "../_components/bottom-nav";
@@ -25,7 +25,6 @@ function GarminConnection() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const ingressHref = useIngressHref();
 
   // Form state
   const [email, setEmail] = useState("");
@@ -35,7 +34,7 @@ function GarminConnection() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(ingressHref("/api/garmin/auth"));
+      const res = await fetch(getIngressUrl("/api/garmin/auth"));
       const data = (await res.json()) as GarminStatus;
       setStatus(data);
     } catch {
@@ -43,7 +42,7 @@ function GarminConnection() {
     } finally {
       setLoading(false);
     }
-  }, [ingressHref]);
+  }, []);
 
   useEffect(() => {
     void fetchStatus();
@@ -55,7 +54,7 @@ function GarminConnection() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(ingressHref("/api/garmin/auth"), {
+      const res = await fetch(getIngressUrl("/api/garmin/auth"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -84,7 +83,7 @@ function GarminConnection() {
     setSubmitting(true);
 
     try {
-      const res = await fetch(ingressHref("/api/garmin/auth"), {
+      const res = await fetch(getIngressUrl("/api/garmin/auth"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: mfaCode }),
@@ -111,7 +110,7 @@ function GarminConnection() {
     setSubmitting(true);
     setError("");
     try {
-      await fetch(ingressHref("/api/garmin/auth"), { method: "DELETE" });
+      await fetch(getIngressUrl("/api/garmin/auth"), { method: "DELETE" });
       await fetchStatus();
     } catch {
       setError("Failed to disconnect");
