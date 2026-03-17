@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 
 const IngressContext = createContext("");
 
@@ -26,5 +26,14 @@ export function useIngressPath() {
 
 export function useIngressHref() {
   const base = useIngressPath();
-  return (path: string) => `${base}${path}`;
+  return useCallback((path: string) => `${base}${path}`, [base]);
+}
+
+/** Non-hook helper for use in callbacks/event handlers */
+export function getIngressUrl(path: string): string {
+  if (typeof window === "undefined") return path;
+  const match = window.location.pathname.match(
+    /^(\/api\/hassio_ingress\/[^/]+)/,
+  );
+  return match ? match[1] + path : path;
 }
