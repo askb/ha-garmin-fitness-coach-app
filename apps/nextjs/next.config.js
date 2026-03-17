@@ -7,6 +7,9 @@ await jiti.import("./src/env");
 
 /** @type {import("next").NextConfig} */
 const config = {
+  /** Enables standalone output for Docker deployments */
+  output: "standalone",
+
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: [
     "@acme/api",
