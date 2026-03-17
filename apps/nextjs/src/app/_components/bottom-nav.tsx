@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@acme/ui";
+
+import { IngressLink as Link } from "./ingress-link";
+import { useIngressPath } from "./ingress-provider";
 
 const navItems = [
   { href: "/", label: "Today", icon: "🏠" },
@@ -16,6 +18,10 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname();
+  const ingressBase = useIngressPath();
+  const strippedPathname = ingressBase
+    ? pathname.replace(ingressBase, "") || "/"
+    : pathname;
 
   return (
     <nav className="bg-card border-border fixed right-0 bottom-0 left-0 z-50 border-t">
@@ -23,8 +29,8 @@ export function BottomNav() {
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+              ? strippedPathname === "/"
+              : strippedPathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

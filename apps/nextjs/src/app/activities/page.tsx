@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
