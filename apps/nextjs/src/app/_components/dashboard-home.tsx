@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { IngressLink as Link } from "./ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 

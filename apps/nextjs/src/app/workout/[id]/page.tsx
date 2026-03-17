@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Link from "next/link";
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 
