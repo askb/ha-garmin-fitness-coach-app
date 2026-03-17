@@ -1,9 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useTRPC } from "~/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-
 
 import { Button } from "@acme/ui/button";
 import { BottomNav } from "../_components/bottom-nav";
@@ -268,75 +265,11 @@ function GarminConnection() {
 }
 
 export default function SettingsPage() {
-  const trpc = useTRPC();
-  const profile = useQuery(trpc.profile.get.queryOptions());
-
-  const p = profile.data as Record<string, unknown> | null | undefined;
-
   return (
     <main className="mx-auto max-w-lg space-y-6 px-4 pb-24 pt-6">
       <h1 className="text-2xl font-bold">Settings</h1>
 
-      {/* Profile */}
-      <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
-          Profile
-        </h2>
-        {p ? (
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>
-              <span className="text-muted-foreground">Age</span>
-              <p className="font-medium">{(p.age as number) ?? "—"}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Sex</span>
-              <p className="font-medium capitalize">
-                {(p.sex as string) ?? "—"}
-              </p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Weight</span>
-              <p className="font-medium">
-                {p.massKg ? `${p.massKg} kg` : "—"}
-              </p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Height</span>
-              <p className="font-medium">
-                {p.heightCm ? `${p.heightCm} cm` : "—"}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-sm">No profile set up.</p>
-        )}
-        <Button variant="outline" size="sm" asChild>
-          <a href="/onboarding">Edit Profile</a>
-        </Button>
-      </div>
-
-      {/* Sports & Goals */}
-      <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
-          Sports & Goals
-        </h2>
-        {p?.primarySports ? (
-          <div className="flex flex-wrap gap-2">
-            {(p.primarySports as string[]).map((sport) => (
-              <span
-                key={sport}
-                className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm capitalize"
-              >
-                {sport}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-sm">No sports selected.</p>
-        )}
-      </div>
-
-      {/* Garmin Connection */}
+      {/* Garmin Connection — must work for data sync */}
       <GarminConnection />
 
       {/* Data & Privacy */}
@@ -348,14 +281,6 @@ export default function SettingsPage() {
           Your Garmin data is stored securely and used only to compute your
           readiness score and workout recommendations. We never share your data.
         </p>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            Export Data
-          </Button>
-          <Button variant="outline" size="sm" className="text-red-500">
-            Delete Account
-          </Button>
-        </div>
       </div>
 
       <BottomNav />
