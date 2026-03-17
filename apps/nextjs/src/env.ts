@@ -16,7 +16,7 @@ export const env = createEnv({
    * This way you can ensure the app isn't built with invalid env vars.
    */
   server: {
-    POSTGRES_URL: z.url(),
+    POSTGRES_URL: z.string().optional(),
   },
 
   /**
@@ -35,5 +35,7 @@ export const env = createEnv({
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   skipValidation:
-    !!process.env.CI || process.env.npm_lifecycle_event === "lint",
+    !!process.env.CI ||
+    process.env.npm_lifecycle_event === "lint" ||
+    process.env.DEV_BYPASS_AUTH === "true",
 });
