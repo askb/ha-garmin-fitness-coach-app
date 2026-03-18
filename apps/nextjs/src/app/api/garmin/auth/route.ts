@@ -86,3 +86,18 @@ export async function DELETE() {
   }
   return proxyPost(`${AUTH_SERVER}/auth/logout`, {});
 }
+
+/** PUT /api/garmin/auth — import pre-generated tokens */
+export async function PUT(req: NextRequest) {
+  if (!IS_ADDON) {
+    mockStatus.connected = true;
+    mockStatus.email = "imported@garmin.com";
+    mockStatus.lastSync = new Date().toISOString();
+    return NextResponse.json({ success: true });
+  }
+  const body = (await req.json()) as {
+    oauth1_token?: unknown;
+    oauth2_token?: unknown;
+  };
+  return proxyPost(`${AUTH_SERVER}/auth/import-tokens`, body);
+}
