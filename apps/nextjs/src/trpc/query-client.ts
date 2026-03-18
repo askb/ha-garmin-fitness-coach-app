@@ -8,9 +8,11 @@ export const createQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        staleTime: 30 * 1000,
+        // Short stale time so data refreshes on navigation
+        staleTime: 5 * 1000,
+        // Refetch when user returns to the app or navigates back
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
       },
       dehydrate: {
         serializeData: SuperJSON.serialize,
