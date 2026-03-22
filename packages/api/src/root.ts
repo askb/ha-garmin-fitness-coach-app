@@ -9,6 +9,7 @@ import { garminRouter } from "./router/garmin";
 import { interventionRouter } from "./router/intervention";
 import { journalRouter } from "./router/journal";
 import { postRouter } from "./router/post";
+import { proactiveRouter } from "./router/proactive";
 import { profileRouter } from "./router/profile";
 import { readinessRouter } from "./router/readiness";
 import { referenceRouter } from "./router/reference";
@@ -31,6 +32,7 @@ export const appRouter = createTRPCRouter({
   intervention: interventionRouter,
   journal: journalRouter,
   post: postRouter,
+  proactive: proactiveRouter,
   profile: profileRouter,
   readiness: readinessRouter,
   reference: referenceRouter,

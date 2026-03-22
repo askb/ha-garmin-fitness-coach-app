@@ -20,6 +20,94 @@ import type { DailyMetricInput, Baselines } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
+type DataQualityStatus = "good" | "missing" | "stale";
+
+interface DataQuality {
+  hrv: DataQualityStatus;
+  sleep: DataQualityStatus;
+  restingHr: DataQualityStatus;
+  trainingLoad: DataQualityStatus;
+}
+
+function daysBetween(dateStr: string, today: string): number {
+  return Math.floor(
+    (new Date(today).getTime() - new Date(dateStr).getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
+}
+
+function computeDataQuality(
+  metric: typeof DailyMetric.$inferSelect | null,
+  recentActivityCount: number,
+  today: string,
+): DataQuality {
+  const metricDate =
+    metric?.date != null
+      ? typeof metric.date === "string"
+        ? metric.date
+        : (metric.date as Date).toISOString().split("T")[0]!
+      : null;
+  const daysOld = metricDate ? daysBetween(metricDate, today) : 999;
+  const stale = daysOld > 3;
+
+  return {
+    hrv:
+      metric?.hrv == null ? "missing" : stale ? "stale" : "good",
+    sleep:
+      metric?.totalSleepMinutes == null
+        ? "missing"
+        : stale
+          ? "stale"
+          : "good",
+    restingHr:
+      metric?.restingHr == null ? "missing" : stale ? "stale" : "good",
+    trainingLoad:
+      recentActivityCount === 0 ? "missing" : daysOld > 7 ? "stale" : "good",
+  };
+}
+
+function computeConfidence(dq: DataQuality): number {
+  let confidence = 1.0;
+  if (dq.hrv !== "good") confidence -= 0.15;
+  if (dq.sleep !== "good") confidence -= 0.1;
+  if (dq.restingHr !== "good") confidence -= 0.1;
+  if (dq.trainingLoad !== "good") confidence -= 0.1;
+  return Math.max(confidence, 0.3);
+}
+
+function buildActionSuggestion(
+  score: number,
+  dq: DataQuality,
+  metric: typeof DailyMetric.$inferSelect | null,
+): string {
+  if (score >= 80) {
+    return "You're well recovered — today is a good day for a quality session or race effort.";
+  }
+  if (score >= 60) {
+    return "Moderate readiness — stick to planned training but listen to your body.";
+  }
+  // Below 60: find worst component
+  if (dq.hrv !== "good" || metric?.hrv != null) {
+    const hrv = metric?.hrv;
+    if (dq.hrv !== "good") {
+      return "Take it easy today — HRV data is unavailable. Consider an easy 30-min walk instead of your planned session.";
+    }
+    if (hrv != null) {
+      return `Take it easy today — your HRV of ${hrv.toFixed(0)}ms is below baseline. Consider an easy 30-min walk instead of your planned session.`;
+    }
+  }
+  if (dq.sleep !== "good" || metric?.sleepDebtMinutes != null) {
+    const debt = metric?.sleepDebtMinutes ?? 0;
+    if (debt > 0) {
+      const h = Math.floor(debt / 60);
+      const m = debt % 60;
+      return `Prioritize ${h > 0 ? `${h}h ` : ""}${m}m of sleep tonight to recover accumulated sleep debt.`;
+    }
+    return "Prioritize extra sleep tonight to support recovery.";
+  }
+  return "Your recent training load is high. Today's session should be low-intensity (Zone 1-2 only) or complete rest.";
+}
+
 // Convert a DB row to engine input
 function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
   return {
@@ -66,6 +154,28 @@ export const readinessRouter = {
     const userId = ctx.session.user.id;
     const today = getDateString(0);
 
+    // Always fetch today's metric for confidence/quality computation
+    const todayDbMetric = await ctx.db.query.DailyMetric.findFirst({
+      where: and(eq(DailyMetric.userId, userId), eq(DailyMetric.date, today)),
+    });
+
+    // Fetch recent activities to determine training load data quality
+    const recentActivities = await ctx.db.query.Activity.findMany({
+      where: and(
+        eq(Activity.userId, userId),
+        gte(Activity.startedAt, new Date(Date.now() - 7 * 86400000)),
+      ),
+      orderBy: desc(Activity.startedAt),
+    });
+
+    const dq = computeDataQuality(
+      todayDbMetric ?? null,
+      recentActivities.length,
+      today,
+    );
+    const confidence = computeConfidence(dq);
+    const doNotOverinterpret = confidence < 0.5;
+
     // Check if already computed today
     const existing = await ctx.db.query.ReadinessScore.findFirst({
       where: and(
@@ -74,7 +184,18 @@ export const readinessRouter = {
       ),
     });
     if (existing) {
-      return existing;
+      const actionSuggestion = buildActionSuggestion(
+        existing.score,
+        dq,
+        todayDbMetric ?? null,
+      );
+      return {
+        ...existing,
+        confidence,
+        dataQuality: dq,
+        actionSuggestion,
+        doNotOverinterpret,
+      };
     }
 
     // Compute fresh
@@ -95,15 +216,6 @@ export const readinessRouter = {
       where: eq(Profile.userId, userId),
     });
 
-    // Get recent activities for strain
-    const recentActivities = await ctx.db.query.Activity.findMany({
-      where: and(
-        eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 7 * 86400000)),
-      ),
-      orderBy: desc(Activity.startedAt),
-    });
-
     const metricInputs = recentMetrics.map(toMetricInput);
     const baselines = computeBaselines(metricInputs, profile?.sex ?? null);
 
@@ -118,6 +230,12 @@ export const readinessRouter = {
       recentStrainScores,
       baselines,
     });
+
+    const actionSuggestion = buildActionSuggestion(
+      result.score,
+      dq,
+      todayDbMetric ?? null,
+    );
 
     // Store the computed score
     await ctx.db.insert(ReadinessScore).values({
@@ -141,18 +259,35 @@ export const readinessRouter = {
       color: result.color,
       explanation: result.explanation,
       components: result.components,
+      confidence,
+      dataQuality: dq,
+      actionSuggestion,
+      doNotOverinterpret,
     };
   }),
 
   getHistory: protectedProcedure
     .input(z.object({ days: z.number().min(1).max(90).default(28) }))
     .query(async ({ ctx, input }) => {
-      return ctx.db.query.ReadinessScore.findMany({
+      const userId = ctx.session.user.id;
+      const rows = await ctx.db.query.ReadinessScore.findMany({
         where: and(
-          eq(ReadinessScore.userId, ctx.session.user.id),
+          eq(ReadinessScore.userId, userId),
           gte(ReadinessScore.date, getDateString(input.days)),
         ),
         orderBy: desc(ReadinessScore.date),
+      });
+
+      // Attach basic confidence per row based on whether key metrics exist
+      return rows.map((row) => {
+        const hasHrv = row.hrvComponent != null;
+        const hasSleep = row.sleepQuantityComponent != null;
+        const hasLoad = row.trainingLoadComponent != null;
+        let confidence = 1.0;
+        if (!hasHrv) confidence -= 0.15;
+        if (!hasSleep) confidence -= 0.1;
+        if (!hasLoad) confidence -= 0.1;
+        return { ...row, confidence: Math.max(confidence, 0.3) };
       });
     }),
 
