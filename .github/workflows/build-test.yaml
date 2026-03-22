@@ -90,7 +90,7 @@ jobs:
         run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json --output-format json
 
       - name: 'Grype vulnerability scan'
-        uses: anchore/scan-action@v5
+        uses: anchore/scan-action@v7
         with:
           sbom: sbom.json
           output-format: 'table'
