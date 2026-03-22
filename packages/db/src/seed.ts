@@ -5,6 +5,7 @@
  */
 import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { sql } from "drizzle-orm";
 import {
   Profile,
   DailyMetric,
@@ -90,6 +91,23 @@ interface DayPlan {
 // Main seed
 // ---------------------------------------------------------------------------
 async function seed() {
+  // Safety check: refuse to seed if real data exists
+  const existing = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(Activity)
+    .where(sql`garmin_activity_id NOT LIKE 'seed-%'`);
+  const realCount = Number(existing[0]?.count ?? 0);
+  if (realCount > 0) {
+    console.error(
+      `❌ Aborting: found ${realCount} real activities in the database.\n` +
+        `   The seed script is for demo/empty databases only.\n` +
+        `   To force, set FORCE_SEED=1`,
+    );
+    if (!process.env.FORCE_SEED) {
+      process.exit(1);
+    }
+    console.warn("⚠️  FORCE_SEED=1 set — seeding anyway (may mix with real data)");
+  }
   console.log("🌱 Seeding 90 days of realistic athlete data…");
 
   // --- Profile ---
