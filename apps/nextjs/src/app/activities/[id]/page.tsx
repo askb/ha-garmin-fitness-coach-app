@@ -1,8 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { IngressLink as Link } from "~/app/_components/ingress-link";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
@@ -16,6 +16,8 @@ import {
 } from "recharts";
 
 import { cn } from "@acme/ui";
+import { Button } from "@acme/ui/button";
+import { toast } from "@acme/ui/toast";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../../_components/bottom-nav";
@@ -350,9 +352,41 @@ export default function ActivityDetailPage({
 }) {
   const { id } = use(params);
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const { data: activity, isLoading } = useQuery(
     trpc.activity.getDetail.queryOptions({ id }),
+  );
+
+  // -- Session Report state --
+  const [rpe, setRpe] = useState<number | null>(null);
+  const [sessionType, setSessionType] = useState<string | null>(null);
+  const [drillNotes, setDrillNotes] = useState("");
+  const [reportSynced, setReportSynced] = useState(false);
+
+  const reportQuery = useQuery(
+    trpc.sessionReport.getByActivity.queryOptions({ activityId: id }),
+  );
+
+  // Populate from existing report
+  if (reportQuery.data && !reportSynced) {
+    const r = reportQuery.data;
+    setRpe(r.rpe);
+    setSessionType(r.sessionType ?? null);
+    setDrillNotes(r.drillNotes ?? "");
+    setReportSynced(true);
+  }
+
+  const upsertReportMutation = useMutation(
+    trpc.sessionReport.upsert.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries(
+          trpc.sessionReport.pathFilter(),
+        );
+        toast.success("Session report saved");
+      },
+      onError: (err) => toast.error(err.message),
+    }),
   );
 
   if (isLoading) {
@@ -645,6 +679,122 @@ export default function ActivityDetailPage({
           )}
         </div>
       )}
+
+      {/* Post-Session Report */}
+      <section className="bg-card space-y-4 rounded-2xl border p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wider">
+          Session RPE
+        </h2>
+
+        {/* RPE buttons 1-10 */}
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            Rate your perceived exertion (1 = very easy · 10 = max effort)
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+              <button
+                key={n}
+                onClick={() => setRpe(rpe === n ? null : n)}
+                className={cn(
+                  "h-9 w-9 rounded-xl border text-sm font-bold transition-all",
+                  rpe === n
+                    ? n <= 3
+                      ? "border-blue-500/50 bg-blue-500/30 text-blue-300"
+                      : n <= 6
+                        ? "border-green-500/50 bg-green-500/30 text-green-300"
+                        : n <= 8
+                          ? "border-yellow-500/50 bg-yellow-500/30 text-yellow-300"
+                          : "border-red-500/50 bg-red-500/30 text-red-300"
+                    : n <= 3
+                      ? "border-blue-500/20 text-blue-400/60 hover:bg-blue-500/10"
+                      : n <= 6
+                        ? "border-green-500/20 text-green-400/60 hover:bg-green-500/10"
+                        : n <= 8
+                          ? "border-yellow-500/20 text-yellow-400/60 hover:bg-yellow-500/10"
+                          : "border-red-500/20 text-red-400/60 hover:bg-red-500/10",
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Session Type */}
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+            Session Type
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { key: "base", emoji: "🏃", label: "Base" },
+              { key: "threshold", emoji: "⚡", label: "Threshold" },
+              { key: "interval", emoji: "🔥", label: "Interval" },
+              { key: "recovery", emoji: "😴", label: "Recovery" },
+              { key: "race", emoji: "🏁", label: "Race" },
+              { key: "strength", emoji: "💪", label: "Strength" },
+              { key: "mobility", emoji: "🧘", label: "Mobility" },
+            ].map((st) => (
+              <button
+                key={st.key}
+                onClick={() =>
+                  setSessionType(sessionType === st.key ? null : st.key)
+                }
+                className={cn(
+                  "flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-xs transition-all",
+                  sessionType === st.key
+                    ? "border-primary/50 bg-primary/20 text-primary"
+                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                )}
+              >
+                <span>{st.emoji}</span>
+                <span className="font-medium">{st.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Drill Notes */}
+        <div className="space-y-1.5">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+            Drill Notes
+          </p>
+          <textarea
+            rows={2}
+            placeholder="e.g. strides, drills, key intervals..."
+            value={drillNotes}
+            onChange={(e) => setDrillNotes(e.target.value)}
+            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+
+        <Button
+          className="w-full"
+          disabled={rpe === null || upsertReportMutation.isPending}
+          onClick={() => {
+            if (rpe === null) return;
+            upsertReportMutation.mutate({
+              activityId: id,
+              garminActivityId: activity.garminActivityId ?? undefined,
+              durationMinutes: activity.durationMinutes ?? undefined,
+              rpe,
+              sessionType: sessionType as
+                | "base"
+                | "threshold"
+                | "interval"
+                | "recovery"
+                | "race"
+                | "strength"
+                | "mobility"
+                | undefined,
+              drillNotes: drillNotes || undefined,
+            });
+          }}
+        >
+          {upsertReportMutation.isPending ? "Saving…" : "Save Report"}
+        </Button>
+      </section>
 
       <BottomNav />
     </div>

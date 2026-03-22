@@ -317,6 +317,16 @@ export const JournalEntry = pgTable(
       .$type<Record<string, number | boolean | string>>()
       .default({}),
     notes: t.text(),
+    // Extended check-in fields
+    sorenessScore: t.integer(),
+    sorenessRegions: t.jsonb().$type<string[]>(),
+    moodScore: t.integer(),
+    caffeineAmountMg: t.integer(),
+    caffeineTime: t.varchar({ length: 5 }),
+    alcoholDrinks: t.integer(),
+    napMinutes: t.integer(),
+    medications: t.jsonb().$type<string[]>(),
+    menstrualPhase: t.varchar({ length: 20 }),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
       .timestamp({ mode: "date", withTimezone: true })
@@ -331,11 +341,124 @@ export const JournalEntry = pgTable(
   ],
 );
 
-export const CreateJournalEntrySchema = createInsertSchema(JournalEntry).omit({
+export const CreateJournalEntrySchema = createInsertSchema(JournalEntry, {
+  sorenessScore: z.number().int().min(1).max(10).optional(),
+  sorenessRegions: z.array(z.string()).optional(),
+  moodScore: z.number().int().min(1).max(10).optional(),
+  caffeineAmountMg: z.number().int().min(0).optional(),
+  caffeineTime: z.string().optional(),
+  alcoholDrinks: z.number().int().min(0).optional(),
+  napMinutes: z.number().int().min(0).optional(),
+  medications: z.array(z.string()).optional(),
+  menstrualPhase: z
+    .enum(["follicular", "ovulation", "luteal", "menstrual"])
+    .optional()
+    .nullable(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
+
+// ---------------------------------------------------------------------------
+// Session Reports (post-session RPE + tagging)
+// ---------------------------------------------------------------------------
+export const SessionReport = pgTable(
+  "session_report",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    activityId: t
+      .uuid()
+      .references(() => Activity.id, { onDelete: "cascade" }),
+    garminActivityId: t.varchar({ length: 100 }),
+    rpe: t.integer().notNull(),
+    sessionType: t.varchar({ length: 30 }),
+    drillNotes: t.text(),
+    internalLoad: t.doublePrecision(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .$onUpdateFn(() => sql`now()`),
+  }),
+  (table) => [
+    {
+      name: "session_report_activity_unique",
+      columns: [table.activityId],
+      unique: true,
+    },
+  ],
+);
+
+export const CreateSessionReportSchema = createInsertSchema(
+  SessionReport,
+).omit({ id: true, createdAt: true, updatedAt: true });
+
+export const SessionReportRelations = relations(SessionReport, ({ one }) => ({
+  activity: one(Activity, {
+    fields: [SessionReport.activityId],
+    references: [Activity.id],
+  }),
+}));
+
+// ---------------------------------------------------------------------------
+// Interventions (recovery actions + outcome tracking)
+// ---------------------------------------------------------------------------
+export const Intervention = pgTable("intervention", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  type: t.varchar({ length: 50 }).notNull(),
+  description: t.text(),
+  outcomeNotes: t.text(),
+  effectivenessRating: t.integer(),
+  linkedMetricDate: t.date(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: "date", withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export const CreateInterventionSchema = createInsertSchema(Intervention).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// ---------------------------------------------------------------------------
+// Advanced Metrics (computed CTL/ATL/ACWR/CP)
+// ---------------------------------------------------------------------------
+export const AdvancedMetric = pgTable(
+  "advanced_metric",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    ctl: t.doublePrecision(),
+    atl: t.doublePrecision(),
+    tsb: t.doublePrecision(),
+    acwr: t.doublePrecision(),
+    rampRate: t.doublePrecision(),
+    cp: t.doublePrecision(),
+    wPrime: t.doublePrecision(),
+    frc: t.doublePrecision(),
+    mftp: t.doublePrecision(),
+    tte: t.doublePrecision(),
+    effectiveVo2max: t.doublePrecision(),
+    computedAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    {
+      name: "advanced_metric_user_date_unique",
+      columns: [table.userId, table.date],
+      unique: true,
+    },
+  ],
+);
+
+export const CreateAdvancedMetricSchema = createInsertSchema(
+  AdvancedMetric,
+).omit({ id: true, computedAt: true });
 
 // ---------------------------------------------------------------------------
 // Correlation Results (computed metric correlations)
