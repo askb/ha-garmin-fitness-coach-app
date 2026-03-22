@@ -167,12 +167,14 @@ export default function TrainingLoadPage() {
               <ReferenceLine yAxisId="left" y={0} stroke="#555" strokeDasharray="4 2" />
               <Tooltip
                 contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 11 }}
-                formatter={(value: number, name: string) => {
-                  if (name === "ACWR") {
-                    const s = acwrStatus(value);
-                    return [`${value.toFixed(2)} (${s.label})`, name];
+                formatter={(value: unknown, name: unknown) => {
+                  const v = Number(value);
+                  const n = String(name);
+                  if (n === "ACWR") {
+                    const s = acwrStatus(v);
+                    return `${v.toFixed(2)} (${s.label})`;
                   }
-                  return [typeof value === "number" ? value.toFixed(1) : value, name];
+                  return !isNaN(v) ? v.toFixed(1) : String(value);
                 }}
                 labelFormatter={(label, payload) => {
                   const p = payload?.[0]?.payload as { fullDate?: string } | undefined;
@@ -237,7 +239,9 @@ export default function TrainingLoadPage() {
           <span className="flex items-center gap-1.5"><span className="text-base">🟡</span><span className="text-muted-foreground">1.3–1.5 — Caution</span></span>
           <span className="flex items-center gap-1.5"><span className="text-base">🔴</span><span className="text-muted-foreground">&gt;1.5 — High Risk</span></span>
         </div>
-      </div> */}
+      </div>
+
+      {/* ── Strain Trend (Area Chart) ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Strain — 42 Day Trend"

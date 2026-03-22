@@ -1,0 +1,337 @@
+"use client";
+
+// Data Export & Portability
+
+import { useState, useRef, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+import { cn } from "@acme/ui";
+import { Button } from "@acme/ui/button";
+import { toast } from "@acme/ui/toast";
+
+import { useTRPC } from "~/trpc/react";
+import { BottomNav } from "../_components/bottom-nav";
+
+/* ─────────────── helpers ─────────────── */
+
+function exportToCSV(data: Record<string, unknown>[], filename: string) {
+  if (data.length === 0) {
+    toast.error("No data to export");
+    return;
+  }
+  const headers = Object.keys(data[0]!);
+  const rows = data.map((row) =>
+    headers
+      .map((h) => {
+        const val = row[h];
+        const str = val == null ? "" : String(val);
+        return str.includes(",") || str.includes('"') || str.includes("\n")
+          ? `"${str.replace(/"/g, '""')}"`
+          : str;
+      })
+      .join(","),
+  );
+  const csv = [headers.join(","), ...rows].join("\n");
+  triggerDownload(new Blob([csv], { type: "text/csv" }), filename);
+}
+
+function exportToJSON(data: unknown, filename: string) {
+  const json = JSON.stringify(data, null, 2);
+  triggerDownload(new Blob([json], { type: "application/json" }), filename);
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function formatDateForFilename() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/* ─────────────── page ─────────────── */
+
+export default function ExportPage() {
+  const trpc = useTRPC();
+  const [importPreview, setImportPreview] = useState<null | Record<string, number>>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Data queries
+  const activities = useQuery(trpc.activity.list.queryOptions({ days: 365 }));
+  const trendsSummary = useQuery(
+    trpc.trends.getSummary.queryOptions({ period: "28d" }),
+  );
+  const journalQuery = useQuery(
+    trpc.journal.list.queryOptions({
+      startDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .slice(0, 10),
+      endDate: new Date().toISOString().slice(0, 10),
+    }),
+  );
+
+  /* ── Data summary counts ── */
+  const activityCount = activities.data?.length ?? 0;
+  const journalCount = journalQuery.data?.length ?? 0;
+
+  const earliestDate = activities.data?.length
+    ? [...(activities.data as Array<{ startedAt?: Date | string | null }>)]
+        .filter((a) => a.startedAt != null)
+        .sort(
+          (a, b) =>
+            new Date(a.startedAt as string).getTime() -
+            new Date(b.startedAt as string).getTime(),
+        )[0]?.startedAt
+    : null;
+
+  /* ── Export handlers ── */
+  function handleExportActivities() {
+    if (!activities.data) return toast.error("Activities data not loaded");
+    exportToCSV(
+      activities.data as Record<string, unknown>[],
+      `garmincoach-activities-${formatDateForFilename()}.csv`,
+    );
+  }
+
+  function handleExportMetrics() {
+    const summary = trendsSummary.data;
+    if (!summary) return toast.error("Metrics data not loaded");
+    const rows = [summary as Record<string, unknown>];
+    exportToCSV(rows, `garmincoach-metrics-${formatDateForFilename()}.csv`);
+  }
+
+  function handleExportJournal() {
+    if (!journalQuery.data) return toast.error("Journal data not loaded");
+    exportToCSV(
+      journalQuery.data as Record<string, unknown>[],
+      `garmincoach-journal-${formatDateForFilename()}.csv`,
+    );
+  }
+
+  function handleFullExport() {
+    const payload = {
+      schemaVersion: "1.0",
+      exportedAt: new Date().toISOString(),
+      activities: activities.data ?? [],
+      metrics: trendsSummary.data ?? {},
+      journal: journalQuery.data ?? [],
+    };
+    exportToJSON(payload, `garmincoach-backup-${formatDateForFilename()}.json`);
+  }
+
+  /* ── Import ── */
+  const handleFile = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target?.result as string) as Record<string, unknown>;
+        const preview: Record<string, number> = {};
+        if (Array.isArray(parsed.activities))
+          preview["Activities"] = parsed.activities.length;
+        if (Array.isArray(parsed.journal)) preview["Journal"] = parsed.journal.length;
+        if (parsed.metrics) preview["Metrics snapshot"] = 1;
+        setImportPreview(preview);
+      } catch {
+        toast.error("Invalid file — expected GarminCoach JSON backup");
+      }
+    };
+    reader.readAsText(file);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile],
+  );
+
+  return (
+    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+      {/* ── Header ── */}
+      <div>
+        <h1 className="text-2xl font-bold">Data Export</h1>
+        <p className="text-muted-foreground text-sm">
+          Download your training data · Import backups
+        </p>
+      </div>
+
+      {/* ── Data Summary ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider">
+          Your Data
+        </h2>
+        {activities.isLoading ? (
+          <div className="bg-muted h-12 animate-pulse rounded-lg" />
+        ) : (
+          <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-3">
+            <div className="bg-secondary/40 rounded-xl p-3">
+              <p className="text-xl font-bold">{activityCount}</p>
+              <p className="text-muted-foreground text-xs">Activities</p>
+            </div>
+            <div className="bg-secondary/40 rounded-xl p-3">
+              <p className="text-xl font-bold">{journalCount}</p>
+              <p className="text-muted-foreground text-xs">Journal entries</p>
+            </div>
+            <div className="bg-secondary/40 rounded-xl p-3 col-span-2 sm:col-span-1">
+              <p className="text-sm font-bold truncate">
+                {earliestDate
+                  ? new Date(earliestDate as string).toLocaleDateString("en-US", {
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—"}
+              </p>
+              <p className="text-muted-foreground text-xs">Earliest data</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Export Cards ── */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="bg-card rounded-2xl border p-4 space-y-3">
+          <div>
+            <p className="font-semibold">Daily Metrics</p>
+            <p className="text-muted-foreground text-xs mt-0.5">CSV export</p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            disabled={trendsSummary.isLoading}
+            onClick={handleExportMetrics}
+          >
+            Download CSV
+          </Button>
+        </div>
+
+        <div className="bg-card rounded-2xl border p-4 space-y-3">
+          <div>
+            <p className="font-semibold">Activities</p>
+            <p className="text-muted-foreground text-xs mt-0.5">
+              {activityCount} records · CSV
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            disabled={activities.isLoading}
+            onClick={handleExportActivities}
+          >
+            Download CSV
+          </Button>
+        </div>
+
+        <div className="bg-card rounded-2xl border p-4 space-y-3">
+          <div>
+            <p className="font-semibold">Journal</p>
+            <p className="text-muted-foreground text-xs mt-0.5">
+              {journalCount} entries · CSV
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            disabled={journalQuery.isLoading}
+            onClick={handleExportJournal}
+          >
+            Download CSV
+          </Button>
+        </div>
+      </div>
+
+      {/* ── Full JSON Backup ── */}
+      <div className="bg-card rounded-2xl border p-4 space-y-3">
+        <div>
+          <h2 className="font-semibold">Full Data Export (JSON)</h2>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Activities + journal + metrics in a single backup file with schema
+            version and timestamp.
+          </p>
+        </div>
+        <Button
+          className="w-full"
+          disabled={activities.isLoading || journalQuery.isLoading}
+          onClick={handleFullExport}
+        >
+          Download JSON Backup
+        </Button>
+      </div>
+
+      {/* ── Import ── */}
+      <div className="bg-card rounded-2xl border p-4 space-y-3">
+        <div>
+          <h2 className="font-semibold">Import from File</h2>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Accepted formats: JSON backup from this app
+          </p>
+        </div>
+
+        {/* Drag-and-drop zone */}
+        <div
+          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={cn(
+            "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors",
+            isDragging
+              ? "border-primary/60 bg-primary/10"
+              : "border-border hover:border-primary/40 hover:bg-secondary/30",
+          )}
+        >
+          <span className="text-3xl">📂</span>
+          <p className="mt-2 text-sm font-medium">Drop file here or click to browse</p>
+          <p className="text-muted-foreground text-xs">Supports GarminCoach .json backups</p>
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFile(file);
+          }}
+        />
+
+        {/* Preview */}
+        {importPreview && (
+          <div className="bg-secondary/40 rounded-xl p-4 space-y-3">
+            <p className="text-sm font-semibold">Preview — records to import:</p>
+            <div className="space-y-1">
+              {Object.entries(importPreview).map(([key, count]) => (
+                <div key={key} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{key}</span>
+                  <span className="font-bold">{count}</span>
+                </div>
+              ))}
+            </div>
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => {
+                toast.success("Import functionality coming soon");
+                setImportPreview(null);
+              }}
+            >
+              Confirm Import
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <BottomNav />
+    </main>
+  );
+}

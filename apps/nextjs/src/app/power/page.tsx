@@ -178,7 +178,7 @@ export default function PowerPage() {
               <YAxis tick={{ fill: "#888", fontSize: 10 }} width={40} unit="W" />
               <Tooltip
                 contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number, name: string) => [`${Math.round(v)} W`, name]}
+                formatter={(v: unknown) => `${Math.round(Number(v))} W`}
               />
               <Line
                 type="monotone"
@@ -231,7 +231,7 @@ export default function PowerPage() {
               <YAxis tick={{ fill: "#888", fontSize: 10 }} width={36} unit="kJ" />
               <Tooltip
                 contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 12 }}
-                formatter={(v: number) => [`${v.toFixed(1)} kJ`, "W′ remaining"]}
+                formatter={(v: unknown) => `${Number(v).toFixed(1)} kJ`}
                 labelFormatter={(label) => `Time: ${label}s`}
               />
               {wPrimeData.map((series) => (
