@@ -12,6 +12,12 @@ import {
 } from "@acme/db/schema";
 
 import { protectedProcedure } from "../trpc";
+import {
+  checkAcwrRisk,
+  checkTsbOverreaching,
+  checkHrvDeviation,
+  checkInterventionPattern,
+} from "../lib/insight-rules";
 
 function dateNDaysAgo(n: number): string {
   const d = new Date();
@@ -58,7 +64,8 @@ export const proactiveRouter = {
     // ── Rule 1: ACWR Injury Risk ──
     if (latestAdvanced?.acwr != null) {
       const acwr = latestAdvanced.acwr;
-      if (acwr > 1.5) {
+      const acwrResult = checkAcwrRisk(acwr);
+      if (acwrResult.triggered && acwrResult.severity === "HIGH") {
         insights.push({
           userId,
           date: today,
@@ -71,12 +78,12 @@ export const proactiveRouter = {
             ctl: latestAdvanced.ctl ?? 0,
             atl: latestAdvanced.atl ?? 0,
           },
-          confidence: 0.85,
+          confidence: acwrResult.confidence,
           actionSuggestion:
             "Reduce training load by 30-40% for 2-3 days. Prioritize sleep and nutrition for recovery.",
           generatedBy: "rules",
         });
-      } else if (acwr > 1.3) {
+      } else if (acwrResult.triggered && acwrResult.severity === "MEDIUM") {
         insights.push({
           userId,
           date: today,
@@ -85,7 +92,7 @@ export const proactiveRouter = {
           title: `🟡 Elevated ACWR — ${acwr.toFixed(2)} (Caution Zone)`,
           body: `ACWR of ${acwr.toFixed(2)} is in the caution zone (1.3-1.5). Acute load is outpacing chronic fitness. Monitor closely and avoid back-to-back hard sessions.`,
           metrics: { acwr },
-          confidence: 0.75,
+          confidence: acwrResult.confidence,
           actionSuggestion:
             "Keep next 2 sessions at moderate intensity. Monitor HRV daily.",
           generatedBy: "rules",
@@ -108,31 +115,40 @@ export const proactiveRouter = {
     }
 
     // ── Rule 2: Form/TSB Overreaching ──
-    if (latestAdvanced?.tsb != null && latestAdvanced.tsb < -20) {
-      insights.push({
-        userId,
-        date: today,
-        insightType: "overreaching",
-        severity: "warn",
-        title: `😴 Overreaching Detected — Form ${latestAdvanced.tsb.toFixed(1)}`,
-        body: `Training Stress Balance (Form) of ${latestAdvanced.tsb.toFixed(1)} is below -20, indicating accumulated fatigue exceeding fitness gains. This is the overreaching zone. Performance likely declining.`,
-        metrics: {
-          tsb: latestAdvanced.tsb,
-          ctl: latestAdvanced.ctl ?? 0,
-          atl: latestAdvanced.atl ?? 0,
-        },
-        confidence: 0.8,
-        actionSuggestion:
-          "Schedule 3-5 day recovery block. Reduce intensity and volume significantly.",
-        generatedBy: "rules",
-      });
+    if (latestAdvanced?.tsb != null) {
+      const tsbResult = checkTsbOverreaching(latestAdvanced.tsb);
+      if (tsbResult.triggered) {
+        insights.push({
+          userId,
+          date: today,
+          insightType: "overreaching",
+          severity: "warn",
+          title: `😴 Overreaching Detected — Form ${latestAdvanced.tsb.toFixed(1)}`,
+          body: `Training Stress Balance (Form) of ${latestAdvanced.tsb.toFixed(1)} is below -20, indicating accumulated fatigue exceeding fitness gains. This is the overreaching zone. Performance likely declining.`,
+          metrics: {
+            tsb: latestAdvanced.tsb,
+            ctl: latestAdvanced.ctl ?? 0,
+            atl: latestAdvanced.atl ?? 0,
+          },
+          confidence: tsbResult.confidence,
+          actionSuggestion:
+            "Schedule 3-5 day recovery block. Reduce intensity and volume significantly.",
+          generatedBy: "rules",
+        });
+      }
     }
 
     // ── Rule 3: HRV Baseline Deviation ──
     const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
     if (hrvBaseline && today_metric?.hrv != null) {
+      const sd = (hrvBaseline as { stdDev?: number }).stdDev ?? 0;
+      const hrvResult = checkHrvDeviation(
+        today_metric.hrv,
+        hrvBaseline.baselineValue,
+        sd,
+      );
       const zScore = hrvBaseline.zScoreLatest ?? 0;
-      if (zScore < -1.5) {
+      if (hrvResult.triggered || zScore < -1.5) {
         insights.push({
           userId,
           date: today,
@@ -200,7 +216,9 @@ export const proactiveRouter = {
     const effectiveInterventions = recentInterventions.filter(
       (i) => (i.effectivenessRating ?? 0) >= 4,
     );
-    if (effectiveInterventions.length > 0) {
+    const interventionTags = effectiveInterventions.map((i) => i.type);
+    const patternResult = checkInterventionPattern(interventionTags);
+    if (patternResult.triggered || effectiveInterventions.length > 0) {
       const types = [
         ...new Set(effectiveInterventions.map((i) => i.type)),
       ].join(", ");
@@ -211,7 +229,7 @@ export const proactiveRouter = {
         severity: "info",
         title: `✅ Effective Recovery Patterns Identified`,
         body: `Based on your intervention logs, ${types} has been rated highly effective (${effectiveInterventions.length} entries, avg ${(effectiveInterventions.reduce((s, i) => s + (i.effectivenessRating ?? 0), 0) / effectiveInterventions.length).toFixed(1)}/5). Consider prioritizing these when recovery is needed.`,
-        metrics: { count: effectiveInterventions.length },
+        metrics: { count: effectiveInterventions.length, patternTag: patternResult.tag },
         confidence: 0.7,
         actionSuggestion: `Incorporate ${(effectiveInterventions[0]?.type ?? "your top-rated recovery methods")} proactively, not just reactively.`,
         generatedBy: "rules",
