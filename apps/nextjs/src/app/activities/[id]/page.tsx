@@ -958,7 +958,7 @@ export default function ActivityDetailPage({
               garminActivityId: activity.garminActivityId ?? undefined,
               durationMinutes: activity.durationMinutes ?? undefined,
               rpe,
-              sessionType: sessionType as
+              sessionType: (sessionType as
                 | "base"
                 | "threshold"
                 | "interval"
@@ -966,7 +966,7 @@ export default function ActivityDetailPage({
                 | "race"
                 | "strength"
                 | "mobility"
-                | undefined,
+                | undefined) ?? undefined,
               drillNotes: drillNotes || undefined,
             });
           }}
