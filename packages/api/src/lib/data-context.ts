@@ -5,7 +5,11 @@
 import { and, desc, eq, gte } from "@acme/db";
 import {
   Activity,
+  AdvancedMetric,
+  AthleteBaseline,
   DailyMetric,
+  Intervention,
+  JournalEntry,
   Profile,
   ReadinessScore,
   VO2maxEstimate,
@@ -78,7 +82,7 @@ export async function buildDataContext(
   userId: string,
 ): Promise<string> {
   // Parallel queries -------------------------------------------------------
-  const [metrics14, activities10, profile, latestReadiness, latestVo2, metrics30] =
+  const [metrics14, activities10, profile, latestReadiness, latestVo2, metrics30, journal7, interventions10, advancedMetrics42, baselines] =
     await Promise.all([
       // Last 14 days of daily metrics
       db.query.DailyMetric.findMany({
@@ -126,6 +130,38 @@ export async function buildDataContext(
         orderBy: desc(Activity.startedAt),
         limit: 30,
       }) as Promise<(typeof Activity.$inferSelect)[]>,
+
+      // 7 days of journal entries
+      db.query.JournalEntry.findMany({
+        where: and(
+          eq(JournalEntry.userId, userId),
+          gte(JournalEntry.date, dateNDaysAgo(7)),
+        ),
+        orderBy: desc(JournalEntry.date),
+        limit: 7,
+      }) as Promise<(typeof JournalEntry.$inferSelect)[]>,
+
+      // Last 10 interventions
+      db.query.Intervention.findMany({
+        where: eq(Intervention.userId, userId),
+        orderBy: desc(Intervention.date),
+        limit: 10,
+      }) as Promise<(typeof Intervention.$inferSelect)[]>,
+
+      // Latest advanced metrics (last 42 days for CTL/ATL/TSB history)
+      db.query.AdvancedMetric.findMany({
+        where: and(
+          eq(AdvancedMetric.userId, userId),
+          gte(AdvancedMetric.date, dateNDaysAgo(42)),
+        ),
+        orderBy: desc(AdvancedMetric.date),
+        limit: 42,
+      }) as Promise<(typeof AdvancedMetric.$inferSelect)[]>,
+
+      // Athlete baselines
+      db.query.AthleteBaseline.findMany({
+        where: eq(AthleteBaseline.userId, userId),
+      }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
     ]);
 
   // Early exit if no data at all
@@ -288,6 +324,94 @@ export async function buildDataContext(
         lines.push(`- Today's HRV: ${Math.round(today.hrv)} ms`);
       if (today.restingHr != null)
         lines.push(`- Resting HR: ${today.restingHr} bpm`);
+    }
+    if (lines.length > 1) sections.push(lines.join("\n"));
+  }
+
+  // 7. Journal (last 7 days) -----------------------------------------------
+  if (journal7.length > 0) {
+    const lines: string[] = ["## Journal (Last 7 Days)"];
+    for (const j of journal7) {
+      const parts: string[] = [];
+      if (j.sorenessScore != null) {
+        const regions =
+          Array.isArray(j.sorenessRegions) && j.sorenessRegions.length > 0
+            ? ` (${j.sorenessRegions.slice(0, 3).join(", ")})`
+            : "";
+        parts.push(`soreness=${j.sorenessScore}${regions}`);
+      }
+      if (j.moodScore != null) parts.push(`mood=${j.moodScore}`);
+      if (j.alcoholDrinks != null && j.alcoholDrinks > 0)
+        parts.push(`alcohol=${j.alcoholDrinks}`);
+      if (j.caffeineAmountMg != null && j.caffeineAmountMg > 0)
+        parts.push(`caffeine=${j.caffeineAmountMg}mg`);
+      // Top tags from JSONB
+      if (j.tags && typeof j.tags === "object") {
+        const tagEntries = Object.entries(j.tags as Record<string, unknown>).slice(0, 3);
+        for (const [k, v] of tagEntries) parts.push(`${k}=${String(v)}`);
+      }
+      const tagStr = parts.length > 0 ? parts.join(", ") : "";
+      const notesStr = j.notes ? `, notes: "${j.notes.slice(0, 80)}"` : "";
+      lines.push(`- ${j.date}: ${tagStr}${notesStr}`);
+    }
+    sections.push(lines.join("\n"));
+  }
+
+  // 8. Interventions (recent) ----------------------------------------------
+  if (interventions10.length > 0) {
+    const cutoff = dateNDaysAgo(30);
+    const recent = interventions10.filter((i) => i.date >= cutoff);
+    if (recent.length > 0) {
+      const lines: string[] = ["## Recent Interventions (Last 30 Days)"];
+      for (const i of recent) {
+        const eff = i.effectivenessRating != null ? ` — effectiveness: ${i.effectivenessRating}/5` : "";
+        const outcome = i.outcomeNotes ? ` — outcome: ${i.outcomeNotes.slice(0, 60)}` : "";
+        const desc = i.description ? ` — ${i.description.slice(0, 60)}` : "";
+        lines.push(`- ${i.date}: [${i.type}]${desc}${eff}${outcome}`);
+      }
+      sections.push(lines.join("\n"));
+    }
+  }
+
+  // 9. Advanced Load Metrics -----------------------------------------------
+  const latestAdv = advancedMetrics42[0];
+  if (latestAdv) {
+    const lines: string[] = ["## Advanced Load Metrics (Latest)"];
+    if (latestAdv.ctl != null && latestAdv.atl != null && latestAdv.tsb != null)
+      lines.push(`- CTL (Fitness): ${latestAdv.ctl.toFixed(1)} | ATL (Fatigue): ${latestAdv.atl.toFixed(1)} | TSB (Form): ${latestAdv.tsb.toFixed(1)}`);
+    if (latestAdv.acwr != null)
+      lines.push(`- ACWR: ${latestAdv.acwr.toFixed(2)} (${acwrStatus(latestAdv.acwr)})`);
+    if (latestAdv.rampRate != null)
+      lines.push(`- Ramp Rate: ${latestAdv.rampRate > 0 ? "+" : ""}${latestAdv.rampRate.toFixed(1)}%`);
+    if (latestAdv.cp != null) lines.push(`- CP: ${Math.round(latestAdv.cp)}w`);
+    if (latestAdv.wPrime != null) lines.push(`- W': ${Math.round(latestAdv.wPrime)}J`);
+    if (latestAdv.mftp != null) lines.push(`- mFTP: ${Math.round(latestAdv.mftp)}w`);
+    if (latestAdv.effectiveVo2max != null)
+      lines.push(`- Effective VO2max: ${latestAdv.effectiveVo2max.toFixed(1)}`);
+    if (lines.length > 1) sections.push(lines.join("\n"));
+  }
+
+  // 10. Personal Baselines -------------------------------------------------
+  if (baselines.length > 0) {
+    const lines: string[] = ["## Personal Baselines (90-day)"];
+    const today = metrics14[0];
+    for (const b of baselines) {
+      const sd = b.baselineSD != null ? ` (SD: ${b.baselineSD.toFixed(1)})` : "";
+      let todayStr = "";
+      if (b.zScoreLatest != null) {
+        const z = b.zScoreLatest;
+        const zLabel = z < -1.5 ? "well below baseline" : z < -0.5 ? "below baseline" : z > 1.5 ? "well above baseline" : z > 0.5 ? "above baseline" : "within normal range";
+        todayStr = ` — today's z-score: ${z.toFixed(1)} (${zLabel})`;
+      }
+      if (b.metricName === "hrv") {
+        const val = today?.hrv != null ? `, today: ${Math.round(today.hrv)} ms` : "";
+        lines.push(`- HRV baseline: ${b.baselineValue.toFixed(1)} ms${sd}${todayStr}${val}`);
+      } else if (b.metricName === "restingHr") {
+        const val = today?.restingHr != null ? `, today: ${today.restingHr} bpm` : "";
+        lines.push(`- Resting HR baseline: ${Math.round(b.baselineValue)} bpm${sd}${todayStr}${val}`);
+      } else if (b.metricName === "sleep") {
+        lines.push(`- Sleep baseline: ${fmtMin(b.baselineValue)}${sd}${todayStr}`);
+      }
     }
     if (lines.length > 1) sections.push(lines.join("\n"));
   }
