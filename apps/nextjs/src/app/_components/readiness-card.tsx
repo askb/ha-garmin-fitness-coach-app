@@ -40,10 +40,53 @@ const zoneConfig: Record<
   },
 };
 
+type DataQualityStatus = "good" | "missing" | "stale";
+
+interface DataQuality {
+  hrv: DataQualityStatus;
+  sleep: DataQualityStatus;
+  restingHr: DataQualityStatus;
+  trainingLoad: DataQualityStatus;
+}
+
+const dqDotColor: Record<DataQualityStatus, string> = {
+  good: "text-green-400",
+  stale: "text-yellow-400",
+  missing: "text-red-400",
+};
+
+function DataQualityDots({ dq }: { dq: DataQuality }) {
+  const items: [string, DataQualityStatus][] = [
+    ["HRV", dq.hrv],
+    ["Sleep", dq.sleep],
+    ["HR", dq.restingHr],
+    ["Load", dq.trainingLoad],
+  ];
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {items.map(([label, status]) => (
+        <span
+          key={label}
+          className="text-muted-foreground flex items-center gap-1 text-xs"
+        >
+          <span className={cn("text-base leading-none", dqDotColor[status])}>
+            ●
+          </span>
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 interface ReadinessCardProps {
   score: number | null;
   zone: string | null;
   explanation: string | null;
+  confidence?: number | null;
+  dataQuality?: DataQuality | null;
+  actionSuggestion?: string | null;
+  doNotOverinterpret?: boolean | null;
   isLoading?: boolean;
 }
 
@@ -51,6 +94,10 @@ export function ReadinessCard({
   score,
   zone,
   explanation,
+  confidence,
+  dataQuality,
+  actionSuggestion,
+  doNotOverinterpret,
   isLoading,
 }: ReadinessCardProps) {
   if (isLoading) {
@@ -73,6 +120,8 @@ export function ReadinessCard({
   }
 
   const config = zoneConfig[zone] ?? zoneConfig.moderate!;
+  const confidencePct =
+    confidence != null ? Math.round(confidence * 100) : null;
 
   return (
     <div
@@ -83,6 +132,14 @@ export function ReadinessCard({
         config.ring,
       )}
     >
+      {/* Low data confidence warning */}
+      {doNotOverinterpret && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg bg-yellow-500/10 px-3 py-2 text-xs text-yellow-400">
+          <span>⚠️</span>
+          <span>Low data confidence — score may not be reliable</span>
+        </div>
+      )}
+
       <div className="flex items-center gap-6">
         {/* Score Circle */}
         <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
@@ -112,6 +169,11 @@ export function ReadinessCard({
             <span className={cn("text-3xl font-bold", config.color)}>
               {score}
             </span>
+            {confidencePct != null && (
+              <span className="text-muted-foreground mt-0.5 text-[10px] tabular-nums">
+                {confidencePct}% conf.
+              </span>
+            )}
           </div>
         </div>
 
@@ -136,8 +198,19 @@ export function ReadinessCard({
               {explanation}
             </p>
           )}
+          {/* Data quality dots */}
+          {dataQuality && <DataQualityDots dq={dataQuality} />}
         </div>
       </div>
+
+      {/* Action suggestion */}
+      {actionSuggestion && (
+        <div className="mt-4 rounded-xl bg-white/5 px-4 py-3 text-sm">
+          <span className="mr-1">💡</span>
+          <span className="text-foreground/80">{actionSuggestion}</span>
+        </div>
+      )}
     </div>
   );
 }
+
