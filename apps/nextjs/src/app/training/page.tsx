@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import {
   AreaChart,
   Area,
   BarChart,
   Bar,
+  ComposedChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -13,6 +16,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  ReferenceLine,
 } from "recharts";
 import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
@@ -39,10 +43,20 @@ const LOAD_FOCUS_COLORS: Record<string, string> = {
   mixed: "#a855f7",
 };
 
+/* ─────────────── ACWR helpers ─────────────── */
+
+function acwrStatus(value: number): { label: string; color: string } {
+  if (value < 0.8) return { label: "Under-training", color: "text-zinc-400" };
+  if (value <= 1.3) return { label: "Optimal", color: "text-green-400" };
+  if (value <= 1.5) return { label: "Caution", color: "text-yellow-400" };
+  return { label: "⚠️ High Risk", color: "text-red-400" };
+}
+
 /* ─────────────── page ─────────────── */
 
 export default function TrainingLoadPage() {
   const trpc = useTRPC();
+  const [pmcDays, setPmcDays] = useState<42 | 90 | 180>(90);
 
   const loads = useQuery(trpc.analytics.getTrainingLoads.queryOptions());
   const status = useQuery(trpc.analytics.getTrainingStatus.queryOptions());
@@ -53,6 +67,32 @@ export default function TrainingLoadPage() {
   const recentStrain = useQuery(
     trpc.trends.getChart.queryOptions({ metric: "strain", days: 14 }),
   );
+  // @ts-ignore — route added by gc-backend branch
+  const pmcData = useQuery(trpc.advancedMetrics.list.queryOptions({ days: pmcDays }));
+
+  /* ── derive PMC chart data ── */
+  interface PmcEntry {
+    date: string;
+    ctl?: number | null;
+    atl?: number | null;
+    tsb?: number | null;
+    acwr?: number | null;
+  }
+  const pmcChartData = ((pmcData.data ?? []) as PmcEntry[]).map((d, idx, arr) => {
+    const showLabel = idx % 7 === 0;
+    return {
+      date: showLabel ? d.date?.slice(5) ?? "" : "",
+      fullDate: d.date ?? "",
+      ctl: d.ctl ?? null,
+      atl: d.atl ?? null,
+      tsb: d.tsb ?? null,
+      acwr: d.acwr ?? null,
+      tsbPos: (d.tsb ?? 0) >= 0 ? (d.tsb ?? 0) : 0,
+      tsbNeg: (d.tsb ?? 0) < 0 ? (d.tsb ?? 0) : 0,
+    };
+  });
+
+  const currentAcwr = loads.data?.acwr;
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
@@ -80,7 +120,124 @@ export default function TrainingLoadPage() {
         </p>
       )}
 
-      {/* ── Strain Trend (Area Chart) ── */}
+      {/* ── PMC — Performance Management Chart ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <SectionHeader
+            title="Performance Management Chart"
+            info="CTL (Chronic Training Load) = fitness built over 42 days. ATL (Acute Training Load) = fatigue over 7 days. TSB (Training Stress Balance) = CTL - ATL = form. ACWR (Acute:Chronic Workload Ratio) = optimal 0.8–1.3. Citation: Banister (1991), Hulin et al. (2016)."
+          />
+          <div className="flex gap-1">
+            {([42, 90, 180] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setPmcDays(d)}
+                className={cn(
+                  "rounded-lg px-2 py-1 text-[10px] font-semibold transition-all",
+                  pmcDays === d
+                    ? "bg-primary/20 text-primary"
+                    : "text-muted-foreground hover:bg-secondary/50",
+                )}
+              >
+                {d}d
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {pmcData.isLoading ? (
+          <div className="bg-muted h-52 animate-pulse rounded-lg" />
+        ) : pmcChartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={220}>
+            <ComposedChart data={pmcChartData} margin={{ top: 5, right: 40, left: -10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="tsbPosGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.05} />
+                </linearGradient>
+                <linearGradient id="tsbNegGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.05} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="date" tick={{ fill: "#888", fontSize: 10 }} interval={0} />
+              <YAxis yAxisId="left" tick={{ fill: "#888", fontSize: 10 }} width={32} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fill: "#f97316", fontSize: 10 }} width={32} domain={[0, 2]} />
+              <ReferenceLine yAxisId="left" y={0} stroke="#555" strokeDasharray="4 2" />
+              <Tooltip
+                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 11 }}
+                formatter={(value: number, name: string) => {
+                  if (name === "ACWR") {
+                    const s = acwrStatus(value);
+                    return [`${value.toFixed(2)} (${s.label})`, name];
+                  }
+                  return [typeof value === "number" ? value.toFixed(1) : value, name];
+                }}
+                labelFormatter={(label, payload) => {
+                  const p = payload?.[0]?.payload as { fullDate?: string } | undefined;
+                  return p?.fullDate ?? String(label);
+                }}
+              />
+              {/* TSB filled areas */}
+              <Area yAxisId="left" type="monotone" dataKey="tsbPos" fill="url(#tsbPosGrad)" stroke="none" name="TSB+" legendType="none" />
+              <Area yAxisId="left" type="monotone" dataKey="tsbNeg" fill="url(#tsbNegGrad)" stroke="none" name="TSB-" legendType="none" />
+              {/* CTL / ATL lines */}
+              <Line yAxisId="left" type="monotone" dataKey="ctl" stroke="#3b82f6" strokeWidth={2} dot={false} name="CTL" />
+              <Line yAxisId="left" type="monotone" dataKey="atl" stroke="#a855f7" strokeWidth={2} dot={false} name="ATL" />
+              <Line yAxisId="left" type="monotone" dataKey="tsb" stroke="#22c55e" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="TSB" />
+              {/* ACWR on right axis */}
+              <Line yAxisId="right" type="monotone" dataKey="acwr" stroke="#f97316" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="ACWR" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No PMC data yet. Complete some workouts to see your chart.
+          </p>
+        )}
+
+        {/* Legend */}
+        <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
+          {[
+            { color: "#3b82f6", label: "CTL (Fitness)" },
+            { color: "#a855f7", label: "ATL (Fatigue)" },
+            { color: "#22c55e", label: "TSB (Form)" },
+            { color: "#f97316", label: "ACWR (right)" },
+          ].map((l) => (
+            <span key={l.label} className="flex items-center gap-1">
+              <span className="inline-block h-0.5 w-5 rounded" style={{ background: l.color }} />
+              <span className="text-muted-foreground">{l.label}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── ACWR Gauge (enhanced) ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <SectionHeader
+          title="ACWR Gauge"
+          info="Current Acute:Chronic Workload Ratio with risk zones. Sweet spot 0.8–1.3 = lowest injury risk. Source: Hulin BT et al. (2016)."
+          className="mb-3"
+        />
+        {currentAcwr != null ? (
+          <ACWRGaugeEnhanced value={currentAcwr} />
+        ) : loads.isLoading ? (
+          <div className="bg-muted h-12 animate-pulse rounded-lg" />
+        ) : (
+          <p className="text-muted-foreground py-4 text-center text-sm">No data yet</p>
+        )}
+      </div>
+
+      {/* ── Risk Zone Legend ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <h3 className="mb-3 text-sm font-semibold">Risk Zone Legend</h3>
+        <div className="flex flex-wrap gap-3 text-xs">
+          <span className="flex items-center gap-1.5"><span className="text-base">⚫</span><span className="text-muted-foreground">&lt;0.8 — Under-training</span></span>
+          <span className="flex items-center gap-1.5"><span className="text-base">🟢</span><span className="text-muted-foreground">0.8–1.3 — Optimal</span></span>
+          <span className="flex items-center gap-1.5"><span className="text-base">🟡</span><span className="text-muted-foreground">1.3–1.5 — Caution</span></span>
+          <span className="flex items-center gap-1.5"><span className="text-base">🔴</span><span className="text-muted-foreground">&gt;1.5 — High Risk</span></span>
+        </div>
+      </div> */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
           title="Strain — 42 Day Trend"
@@ -215,24 +372,6 @@ export default function TrainingLoadPage() {
         </div>
       ) : null}
 
-      {/* ── ACWR Gauge ── */}
-      <div className="bg-card rounded-2xl border p-4">
-        <SectionHeader
-          title="Acute:Chronic Workload Ratio"
-          info="Compares recent training load to your long-term base. Formula: ACWR = mean(strain last 7 days) / mean(strain last 28 days). Sweet spot: 0.8-1.3 (lowest injury risk). Below 0.8 = detraining. Above 1.5 = spike with high injury risk. Citation: Hulin BT et al. (2016) Br J Sports Med."
-          className="mb-3"
-        />
-        {loads.isLoading ? (
-          <div className="bg-muted h-12 animate-pulse rounded-lg" />
-        ) : loads.data ? (
-          <ACWRGauge value={loads.data.acwr} />
-        ) : (
-          <p className="text-muted-foreground py-4 text-center text-sm">
-            No data yet
-          </p>
-        )}
-      </div>
-
       {/* ── Load Focus ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
@@ -356,6 +495,46 @@ export default function TrainingLoadPage() {
 
       <BottomNav />
     </main>
+  );
+}
+
+/* ─────────────── ACWR Gauge Enhanced ─────────────── */
+
+function ACWRGaugeEnhanced({ value }: { value: number }) {
+  const clamped = Math.min(2, Math.max(0, value));
+  const pct = (clamped / 2) * 100;
+  const { label, color } = acwrStatus(value);
+
+  // Zone widths: 0–0.8 (40%), 0.8–1.3 (25%), 1.3–1.5 (10%), 1.5–2.0 (25%)
+  const segments = [
+    { color: "#71717a", width: "40%", label: "Under" },
+    { color: "#22c55e", width: "25%", label: "Optimal" },
+    { color: "#eab308", width: "10%", label: "Caution" },
+    { color: "#ef4444", width: "25%", label: "High Risk" },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className="relative h-5 w-full overflow-hidden rounded-full">
+        <div className="flex h-full w-full">
+          {segments.map((s) => (
+            <div key={s.label} style={{ width: s.width, backgroundColor: s.color + "60" }} />
+          ))}
+        </div>
+        {/* Marker */}
+        <div
+          className="absolute top-0 h-full w-1.5 rounded-full bg-white shadow-lg transition-all"
+          style={{ left: `calc(${pct}% - 3px)` }}
+        />
+      </div>
+      <div className="flex justify-between text-[10px] text-muted-foreground">
+        <span>0</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0</span>
+      </div>
+      <p className="text-center">
+        <span className="text-xl font-bold">{value.toFixed(2)}</span>
+        <span className={cn("ml-2 text-sm font-semibold", color)}>{label}</span>
+      </p>
+    </div>
   );
 }
 

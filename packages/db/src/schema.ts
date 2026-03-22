@@ -92,6 +92,9 @@ export const DailyMetric = pgTable(
     sleepDebtMinutes: t.integer(),
     rawGarminData: t.jsonb(),
     syncedAt: t.timestamp().defaultNow().notNull(),
+    garminApiVersion: t.varchar({ length: 20 }),
+    deviceModel: t.varchar({ length: 50 }),
+    rawDataHash: t.varchar({ length: 64 }),
   }),
   (table) => [
     {
@@ -166,6 +169,9 @@ export const Activity = pgTable("activity", (t) => ({
     }>(),
   rawGarminData: t.jsonb(),
   syncedAt: t.timestamp().defaultNow().notNull(),
+  garminApiVersion: t.varchar({ length: 20 }),
+  deviceModel: t.varchar({ length: 50 }),
+  rawDataHash: t.varchar({ length: 64 }),
 }));
 
 export const CreateActivitySchema = createInsertSchema(Activity).omit({
@@ -517,6 +523,83 @@ export const WorkoutTimeSeries = pgTable("workout_time_series", (t) => ({
 export const CreateWorkoutTimeSeriesSchema = createInsertSchema(
   WorkoutTimeSeries,
 ).omit({ id: true });
+
+// ---------------------------------------------------------------------------
+// Athlete Baselines (computed personal norms)
+// ---------------------------------------------------------------------------
+export const AthleteBaseline = pgTable(
+  "athlete_baseline",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    metricName: t.varchar({ length: 50 }).notNull(), // "hrv"|"restingHr"|"sleep"|"strain"
+    baselineValue: t.doublePrecision().notNull(),
+    baselineSD: t.doublePrecision(),
+    windowDays: t.integer().default(30),
+    seasonPhase: t.varchar({ length: 20 }), // "base"|"build"|"peak"|"taper"|"off"
+    zScoreLatest: t.doublePrecision(),        // z-score of today's value vs baseline
+    daysOfData: t.integer(),
+    computedAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    { name: "athlete_baseline_user_metric_unique", columns: [table.userId, table.metricName], unique: true },
+  ],
+);
+export const CreateAthleteBaselineSchema = createInsertSchema(AthleteBaseline).omit({ id: true, computedAt: true });
+
+// ---------------------------------------------------------------------------
+// Data Quality Log (ingestion validation issues)
+// ---------------------------------------------------------------------------
+export const DataQualityLog = pgTable("data_quality_log", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  checkName: t.varchar({ length: 50 }).notNull(),
+  // "missing_hrv"|"duplicate_date"|"outlier_hr"|"stale_data"|"impossible_value"|"timezone_drift"
+  severity: t.varchar({ length: 10 }).notNull(), // "info"|"warn"|"error"
+  message: t.text().notNull(),
+  rawValue: t.doublePrecision(),
+  expectedRange: t.jsonb().$type<{ min: number; max: number }>(),
+  resolvedAt: t.timestamp(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+export const CreateDataQualityLogSchema = createInsertSchema(DataQualityLog).omit({ id: true, createdAt: true });
+
+// ---------------------------------------------------------------------------
+// Audit Log (data lineage / provenance)
+// ---------------------------------------------------------------------------
+export const AuditLog = pgTable("audit_log", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  entityType: t.varchar({ length: 50 }).notNull(), // "daily_metric"|"activity"
+  entityId: t.uuid().notNull(),
+  action: t.varchar({ length: 20 }).notNull(), // "create"|"update"|"delete"
+  changedFields: t.jsonb().$type<string[]>(),
+  rawDataHash: t.varchar({ length: 64 }), // SHA-256 of raw Garmin JSON
+  garminApiVersion: t.varchar({ length: 20 }),
+  deviceModel: t.varchar({ length: 50 }),
+  appVersion: t.varchar({ length: 20 }),
+  syncedAt: t.timestamp().defaultNow().notNull(),
+}));
+
+// ---------------------------------------------------------------------------
+// Reference Measurements (lab/device vs Garmin comparison)
+// ---------------------------------------------------------------------------
+export const ReferenceMeasurement = pgTable("reference_measurement", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  measurementType: t.varchar({ length: 50 }).notNull(),
+  // "lab_vo2max"|"lactate_threshold"|"body_composition"|"chest_strap_hr"|"ecg_hrv"|"sleep_lab"
+  value: t.doublePrecision().notNull(),
+  unit: t.varchar({ length: 30 }).notNull(),
+  source: t.varchar({ length: 50 }).notNull(), // "lab"|"manual"|"device_import"
+  garminComparableValue: t.doublePrecision(),  // matching Garmin estimate at same date
+  deviationPercent: t.doublePrecision(),       // (garmin - reference) / reference * 100
+  notes: t.text(),
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeasurement).omit({ id: true, createdAt: true });
 
 // ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
