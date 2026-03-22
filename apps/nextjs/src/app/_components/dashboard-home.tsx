@@ -80,6 +80,17 @@ export function DashboardHome() {
         score={(r?.score as number) ?? null}
         zone={(r?.zone as string) ?? null}
         explanation={(r?.explanation as string) ?? null}
+        confidence={(r?.confidence as number) ?? null}
+        dataQuality={
+          (r?.dataQuality as {
+            hrv: "good" | "missing" | "stale";
+            sleep: "good" | "missing" | "stale";
+            restingHr: "good" | "missing" | "stale";
+            trainingLoad: "good" | "missing" | "stale";
+          }) ?? null
+        }
+        actionSuggestion={(r?.actionSuggestion as string) ?? null}
+        doNotOverinterpret={(r?.doNotOverinterpret as boolean) ?? null}
         isLoading={readiness.isLoading}
       />
 

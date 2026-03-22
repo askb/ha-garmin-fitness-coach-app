@@ -1,13 +1,134 @@
 "use client";
 
-import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
+
+/* ─────────────── ProactiveInsightCard ─────────────── */
+
+type AiSeverity = "info" | "warn" | "critical";
+
+const AI_SEVERITY_STYLES: Record<
+  AiSeverity,
+  { border: string; bg: string; iconBg: string; badge: string }
+> = {
+  info: {
+    border: "border-blue-500/30",
+    bg: "bg-blue-500/5",
+    iconBg: "bg-blue-500/20",
+    badge: "bg-blue-500/20 text-blue-400",
+  },
+  warn: {
+    border: "border-amber-500/30",
+    bg: "bg-amber-500/5",
+    iconBg: "bg-amber-500/20",
+    badge: "bg-amber-500/20 text-amber-400",
+  },
+  critical: {
+    border: "border-red-500/30",
+    bg: "bg-red-500/5",
+    iconBg: "bg-red-500/20",
+    badge: "bg-red-500/20 text-red-400",
+  },
+};
+
+interface ProactiveInsight {
+  id: string;
+  title: string;
+  body: string;
+  severity: string;
+  confidence: number | null;
+  actionSuggestion: string | null;
+  metrics: Record<string, number | string> | null;
+  isRead: boolean | null;
+}
+
+function ProactiveInsightCard({
+  insight,
+  onMarkRead,
+}: {
+  insight: ProactiveInsight;
+  onMarkRead: (id: string) => void;
+}) {
+  const severity = (insight.severity ?? "info") as AiSeverity;
+  const style = AI_SEVERITY_STYLES[severity] ?? AI_SEVERITY_STYLES.info;
+  const confidencePct =
+    insight.confidence != null
+      ? `${(insight.confidence * 100).toFixed(0)}% confidence`
+      : null;
+  const metricEntries = insight.metrics
+    ? Object.entries(insight.metrics)
+    : [];
+
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border p-4 transition-opacity",
+        style.border,
+        style.bg,
+        insight.isRead && "opacity-50",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold leading-snug">{insight.title}</h3>
+        <div className="flex shrink-0 items-center gap-1">
+          {confidencePct && (
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                style.badge,
+              )}
+            >
+              {confidencePct}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+        {insight.body}
+      </p>
+
+      {/* Cited metrics */}
+      {metricEntries.length > 0 && (
+        <p className="text-muted-foreground mt-2 font-mono text-[11px]">
+          {metricEntries
+            .map(([k, v]) => {
+              const num = typeof v === "number" ? v : parseFloat(String(v));
+              const display = isNaN(num) ? String(v) : num.toFixed(2);
+              return `${k.toUpperCase()}: ${display}`;
+            })
+            .join(" | ")}
+        </p>
+      )}
+
+      {/* Action suggestion */}
+      {insight.actionSuggestion && (
+        <div className="mt-3 rounded-xl bg-white/5 px-3 py-2 text-sm">
+          <span className="mr-1">💡</span>
+          <span className="text-foreground/80">
+            Suggested action: {insight.actionSuggestion}
+          </span>
+        </div>
+      )}
+
+      {/* Mark read */}
+      {!insight.isRead && (
+        <button
+          onClick={() => onMarkRead(insight.id)}
+          className="text-muted-foreground mt-3 text-xs underline underline-offset-2 hover:text-white"
+        >
+          Mark as read
+        </button>
+      )}
+    </div>
+  );
+}
 
 /* ─────────────── types ─────────────── */
 
@@ -283,6 +404,28 @@ function InsightCardUI({ insight }: { insight: InsightCard }) {
 
 export default function InsightsPage() {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  // Proactive AI insights
+  const proactiveInsights = useQuery(trpc.proactive.listInsights.queryOptions());
+  const generateMutation = useMutation(
+    trpc.proactive.generateInsights.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.proactive.listInsights.queryKey(),
+        });
+      },
+    }),
+  );
+  const markReadMutation = useMutation(
+    trpc.proactive.markRead.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.proactive.listInsights.queryKey(),
+        });
+      },
+    }),
+  );
 
   const readiness = useQuery(trpc.readiness.getToday.queryOptions());
   const loads = useQuery(trpc.analytics.getTrainingLoads.queryOptions());
@@ -339,6 +482,52 @@ export default function InsightsPage() {
             day: "numeric",
           })}
         </p>
+      </div>
+
+      {/* ── Proactive AI Insights ── */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <SectionHeader
+            title="AI Insights"
+            info="Proactive insights generated by evidence-based rules analyzing your ACWR, TSB, HRV baseline deviation, sleep debt, ramp rate, and intervention patterns. Rules fire when thresholds are exceeded. Confidence reflects data completeness."
+          />
+          <button
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            className="rounded-lg bg-blue-500/20 px-3 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/30 disabled:opacity-50"
+          >
+            {generateMutation.isPending ? "Analyzing…" : "Refresh Insights"}
+          </button>
+        </div>
+        {proactiveInsights.isLoading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="bg-card animate-pulse rounded-2xl border p-4"
+              >
+                <div className="bg-muted h-4 w-2/3 rounded" />
+                <div className="bg-muted mt-2 h-3 w-full rounded" />
+              </div>
+            ))}
+          </div>
+        ) : proactiveInsights.data && proactiveInsights.data.length > 0 ? (
+          <div className="space-y-3">
+            {(proactiveInsights.data as ProactiveInsight[]).map((insight) => (
+              <ProactiveInsightCard
+                key={insight.id}
+                insight={insight}
+                onMarkRead={(id) => markReadMutation.mutate({ id })}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-card rounded-2xl border p-4 text-center">
+            <p className="text-muted-foreground text-sm">
+              No AI insights yet. Tap "Refresh Insights" to run analysis.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* ── Weekly Summary ── */}
