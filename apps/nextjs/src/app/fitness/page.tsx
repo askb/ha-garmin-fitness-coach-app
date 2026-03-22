@@ -106,6 +106,43 @@ function fmtDateShort(d: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+/* ── Confidence interval helper ── */
+function confidenceInterval(count: number): number {
+  if (count > 30) return 3;
+  if (count >= 15) return 5;
+  return 8;
+}
+
+/** Format seconds as MM:SS or H:MM:SS */
+function fmtTime(secs: number): string {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = Math.round(secs % 60);
+  if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+/** Apply ± interval to formatted time string */
+function fmtWithInterval(secs: number, pct: number): string {
+  const delta = secs * (pct / 100);
+  return `${fmtTime(secs)} ± ${fmtTime(delta)}`;
+}
+
+/**
+ * Daniels VDOT pace calculation (simplified).
+ * pace_sec_per_km = 1000 / (vo2max * fraction * 0.01 * 3.5 / 0.03)
+ * Simplified running economy model.
+ */
+function vdotPace(vo2max: number, fraction: number): string {
+  const vo2 = vo2max * fraction;
+  const speed_m_per_min = (vo2 - 3.5) / 0.2; // inverse of VO2 = 3.5 + 0.2*speed (m/min)
+  if (speed_m_per_min <= 0) return "—";
+  const secPerKm = 1000 / speed_m_per_min * 60;
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return `${m}:${s.toString().padStart(2, "0")}/km`;
+}
+
 /* ─────────────── page ─────────────── */
 
 export default function FitnessPage() {
@@ -119,6 +156,12 @@ export default function FitnessPage() {
   );
   const trainingStatus = useQuery(
     trpc.analytics.getTrainingStatus.queryOptions(),
+  );
+  const recentActivities = useQuery(
+    trpc.activity.list.queryOptions({ days: 90, sportType: "running" }),
+  );
+  const trainingLoads = useQuery(
+    trpc.analytics.getTrainingLoads.queryOptions(),
   );
 
   // Latest VO2max value
@@ -167,6 +210,84 @@ export default function FitnessPage() {
   const topPercent = latestVO2max
     ? percentileEstimate(latestVO2max.value)
     : null;
+
+  /* ── Workout count for confidence ── */
+  const workoutCount90d = useMemo(() => {
+    return (recentActivities.data ?? []).length;
+  }, [recentActivities.data]);
+
+  const ciPct = confidenceInterval(workoutCount90d);
+
+  /* ── Race history comparison ── */
+  interface Activity {
+    id: string;
+    sportType?: string | null;
+    durationMinutes?: number | null;
+    distanceMeters?: number | null;
+    startedAt?: Date | string | null;
+  }
+  interface RacePred {
+    distance: string;
+    distanceMeters: number;
+    predictedSeconds: number;
+    predictedFormatted: string;
+    vo2maxUsed: number;
+  }
+
+  const RACE_DISTANCES: Record<string, number> = {
+    "5K": 5000,
+    "10K": 10000,
+    half_marathon: 21097,
+    marathon: 42195,
+  };
+  const DISTANCE_LABEL: Record<string, string> = {
+    "5K": "5K", "10K": "10K", half_marathon: "Half Marathon", marathon: "Marathon",
+  };
+
+  const raceHistory = useMemo(() => {
+    const acts = (recentActivities.data ?? []) as Activity[];
+    const preds = (racePredictions.data ?? []) as RacePred[];
+    return preds.flatMap((pred) => {
+      const targetDist = RACE_DISTANCES[pred.distance] ?? pred.distanceMeters;
+      const matching = acts.filter(
+        (a) =>
+          a.distanceMeters != null &&
+          Math.abs(a.distanceMeters - targetDist) / targetDist < 0.1 &&
+          a.durationMinutes != null,
+      );
+      return matching.slice(0, 2).map((a) => {
+        const actualSecs = (a.durationMinutes ?? 0) * 60;
+        const diffSecs = actualSecs - pred.predictedSeconds;
+        return {
+          distance: DISTANCE_LABEL[pred.distance] ?? pred.distance,
+          actual: fmtTime(actualSecs),
+          predicted: pred.predictedFormatted,
+          diff: diffSecs,
+          diffFmt: `${diffSecs >= 0 ? "+" : ""}${fmtTime(Math.abs(diffSecs))}`,
+          date: a.startedAt ? new Date(a.startedAt as string).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "",
+        };
+      });
+    });
+  }, [recentActivities.data, racePredictions.data]);
+
+  /* ── Running Shape gauge (0–100) ── */
+  const runningShape = useMemo(() => {
+    let score = 50;
+    // VO2max trend bonus
+    if (trend?.trend === "improving") score += 20;
+    else if (trend?.trend === "declining") score -= 10;
+    // ACWR adjustment
+    const acwr = trainingLoads.data?.acwr;
+    if (acwr != null) {
+      if (acwr < 0.8) score -= 20;
+      else if (acwr > 1.5) score -= 10;
+      else if (acwr >= 0.8 && acwr <= 1.3) score += 10;
+    }
+    // Workout volume bonus
+    if (workoutCount90d >= 30) score += 20;
+    else if (workoutCount90d >= 15) score += 10;
+    return Math.min(100, Math.max(0, score));
+  }, [trend, trainingLoads.data, workoutCount90d]);
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
@@ -371,6 +492,9 @@ export default function FitnessPage() {
               <span className="font-semibold text-blue-400">
                 {racePredictions.data[0]?.vo2maxUsed.toFixed(1)}
               </span>
+              <span className="text-muted-foreground ml-2">
+                · ±{ciPct}% confidence ({workoutCount90d} workouts/90d)
+              </span>
             </p>
             <div className="space-y-2">
               {racePredictions.data.map((pred) => (
@@ -386,9 +510,11 @@ export default function FitnessPage() {
                       {pacePerKm(pred.predictedSeconds, pred.distanceMeters)}
                     </p>
                   </div>
-                  <p className="text-lg font-bold tabular-nums">
-                    {pred.predictedFormatted}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-lg font-bold tabular-nums">
+                      {fmtWithInterval(pred.predictedSeconds, ciPct)}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -399,6 +525,98 @@ export default function FitnessPage() {
           </p>
         )}
       </div>
+
+      {/* ── Race History Comparison ── */}
+      {raceHistory.length > 0 && (
+        <div className="bg-card rounded-2xl border p-4">
+          <SectionHeader
+            title="Race History Comparison"
+            info="Actual times from recent running activities matched against predicted times. Positive deviation = slower than predicted. Negative = faster."
+            className="mb-3"
+          />
+          <div className="space-y-2">
+            {raceHistory.map((r, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-xl bg-zinc-800/60 px-4 py-2.5"
+              >
+                <div>
+                  <p className="text-sm font-semibold">{r.distance}</p>
+                  <p className="text-muted-foreground text-xs">{r.date}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">{r.actual}</p>
+                  <p className={cn("text-xs font-medium", r.diff > 0 ? "text-red-400" : "text-green-400")}>
+                    {r.diffFmt} vs predicted {r.predicted}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── VDOT Pace Recommendations ── */}
+      {latestVO2max && (
+        <div className="bg-card rounded-2xl border p-4">
+          <SectionHeader
+            title="Training Pace Recommendations"
+            info="Daniels VDOT-based pace zones derived from current VO2max. Simplified model: speed (m/min) = (VO2 - 3.5) / 0.2. Easy = 60-65% VO2max, Marathon = 83%, Threshold = 88-92%, Interval = 95-100%. Citation: Daniels J (2013) Daniels' Running Formula."
+            className="mb-3"
+          />
+          <div className="space-y-2">
+            {[
+              { label: "Easy", emoji: "🟦", fraction: 0.63, info: "60-65% VO2max" },
+              { label: "Marathon", emoji: "🟩", fraction: 0.83, info: "83% VO2max" },
+              { label: "Threshold", emoji: "🟨", fraction: 0.9, info: "88-92% VO2max" },
+              { label: "Interval", emoji: "🟥", fraction: 0.975, info: "95-100% VO2max" },
+            ].map((zone) => (
+              <div key={zone.label} className="flex items-center justify-between rounded-xl bg-zinc-800/60 px-4 py-2.5">
+                <div>
+                  <p className="text-sm font-semibold">
+                    {zone.emoji} {zone.label}
+                  </p>
+                  <p className="text-muted-foreground text-xs">{zone.info}</p>
+                </div>
+                <p className="font-bold tabular-nums">
+                  {vdotPace(latestVO2max.value, zone.fraction)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Running Shape Gauge ── */}
+      {latestVO2max && (
+        <div className="bg-card rounded-2xl border p-4">
+          <SectionHeader
+            title="Running Shape"
+            info="Composite score (0–100) based on: VO2max trend (+20 improving, -10 declining), training volume (up to +20), ACWR health (±10-20). Base: 50."
+            className="mb-3"
+          />
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-secondary/50">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    runningShape >= 75 ? "bg-green-500" : runningShape >= 50 ? "bg-yellow-500" : "bg-red-500",
+                  )}
+                  style={{ width: `${runningShape}%` }}
+                />
+              </div>
+              <span className="w-10 text-right font-bold">{runningShape}</span>
+            </div>
+            <p className={cn(
+              "text-center text-sm font-semibold",
+              runningShape >= 75 ? "text-green-400" : runningShape >= 50 ? "text-yellow-400" : "text-red-400",
+            )}>
+              {runningShape >= 80 ? "Peak Shape" : runningShape >= 65 ? "Good Shape" : runningShape >= 50 ? "Building" : "Off-form"}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Training Status ── */}
       <div className="bg-card rounded-2xl border p-4">

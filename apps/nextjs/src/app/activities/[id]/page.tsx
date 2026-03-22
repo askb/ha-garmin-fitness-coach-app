@@ -299,6 +299,25 @@ function LapTable({
     avgPower?: number;
   }>;
 }) {
+  const hasHr = laps.some((l) => l.avgHr);
+  const hasPower = laps.some((l) => l.avgPower);
+
+  // Fastest / slowest by pace
+  const paces = laps
+    .filter((l) => l.distanceMeters > 0)
+    .map((l) => ({ idx: l.index, pace: (l.durationSeconds / l.distanceMeters) * 1000 }));
+  const fastestIdx = paces.length ? paces.reduce((a, b) => (a.pace < b.pace ? a : b)).idx : -1;
+  const slowestIdx = paces.length ? paces.reduce((a, b) => (a.pace > b.pace ? a : b)).idx : -1;
+
+  function hrZoneColor(hr: number | undefined): string {
+    if (!hr) return "";
+    if (hr < 115) return "text-blue-400";
+    if (hr < 138) return "text-green-400";
+    if (hr < 155) return "text-yellow-400";
+    if (hr < 170) return "text-orange-400";
+    return "text-red-400";
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -308,7 +327,8 @@ function LapTable({
             <th className="pb-2 pr-3">Distance</th>
             <th className="pb-2 pr-3">Time</th>
             <th className="pb-2 pr-3">Pace</th>
-            {laps.some((l) => l.avgHr) && <th className="pb-2 pr-3">HR</th>}
+            {hasHr && <th className="pb-2 pr-3">HR</th>}
+            {hasPower && <th className="pb-2 pr-3">Power</th>}
           </tr>
         </thead>
         <tbody>
@@ -319,18 +339,35 @@ function LapTable({
               lap.distanceMeters > 0
                 ? (lap.durationSeconds / lap.distanceMeters) * 1000
                 : null;
+            const isFastest = lap.index === fastestIdx;
+            const isSlowest = lap.index === slowestIdx && fastestIdx !== slowestIdx;
             return (
-              <tr key={lap.index} className="border-b border-zinc-800">
-                <td className="py-1.5 pr-3 font-medium">{lap.index}</td>
-                <td className="py-1.5 pr-3">
-                  {formatDistance(lap.distanceMeters)}
+              <tr
+                key={lap.index}
+                className={cn(
+                  "border-b border-zinc-800",
+                  isFastest ? "bg-green-500/10" : isSlowest ? "bg-red-500/10" : "",
+                )}
+              >
+                <td className="py-1.5 pr-3 font-medium">
+                  {lap.index}
+                  {isFastest && <span className="ml-1 text-[10px] text-green-400">⚡</span>}
+                  {isSlowest && <span className="ml-1 text-[10px] text-red-400">🐢</span>}
                 </td>
+                <td className="py-1.5 pr-3">{formatDistance(lap.distanceMeters)}</td>
                 <td className="py-1.5 pr-3">
                   {m}:{s.toString().padStart(2, "0")}
                 </td>
                 <td className="py-1.5 pr-3">{formatPace(paceSecPerKm)}</td>
-                {laps.some((l) => l.avgHr) && (
-                  <td className="py-1.5 pr-3">{lap.avgHr ?? "—"}</td>
+                {hasHr && (
+                  <td className={cn("py-1.5 pr-3", hrZoneColor(lap.avgHr))}>
+                    {lap.avgHr ?? "—"}
+                  </td>
+                )}
+                {hasPower && (
+                  <td className="py-1.5 pr-3">
+                    {lap.avgPower != null ? `${Math.round(lap.avgPower)}W` : "—"}
+                  </td>
                 )}
               </tr>
             );
@@ -679,6 +716,104 @@ export default function ActivityDetailPage({
           )}
         </div>
       )}
+
+      {/* ── Efficiency Analysis ── */}
+      {(isRunning || hasPower) && activity.avgHr != null && (
+        <section className="bg-card space-y-3 rounded-xl p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wider">
+            Efficiency Analysis
+          </h2>
+          {isRunning && activity.avgPaceSecPerKm != null && activity.avgHr != null && (
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">Aerobic Efficiency (AeT)</p>
+              <p className="text-lg font-bold">
+                {((100 / activity.avgPaceSecPerKm) * 100 / activity.avgHr).toFixed(2)}
+                <span className="text-muted-foreground ml-1 text-xs font-normal">
+                  (pace-units / HR · higher = better)
+                </span>
+              </p>
+            </div>
+          )}
+          {hasPower && activity.avgPower != null && activity.avgHr != null && (
+            <div className="space-y-1">
+              <p className="text-muted-foreground text-xs">Power:HR Ratio</p>
+              <p className="text-lg font-bold">
+                {(activity.avgPower / activity.avgHr).toFixed(2)}
+                <span className="text-muted-foreground ml-1 text-xs font-normal">W/bpm</span>
+              </p>
+            </div>
+          )}
+          {/* GAP — Grade Adjusted Pace */}
+          {isRunning &&
+            activity.avgPaceSecPerKm != null &&
+            activity.elevationGain != null &&
+            activity.distanceMeters != null &&
+            activity.distanceMeters > 0 && (
+              <div className="space-y-1">
+                <p className="text-muted-foreground text-xs">Flat-Equivalent Pace (GAP)</p>
+                {(() => {
+                  const gap =
+                    activity.avgPaceSecPerKm *
+                    (1 + (activity.elevationGain / activity.distanceMeters) * 0.033);
+                  const m = Math.floor(gap / 60);
+                  const s = Math.round(gap % 60);
+                  return (
+                    <p className="text-lg font-bold">
+                      {m}:{s.toString().padStart(2, "0")}/km
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        GAP
+                      </span>
+                    </p>
+                  );
+                })()}
+              </div>
+            )}
+        </section>
+      )}
+
+      {/* ── HR Zone Mini-Chart ── */}
+      {activity.hrZoneMinutes != null && (() => {
+        const z = activity.hrZoneMinutes as {
+          zone1?: number; zone2?: number; zone3?: number; zone4?: number; zone5?: number;
+        };
+        const zones = [
+          { key: "Z1", val: z.zone1 ?? 0, color: "#3b82f6" },
+          { key: "Z2", val: z.zone2 ?? 0, color: "#22c55e" },
+          { key: "Z3", val: z.zone3 ?? 0, color: "#eab308" },
+          { key: "Z4", val: z.zone4 ?? 0, color: "#f97316" },
+          { key: "Z5", val: z.zone5 ?? 0, color: "#ef4444" },
+        ];
+        const total = zones.reduce((s, z) => s + z.val, 0);
+        if (total === 0) return null;
+        return (
+          <section className="bg-card space-y-3 rounded-xl p-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wider">
+              Zone Distribution
+            </h2>
+            <div className="flex h-4 w-full overflow-hidden rounded-full">
+              {zones.map((z) =>
+                z.val > 0 ? (
+                  <div
+                    key={z.key}
+                    style={{ width: `${(z.val / total) * 100}%`, backgroundColor: z.color }}
+                    title={`${z.key}: ${z.val} min`}
+                  />
+                ) : null,
+              )}
+            </div>
+            <div className="flex flex-wrap gap-3 text-xs">
+              {zones.map((z) => (
+                <span key={z.key} className="flex items-center gap-1">
+                  <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: z.color }} />
+                  <span className="text-muted-foreground">
+                    {z.key}: {z.val}m ({total > 0 ? Math.round((z.val / total) * 100) : 0}%)
+                  </span>
+                </span>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Post-Session Report */}
       <section className="bg-card space-y-4 rounded-2xl border p-4">
