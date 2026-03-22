@@ -464,7 +464,45 @@ export default function ActivityDetailPage({
   const isRunning = activity.sportType?.toLowerCase().includes("run");
   const hasPower =
     activity.avgPower != null || activity.normalizedPower != null;
-  const hasLaps = activity.laps != null && activity.laps.length > 0;
+
+  // Prefer the pre-parsed laps column; fall back to rawGarminData.laps
+  const laps: Array<{
+    index: number;
+    distanceMeters: number;
+    durationSeconds: number;
+    avgHr?: number;
+    avgPace?: number;
+    avgPower?: number;
+  }> = (() => {
+    if (activity.laps != null && activity.laps.length > 0) {
+      return activity.laps;
+    }
+
+    // Try extracting from rawGarminData
+    const raw = activity.rawGarminData as
+      | { laps?: Array<Record<string, unknown>> }
+      | null
+      | undefined;
+    if (!raw?.laps || !Array.isArray(raw.laps) || raw.laps.length === 0) {
+      return [];
+    }
+
+    return raw.laps.map((lap, i) => ({
+      index: i + 1,
+      distanceMeters: Number(lap.distanceInMeters ?? 0),
+      durationSeconds: Number(lap.durationInSeconds ?? 0),
+      avgHr: lap.averageHeartRateInBeatsPerMinute != null
+        ? Number(lap.averageHeartRateInBeatsPerMinute)
+        : undefined,
+      avgPace: lap.averagePaceInMinutesPerKilometer != null
+        ? Number(lap.averagePaceInMinutesPerKilometer) * 60
+        : undefined,
+      avgPower: lap.averagePowerInWatts != null
+        ? Number(lap.averagePowerInWatts)
+        : undefined,
+    }));
+  })();
+  const hasLaps = laps.length > 0;
 
   return (
     <div className="space-y-5">
@@ -688,12 +726,18 @@ export default function ActivityDetailPage({
       )}
 
       {/* Laps */}
-      {hasLaps && (
+      {hasLaps ? (
         <section className="bg-card space-y-3 rounded-xl p-4">
           <h2 className="text-sm font-semibold uppercase tracking-wider">
             Laps
           </h2>
-          <LapTable laps={activity.laps!} />
+          <LapTable laps={laps} />
+        </section>
+      ) : (
+        <section className="bg-card rounded-xl p-4 text-center">
+          <p className="text-muted-foreground text-sm">
+            Lap data not available for this activity.
+          </p>
         </section>
       )}
 

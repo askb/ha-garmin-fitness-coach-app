@@ -410,20 +410,30 @@ export const SessionReportRelations = relations(SessionReport, ({ one }) => ({
 // ---------------------------------------------------------------------------
 // Interventions (recovery actions + outcome tracking)
 // ---------------------------------------------------------------------------
-export const Intervention = pgTable("intervention", (t) => ({
-  id: t.uuid().notNull().primaryKey().defaultRandom(),
-  userId: t.text().notNull(),
-  date: t.date().notNull(),
-  type: t.varchar({ length: 50 }).notNull(),
-  description: t.text(),
-  outcomeNotes: t.text(),
-  effectivenessRating: t.integer(),
-  linkedMetricDate: t.date(),
-  createdAt: t.timestamp().defaultNow().notNull(),
-  updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
-}));
+export const Intervention = pgTable(
+  "intervention",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    type: t.varchar({ length: 50 }).notNull(),
+    description: t.text(),
+    outcomeNotes: t.text(),
+    effectivenessRating: t.integer(),
+    linkedMetricDate: t.date(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .$onUpdateFn(() => sql`now()`),
+  }),
+  (table) => [
+    {
+      name: "intervention_user_date_type_unique",
+      columns: [table.userId, table.date, table.type],
+      unique: true,
+    },
+  ],
+);
 
 export const CreateInterventionSchema = createInsertSchema(Intervention).omit({
   id: true,
@@ -510,7 +520,10 @@ export const CreateRacePredictionSchema = createInsertSchema(
 // ---------------------------------------------------------------------------
 export const WorkoutTimeSeries = pgTable("workout_time_series", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
-  activityId: t.uuid().notNull(),
+  activityId: t
+    .uuid()
+    .notNull()
+    .references(() => Activity.id, { onDelete: "cascade" }),
   timestampOffset: t.integer().notNull(),
   heartRate: t.integer(),
   pace: t.doublePrecision(),

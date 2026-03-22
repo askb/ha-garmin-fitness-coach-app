@@ -55,6 +55,12 @@ const dqDotColor: Record<DataQualityStatus, string> = {
   missing: "text-red-400",
 };
 
+const dqStatusLabel: Record<DataQualityStatus, string> = {
+  good: "good",
+  stale: "stale",
+  missing: "missing",
+};
+
 function DataQualityDots({ dq }: { dq: DataQuality }) {
   const items: [string, DataQualityStatus][] = [
     ["HRV", dq.hrv],
@@ -63,13 +69,19 @@ function DataQualityDots({ dq }: { dq: DataQuality }) {
     ["Load", dq.trainingLoad],
   ];
   return (
-    <div className="mt-2 flex flex-wrap gap-2">
+    <div className="mt-2 flex flex-wrap gap-2" role="list" aria-label="Data quality indicators">
       {items.map(([label, status]) => (
         <span
           key={label}
+          role="listitem"
           className="text-muted-foreground flex items-center gap-1 text-xs"
+          aria-label={`${label}: ${dqStatusLabel[status]}`}
+          title={`${label}: ${dqStatusLabel[status]}`}
         >
-          <span className={cn("text-base leading-none", dqDotColor[status])}>
+          <span
+            className={cn("text-base leading-none", dqDotColor[status])}
+            aria-hidden="true"
+          >
             ●
           </span>
           {label}
