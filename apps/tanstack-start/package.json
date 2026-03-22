@@ -30,7 +30,7 @@
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "better-auth": "catalog:",
-    "nitro": "3.0.1-alpha.1",
+    "nitro": "3.0.1-alpha.2",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "superjson": "2.2.3",
