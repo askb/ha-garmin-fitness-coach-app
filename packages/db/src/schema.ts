@@ -602,6 +602,32 @@ export const ReferenceMeasurement = pgTable("reference_measurement", (t) => ({
 export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeasurement).omit({ id: true, userId: true, createdAt: true });
 
 // ---------------------------------------------------------------------------
+// AI Insights (proactive rules-based and LLM-generated recommendations)
+// ---------------------------------------------------------------------------
+export const AiInsight = pgTable("ai_insight", (t) => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  userId: t.text().notNull(),
+  date: t.date().notNull(),
+  insightType: t.varchar({ length: 50 }).notNull(),
+  // "injury_risk"|"recovery_needed"|"positive_trend"|"load_spike"|
+  // "sleep_debt"|"overreaching"|"peaking"|"correlation_found"
+  severity: t.varchar({ length: 10 }).notNull(), // "info"|"warn"|"critical"
+  title: t.varchar({ length: 200 }).notNull(),
+  body: t.text().notNull(),
+  metrics: t.jsonb().$type<Record<string, number | string>>(), // cited metrics
+  confidence: t.doublePrecision(), // 0-1 confidence
+  actionSuggestion: t.text(),
+  isRead: t.boolean().default(false),
+  generatedBy: t.varchar({ length: 30 }).default("rules"), // "rules"|"llm"
+  createdAt: t.timestamp().defaultNow().notNull(),
+}));
+
+export const CreateAiInsightSchema = createInsertSchema(AiInsight).omit({
+  id: true,
+  createdAt: true,
+});
+
+// ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
 // ---------------------------------------------------------------------------
 export const Post = pgTable("post", (t) => ({
