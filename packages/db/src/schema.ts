@@ -599,7 +599,7 @@ export const ReferenceMeasurement = pgTable("reference_measurement", (t) => ({
   notes: t.text(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
-export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeasurement).omit({ id: true, createdAt: true });
+export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeasurement).omit({ id: true, userId: true, createdAt: true });
 
 // ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
