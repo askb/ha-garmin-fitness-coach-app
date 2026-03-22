@@ -22,9 +22,7 @@
     "lint:ws": "pnpm dlx sherif@latest",
     "postinstall": "pnpm lint:ws",
     "typecheck": "turbo run typecheck",
-    "ui-add": "turbo run ui-add",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ui-add": "turbo run ui-add"
   },
   "devDependencies": {
     "@acme/prettier-config": "workspace:*",
