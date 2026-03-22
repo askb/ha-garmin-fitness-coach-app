@@ -16,7 +16,7 @@ import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
 // ---------------------------------------------------------------------------
-// Tag definitions
+// Tag definitions (legacy lifestyle tags)
 // ---------------------------------------------------------------------------
 
 interface TagDef {
@@ -70,6 +70,37 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const SORENESS_REGIONS = [
+  "quads",
+  "hamstrings",
+  "calves",
+  "glutes",
+  "hip flexors",
+  "lower back",
+  "upper back",
+  "shoulders",
+  "arms",
+  "chest",
+  "neck",
+];
+
+const MENSTRUAL_PHASES = [
+  { key: "follicular", label: "Follicular", emoji: "🌱" },
+  { key: "ovulation", label: "Ovulation", emoji: "🌕" },
+  { key: "luteal", label: "Luteal", emoji: "🍂" },
+  { key: "menstrual", label: "Menstrual", emoji: "🔴" },
+] as const;
+
+type MenstrualPhase = "follicular" | "ovulation" | "luteal" | "menstrual";
+
+const CAFFEINE_OPTIONS = [0, 100, 200, 300, 400];
+const ALCOHOL_OPTIONS = [0, 1, 2, 3, 4, 5];
+const NAP_OPTIONS = [0, 15, 20, 30, 45, 60, 90];
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -93,6 +124,43 @@ function dateRange(days: number): { startDate: string; endDate: string } {
   return { startDate: toDateStr(start), endDate: toDateStr(end) };
 }
 
+function ScoreSlider({
+  value,
+  onChange,
+  min = 1,
+  max = 10,
+  lowLabel,
+  midLabel,
+  highLabel,
+}: {
+  value: number | null;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+  lowLabel: string;
+  midLabel: string;
+  highLabel: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value ?? min}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-primary"
+      />
+      <div className="flex justify-between text-[10px] text-muted-foreground">
+        <span>{lowLabel}</span>
+        <span className="font-bold text-foreground">{value ?? "—"}</span>
+        <span>{highLabel}</span>
+      </div>
+      <p className="text-center text-xs text-muted-foreground">{midLabel}</p>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -109,6 +177,23 @@ export default function JournalPage() {
   );
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
+  // -- Body Feel --
+  const [sorenessScore, setSorenessScore] = useState<number | null>(null);
+  const [sorenessRegions, setSorenessRegions] = useState<string[]>([]);
+  const [moodScore, setMoodScore] = useState<number | null>(null);
+
+  // -- Inputs --
+  const [caffeineAmountMg, setCaffeineAmountMg] = useState<number | null>(null);
+  const [caffeineTime, setCaffeineTime] = useState("");
+  const [alcoholDrinks, setAlcoholDrinks] = useState<number | null>(null);
+  const [napMinutes, setNapMinutes] = useState<number | null>(null);
+  const [medicationsText, setMedicationsText] = useState("");
+
+  // -- Cycle --
+  const [showCycle, setShowCycle] = useState(false);
+  const [menstrualPhase, setMenstrualPhase] =
+    useState<MenstrualPhase | null>(null);
+
   // -- Queries --
   const range = useMemo(() => dateRange(14), []);
 
@@ -116,9 +201,7 @@ export default function JournalPage() {
     trpc.journal.getByDate.queryOptions({ date: selectedDate }),
   );
 
-  const historyQuery = useQuery(
-    trpc.journal.list.queryOptions(range),
-  );
+  const historyQuery = useQuery(trpc.journal.list.queryOptions(range));
 
   const correlationsQuery = useQuery(
     trpc.analytics.getCorrelations.queryOptions({ period: "30d" }),
@@ -133,13 +216,42 @@ export default function JournalPage() {
       (entry?.tags as Record<string, boolean | number | string>) ?? {},
     );
     setNotes((entry?.notes as string) ?? "");
+    setSorenessScore((entry?.sorenessScore as number) ?? null);
+    setSorenessRegions((entry?.sorenessRegions as string[]) ?? []);
+    setMoodScore((entry?.moodScore as number) ?? null);
+    setCaffeineAmountMg((entry?.caffeineAmountMg as number) ?? null);
+    setCaffeineTime((entry?.caffeineTime as string) ?? "");
+    setAlcoholDrinks((entry?.alcoholDrinks as number) ?? null);
+    setNapMinutes((entry?.napMinutes as number) ?? null);
+    setMedicationsText(
+      ((entry?.medications as string[]) ?? []).join(", "),
+    );
+    const phase = entry?.menstrualPhase as MenstrualPhase | undefined;
+    setMenstrualPhase(phase ?? null);
+    if (phase) setShowCycle(true);
     setSyncedDate(loadedDate);
   }
-  // Clear form when switching to a date with no entry
-  if (!entryQuery.isLoading && !entryQuery.data && syncedDate !== selectedDate) {
-    if (syncedDate !== null || Object.keys(tags).length > 0 || notes !== "") {
+  if (
+    !entryQuery.isLoading &&
+    !entryQuery.data &&
+    syncedDate !== selectedDate
+  ) {
+    if (
+      syncedDate !== null ||
+      Object.keys(tags).length > 0 ||
+      notes !== ""
+    ) {
       setTags({});
       setNotes("");
+      setSorenessScore(null);
+      setSorenessRegions([]);
+      setMoodScore(null);
+      setCaffeineAmountMg(null);
+      setCaffeineTime("");
+      setAlcoholDrinks(null);
+      setNapMinutes(null);
+      setMedicationsText("");
+      setMenstrualPhase(null);
       setSyncedDate(selectedDate);
     }
   }
@@ -201,8 +313,36 @@ export default function JournalPage() {
     });
   }
 
+  function toggleSorenessRegion(region: string) {
+    setSorenessRegions((prev) =>
+      prev.includes(region)
+        ? prev.filter((r) => r !== region)
+        : [...prev, region],
+    );
+  }
+
   function handleSave() {
-    upsertMutation.mutate({ date: selectedDate, tags, notes });
+    const medications = medicationsText
+      ? medicationsText
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [];
+
+    upsertMutation.mutate({
+      date: selectedDate,
+      tags,
+      notes: notes || undefined,
+      sorenessScore: sorenessScore ?? undefined,
+      sorenessRegions: sorenessRegions.length ? sorenessRegions : undefined,
+      moodScore: moodScore ?? undefined,
+      caffeineAmountMg: caffeineAmountMg ?? undefined,
+      caffeineTime: caffeineTime || undefined,
+      alcoholDrinks: alcoholDrinks ?? undefined,
+      napMinutes: napMinutes ?? undefined,
+      medications: medications.length ? medications : undefined,
+      menstrualPhase: menstrualPhase ?? undefined,
+    });
   }
 
   function loadEntry(date: string) {
@@ -210,7 +350,6 @@ export default function JournalPage() {
     setSelectedDate(date);
   }
 
-  // -- Navigate date --
   function shiftDate(dir: -1 | 1) {
     const d = new Date(selectedDate + "T12:00:00");
     d.setDate(d.getDate() + dir);
@@ -258,10 +397,173 @@ export default function JournalPage() {
         </Button>
       </div>
 
-      {/* ---- Entry Form ---- */}
+      {/* ---- Body Feel Section ---- */}
+      <div className="bg-card space-y-5 rounded-2xl border p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Body Feel
+        </h2>
+
+        {/* Soreness Score */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">
+            Soreness{" "}
+            <span className="text-muted-foreground font-normal text-xs">
+              (1 = None · 10 = Severe)
+            </span>
+          </p>
+          <ScoreSlider
+            value={sorenessScore}
+            onChange={setSorenessScore}
+            lowLabel="None"
+            midLabel="How sore are you?"
+            highLabel="Severe"
+          />
+        </div>
+
+        {/* Soreness Regions */}
+        {sorenessScore !== null && sorenessScore > 1 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Where?
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {SORENESS_REGIONS.map((region) => (
+                <button
+                  key={region}
+                  onClick={() => toggleSorenessRegion(region)}
+                  className={cn(
+                    "rounded-full border px-2.5 py-1 text-xs transition-all",
+                    sorenessRegions.includes(region)
+                      ? "border-orange-500/50 bg-orange-500/20 text-orange-400"
+                      : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                  )}
+                >
+                  {region}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mood Score */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">
+            Mood{" "}
+            <span className="text-muted-foreground font-normal text-xs">
+              (1 = Low · 10 = Great)
+            </span>
+          </p>
+          <ScoreSlider
+            value={moodScore}
+            onChange={setMoodScore}
+            lowLabel="Low"
+            midLabel="How are you feeling?"
+            highLabel="Great"
+          />
+        </div>
+      </div>
+
+      {/* ---- Inputs Section ---- */}
+      <div className="bg-card space-y-5 rounded-2xl border p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Inputs
+        </h2>
+
+        {/* Caffeine */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">☕ Caffeine</p>
+          <div className="flex flex-wrap gap-2">
+            {CAFFEINE_OPTIONS.map((mg) => (
+              <button
+                key={mg}
+                onClick={() =>
+                  setCaffeineAmountMg(caffeineAmountMg === mg ? null : mg)
+                }
+                className={cn(
+                  "rounded-xl border px-3 py-1.5 text-xs transition-all",
+                  caffeineAmountMg === mg
+                    ? "border-yellow-500/50 bg-yellow-500/20 text-yellow-400"
+                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                )}
+              >
+                {mg === 400 ? "400+" : mg === 0 ? "None" : `${mg}mg`}
+              </button>
+            ))}
+          </div>
+          {caffeineAmountMg !== null && caffeineAmountMg > 0 && (
+            <input
+              type="text"
+              placeholder="Time (HH:MM)"
+              value={caffeineTime}
+              onChange={(e) => setCaffeineTime(e.target.value)}
+              className="bg-secondary/50 border-border rounded-lg border px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+            />
+          )}
+        </div>
+
+        {/* Alcohol */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">🍺 Alcohol</p>
+          <div className="flex flex-wrap gap-2">
+            {ALCOHOL_OPTIONS.map((n) => (
+              <button
+                key={n}
+                onClick={() =>
+                  setAlcoholDrinks(alcoholDrinks === n ? null : n)
+                }
+                className={cn(
+                  "rounded-xl border px-3 py-1.5 text-xs transition-all",
+                  alcoholDrinks === n
+                    ? "border-amber-500/50 bg-amber-500/20 text-amber-400"
+                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                )}
+              >
+                {n === 5 ? "5+" : n === 0 ? "None" : `${n}`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Nap */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">😴 Nap</p>
+          <div className="flex flex-wrap gap-2">
+            {NAP_OPTIONS.map((min) => (
+              <button
+                key={min}
+                onClick={() =>
+                  setNapMinutes(napMinutes === min ? null : min)
+                }
+                className={cn(
+                  "rounded-xl border px-3 py-1.5 text-xs transition-all",
+                  napMinutes === min
+                    ? "border-blue-500/50 bg-blue-500/20 text-blue-400"
+                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                )}
+              >
+                {min === 0 ? "None" : `${min}m`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Medications / Supplements */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium">💊 Medications / Supplements</p>
+          <input
+            type="text"
+            placeholder="e.g. ibuprofen, magnesium (comma-separated)"
+            value={medicationsText}
+            onChange={(e) => setMedicationsText(e.target.value)}
+            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+          />
+        </div>
+      </div>
+
+      {/* ---- Lifestyle Tags Section ---- */}
       <div className="bg-card space-y-4 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-          Tags
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Lifestyle
         </h2>
 
         <div className="grid grid-cols-3 gap-2">
@@ -296,8 +598,9 @@ export default function JournalPage() {
           })}
         </div>
 
+        {/* Notes */}
         <div className="space-y-2">
-          <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Notes
           </h2>
           <textarea
@@ -308,15 +611,58 @@ export default function JournalPage() {
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>
-
-        <Button
-          className="w-full"
-          onClick={handleSave}
-          disabled={upsertMutation.isPending}
-        >
-          {upsertMutation.isPending ? "Saving…" : "Save Entry"}
-        </Button>
       </div>
+
+      {/* ---- Cycle Section ---- */}
+      <div className="bg-card rounded-2xl border p-4">
+        <button
+          onClick={() => setShowCycle((v) => !v)}
+          className="flex w-full items-center justify-between text-sm font-medium"
+        >
+          <span>🩸 Track cycle</span>
+          <span className="text-muted-foreground text-xs">
+            {showCycle ? "▲ Hide" : "▼ Show"}
+          </span>
+        </button>
+
+        {showCycle && (
+          <div className="mt-4 space-y-3">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+              Menstrual Phase
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {MENSTRUAL_PHASES.map((phase) => (
+                <button
+                  key={phase.key}
+                  onClick={() =>
+                    setMenstrualPhase(
+                      menstrualPhase === phase.key ? null : phase.key,
+                    )
+                  }
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-all",
+                    menstrualPhase === phase.key
+                      ? "border-pink-500/50 bg-pink-500/20 text-pink-400"
+                      : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                  )}
+                >
+                  <span>{phase.emoji}</span>
+                  <span className="font-medium">{phase.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ---- Save ---- */}
+      <Button
+        className="w-full"
+        onClick={handleSave}
+        disabled={upsertMutation.isPending}
+      >
+        {upsertMutation.isPending ? "Saving…" : "Save Entry"}
+      </Button>
 
       {/* ---- Journal History ---- */}
       <div>
@@ -363,6 +709,16 @@ export default function JournalPage() {
                       <p className="text-sm font-medium">
                         {fmtDate(entry.date)}
                       </p>
+
+                      {/* Scores summary */}
+                      <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                        {entry.sorenessScore != null && (
+                          <span>😣 {entry.sorenessScore}/10</span>
+                        )}
+                        {entry.moodScore != null && (
+                          <span>😊 {entry.moodScore}/10</span>
+                        )}
+                      </div>
 
                       {activeTagKeys.length > 0 && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -489,7 +845,11 @@ export default function JournalPage() {
                   </p>
                   <p className="text-muted-foreground text-xs">
                     r = {c.rValue.toFixed(2)} ·{" "}
-                    {c.direction === "positive" ? "↑" : c.direction === "negative" ? "↓" : "→"}
+                    {c.direction === "positive"
+                      ? "↑"
+                      : c.direction === "negative"
+                        ? "↓"
+                        : "→"}
                   </p>
                 </div>
                 <span

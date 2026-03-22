@@ -46,24 +46,71 @@ export const journalRouter = {
           z.union([z.boolean(), z.number(), z.string()]),
         ),
         notes: z.string().optional(),
+        sorenessScore: z.number().int().min(1).max(10).optional(),
+        sorenessRegions: z.array(z.string()).optional(),
+        moodScore: z.number().int().min(1).max(10).optional(),
+        caffeineAmountMg: z.number().int().min(0).optional(),
+        caffeineTime: z.string().optional(),
+        alcoholDrinks: z.number().int().min(0).optional(),
+        napMinutes: z.number().int().min(0).optional(),
+        medications: z.array(z.string()).optional(),
+        menstrualPhase: z
+          .enum(["follicular", "ovulation", "luteal", "menstrual"])
+          .optional()
+          .nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
+      const {
+        date,
+        tags,
+        notes,
+        sorenessScore,
+        sorenessRegions,
+        moodScore,
+        caffeineAmountMg,
+        caffeineTime,
+        alcoholDrinks,
+        napMinutes,
+        medications,
+        menstrualPhase,
+      } = input;
+
+      const values = {
+        userId,
+        date,
+        tags,
+        notes,
+        sorenessScore,
+        sorenessRegions,
+        moodScore,
+        caffeineAmountMg,
+        caffeineTime,
+        alcoholDrinks,
+        napMinutes,
+        medications,
+        menstrualPhase,
+      };
+
       const [entry] = await ctx.db
         .insert(JournalEntry)
-        .values({
-          userId,
-          date: input.date,
-          tags: input.tags,
-          notes: input.notes,
-        })
+        .values(values)
         .onConflictDoUpdate({
           target: [JournalEntry.userId, JournalEntry.date],
           set: {
-            tags: input.tags,
-            notes: input.notes,
+            tags,
+            notes,
+            sorenessScore,
+            sorenessRegions,
+            moodScore,
+            caffeineAmountMg,
+            caffeineTime,
+            alcoholDrinks,
+            napMinutes,
+            medications,
+            menstrualPhase,
           },
         })
         .returning();
