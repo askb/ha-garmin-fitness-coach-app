@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
+import { toast } from "@acme/ui/toast";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
@@ -415,6 +416,7 @@ export default function InsightsPage() {
           queryKey: trpc.proactive.listInsights.queryKey(),
         });
       },
+      onError: (err) => toast.error(err.message),
     }),
   );
   const markReadMutation = useMutation(

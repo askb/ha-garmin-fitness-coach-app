@@ -66,7 +66,14 @@ export default function TeamPage() {
       return;
     }
     let url = newUrl.trim();
-    if (!url.startsWith("http")) url = `https://${url}`;
+    try {
+      const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
+      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid protocol");
+      url = parsed.href;
+    } catch {
+      toast.error("Please enter a valid HTTP/HTTPS URL");
+      return;
+    }
     const updated = [...athletes, { name: newName.trim(), url, lastReadiness: null }];
     setAthletes(updated);
     saveAthletes(updated);

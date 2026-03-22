@@ -389,8 +389,8 @@ export const SessionReport = pgTable(
   }),
   (table) => [
     {
-      name: "session_report_activity_unique",
-      columns: [table.activityId],
+      name: "session_report_activity_user_unique",
+      columns: [table.activityId, table.userId],
       unique: true,
     },
   ],
@@ -581,6 +581,7 @@ export const AuditLog = pgTable("audit_log", (t) => ({
   appVersion: t.varchar({ length: 20 }),
   syncedAt: t.timestamp().defaultNow().notNull(),
 }));
+export const CreateAuditLogSchema = createInsertSchema(AuditLog).omit({ id: true, syncedAt: true });
 
 // ---------------------------------------------------------------------------
 // Reference Measurements (lab/device vs Garmin comparison)
@@ -604,27 +605,41 @@ export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeas
 // ---------------------------------------------------------------------------
 // AI Insights (proactive rules-based and LLM-generated recommendations)
 // ---------------------------------------------------------------------------
-export const AiInsight = pgTable("ai_insight", (t) => ({
-  id: t.uuid().notNull().primaryKey().defaultRandom(),
-  userId: t.text().notNull(),
-  date: t.date().notNull(),
-  insightType: t.varchar({ length: 50 }).notNull(),
-  // "injury_risk"|"recovery_needed"|"positive_trend"|"load_spike"|
-  // "sleep_debt"|"overreaching"|"peaking"|"correlation_found"
-  severity: t.varchar({ length: 10 }).notNull(), // "info"|"warn"|"critical"
-  title: t.varchar({ length: 200 }).notNull(),
-  body: t.text().notNull(),
-  metrics: t.jsonb().$type<Record<string, number | string>>(), // cited metrics
-  confidence: t.doublePrecision(), // 0-1 confidence
-  actionSuggestion: t.text(),
-  isRead: t.boolean().default(false),
-  generatedBy: t.varchar({ length: 30 }).default("rules"), // "rules"|"llm"
-  createdAt: t.timestamp().defaultNow().notNull(),
-}));
+export const AiInsight = pgTable(
+  "ai_insight",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    insightType: t.varchar({ length: 50 }).notNull(),
+    // "injury_risk"|"recovery_needed"|"positive_trend"|"load_spike"|
+    // "sleep_debt"|"overreaching"|"peaking"|"correlation_found"
+    severity: t.varchar({ length: 10 }).notNull(), // "info"|"warn"|"critical"
+    title: t.varchar({ length: 200 }).notNull(),
+    body: t.text().notNull(),
+    metrics: t.jsonb().$type<Record<string, number | string>>(), // cited metrics
+    confidence: t.doublePrecision(), // 0-1 confidence
+    actionSuggestion: t.text(),
+    isRead: t.boolean().default(false),
+    generatedBy: t.varchar({ length: 30 }).default("rules"), // "rules"|"llm"
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .$onUpdateFn(() => sql`now()`),
+  }),
+  (table) => [
+    {
+      name: "ai_insight_user_date_type_unique",
+      columns: [table.userId, table.date, table.insightType],
+      unique: true,
+    },
+  ],
+);
 
 export const CreateAiInsightSchema = createInsertSchema(AiInsight).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 // ---------------------------------------------------------------------------

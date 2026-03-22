@@ -55,7 +55,6 @@ interface ActivityData {
 export default function PowerPage() {
   const trpc = useTRPC();
 
-  // @ts-ignore — route added by gc-backend branch
   const latest = useQuery(trpc.advancedMetrics.getLatest.queryOptions());
   const activities = useQuery(trpc.activity.list.queryOptions({ days: 90 }));
 
