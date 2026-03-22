@@ -2,10 +2,8 @@
 
 // Data Export & Portability
 
-import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
@@ -57,9 +55,6 @@ function formatDateForFilename() {
 
 export default function ExportPage() {
   const trpc = useTRPC();
-  const [importPreview, setImportPreview] = useState<null | Record<string, number>>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Data queries
   const activities = useQuery(trpc.activity.list.queryOptions({ days: 365 }));
@@ -123,35 +118,6 @@ export default function ExportPage() {
     };
     exportToJSON(payload, `garmincoach-backup-${formatDateForFilename()}.json`);
   }
-
-  /* ── Import ── */
-  const handleFile = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const parsed = JSON.parse(e.target?.result as string) as Record<string, unknown>;
-        const preview: Record<string, number> = {};
-        if (Array.isArray(parsed.activities))
-          preview["Activities"] = parsed.activities.length;
-        if (Array.isArray(parsed.journal)) preview["Journal"] = parsed.journal.length;
-        if (parsed.metrics) preview["Metrics snapshot"] = 1;
-        setImportPreview(preview);
-      } catch {
-        toast.error("Invalid file — expected GarminCoach JSON backup");
-      }
-    };
-    reader.readAsText(file);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-      const file = e.dataTransfer.files[0];
-      if (file) handleFile(file);
-    },
-    [handleFile],
-  );
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
@@ -268,67 +234,17 @@ export default function ExportPage() {
         </Button>
       </div>
 
-      {/* ── Import ── */}
-      <div className="bg-card rounded-2xl border p-4 space-y-3">
-        <div>
+      {/* ── Import (Coming Soon) ── */}
+      <div className="bg-card rounded-2xl border p-4 space-y-3 opacity-75">
+        <div className="flex items-center gap-2">
           <h2 className="font-semibold">Import from File</h2>
-          <p className="text-muted-foreground text-xs mt-0.5">
-            Accepted formats: JSON backup from this app
-          </p>
+          <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
+            Coming Soon
+          </span>
         </div>
-
-        {/* Drag-and-drop zone */}
-        <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-          className={cn(
-            "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors",
-            isDragging
-              ? "border-primary/60 bg-primary/10"
-              : "border-border hover:border-primary/40 hover:bg-secondary/30",
-          )}
-        >
-          <span className="text-3xl">📂</span>
-          <p className="mt-2 text-sm font-medium">Drop file here or click to browse</p>
-          <p className="text-muted-foreground text-xs">Supports GarminCoach .json backups</p>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
-          }}
-        />
-
-        {/* Preview */}
-        {importPreview && (
-          <div className="bg-secondary/40 rounded-xl p-4 space-y-3">
-            <p className="text-sm font-semibold">Preview — records to import:</p>
-            <div className="space-y-1">
-              {Object.entries(importPreview).map(([key, count]) => (
-                <div key={key} className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{key}</span>
-                  <span className="font-bold">{count}</span>
-                </div>
-              ))}
-            </div>
-            <Button
-              className="w-full"
-              variant="outline"
-              onClick={() => {
-                toast.success("Import functionality coming soon");
-                setImportPreview(null);
-              }}
-            >
-              Confirm Import
-            </Button>
-          </div>
-        )}
+        <p className="text-muted-foreground text-xs mt-0.5">
+          Import coming in a future update. You&apos;ll be able to restore JSON backups exported from this app.
+        </p>
       </div>
 
       <BottomNav />

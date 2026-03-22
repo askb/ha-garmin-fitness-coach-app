@@ -59,7 +59,7 @@ export const sessionReportRouter = {
           internalLoad,
         })
         .onConflictDoUpdate({
-          target: [SessionReport.activityId],
+          target: [SessionReport.activityId, SessionReport.userId],
           set: {
             rpe: input.rpe,
             sessionType: input.sessionType,

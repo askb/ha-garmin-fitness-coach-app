@@ -141,7 +141,7 @@ export const proactiveRouter = {
     // ── Rule 3: HRV Baseline Deviation ──
     const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
     if (hrvBaseline && today_metric?.hrv != null) {
-      const sd = (hrvBaseline as { stdDev?: number }).stdDev ?? 0;
+      const sd = hrvBaseline.baselineSD ?? 0;
       const hrvResult = checkHrvDeviation(
         today_metric.hrv,
         hrvBaseline.baselineValue,

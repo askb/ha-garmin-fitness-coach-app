@@ -326,7 +326,7 @@ export default function JournalPage() {
       ? medicationsText
           .split(",")
           .map((s) => s.trim())
-          .filter(Boolean)
+          .filter((s) => s.length > 0)
       : [];
 
     upsertMutation.mutate({
