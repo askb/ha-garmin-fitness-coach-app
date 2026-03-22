@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -38,8 +38,8 @@ export const Profile = pgTable("profile", (t) => ({
   audienceMode: t.varchar({ length: 20 }).default("all"),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+    .$onUpdateFn(() => new Date()),
 }));
 
 export const CreateProfileSchema = createInsertSchema(Profile, {
@@ -335,8 +335,8 @@ export const JournalEntry = pgTable(
     menstrualPhase: t.varchar({ length: 20 }),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true })
-      .$onUpdateFn(() => sql`now()`),
+      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .$onUpdateFn(() => new Date()),
   }),
   (table) => [
     {
@@ -384,8 +384,8 @@ export const SessionReport = pgTable(
     internalLoad: t.doublePrecision(),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true })
-      .$onUpdateFn(() => sql`now()`),
+      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .$onUpdateFn(() => new Date()),
   }),
   (table) => [
     {
@@ -423,8 +423,8 @@ export const Intervention = pgTable(
     linkedMetricDate: t.date(),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true })
-      .$onUpdateFn(() => sql`now()`),
+      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .$onUpdateFn(() => new Date()),
   }),
   (table) => [
     {
@@ -637,8 +637,8 @@ export const AiInsight = pgTable(
     generatedBy: t.varchar({ length: 30 }).default("rules"), // "rules"|"llm"
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true })
-      .$onUpdateFn(() => sql`now()`),
+      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .$onUpdateFn(() => new Date()),
   }),
   (table) => [
     {
@@ -664,8 +664,8 @@ export const Post = pgTable("post", (t) => ({
   content: t.text().notNull(),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+    .$onUpdateFn(() => new Date()),
 }));
 
 export const CreatePostSchema = createInsertSchema(Post, {
