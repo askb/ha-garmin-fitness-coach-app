@@ -126,7 +126,14 @@ export const chatRouter = {
         }
       }
 
-      // 6. Save assistant response
+      // 6. Append medical disclaimer
+      const disclaimer =
+        "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
+        "Individual results may vary. Consult a qualified healthcare professional " +
+        "for personalized advice, especially if you have pre-existing health conditions.*";
+      responseContent += disclaimer;
+
+      // 7. Save assistant response
       const agentLabel = AGENT_LABELS[input.agent];
       const [assistantMsg] = await ctx.db
         .insert(ChatMessage)

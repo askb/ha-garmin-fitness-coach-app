@@ -36,6 +36,16 @@ export const Profile = pgTable("profile", (t) => ({
   lactateThreshold: t.integer(),
   functionalThresholdPower: t.doublePrecision(),
   audienceMode: t.varchar({ length: 20 }).default("all"),
+  healthConditions: t
+    .jsonb()
+    .$type<string[]>()
+    .default([]),
+  currentInjuries: t
+    .jsonb()
+    .$type<{ bodyPart: string; severity: "mild" | "moderate" | "severe"; since?: string; notes?: string }[]>()
+    .default([]),
+  medications: t.text(),
+  allergies: t.text(),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: "date", withTimezone: true }).defaultNow()
