@@ -385,9 +385,9 @@ export default function CoachPage() {
         )}
       </div>
 
-      {/* Quick Actions */}
-      {messages.length === 0 && !history.isLoading && (
-        <div className="flex gap-2 overflow-x-auto px-4 pb-2">
+      {/* Quick Actions — always visible above input */}
+      {!history.isLoading && (
+        <div className="flex gap-2 overflow-x-auto border-t border-zinc-800/50 px-4 py-2">
           {agentConfig.quickActions.map((action) => (
             <button
               key={action.label}
