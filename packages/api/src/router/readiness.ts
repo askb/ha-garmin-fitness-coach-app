@@ -20,9 +20,9 @@ import type { DailyMetricInput, Baselines } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
-type DataQualityStatus = "good" | "missing" | "stale";
+export type DataQualityStatus = "good" | "missing" | "stale";
 
-interface DataQuality {
+export interface DataQuality {
   hrv: DataQualityStatus;
   sleep: DataQualityStatus;
   restingHr: DataQualityStatus;

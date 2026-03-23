@@ -72,4 +72,29 @@ export const profileRouter = {
         .set(input)
         .where(eq(Profile.userId, ctx.session.user.id));
     }),
+
+  updateHealth: protectedProcedure
+    .input(
+      z.object({
+        healthConditions: z.array(z.string()).optional(),
+        currentInjuries: z
+          .array(
+            z.object({
+              bodyPart: z.string(),
+              severity: z.enum(["mild", "moderate", "severe"]),
+              since: z.string().optional(),
+              notes: z.string().optional(),
+            }),
+          )
+          .optional(),
+        medications: z.string().optional(),
+        allergies: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(Profile)
+        .set(input)
+        .where(eq(Profile.userId, ctx.session.user.id));
+    }),
 } satisfies TRPCRouterRecord;

@@ -11,6 +11,24 @@ import { Label } from "@acme/ui/label";
 
 import { cn } from "@acme/ui";
 
+const HEALTH_CONDITIONS = [
+  { id: "asthma", label: "🫁 Asthma", desc: "Exercise-induced or chronic" },
+  { id: "hypertension", label: "❤️‍🩹 High Blood Pressure", desc: "Managed or unmanaged" },
+  { id: "diabetes_t1", label: "💉 Type 1 Diabetes", desc: "Insulin-dependent" },
+  { id: "diabetes_t2", label: "🩺 Type 2 Diabetes", desc: "Diet/medication managed" },
+  { id: "heart_condition", label: "🫀 Heart Condition", desc: "Arrhythmia, murmur, etc." },
+  { id: "joint_issues", label: "🦴 Joint Problems", desc: "Arthritis, chronic pain" },
+  { id: "back_issues", label: "🔙 Back Problems", desc: "Herniation, chronic pain" },
+  { id: "respiratory", label: "😮‍💨 Respiratory Issues", desc: "COPD, sleep apnea" },
+  { id: "thyroid", label: "🦋 Thyroid Disorder", desc: "Hypo/hyperthyroidism" },
+  { id: "anxiety_depression", label: "🧠 Anxiety/Depression", desc: "Affects training motivation" },
+];
+
+const BODY_PARTS = [
+  "knee", "ankle", "hip", "shoulder", "lower_back", "upper_back",
+  "wrist", "elbow", "neck", "foot", "shin", "hamstring", "calf", "quad",
+];
+
 const SPORTS = ["running", "cycling", "strength", "swimming", "team_sport"];
 const GOALS = ["maintain", "performance", "body_composition", "return_from_injury"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -35,6 +53,10 @@ export default function OnboardingPage() {
   const [goals, setGoals] = useState<{ sport: string; goalType: string }[]>([]);
   const [weeklyDays, setWeeklyDays] = useState<string[]>(["mon", "wed", "fri", "sat"]);
   const [minutesPerDay, setMinutesPerDay] = useState(45);
+  const [healthConditions, setHealthConditions] = useState<string[]>([]);
+  const [injuries, setInjuries] = useState<{ bodyPart: string; severity: "mild" | "moderate" | "severe"; since?: string; notes?: string }[]>([]);
+  const [medications, setMedications] = useState("");
+  const [allergies, setAllergies] = useState("");
 
   const upsertProfile = useMutation(
     trpc.profile.upsert.mutationOptions({
@@ -69,6 +91,10 @@ export default function OnboardingPage() {
       })),
       weeklyDays,
       minutesPerDay,
+      healthConditions,
+      currentInjuries: injuries,
+      medications: medications || undefined,
+      allergies: allergies || undefined,
     });
   };
 
@@ -226,6 +252,147 @@ export default function OnboardingPage() {
           <span>15 min</span>
           <span>120 min</span>
         </div>
+      </div>
+    </div>,
+
+    // Step 3: Health & Safety
+    <div key="health" className="space-y-4">
+      <h2 className="text-xl font-bold">Health & Safety</h2>
+      <p className="text-muted-foreground text-sm">
+        Optional — helps us tailor safe recommendations for your body.
+      </p>
+
+      {/* Health conditions */}
+      <div>
+        <Label className="text-sm font-medium">Any health conditions?</Label>
+        <div className="mt-2 grid grid-cols-1 gap-2">
+          {HEALTH_CONDITIONS.map((c) => (
+            <button
+              key={c.id}
+              onClick={() =>
+                setHealthConditions((prev) =>
+                  prev.includes(c.id)
+                    ? prev.filter((x) => x !== c.id)
+                    : [...prev, c.id],
+                )
+              }
+              className={cn(
+                "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors",
+                healthConditions.includes(c.id)
+                  ? "border-primary bg-primary/5"
+                  : "hover:border-foreground/20",
+              )}
+            >
+              <span className="text-lg leading-none">{c.label.split(" ")[0]}</span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">{c.label.split(" ").slice(1).join(" ")}</p>
+                <p className="text-muted-foreground text-xs">{c.desc}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Current injuries */}
+      <div>
+        <Label className="text-sm font-medium">Any current injuries?</Label>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {BODY_PARTS.map((part) => {
+            const existing = injuries.find((i) => i.bodyPart === part);
+            return (
+              <button
+                key={part}
+                onClick={() =>
+                  setInjuries((prev) =>
+                    existing
+                      ? prev.filter((i) => i.bodyPart !== part)
+                      : [...prev, { bodyPart: part, severity: "mild" as const }],
+                  )
+                }
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-xs capitalize transition-colors",
+                  existing
+                    ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                    : "text-muted-foreground hover:border-foreground/30",
+                )}
+              >
+                {part.replace("_", " ")}
+              </button>
+            );
+          })}
+        </div>
+        {injuries.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {injuries.map((injury) => (
+              <div key={injury.bodyPart} className="flex items-center gap-2 text-sm">
+                <span className="capitalize font-medium min-w-[80px]">
+                  {injury.bodyPart.replace("_", " ")}:
+                </span>
+                {(["mild", "moderate", "severe"] as const).map((sev) => (
+                  <button
+                    key={sev}
+                    onClick={() =>
+                      setInjuries((prev) =>
+                        prev.map((i) =>
+                          i.bodyPart === injury.bodyPart
+                            ? { ...i, severity: sev }
+                            : i,
+                        ),
+                      )
+                    }
+                    className={cn(
+                      "rounded-md border px-2 py-0.5 text-xs capitalize",
+                      injury.severity === sev
+                        ? sev === "mild"
+                          ? "border-green-500 bg-green-500/10 text-green-700"
+                          : sev === "moderate"
+                            ? "border-amber-500 bg-amber-500/10 text-amber-700"
+                            : "border-red-500 bg-red-500/10 text-red-700"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {sev}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Medications */}
+      <div>
+        <Label>Current medications</Label>
+        <Input
+          value={medications}
+          onChange={(e) => setMedications(e.target.value)}
+          placeholder="e.g., Beta-blockers, Metformin, Inhaler…"
+        />
+      </div>
+
+      {/* Allergies */}
+      <div>
+        <Label>Allergies or sensitivities</Label>
+        <Input
+          value={allergies}
+          onChange={(e) => setAllergies(e.target.value)}
+          placeholder="e.g., Pollen, lactose intolerant…"
+        />
+      </div>
+
+      <p className="text-muted-foreground text-xs italic">
+        💡 All health information is optional and stored locally. It helps our AI
+        avoid unsafe recommendations.
+      </p>
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+        <p className="text-xs text-amber-700 dark:text-amber-400">
+          <strong>⚠️ Medical Disclaimer:</strong> GarminCoach is not a substitute
+          for professional medical advice, diagnosis, or treatment. Recommendations
+          are generated by AI and may not account for all individual factors.
+          Always consult a qualified healthcare professional before starting or
+          modifying any exercise program, especially if you have pre-existing
+          health conditions. Individual results may vary.
+        </p>
       </div>
     </div>,
   ];
