@@ -7,6 +7,7 @@ import { ChatMessage } from "@acme/db/schema";
 import { protectedProcedure } from "../trpc";
 import { ollamaChat } from "../lib/ollama";
 import type { OllamaMessage } from "../lib/ollama";
+import { openclawChat } from "../lib/openclaw";
 import { getAgentPrompt } from "../lib/agent-prompts";
 import type { AgentType } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
@@ -87,33 +88,42 @@ export const chatRouter = {
       // 2. Build data context from real Garmin data
       const dataContext = await buildDataContext(ctx.db, userId);
 
-      // 3. Get recent chat history (last 10 messages for conversational context)
+      // 3. Get agent-specific system prompt
+      const systemPrompt = getAgentPrompt(input.agent);
+
+      // 4. Get recent chat history (last 10 messages for conversational context)
       const history = await ctx.db.query.ChatMessage.findMany({
         where: eq(ChatMessage.userId, userId),
         orderBy: desc(ChatMessage.createdAt),
         limit: 10,
       });
 
-      // 4. Assemble Ollama messages
-      const systemPrompt = getAgentPrompt(input.agent);
-      const messages: OllamaMessage[] = [
-        {
-          role: "system",
-          content: `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}`,
-        },
-        // Oldest → newest
-        ...history.reverse().map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-      ];
-
-      // 5. Call Ollama
+      // 5. Call AI backend: OpenClaw (HA) → Ollama → fallback
       let responseContent: string;
+      const fullPrompt = `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}\n\n## User Question\n${input.content}`;
+
       try {
-        responseContent = await ollamaChat(messages, { temperature: 0.7 });
+        // Try OpenClaw via HA Supervisor API first (zero config if running in HA)
+        responseContent = await openclawChat(fullPrompt);
       } catch {
-        responseContent = `⚠️ AI service unavailable. Falling back to data summary:\n\n${generateFallbackResponse(input.content, dataContext)}`;
+        // Fall back to Ollama
+        try {
+          const ollamaMessages: OllamaMessage[] = [
+            {
+              role: "system",
+              content: `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}`,
+            },
+            ...history.reverse().map((m) => ({
+              role: m.role as "user" | "assistant",
+              content: m.content,
+            })),
+          ];
+          responseContent = await ollamaChat(ollamaMessages, {
+            temperature: 0.7,
+          });
+        } catch {
+          responseContent = `⚠️ AI service unavailable. Falling back to data summary:\n\n${generateFallbackResponse(input.content, dataContext)}`;
+        }
       }
 
       // 6. Save assistant response
