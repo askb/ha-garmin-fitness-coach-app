@@ -416,5 +416,257 @@ export async function buildDataContext(
     if (lines.length > 1) sections.push(lines.join("\n"));
   }
 
+  // 11. Metric Trends (Direction & Rate of Change) --------------------------
+  {
+    const lines: string[] = ["## Metric Trends (Direction & Rate of Change)"];
+
+    const trendEmoji = (pctChange: number): string => {
+      if (pctChange > 2) return "↑";
+      if (pctChange < -2) return "↓";
+      return "→";
+    };
+
+    const fmtPct = (v: number): string =>
+      `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+
+    // Helper: find a metric value N days ago from a sorted (desc) array
+    const findValueNDaysAgo = <T extends { date: string }>(
+      arr: T[],
+      daysAgo: number,
+      getter: (item: T) => number | null | undefined,
+    ): number | null => {
+      const target = dateNDaysAgo(daysAgo);
+      // Find closest entry on or before the target date
+      for (const item of arr) {
+        if (item.date <= target) {
+          const v = getter(item);
+          return v != null ? v : null;
+        }
+      }
+      return null;
+    };
+
+    const latestAdvMetric = advancedMetrics42[0];
+
+    // CTL trend
+    if (latestAdvMetric?.ctl != null) {
+      const ctl7 = findValueNDaysAgo(advancedMetrics42, 7, (m) => m.ctl);
+      const ctl30 = findValueNDaysAgo(advancedMetrics42, 30, (m) => m.ctl);
+      const now = latestAdvMetric.ctl;
+      if (ctl7 != null) {
+        const pct = ctl7 !== 0 ? ((now - ctl7) / Math.abs(ctl7)) * 100 : 0;
+        const label = pct > 2 ? "improving fitness" : pct < -2 ? "declining fitness" : "stable fitness";
+        lines.push(`- CTL: ${ctl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`);
+      }
+      if (ctl30 != null) {
+        const pct = ctl30 !== 0 ? ((now - ctl30) / Math.abs(ctl30)) * 100 : 0;
+        lines.push(`- CTL 30-day: ${ctl30.toFixed(1)} → ${now.toFixed(1)} (${trendEmoji(pct)} ${fmtPct(pct)})`);
+      }
+    }
+
+    // ATL trend
+    if (latestAdvMetric?.atl != null) {
+      const atl7 = findValueNDaysAgo(advancedMetrics42, 7, (m) => m.atl);
+      const now = latestAdvMetric.atl;
+      if (atl7 != null) {
+        const pct = atl7 !== 0 ? ((now - atl7) / Math.abs(atl7)) * 100 : 0;
+        const label = pct > 2 ? "increasing fatigue" : pct < -2 ? "decreasing fatigue" : "stable fatigue";
+        lines.push(`- ATL: ${atl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`);
+      }
+    }
+
+    // TSB trend
+    if (latestAdvMetric?.tsb != null) {
+      const tsb7 = findValueNDaysAgo(advancedMetrics42, 7, (m) => m.tsb);
+      const now = latestAdvMetric.tsb;
+      if (tsb7 != null) {
+        const pct = tsb7 !== 0 ? ((now - tsb7) / Math.abs(tsb7)) * 100 : 0;
+        const label = now < -20 ? "overreaching risk" : pct < -2 ? "declining form — may need deload" : pct > 2 ? "improving form" : "stable form";
+        lines.push(`- TSB: ${tsb7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${label})`);
+      }
+    }
+
+    // ACWR trend
+    if (latestAdvMetric?.acwr != null) {
+      const acwr7 = findValueNDaysAgo(advancedMetrics42, 7, (m) => m.acwr);
+      const now = latestAdvMetric.acwr;
+      if (acwr7 != null) {
+        const pct = acwr7 !== 0 ? ((now - acwr7) / Math.abs(acwr7)) * 100 : 0;
+        const rangeLabel = now >= 0.8 && now <= 1.3 ? "within safe range" : now > 1.3 ? "elevated — injury risk" : "under-training zone";
+        lines.push(`- ACWR: ${acwr7.toFixed(2)} → ${now.toFixed(2)} over 7 days (${trendEmoji(pct)} ${rangeLabel})`);
+      }
+    }
+
+    // Resting HR trend (from metrics14)
+    const todayMetric = metrics14[0];
+    const day7Metric = metrics14.find((m) => m.date <= dateNDaysAgo(7));
+    if (todayMetric?.restingHr != null && day7Metric?.restingHr != null) {
+      const now = todayMetric.restingHr;
+      const prev = day7Metric.restingHr;
+      const pct = prev !== 0 ? ((now - prev) / Math.abs(prev)) * 100 : 0;
+      const hrBaseline = baselines.find((b) => b.metricName === "restingHr");
+      let zContext = "";
+      if (hrBaseline?.zScoreLatest != null) {
+        const z = hrBaseline.zScoreLatest;
+        zContext = z > 1.0 ? " — above baseline" : z < -1.0 ? " — below baseline" : "";
+      }
+      lines.push(`- Resting HR: ${prev} → ${now} bpm over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`);
+    }
+
+    // HRV trend (from metrics14)
+    if (todayMetric?.hrv != null && day7Metric?.hrv != null) {
+      const now = todayMetric.hrv;
+      const prev = day7Metric.hrv;
+      const pct = prev !== 0 ? ((now - prev) / Math.abs(prev)) * 100 : 0;
+      const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
+      let zContext = "";
+      if (hrvBaseline?.zScoreLatest != null) {
+        const z = hrvBaseline.zScoreLatest;
+        zContext = z < -1.5 ? " — recovery concern" : z < -0.5 ? " — monitor" : "";
+      }
+      lines.push(`- HRV: ${Math.round(prev)} → ${Math.round(now)} ms over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`);
+    }
+
+    // Sleep score trend (7-day avg vs prior 7-day avg from metrics14)
+    {
+      const recent7 = metrics14.slice(0, 7).filter((m) => m.sleepScore != null);
+      const prior7 = metrics14.slice(7, 14).filter((m) => m.sleepScore != null);
+      if (recent7.length >= 3 && prior7.length >= 3) {
+        const recentAvg = recent7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / recent7.length;
+        const priorAvg = prior7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / prior7.length;
+        const pct = priorAvg !== 0 ? ((recentAvg - priorAvg) / Math.abs(priorAvg)) * 100 : 0;
+        const label = pct < -2 ? "declining — prioritize sleep" : pct > 2 ? "improving" : "stable";
+        lines.push(`- Sleep Score: ${Math.round(priorAvg)} → ${Math.round(recentAvg)} avg over 7 days (${trendEmoji(pct)} ${label})`);
+      }
+    }
+
+    // VO2max trend (30-day)
+    if (latestVo2) {
+      const vo2_30 = findValueNDaysAgo(advancedMetrics42, 30, (m) => m.effectiveVo2max);
+      if (vo2_30 != null) {
+        const now = latestVo2.value;
+        const pct = vo2_30 !== 0 ? ((now - vo2_30) / Math.abs(vo2_30)) * 100 : 0;
+        const label = Math.abs(pct) <= 2 ? "stable, no significant change in 30 days" : pct > 0 ? "improving" : "declining";
+        lines.push(`- VO2max: ${vo2_30.toFixed(1)} → ${now.toFixed(1)} over 30 days (${trendEmoji(pct)} ${label})`);
+      } else {
+        lines.push(`- VO2max: ${latestVo2.value.toFixed(1)} (insufficient history for trend)`);
+      }
+    }
+
+    if (lines.length > 1) sections.push(lines.join("\n"));
+  }
+
+  // 12. Chart Interpretation Guide ------------------------------------------
+  {
+    const lines: string[] = ["## Chart Interpretation Guide"];
+    const latestAdvMetric = advancedMetrics42[0];
+
+    // PMC Chart interpretation
+    if (latestAdvMetric?.ctl != null && latestAdvMetric.atl != null && latestAdvMetric.tsb != null) {
+      const ctl7 = advancedMetrics42.find((m) => m.date <= dateNDaysAgo(7));
+      let rampNote = "";
+      if (ctl7?.ctl != null && latestAdvMetric.rampRate != null) {
+        rampNote = Math.abs(latestAdvMetric.rampRate) > 8
+          ? ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}% exceeds safe limit (5-8%). Reduce volume.`
+          : ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}%/week (safe <5-8 pts).`;
+      }
+      const tsbNote = latestAdvMetric.tsb < -20
+        ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests overreaching — consider a 5-7 day deload.`
+        : latestAdvMetric.tsb < -10
+          ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests moderate fatigue. Consider a 3-5 day taper if racing soon.`
+          : latestAdvMetric.tsb > 5
+            ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — well rested, ready for quality sessions or racing.`
+            : ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — balanced training/recovery.`;
+      lines.push(`- **PMC Chart (Training)**: CTL ${latestAdvMetric.ctl.toFixed(1)}, ATL ${latestAdvMetric.atl.toFixed(1)}.${rampNote}${tsbNote}`);
+    }
+
+    // Zone Distribution interpretation
+    {
+      let totalZ1 = 0, totalZ2 = 0, totalZ3 = 0, totalZ4 = 0, totalZ5 = 0;
+      let hasZoneData = false;
+      for (const a of metrics30) {
+        const zones = a.hrZoneMinutes as
+          | { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number }
+          | null
+          | undefined;
+        if (zones) {
+          hasZoneData = true;
+          totalZ1 += zones.zone1;
+          totalZ2 += zones.zone2;
+          totalZ3 += zones.zone3;
+          totalZ4 += zones.zone4;
+          totalZ5 += zones.zone5;
+        }
+      }
+      if (hasZoneData) {
+        const total = totalZ1 + totalZ2 + totalZ3 + totalZ4 + totalZ5 || 1;
+        const pctZ12 = ((totalZ1 + totalZ2) / total) * 100;
+        const pctZ3 = (totalZ3 / total) * 100;
+        const pctZ45 = ((totalZ4 + totalZ5) / total) * 100;
+        const pct = (v: number) => ((v / total) * 100).toFixed(0);
+        let advice = "";
+        if (pctZ3 > 25) {
+          advice = ` Too much Zone 3 (no man's land) at ${pctZ3.toFixed(0)}%. Target: 75-80% Zone 1-2, 15-20% Zone 4-5, <5% Zone 3.`;
+        } else if (pctZ12 < 70) {
+          advice = ` Low-intensity volume at ${pctZ12.toFixed(0)}% is below the 75-80% polarized target. Add more easy sessions.`;
+        } else {
+          advice = ` Distribution looks reasonable for polarized training.`;
+        }
+        lines.push(`- **Zone Distribution (Zones)**: Current split ${pct(totalZ1)}/${pct(totalZ2)}/${pct(totalZ3)}/${pct(totalZ4)}/${pct(totalZ5)}% (Z1-Z5).${advice}`);
+      }
+    }
+
+    // Sleep interpretation
+    {
+      const sleepDays = metrics14.slice(0, 7).filter((m) => m.totalSleepMinutes != null);
+      if (sleepDays.length > 0) {
+        const avgMinutes = sleepDays.reduce((s, m) => s + (m.totalSleepMinutes ?? 0), 0) / sleepDays.length;
+        const avgHours = avgMinutes / 60;
+        const advice = avgHours < 7
+          ? ` Below 7h threshold. 1-month target: 7+ hours avg.`
+          : avgHours < 8
+            ? ` Adequate but could benefit from targeting 8h for performance gains (Mah et al.).`
+            : ` Excellent sleep duration supporting recovery.`;
+        lines.push(`- **Sleep (Sleep)**: Average ${avgHours.toFixed(1)}h this week.${advice}`);
+      }
+    }
+
+    // Readiness interpretation
+    if (latestReadiness) {
+      const score = latestReadiness.score;
+      const advice = score < 40
+        ? ` Below 40 threshold — deload recommended. Reduce training intensity and volume.`
+        : score < 60
+          ? ` Moderate readiness. Avoid high-intensity work; prioritize easy sessions and recovery.`
+          : score < 80
+            ? ` Good readiness. Proceed with planned training, monitor how you feel.`
+            : ` Excellent readiness. Ideal day for quality/hard sessions.`;
+      lines.push(`- **Readiness (Dashboard)**: Score ${score}/100 — ${latestReadiness.zone}.${advice}`);
+    }
+
+    // ACWR interpretation
+    if (latestAdvMetric?.acwr != null) {
+      const acwr = latestAdvMetric.acwr;
+      const advice = acwr > 1.5
+        ? ` HIGH injury risk. Immediately reduce acute load. Skip planned intensity.`
+        : acwr > 1.3
+          ? ` CAUTION zone. Reduce intensity this week. Avoid adding new stressors.`
+          : acwr < 0.8
+            ? ` Under-training. Gradually increase training stimulus to avoid detraining.`
+            : ` No action needed — maintain current training approach.`;
+      lines.push(`- **ACWR Gauge (Training)**: ${acwr.toFixed(2)} — ${acwrStatus(acwr)}.${advice}`);
+    }
+
+    // Resting HR autonomic stress check
+    {
+      const hrBaseline = baselines.find((b) => b.metricName === "restingHr");
+      if (hrBaseline?.zScoreLatest != null && hrBaseline.zScoreLatest < -1.5) {
+        lines.push(`- **Autonomic Stress Alert**: Resting HR z-score ${hrBaseline.zScoreLatest.toFixed(1)} indicates significant autonomic stress. Prioritize recovery and consider skipping high-intensity sessions.`);
+      }
+    }
+
+    if (lines.length > 1) sections.push(lines.join("\n"));
+  }
+
   return sections.join("\n\n");
 }
