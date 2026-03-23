@@ -102,10 +102,13 @@ export const chatRouter = {
       let responseContent: string;
       const fullPrompt = `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}\n\n## User Question\n${input.content}`;
 
+      console.log(`[Chat] Prompt size: ${fullPrompt.length} chars, data context: ${dataContext.length} chars`);
+
       try {
         // Try OpenClaw via HA Supervisor API first (zero config if running in HA)
         responseContent = await openclawChat(fullPrompt);
-      } catch {
+      } catch (e) {
+        console.error(`[Chat] OpenClaw failed:`, e instanceof Error ? e.message : e);
         // Fall back to Ollama
         try {
           const ollamaMessages: OllamaMessage[] = [
@@ -121,7 +124,8 @@ export const chatRouter = {
           responseContent = await ollamaChat(ollamaMessages, {
             temperature: 0.7,
           });
-        } catch {
+        } catch (e2) {
+          console.error(`[Chat] Ollama also failed:`, e2 instanceof Error ? e2.message : e2);
           responseContent = `⚠️ AI service unavailable. Falling back to data summary:\n\n${generateFallbackResponse(input.content, dataContext)}`;
         }
       }

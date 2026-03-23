@@ -695,5 +695,12 @@ export async function buildDataContext(
     if (lines.length > 1) sections.push(lines.join("\n"));
   }
 
-  return sections.join("\n\n");
+  const result = sections.join("\n\n");
+
+  // Cap context size to prevent OOM — LLMs work fine with summarized data
+  if (result.length > 4000) {
+    return result.slice(0, 4000) + "\n\n[... context trimmed for performance]";
+  }
+
+  return result;
 }
