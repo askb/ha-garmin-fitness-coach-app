@@ -52,7 +52,7 @@ async function fetchMetricData(
     sleep: (m) => m.totalSleepMinutes,
     hrv: (m) => m.hrv,
     restingHr: (m) => m.restingHr,
-    strain: (m) => m.garminTrainingLoad,
+    strain: (m) => m.stressScore,
     stress: (m) => m.stressScore,
   };
 
@@ -170,7 +170,7 @@ export const trendsRouter = {
             ? m.totalSleepMinutes
             : input.metric === "hrv"
               ? m.hrv
-              : m.garminTrainingLoad,
+              : m.stressScore,
       }));
     }),
 
