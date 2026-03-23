@@ -7,6 +7,7 @@ import { Toaster } from "@acme/ui/toast";
 
 import { env } from "~/env";
 import { TRPCReactProvider } from "~/trpc/react";
+import { HamburgerMenu } from "~/app/_components/hamburger-menu";
 import { IngressProvider } from "~/app/_components/ingress-provider";
 
 import "~/app/styles.css";
@@ -54,6 +55,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       >
         <ThemeProvider>
           <IngressProvider>
+            <HamburgerMenu />
             <TRPCReactProvider>{props.children}</TRPCReactProvider>
           </IngressProvider>
           <div className="absolute right-4 bottom-4">
