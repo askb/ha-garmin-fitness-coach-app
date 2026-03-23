@@ -485,12 +485,12 @@ export default function FitnessPage() {
               <div key={i} className="bg-muted h-10 animate-pulse rounded-lg" />
             ))}
           </div>
-        ) : racePredictions.data ? (
+        ) : racePredictions.data && racePredictions.data.length > 0 ? (
           <>
             <p className="text-muted-foreground mb-3 text-xs">
               Based on VO2max:{" "}
               <span className="font-semibold text-blue-400">
-                {racePredictions.data[0]?.vo2maxUsed.toFixed(1)}
+                {racePredictions.data[0]?.vo2maxUsed?.toFixed(1) ?? "—"}
               </span>
               <span className="text-muted-foreground ml-2">
                 · ±{ciPct}% confidence ({workoutCount90d} workouts/90d)
