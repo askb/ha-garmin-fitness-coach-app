@@ -436,6 +436,13 @@ function GarminConnection() {
   const [password, setPassword] = useState("");
   const [mfaCode, setMfaCode] = useState("");
   const [showMfa, setShowMfa] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{
+    syncing: boolean;
+    phase: string;
+    detail: string;
+    progress: number;
+  } | null>(null);
+  const [triggeringSyncState, setTriggeringSyncState] = useState(false);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -456,6 +463,49 @@ function GarminConnection() {
   useEffect(() => {
     void fetchStatus();
   }, [fetchStatus]);
+
+  // Poll sync status when connected
+  useEffect(() => {
+    if (!status?.connected) return;
+
+    const fetchSyncStatus = async () => {
+      try {
+        const res = await fetch(apiUrl("/api/garmin/sync"));
+        const data = await res.json() as {
+          syncing: boolean;
+          phase: string;
+          detail: string;
+          progress: number;
+        };
+        setSyncStatus(data);
+      } catch {
+        setSyncStatus(null);
+      }
+    };
+
+    void fetchSyncStatus();
+    // Poll every 3s while syncing, 30s otherwise
+    const interval = setInterval(() => {
+      void fetchSyncStatus();
+    }, syncStatus?.syncing ? 3000 : 30000);
+
+    return () => clearInterval(interval);
+  }, [status?.connected, apiUrl, syncStatus?.syncing]);
+
+  const handleSyncNow = async () => {
+    setTriggeringSyncState(true);
+    try {
+      const res = await fetch(apiUrl("/api/garmin/sync"), { method: "POST" });
+      const data = await res.json() as { success: boolean; message?: string };
+      if (!data.success) {
+        setError(data.message ?? "Failed to start sync");
+      }
+    } catch {
+      setError("Failed to trigger sync");
+    } finally {
+      setTriggeringSyncState(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -562,6 +612,37 @@ function GarminConnection() {
             )}
           </div>
         </div>
+        {/* Sync status and trigger */}
+        {syncStatus?.syncing ? (
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 animate-spin text-primary" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-sm font-medium text-primary">Syncing...</span>
+            </div>
+            <p className="text-muted-foreground text-xs">
+              {syncStatus.detail || syncStatus.phase}
+            </p>
+            <div className="bg-muted h-1.5 w-full rounded-full overflow-hidden">
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-500"
+                style={{ width: `${syncStatus.progress}%` }}
+              />
+            </div>
+          </div>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSyncNow}
+            disabled={triggeringSyncState}
+            className="mt-2"
+          >
+            {triggeringSyncState ? "Starting..." : "🔄 Sync Now"}
+          </Button>
+        )}
         {error && <p className="text-xs text-red-500">{error}</p>}
         <Button
           variant="outline"
