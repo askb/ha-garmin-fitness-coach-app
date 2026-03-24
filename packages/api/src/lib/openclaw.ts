@@ -33,9 +33,22 @@ async function discoverAgent(token: string): Promise<string | null> {
       agents?: Record<string, { name: string }>;
     };
     if (!data.agents) return null;
-    // Return first non-homeassistant agent (prefer Claude/Gemini over built-in)
+    // Prefer Google AI or Claude over OpenClaw; skip built-in "homeassistant"
     const agents = Object.entries(data.agents);
-    const external = agents.find(([id]) => id !== "homeassistant");
+    const SKIP_IDS = new Set(["homeassistant"]);
+    // Prefer agents with known-good names for long-form coaching prompts
+    const PREFERRED = ["google", "gemini", "claude", "openai", "gpt"];
+    const preferred = agents.find(
+      ([id, info]) =>
+        !SKIP_IDS.has(id) &&
+        PREFERRED.some((p) => id.toLowerCase().includes(p) || info.name.toLowerCase().includes(p)),
+    );
+    if (preferred) {
+      console.log(`[AI] Preferred agent found: ${preferred[0]} (${preferred[1].name})`);
+      return preferred[0];
+    }
+    // Fallback: first non-built-in agent
+    const external = agents.find(([id]) => !SKIP_IDS.has(id));
     return external?.[0] ?? agents[0]?.[0] ?? null;
   } catch {
     return null;
