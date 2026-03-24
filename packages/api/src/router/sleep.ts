@@ -121,8 +121,8 @@ export const sleepRouter = {
         lightSleepMinutes: r.lightSleepMinutes,
         awakeMinutes: r.awakeMinutes,
         sleepScore: r.sleepScore,
-        sleepStartTime: r.sleepStartTime,
-        sleepEndTime: r.sleepEndTime,
+        sleepStartTime: r.sleepStartTime ? Number(r.sleepStartTime) : null,
+        sleepEndTime: r.sleepEndTime ? Number(r.sleepEndTime) : null,
         sleepNeedMinutes: r.sleepNeedMinutes,
         sleepDebt: r.sleepDebtMinutes,
       }));
@@ -142,9 +142,14 @@ export const sleepRouter = {
       return rows.map((r) => ({
         date: r.date,
         deep: r.deepSleepMinutes,
+        deepMinutes: r.deepSleepMinutes,
         rem: r.remSleepMinutes,
+        remMinutes: r.remSleepMinutes,
         light: r.lightSleepMinutes,
+        lightMinutes: r.lightSleepMinutes,
         awake: r.awakeMinutes,
+        awakeMinutes: r.awakeMinutes,
+        sleepNeedMinutes: r.sleepNeedMinutes,
       }));
     }),
 } satisfies TRPCRouterRecord;
