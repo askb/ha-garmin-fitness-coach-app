@@ -18,41 +18,76 @@ const SUPERVISOR_URL = "http://supervisor/core/api";
 
 /**
  * Auto-discover available conversation agents from HA.
- * Returns the first agent ID found, or null if none available.
+ * Uses config_entries API (agent/list doesn't exist in all HA versions).
+ * Prefers Google AI / Gemini over OpenClaw (which causes OOM on RPi4).
  */
 async function discoverAgent(token: string): Promise<string | null> {
   try {
-    const response = await fetch(`${SUPERVISOR_URL}/conversation/agent/list`, {
+    // Primary: discover via config entries (works on all HA versions)
+    const response = await fetch(`${SUPERVISOR_URL}/config/config_entries/entry`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    if (!response.ok) return null;
-    const data = (await response.json()) as {
-      agents?: Record<string, { name: string }>;
-    };
-    if (!data.agents) return null;
-    // Prefer Google AI or Claude over OpenClaw; skip built-in "homeassistant"
-    const agents = Object.entries(data.agents);
-    console.log(`[AI] Available agents: ${agents.map(([id, info]) => `${id} (${info.name})`).join(", ")}`);
-    const SKIP_IDS = new Set(["homeassistant"]);
-    // Prefer agents with known-good names for long-form coaching prompts
-    const PREFERRED = ["google", "gemini", "claude", "openai", "gpt"];
-    const preferred = agents.find(
-      ([id, info]) =>
-        !SKIP_IDS.has(id) &&
-        PREFERRED.some((p) => id.toLowerCase().includes(p) || info.name.toLowerCase().includes(p)),
-    );
-    if (preferred) {
-      console.log(`[AI] Preferred agent found: ${preferred[0]} (${preferred[1].name})`);
-      return preferred[0];
+    if (!response.ok) {
+      console.log(`[AI] Config entries API returned ${response.status}`);
+      return null;
     }
-    // Fallback: first non-built-in agent
-    const external = agents.find(([id]) => !SKIP_IDS.has(id));
-    console.log(`[AI] No preferred agent, using: ${external?.[0] ?? "HA default"}`);
-    return external?.[0] ?? agents[0]?.[0] ?? null;
-  } catch {
+    const entries = (await response.json()) as Array<{
+      domain: string;
+      title: string;
+      entry_id: string;
+    }>;
+
+    // Find conversation-capable integrations
+    const CONVERSATION_DOMAINS = [
+      "google_generative_ai_conversation",
+      "openai_conversation",
+      "anthropic",
+    ];
+    // OpenClaw uses ~550MB idle and spikes to 1.5GB+ on prompts → OOM on RPi4
+    const SKIP_DOMAINS = ["openclaw"];
+
+    const conversationAgents = entries.filter(
+      (e) =>
+        CONVERSATION_DOMAINS.includes(e.domain) ||
+        (e.domain.includes("conversation") && !SKIP_DOMAINS.includes(e.domain)),
+    );
+
+    console.log(
+      `[AI] Conversation agents found: ${conversationAgents.map((e) => `${e.domain} (${e.title}) → ${e.entry_id}`).join(", ") || "none"}`,
+    );
+
+    // Prefer Google AI (cloud-only, no local memory impact)
+    const googleAgent = conversationAgents.find((e) =>
+      e.domain.includes("google"),
+    );
+    if (googleAgent) {
+      console.log(`[AI] Using Google AI: ${googleAgent.entry_id} (${googleAgent.title})`);
+      return googleAgent.entry_id;
+    }
+
+    // Next: OpenAI or Anthropic
+    const cloudAgent = conversationAgents.find(
+      (e) => e.domain.includes("openai") || e.domain.includes("anthropic"),
+    );
+    if (cloudAgent) {
+      console.log(`[AI] Using cloud agent: ${cloudAgent.entry_id} (${cloudAgent.title})`);
+      return cloudAgent.entry_id;
+    }
+
+    // Last resort: any non-skipped conversation agent
+    if (conversationAgents.length > 0) {
+      const agent = conversationAgents[0]!;
+      console.log(`[AI] Using fallback agent: ${agent.entry_id} (${agent.title})`);
+      return agent.entry_id;
+    }
+
+    console.log("[AI] No conversation agents found — will use HA default");
+    return null;
+  } catch (err) {
+    console.error("[AI] Agent discovery failed:", err instanceof Error ? err.message : err);
     return null;
   }
 }
