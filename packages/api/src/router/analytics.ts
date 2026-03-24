@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte, lte } from "@acme/db";
+import { and, asc, desc, eq, gte, lte } from "@acme/db";
 import {
   Activity,
   DailyMetric,
@@ -110,12 +110,22 @@ export const analyticsRouter = {
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      const estimates = await ctx.db.query.VO2maxEstimate.findMany({
+      const allEstimates = await ctx.db.query.VO2maxEstimate.findMany({
         where: and(
           eq(VO2maxEstimate.userId, userId),
           gte(VO2maxEstimate.date, getDateString(input.days)),
         ),
-        orderBy: desc(VO2maxEstimate.date),
+        // 'running_pace_hr' < 'uth_method' lexically, so ACSM comes first per date
+        orderBy: [desc(VO2maxEstimate.date), asc(VO2maxEstimate.source)],
+      });
+
+      // Deduplicate: keep first (preferred) estimate per date
+      const seen = new Set<string>();
+      const estimates = allEstimates.filter((e) => {
+        const key = e.date;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
       });
 
       const trend = computeVO2maxTrend(estimates);

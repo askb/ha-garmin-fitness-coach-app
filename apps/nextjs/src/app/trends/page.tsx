@@ -47,7 +47,7 @@ const METRIC_LABELS: Record<string, string> = {
   readiness: "Readiness",
   sleep: "Sleep",
   hrv: "HRV",
-  strain: "Strain",
+  strain: "Stress",
   restingHr: "Resting HR",
   stress: "Stress",
 };
@@ -340,7 +340,7 @@ export default function TrendsPage() {
             color={METRIC_COLORS.hrv!}
           />
           <SummaryCard
-            label="Avg Strain"
+            label="Avg Stress"
             value="—"
             trend={trendStrain.data}
             color={METRIC_COLORS.strain!}

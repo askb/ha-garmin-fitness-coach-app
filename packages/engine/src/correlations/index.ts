@@ -10,7 +10,7 @@ import type { CorrelationPair } from "../types";
  * Statistical approach:
  * - Pearson r for linear relationships
  * - p-value from t-distribution approximation
- * - Minimum 14 paired observations for meaningful correlation
+ * - Minimum 7 paired observations for meaningful correlation
  *
  * Common high-value correlations to compute:
  * - Alcohol intake → next-day HRV (expected: strong negative)
@@ -24,7 +24,7 @@ import type { CorrelationPair } from "../types";
  *
  * r = Σ((xi - x̄)(yi - ȳ)) / √(Σ(xi - x̄)² × Σ(yi - ȳ)²)
  *
- * Returns null if insufficient paired data points (<14) or
+ * Returns null if insufficient paired data points (<7) or
  * if either series has zero variance.
  */
 export function computePearsonR(
@@ -33,7 +33,7 @@ export function computePearsonR(
 ): { r: number; pValue: number; n: number } | null {
   if (xValues.length !== yValues.length) return null;
   const n = xValues.length;
-  if (n < 14) return null; // minimum for meaningful correlation
+  if (n < 7) return null; // minimum for meaningful correlation
 
   const meanX = xValues.reduce((s, v) => s + v, 0) / n;
   const meanY = yValues.reduce((s, v) => s + v, 0) / n;
@@ -218,7 +218,7 @@ export function computeStandardCorrelations(
       .map((d) => ({ a: getA(d), b: getB(d) }))
       .filter((p): p is { a: number; b: number } => p.a !== null && p.b !== null);
 
-    if (paired.length >= 14) {
+    if (paired.length >= 7) {
       const result = analyzeCorrelation(
         nameA,
         nameB,
@@ -239,7 +239,7 @@ export function computeStandardCorrelations(
       lagPaired.push({ a: todayStrain, b: nextDayHrv });
     }
   }
-  if (lagPaired.length >= 14) {
+  if (lagPaired.length >= 7) {
     const result = analyzeCorrelation(
       "strain",
       "next_day_hrv",
