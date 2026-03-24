@@ -35,6 +35,7 @@ async function discoverAgent(token: string): Promise<string | null> {
     if (!data.agents) return null;
     // Prefer Google AI or Claude over OpenClaw; skip built-in "homeassistant"
     const agents = Object.entries(data.agents);
+    console.log(`[AI] Available agents: ${agents.map(([id, info]) => `${id} (${info.name})`).join(", ")}`);
     const SKIP_IDS = new Set(["homeassistant"]);
     // Prefer agents with known-good names for long-form coaching prompts
     const PREFERRED = ["google", "gemini", "claude", "openai", "gpt"];
@@ -49,6 +50,7 @@ async function discoverAgent(token: string): Promise<string | null> {
     }
     // Fallback: first non-built-in agent
     const external = agents.find(([id]) => !SKIP_IDS.has(id));
+    console.log(`[AI] No preferred agent, using: ${external?.[0] ?? "HA default"}`);
     return external?.[0] ?? agents[0]?.[0] ?? null;
   } catch {
     return null;
@@ -84,7 +86,7 @@ export async function openclawChat(
     agentId = _cachedAgentId ?? undefined;
   }
 
-  const timeoutMs = options?.timeoutMs ?? 30_000;
+  const timeoutMs = options?.timeoutMs ?? 45_000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 

@@ -27,7 +27,7 @@ const AGENT_LABELS: Record<AgentType, string> = {
 let _aiInFlight = false;
 let _aiAbortController: AbortController | null = null;
 
-const AI_TIMEOUT_MS = 30_000; // 30s — cloud APIs respond in 5-15s
+const AI_TIMEOUT_MS = 45_000; // 45s — HA Conversation API on RPi4 can be slow
 
 /**
  * Quick data-driven fallback when Ollama is unreachable.
