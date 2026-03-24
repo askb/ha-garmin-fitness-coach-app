@@ -191,7 +191,7 @@ export const analyticsRouter = {
         sleepScore: m.sleepScore,
         stressScore: m.stressScore,
         readinessScore: readinessMap.get(m.date) ?? null,
-        strainScore: m.garminTrainingLoad,
+        strainScore: m.stressScore,
       }));
 
       return computeStandardCorrelations(dailyData, input.period);

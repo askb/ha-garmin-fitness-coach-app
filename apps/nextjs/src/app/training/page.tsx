@@ -241,11 +241,11 @@ export default function TrainingLoadPage() {
         </div>
       </div>
 
-      {/* ── Strain Trend (Area Chart) ── */}
+      {/* ── Stress Trend (Area Chart) ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
-          title="Strain — 42 Day Trend"
-          info="Training strain based on TRIMP (Training Impulse). Formula: TRIMP = duration × ΔHR/HRR × e^(k×ΔHR/HRR) where k=1.92 (male). Strain Score = 21 × (1 - e^(-TRIMP/250)). Shows acute (7-day) and chronic (42-day) exponential moving averages. Citation: Banister EW (1991), WHOOP strain model."
+          title="Stress — 42 Day Trend"
+          info="Garmin daily stress score (0–100) derived from heart rate variability. Lower = calmer, higher = more stressed. Shows how your body handles training + life stress over 6 weeks. Useful for detecting accumulated fatigue before it becomes overtraining."
           className="mb-3"
         />
         {strainChart.isLoading ? (
@@ -285,13 +285,13 @@ export default function TrainingLoadPage() {
                 stroke="#3b82f6"
                 fill="url(#strainFill)"
                 strokeWidth={2}
-                name="Strain"
+                name="Stress"
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
           <p className="text-muted-foreground py-8 text-center text-sm">
-            No strain data yet
+            No stress data yet
           </p>
         )}
       </div>
@@ -436,11 +436,11 @@ export default function TrainingLoadPage() {
         )}
       </div>
 
-      {/* ── Recent Strain (14-day Bar Chart) ── */}
+      {/* ── Recent Stress (14-day Bar Chart) ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
-          title="Daily Strain — Last 14 Days"
-          info="Bar chart of daily TRIMP-based strain scores over 2 weeks. Formula: Strain = 21 × (1 - e^(-TRIMP/250)). Look for hard/easy alternation pattern — consecutive high-strain days increase overtraining risk. The 48-hour rule: allow 48h between high-intensity sessions. Citation: Banister (1991)."
+          title="Daily Stress — Last 14 Days"
+          info="Garmin daily stress score (0–100) over the past 2 weeks. Derived from HRV analysis. High values on rest days may indicate incomplete recovery, illness, or life stress. Look for a downward trend after deload weeks."
           className="mb-3"
         />
         {recentStrain.isLoading ? (
@@ -472,13 +472,13 @@ export default function TrainingLoadPage() {
                 dataKey="value"
                 fill="#6366f1"
                 radius={[4, 4, 0, 0]}
-                name="Strain"
+                name="Stress"
               />
             </BarChart>
           </ResponsiveContainer>
         ) : (
           <p className="text-muted-foreground py-8 text-center text-sm">
-            No strain data yet
+            No stress data yet
           </p>
         )}
       </div>
