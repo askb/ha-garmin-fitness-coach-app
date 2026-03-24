@@ -71,7 +71,7 @@ export async function openclawChat(
     agentId = _cachedAgentId ?? undefined;
   }
 
-  const timeoutMs = options?.timeoutMs ?? 120_000;
+  const timeoutMs = options?.timeoutMs ?? 30_000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 

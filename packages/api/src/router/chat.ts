@@ -23,6 +23,12 @@ const AGENT_LABELS: Record<AgentType, string> = {
   recovery: "Recovery Specialist",
 };
 
+// Mutex: only 1 AI request at a time to prevent OOM on low-memory devices
+let _aiInFlight = false;
+let _aiAbortController: AbortController | null = null;
+
+const AI_TIMEOUT_MS = 30_000; // 30s — cloud APIs respond in 5-15s
+
 /**
  * Quick data-driven fallback when Ollama is unreachable.
  * Extracts a few key points from the data context so the user still gets
@@ -77,6 +83,28 @@ export const chatRouter = {
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
+      // Cancel any in-flight AI request (prevents OOM from retries)
+      if (_aiInFlight && _aiAbortController) {
+        console.log("[Chat] Cancelling previous AI request");
+        _aiAbortController.abort();
+      }
+
+      // Guard: reject if another request is still running
+      if (_aiInFlight) {
+        return {
+          id: "busy",
+          userId,
+          role: "assistant" as const,
+          content: "⏳ Still processing your previous question. Please wait a moment...",
+          context: { agent: input.agent },
+          createdAt: new Date(),
+        };
+      }
+
+      _aiInFlight = true;
+      _aiAbortController = new AbortController();
+
+      try {
       // 1. Save user message
       await ctx.db.insert(ChatMessage).values({
         userId,
@@ -88,14 +116,14 @@ export const chatRouter = {
       // 2. Build data context from real Garmin data
       const dataContext = await buildDataContext(ctx.db, userId);
 
-      // 3. Get agent-specific system prompt
+      // 3. Get agent-specific system prompt (trimmed for low-memory devices)
       const systemPrompt = getAgentPrompt(input.agent);
 
-      // 4. Get recent chat history (last 10 messages for conversational context)
+      // 4. Get recent chat history (last 5 messages — reduced from 10 for memory)
       const history = await ctx.db.query.ChatMessage.findMany({
         where: eq(ChatMessage.userId, userId),
         orderBy: desc(ChatMessage.createdAt),
-        limit: 10,
+        limit: 5,
       });
 
       // 5. Call AI backend: OpenClaw (HA) → Ollama → fallback
@@ -105,11 +133,9 @@ export const chatRouter = {
       console.log(`[Chat] Prompt size: ${fullPrompt.length} chars, data context: ${dataContext.length} chars`);
 
       try {
-        // Try OpenClaw via HA Supervisor API first (zero config if running in HA)
-        responseContent = await openclawChat(fullPrompt);
+        responseContent = await openclawChat(fullPrompt, { timeoutMs: AI_TIMEOUT_MS });
       } catch (e) {
         console.error(`[Chat] OpenClaw failed:`, e instanceof Error ? e.message : e);
-        // Fall back to Ollama
         try {
           const ollamaMessages: OllamaMessage[] = [
             {
@@ -123,6 +149,7 @@ export const chatRouter = {
           ];
           responseContent = await ollamaChat(ollamaMessages, {
             temperature: 0.7,
+            timeoutMs: AI_TIMEOUT_MS,
           });
         } catch (e2) {
           console.error(`[Chat] Ollama also failed:`, e2 instanceof Error ? e2.message : e2);
@@ -150,6 +177,11 @@ export const chatRouter = {
         .returning();
 
       return { ...assistantMsg!, agent: input.agent };
+
+      } finally {
+        _aiInFlight = false;
+        _aiAbortController = null;
+      }
     }),
 
   clearHistory: protectedProcedure.mutation(async ({ ctx }) => {
