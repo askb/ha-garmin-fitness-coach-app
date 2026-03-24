@@ -2822,3 +2822,10 @@
 [TRPC] readiness.getToday took 2ms to execute
 [TRPC] workout.getDetail took 4ms to execute
 [TRPC] activity.list took 6ms to execute
+   ▲ Next.js 16.0.10
+   - Local:         http://localhost:3000
+   - Network:       http://0.0.0.0:3000
+
+ ✓ Starting...
+ ⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+ ✓ Ready in 305ms

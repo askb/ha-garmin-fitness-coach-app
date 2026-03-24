@@ -239,12 +239,18 @@ export default function CoachPage() {
     trpc.chat.getHistory.queryOptions({ limit: 50 }),
   );
 
+  const [sendError, setSendError] = useState<string | null>(null);
+
   const sendMutation = useMutation(
     trpc.chat.sendMessage.mutationOptions({
       onSuccess: () => {
+        setSendError(null);
         void queryClient.invalidateQueries({
           queryKey: trpc.chat.getHistory.queryKey(),
         });
+      },
+      onError: (err) => {
+        setSendError(err.message ?? "AI response failed. Please try again.");
       },
     }),
   );
@@ -378,6 +384,21 @@ export default function CoachPage() {
                       <span className="animate-bounce [animation-delay:0.3s]">●</span>
                     </span>
                   </div>
+                </div>
+              </div>
+            )}
+            {sendError && !sendMutation.isPending && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] space-y-1">
+                  <div className="rounded-2xl bg-red-900/40 border border-red-700/50 px-4 py-2.5 text-sm text-red-300">
+                    {sendError}
+                  </div>
+                  <button
+                    onClick={() => setSendError(null)}
+                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    Dismiss
+                  </button>
                 </div>
               </div>
             )}
