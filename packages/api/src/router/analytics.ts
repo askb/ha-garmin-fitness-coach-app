@@ -183,6 +183,23 @@ export const analyticsRouter = {
         readinessScores.map((r) => [r.date, r.score]),
       );
 
+      // Fetch actual activity strain scores (TRIMP-based, 0-21)
+      const activities = await ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, new Date(startDate)),
+        ),
+        orderBy: desc(Activity.startedAt),
+      });
+      // Max strain per day from activities
+      const strainMap = new Map<string, number>();
+      for (const a of activities) {
+        const date = a.startedAt.toISOString().split("T")[0]!;
+        const strain = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
+        const existing = strainMap.get(date) ?? 0;
+        strainMap.set(date, Math.max(existing, strain));
+      }
+
       const dailyData = metrics.map((m) => ({
         date: m.date,
         hrv: m.hrv,
@@ -191,7 +208,7 @@ export const analyticsRouter = {
         sleepScore: m.sleepScore,
         stressScore: m.stressScore,
         readinessScore: readinessMap.get(m.date) ?? null,
-        strainScore: m.stressScore,
+        strainScore: strainMap.get(m.date) ?? null,
       }));
 
       return computeStandardCorrelations(dailyData, input.period);

@@ -40,14 +40,14 @@ const METRIC_COLORS: Record<string, string> = {
   hrv: "#a855f7",
   strain: "#ef4444",
   restingHr: "#f59e0b",
-  stress: "#ec4899",
+  stress: "#3b82f6",
 };
 
 const METRIC_LABELS: Record<string, string> = {
   readiness: "Readiness",
   sleep: "Sleep",
   hrv: "HRV",
-  strain: "Stress",
+  strain: "Strain",
   restingHr: "Resting HR",
   stress: "Stress",
 };
@@ -187,6 +187,12 @@ export default function TrendsPage() {
       period: trendPeriod(period),
     }),
   );
+  const trendStress = useQuery(
+    trpc.trends.getLongTermTrend.queryOptions({
+      metric: "stress",
+      period: trendPeriod(period),
+    }),
+  );
 
   // ---- Notable changes ----
   const notableChanges = useQuery(
@@ -272,6 +278,7 @@ export default function TrendsPage() {
     { key: "sleep", query: trendSleep },
     { key: "hrv", query: trendHrv },
     { key: "strain", query: trendStrain },
+    { key: "stress", query: trendStress },
   ];
   const topCorrelations = (correlations.data ?? []).slice(0, 6);
 

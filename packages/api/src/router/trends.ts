@@ -1,12 +1,13 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte } from "@acme/db";
+import { and, asc, desc, eq, gte } from "@acme/db";
 import { db as _dependencies_db } from "@acme/db/client";
 import { Activity, DailyMetric, ReadinessScore } from "@acme/db/schema";
 import {
   analyzeTrend,
   computeRollingAverage,
+  computeStrainScore,
   findNotableChanges,
 } from "@acme/engine";
 
@@ -22,6 +23,38 @@ const trendMetricEnum = z.enum([
   "strain",
   "stress",
 ]);
+
+/**
+ * Aggregate activity strain scores by date.
+ * Returns max strain per day (0-21 scale, TRIMP-based).
+ * Falls back to computing strain from TRIMP if strainScore is NULL.
+ */
+async function fetchStrainByDate(
+  db: DB,
+  userId: string,
+  since: string,
+): Promise<Array<{ date: string; value: number }>> {
+  const activities = await db.query.Activity.findMany({
+    where: and(
+      eq(Activity.userId, userId),
+      gte(Activity.startedAt, new Date(since)),
+    ),
+    orderBy: asc(Activity.startedAt),
+  });
+
+  // Group by date, take max strain per day
+  const byDate = new Map<string, number>();
+  for (const a of activities) {
+    const date = a.startedAt.toISOString().split("T")[0]!;
+    const strain = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
+    const existing = byDate.get(date) ?? 0;
+    byDate.set(date, Math.max(existing, strain));
+  }
+
+  return Array.from(byDate.entries())
+    .map(([date, value]) => ({ date, value: Math.round(value * 10) / 10 }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
 
 async function fetchMetricData(
   db: DB,
@@ -40,19 +73,23 @@ async function fetchMetricData(
     return scores.map((s) => ({ date: s.date, value: s.score }));
   }
 
+  // Strain = activity-based TRIMP load (0-21), NOT daily HRV stress
+  if (metric === "strain") {
+    return fetchStrainByDate(db, userId, since);
+  }
+
   const metrics = await db.query.DailyMetric.findMany({
     where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
     orderBy: DailyMetric.date,
   });
 
   const fieldMap: Record<
-    Exclude<z.infer<typeof trendMetricEnum>, "readiness">,
+    Exclude<z.infer<typeof trendMetricEnum>, "readiness" | "strain">,
     (m: (typeof metrics)[number]) => number | null
   > = {
     sleep: (m) => m.totalSleepMinutes,
     hrv: (m) => m.hrv,
     restingHr: (m) => m.restingHr,
-    strain: (m) => m.stressScore,
     stress: (m) => m.stressScore,
   };
 
@@ -133,7 +170,7 @@ export const trendsRouter = {
   getChart: protectedProcedure
     .input(
       z.object({
-        metric: z.enum(["readiness", "sleep", "hrv", "strain"]),
+        metric: z.enum(["readiness", "sleep", "hrv", "strain", "stress"]),
         days: z.number().min(1).max(90).default(28),
       }),
     )
@@ -155,6 +192,12 @@ export const trendsRouter = {
         }));
       }
 
+      // Strain = activity TRIMP-based load (0-21 scale)
+      if (input.metric === "strain") {
+        return fetchStrainByDate(ctx.db, userId, since);
+      }
+
+      // All other metrics from DailyMetric table
       const metrics = await ctx.db.query.DailyMetric.findMany({
         where: and(
           eq(DailyMetric.userId, userId),

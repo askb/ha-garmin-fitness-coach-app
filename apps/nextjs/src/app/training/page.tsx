@@ -67,6 +67,12 @@ export default function TrainingLoadPage() {
   const recentStrain = useQuery(
     trpc.trends.getChart.queryOptions({ metric: "strain", days: 14 }),
   );
+  const stressChart = useQuery(
+    trpc.trends.getChart.queryOptions({ metric: "stress", days: 42 }),
+  );
+  const recentStress = useQuery(
+    trpc.trends.getChart.queryOptions({ metric: "stress", days: 14 }),
+  );
   // @ts-ignore — route added by gc-backend branch
   const pmcData = useQuery(trpc.advancedMetrics.list.queryOptions({ days: pmcDays }));
 
@@ -241,11 +247,11 @@ export default function TrainingLoadPage() {
         </div>
       </div>
 
-      {/* ── Stress Trend (Area Chart) ── */}
+      {/* ── Strain Trend (Activity Load, 0-21 Scale) ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
-          title="Stress — 42 Day Trend"
-          info="Garmin daily stress score (0–100) derived from heart rate variability. Lower = calmer, higher = more stressed. Shows how your body handles training + life stress over 6 weeks. Useful for detecting accumulated fatigue before it becomes overtraining."
+          title="Training Strain — 42 Day Trend"
+          info="Activity-based training strain (0–21 scale) computed from TRIMP (Training Impulse). Measures cardiovascular load per workout using HR zones. Higher = harder session. Based on Banister (1991) exponential HR model. Different from Garmin Stress — this tracks workout intensity, not body stress."
           className="mb-3"
         />
         {strainChart.isLoading ? (
@@ -260,6 +266,61 @@ export default function TrainingLoadPage() {
             >
               <defs>
                 <linearGradient id="strainFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#888", fontSize: 10 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={32} domain={[0, 21]} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#ef4444"
+                fill="url(#strainFill)"
+                strokeWidth={2}
+                name="Strain"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No training strain data — complete a workout with HR to populate
+          </p>
+        )}
+      </div>
+
+      {/* ── Daily Stress (Garmin HRV-based, 0-100) ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <SectionHeader
+          title="Body Stress — 42 Day Trend"
+          info="Garmin daily stress score (0–100) derived from heart rate variability. Lower = calmer, higher = more stressed. Shows how your body handles training + life stress over 6 weeks. Useful for detecting accumulated fatigue before it becomes overtraining."
+          className="mb-3"
+        />
+        {stressChart.isLoading ? (
+          <div className="bg-muted h-48 animate-pulse rounded-lg" />
+        ) : stressChart.data && stressChart.data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart
+              data={stressChart.data.map((d) => ({
+                date: d.date.slice(5),
+                value: d.value ?? 0,
+              }))}
+            >
+              <defs>
+                <linearGradient id="stressFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
@@ -283,7 +344,7 @@ export default function TrainingLoadPage() {
                 type="monotone"
                 dataKey="value"
                 stroke="#3b82f6"
-                fill="url(#strainFill)"
+                fill="url(#stressFill)"
                 strokeWidth={2}
                 name="Stress"
               />
@@ -436,11 +497,11 @@ export default function TrainingLoadPage() {
         )}
       </div>
 
-      {/* ── Recent Stress (14-day Bar Chart) ── */}
+      {/* ── Recent Strain (14-day Bar Chart — Activity Load) ── */}
       <div className="bg-card rounded-2xl border p-4">
         <SectionHeader
-          title="Daily Stress — Last 14 Days"
-          info="Garmin daily stress score (0–100) over the past 2 weeks. Derived from HRV analysis. High values on rest days may indicate incomplete recovery, illness, or life stress. Look for a downward trend after deload weeks."
+          title="Daily Strain — Last 14 Days"
+          info="Activity training strain (0–21) per day over the past 2 weeks. Computed from TRIMP (HR zone intensity × duration). Shows max strain per day. Days without workouts won't appear. Compare with Body Stress below to see how training load affects recovery."
           className="mb-3"
         />
         {recentStrain.isLoading ? (
@@ -449,6 +510,53 @@ export default function TrainingLoadPage() {
           <ResponsiveContainer width="100%" height={160}>
             <BarChart
               data={recentStrain.data.map((d) => ({
+                date: d.date.slice(5),
+                value: d.value ?? 0,
+              }))}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#888", fontSize: 10 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={28} domain={[0, 21]} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Bar
+                dataKey="value"
+                fill="#ef4444"
+                radius={[4, 4, 0, 0]}
+                name="Strain"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            No training strain data — workouts with HR needed
+          </p>
+        )}
+      </div>
+
+      {/* ── Recent Body Stress (14-day Bar Chart — HRV-based) ── */}
+      <div className="bg-card rounded-2xl border p-4">
+        <SectionHeader
+          title="Daily Stress — Last 14 Days"
+          info="Garmin daily stress score (0–100) over the past 2 weeks. Derived from HRV analysis. High values on rest days may indicate incomplete recovery, illness, or life stress. Look for a downward trend after deload weeks."
+          className="mb-3"
+        />
+        {recentStress.isLoading ? (
+          <div className="bg-muted h-40 animate-pulse rounded-lg" />
+        ) : recentStress.data && recentStress.data.length > 0 ? (
+          <ResponsiveContainer width="100%" height={160}>
+            <BarChart
+              data={recentStress.data.map((d) => ({
                 date: d.date.slice(5),
                 value: d.value ?? 0,
               }))}
