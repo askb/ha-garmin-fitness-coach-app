@@ -182,6 +182,17 @@ export default function SleepDashboard() {
     }));
   }, [stages.data]);
 
+  // True when data exists but all detailed stage values are zero/null —
+  // indicating the device doesn't support sleep stage tracking.
+  const hasNoSleepStages = useMemo(
+    () =>
+      stagesChartData.length > 0 &&
+      stagesChartData.every(
+        (d) => !(d.deep > 0) && !(d.rem > 0) && !(d.light > 0),
+      ),
+    [stagesChartData],
+  );
+
   // ---- Derived: Sleep score trend with moving average ----
   const scoreChartData = useMemo(() => {
     const data = history.data as
@@ -389,6 +400,31 @@ export default function SleepDashboard() {
           <p className="text-muted-foreground py-12 text-center text-sm">
             No sleep stage data yet
           </p>
+        ) : hasNoSleepStages ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-zinc-600 text-zinc-400">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </span>
+            <p className="text-muted-foreground max-w-sm text-sm">
+              Your Garmin device may not support detailed sleep stage tracking.
+              Devices like Fenix 7+, Venu 3, and Forerunner 265+ provide
+              deep/light/REM/awake breakdown.
+            </p>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <BarChart
