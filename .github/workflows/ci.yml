@@ -99,7 +99,7 @@ jobs:
       - name: Check out addon repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
-          repository: ${{ github.repository_owner }}/garmincoach-addon
+          repository: ${{ github.repository_owner }}/ha-garmin-fitness-coach-addon
           path: garmincoach-addon
 
       - name: Setup Python
@@ -107,8 +107,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install pytest
-        run: pip install pytest
+      - name: Install test dependencies
+        run: pip install pytest psycopg2-binary
 
       - name: Run ${{ matrix.test-file }}
         working-directory: garmincoach-addon/garmincoach/rootfs/app/tests
