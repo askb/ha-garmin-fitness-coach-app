@@ -108,7 +108,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install test dependencies
-        run: pip install pytest psycopg2-binary
+        run: pip install pytest psycopg2-binary garminconnect
 
       - name: Run ${{ matrix.test-file }}
         working-directory: garmincoach-addon/garmincoach/rootfs/app/tests
