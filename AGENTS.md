@@ -1,7 +1,13 @@
 # SPDX-FileCopyrightText: 2025 Anil Belur <askb23@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-# AI Coding Agent Instructions
+# Agent Development Guidelines
+
+## Constitution
+
+If `.specify/memory/constitution.md` exists in this repository, read it and
+follow its principles. The constitution takes precedence over this file if
+there is any conflict between the two documents.
 
 ## Project Overview
 
@@ -89,16 +95,77 @@ cd apps/nextjs && set -a && source ../../.env && set +a && npx next start
 
 ## Commit Conventions
 
-- Use Conventional Commits: `Feat:`, `Fix:`, `Chore:`, `Docs:`, etc.
-- Title max 72 chars
-- Body max 72 chars per line
-- Required: `Signed-off-by: Anil Belur <askb23@gmail.com>`
-- Change-Id trailer added automatically by commit-msg hook
+This project follows the
+[seven rules of a great Git commit message](https://chris.beams.io/posts/git-commit/).
+
+### Conventional Commit Format
+
+```plaintext
+Type(scope): Short imperative description
+
+Body explaining what and why. Wrap at 72 characters.
+URLs on their own line are exempt from the wrap limit.
+
+Co-authored-by: <AI Model Name> <appropriate-email@provider.com>
+Signed-off-by: Anil Belur <askb23@gmail.com>
+```
+
+**Allowed types** (capitalized, enforced by gitlint):
+`Fix`, `Feat`, `Chore`, `Docs`, `Style`, `Refactor`, `Perf`, `Test`,
+`Revert`, `CI`, `Build`
+
+### Commit Rules
+
+1. **Separate subject from body** with a blank line
+2. **Limit subject to 72 chars** (enforced by gitlint)
+3. **Capitalize the subject line** (Conventional Commit types satisfy this)
+4. **Do not end subject with a period**
+5. **Use imperative mood**: "Add feature", not "Added feature"
+6. **Wrap body at 72 characters** (URLs exempt)
+7. **Explain what and why**, not how
+
+### Co-Authorship
+
+All AI-assisted commits MUST include a `Co-authored-by` trailer:
+
+| Model   | Co-authored-by |
+|---------|----------------|
+| Copilot | `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>` |
+| Claude  | `Co-authored-by: Claude <claude@anthropic.com>` |
+| ChatGPT | `Co-authored-by: ChatGPT <chatgpt@openai.com>` |
+| Gemini  | `Co-authored-by: Gemini <gemini@google.com>` |
+
+### DCO Sign-off
+
+Always use `git commit -s` for Developer Certificate of Origin sign-off:
+`Signed-off-by: Anil Belur <askb23@gmail.com>`
+
+## Atomic Commits
+
+Each commit MUST represent exactly one logical change:
+
+- ✅ One feature per commit
+- ✅ One bug fix per commit
+- ✅ One refactor per commit
+- ❌ Multiple unrelated changes in one commit
+
+Task list updates (e.g., `tasks.md`) MUST be committed separately from
+the code they track.
 
 ## Pre-commit
 
 Run `pre-commit run --all-files` before pushing. Hooks include:
 yamllint, gitlint, REUSE compliance, actionlint.
+
+### If Pre-Commit Fails
+
+**CRITICAL**: Do NOT use `git reset` after a failed commit attempt.
+
+1. Fix the issues identified by the hooks
+2. Stage the fixes: `git add <files>`
+3. Commit again (hooks will re-run)
+
+Using `--no-verify` to bypass hooks is **PROHIBITED**.
 
 ## Important Files
 
