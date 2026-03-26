@@ -60,6 +60,14 @@ Create a concise daily health report as a GitHub issue covering:
 - Flag any open Dependabot PRs older than 7 days
 - Check for security advisories in `package.json` dependencies
 
+### 4b. Security & PII Scan
+- **Scan for hardcoded IP addresses** (e.g., 192.168.x.x) in source, scripts, and config — should use env vars
+- **Scan for personal email addresses** (excluding maintainer SPDX headers and example.com)
+- **Scan for URLs containing embedded credentials** (user:pass@host)
+- **Check for personal names or identifiable health data** in code or comments (not generic feature labels)
+- Flag any `.env` or `.env.local` files committed (should be in .gitignore)
+- Verify `.env.example` contains only placeholder values (no real secrets)
+
 ### 5. Test Health
 - Run `pnpm --filter nextjs test -- --passWithNoTests` if possible, or check latest CI run
 - Count total test cases across all test files
