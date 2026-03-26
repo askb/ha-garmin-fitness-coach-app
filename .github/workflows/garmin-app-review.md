@@ -68,6 +68,12 @@ navigation MUST use `IngressLink` (from `_components/ingress-link.tsx`), never
 - Seed data must use `seed-` prefix for IDs
 - Check for XSS vectors in user-provided URLs (validate with URL constructor)
 
+### Spec Kit Compliance
+- Check if the PR branch name matches pattern `speckit/NNN-*` or `feat/NNN-*`
+- If so, verify `specs/NNN-*/` directory exists with at least `spec.md`
+- If the PR modifies files related to a spec, check that `tasks.md` is being updated
+- For any new features (not bug fixes), suggest creating a spec if none exists
+
 3. **Post a single review comment** summarizing:
    - ✅ What looks good
    - ⚠️ Warnings (non-blocking suggestions)
