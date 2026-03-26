@@ -62,6 +62,9 @@ navigation MUST use `IngressLink` (from `_components/ingress-link.tsx`), never
 ### General
 - No `console.log` in production code (use proper logging)
 - No hardcoded user IDs (must use session context)
+- No hardcoded IP addresses (use environment variables)
+- No personal email addresses, names, or identifiable health data in code/comments
+- No URLs with embedded credentials (user:pass@host)
 - Seed data must use `seed-` prefix for IDs
 - Check for XSS vectors in user-provided URLs (validate with URL constructor)
 
