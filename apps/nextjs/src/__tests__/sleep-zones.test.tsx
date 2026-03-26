@@ -57,3 +57,66 @@ describe("Sleep Stage Analysis", () => {
     expect(classifySleep(300)).toBe("insufficient");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Sleep stage device-support detection
+// ---------------------------------------------------------------------------
+
+describe("Sleep Stage Device Support Detection", () => {
+  interface StagesChartEntry {
+    date: string;
+    deep: number;
+    rem: number;
+    light: number;
+    awake: number;
+  }
+
+  /** Mirrors the hasNoSleepStages logic from sleep/page.tsx */
+  function hasNoSleepStages(data: StagesChartEntry[]): boolean {
+    return (
+      data.length > 0 &&
+      data.every((d) => !(d.deep > 0) && !(d.rem > 0) && !(d.light > 0))
+    );
+  }
+
+  it("returns false when array is empty (no data yet)", () => {
+    expect(hasNoSleepStages([])).toBe(false);
+  });
+
+  it("returns true when all entries have zero deep/rem/light (device lacks stage support)", () => {
+    const data: StagesChartEntry[] = [
+      { date: "Mon", deep: 0, rem: 0, light: 0, awake: 0.5 },
+      { date: "Tue", deep: 0, rem: 0, light: 0, awake: 0.4 },
+    ];
+    expect(hasNoSleepStages(data)).toBe(true);
+  });
+
+  it("returns false when at least one entry has non-zero deep/rem/light", () => {
+    const data: StagesChartEntry[] = [
+      { date: "Mon", deep: 1.5, rem: 1.5, light: 3.5, awake: 0.5 },
+      { date: "Tue", deep: 0, rem: 0, light: 0, awake: 0.4 },
+    ];
+    expect(hasNoSleepStages(data)).toBe(false);
+  });
+
+  it("returns false when only rem is non-zero", () => {
+    const data: StagesChartEntry[] = [
+      { date: "Mon", deep: 0, rem: 1.2, light: 0, awake: 0.5 },
+    ];
+    expect(hasNoSleepStages(data)).toBe(false);
+  });
+
+  it("returns false when only deep is non-zero", () => {
+    const data: StagesChartEntry[] = [
+      { date: "Mon", deep: 0.8, rem: 0, light: 0, awake: 0.5 },
+    ];
+    expect(hasNoSleepStages(data)).toBe(false);
+  });
+
+  it("returns true when entries have NaN stage values (undefined API data cast through minToHours)", () => {
+    const data = [
+      { date: "Mon", deep: NaN, rem: NaN, light: NaN, awake: 0.5 },
+    ] as unknown as StagesChartEntry[];
+    expect(hasNoSleepStages(data)).toBe(true);
+  });
+});
