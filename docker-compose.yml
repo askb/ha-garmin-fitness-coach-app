@@ -12,7 +12,7 @@ services:
       POSTGRES_INITDB_ARGS: "--data-checksums"
     command:
       - "postgres"
-      - "-c" 
+      - "-c"
       - "shared_buffers=256MB"
       - "-c"
       - "effective_cache_size=1GB"
@@ -54,8 +54,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-
 
 volumes:
   pgdata:

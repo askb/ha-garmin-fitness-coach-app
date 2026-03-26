@@ -32,7 +32,7 @@ function ProfileEditor() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useQuery(trpc.profile.get.queryOptions());
-  
+
   const [editing, setEditing] = useState(false);
   const [age, setAge] = useState("");
   const [massKg, setMassKg] = useState("");

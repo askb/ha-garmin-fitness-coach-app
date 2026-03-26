@@ -24,4 +24,4 @@ jobs:
           pnpm install --frozen-lockfile
       - name: Setup database for tests
         run: |
-          echo "DATABASE_URL=postgresql://test@localhost:5432/garmincoach_test" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgresql://test@localhost:5432/garmincoach_test" >> "$GITHUB_ENV"
