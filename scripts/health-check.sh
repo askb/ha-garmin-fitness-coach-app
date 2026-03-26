@@ -113,9 +113,9 @@ journalctl --no-pager --list-boots 2>/dev/null | tail -11 | head -10 | while IFS
     boot_idx=$(echo "$line" | awk '{print $1}')
     first=$(echo "$line" | awk '{print $3, $4, $5}')
     last=$(echo "$line" | awk '{print $6, $7, $8}')
-    
+
     last_msg=$(journalctl --no-pager -b "$boot_idx" -n 1 --output=cat 2>/dev/null | head -1)
-    
+
     # Simple classification
     case "$last_msg" in
         *"powering down"*|*"Journal stopped"*|*"SIGTERM"*)
@@ -137,21 +137,21 @@ done
 if [ "${1:-}" = "--full" ]; then
     echo ""
     echo -e "${CYN}▸ Recommendations${RST}"
-    
+
     # Check containers without memory limits
     unlim=$(docker ps -q 2>/dev/null | xargs -I{} docker inspect --format '{{.Name}} {{.HostConfig.Memory}}' {} 2>/dev/null | grep " 0$" | wc -l)
     if [ "$unlim" -gt 0 ]; then
         echo -e "  ${YEL}⚠ ${unlim} containers have no memory limit${RST}"
         docker ps -q 2>/dev/null | xargs -I{} docker inspect --format '{{.Name}} {{.HostConfig.Memory}}' {} 2>/dev/null | grep " 0$" | sed 's/\// /;s/ 0$//' | awk '{printf "    - %s\n", $1}'
     fi
-    
+
     # Check s2idle
     sleep_mode=$(cat /sys/power/mem_sleep 2>/dev/null)
     if echo "$sleep_mode" | grep -q "s2idle"; then
         echo -e "  ${YEL}⚠ Sleep mode is s2idle — known problematic on AMD Ryzen.${RST}"
         echo "    Consider: sudo grubby --update-kernel=ALL --args='mem_sleep_default=deep'"
     fi
-    
+
     # Memory pressure
     avail_gb=$(free -g | awk '/^Mem:/ {print $7}')
     if [ "$avail_gb" -lt 10 ]; then

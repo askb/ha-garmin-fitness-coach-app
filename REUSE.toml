@@ -29,3 +29,27 @@ path = [".github/**", ".vscode/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2025 Anil Belur <askb23@gmail.com>"
 SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [".gitignore", ".env.example", ".nvmrc", "**/.prettierignore", ".editorconfig", ".codespell*", "LICENSES/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Anil Belur <askb23@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["**/*.ico", "**/*.svg", "**/*.png", "**/*.jpg", "**/*.gif"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Anil Belur <askb23@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["**/*.hbs", "logs/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Anil Belur <askb23@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["**/*.sh"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2025 Anil Belur <askb23@gmail.com>"
+SPDX-License-Identifier = "Apache-2.0"
