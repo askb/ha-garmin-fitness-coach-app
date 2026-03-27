@@ -1,4 +1,4 @@
-import type { SleepCoachResult, DailyMetricInput } from "../types";
+import type { DailyMetricInput, SleepCoachResult } from "../types";
 
 /**
  * SLEEP COACH — Evidence-Based Sleep Recommendations
@@ -72,7 +72,10 @@ export function calculateSleepDebt(
 ): number {
   let debt = 0;
   for (const m of recentMetrics.slice(0, 7)) {
-    if (m.totalSleepMinutes !== null && m.totalSleepMinutes < sleepNeedMinutes) {
+    if (
+      m.totalSleepMinutes !== null &&
+      m.totalSleepMinutes < sleepNeedMinutes
+    ) {
       debt += sleepNeedMinutes - m.totalSleepMinutes;
     }
   }

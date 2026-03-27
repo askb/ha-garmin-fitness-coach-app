@@ -1,4 +1,4 @@
-import type { VO2maxEstimateResult, RacePredictionResult } from "../types";
+import type { RacePredictionResult, VO2maxEstimateResult } from "../types";
 
 /**
  * VO2MAX ESTIMATION & RACE PREDICTION

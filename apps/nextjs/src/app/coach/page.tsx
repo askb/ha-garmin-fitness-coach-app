@@ -1,25 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 
 // ---------------------------------------------------------------------------
 // Agent configuration
 // ---------------------------------------------------------------------------
 
-type AgentType = "sport-scientist" | "psychologist" | "nutritionist" | "recovery";
+type AgentType =
+  | "sport-scientist"
+  | "psychologist"
+  | "nutritionist"
+  | "recovery";
 
 interface AgentConfig {
   id: AgentType;
   label: string;
   icon: string;
-  accent: string;       // tailwind text color
-  accentBg: string;     // tailwind bg color for buttons
+  accent: string; // tailwind text color
+  accentBg: string; // tailwind bg color for buttons
   accentBorder: string; // tailwind border color
   welcome: string;
   quickActions: readonly { label: string; message: string }[];
@@ -36,10 +40,25 @@ const AGENTS: AgentConfig[] = [
     welcome:
       "I'm your Sport Scientist. I analyze training loads, zone distribution, ACWR, and VO2max trends to optimize your performance. Ask me anything about your training.",
     quickActions: [
-      { label: "Am I overtraining?", message: "Am I overtraining? Analyze my ACWR and training load." },
-      { label: "Zone distribution", message: "Analyze my heart rate zone distribution over the last 30 days." },
-      { label: "Race prep for 10K", message: "How should I prepare for a 10K race based on my current fitness?" },
-      { label: "Training advice", message: "What should my training look like today based on my readiness?" },
+      {
+        label: "Am I overtraining?",
+        message: "Am I overtraining? Analyze my ACWR and training load.",
+      },
+      {
+        label: "Zone distribution",
+        message:
+          "Analyze my heart rate zone distribution over the last 30 days.",
+      },
+      {
+        label: "Race prep for 10K",
+        message:
+          "How should I prepare for a 10K race based on my current fitness?",
+      },
+      {
+        label: "Training advice",
+        message:
+          "What should my training look like today based on my readiness?",
+      },
     ],
   },
   {
@@ -52,10 +71,22 @@ const AGENTS: AgentConfig[] = [
     welcome:
       "I'm your Sport Psychologist. I help with motivation, mental resilience, and performance psychology. Let's work on the mental side of your training.",
     quickActions: [
-      { label: "Losing motivation", message: "I'm losing motivation to train. Can you help?" },
-      { label: "Race day prep", message: "Help me with mental preparation for race day." },
-      { label: "Stay consistent", message: "How can I stay more consistent with my training?" },
-      { label: "Handle pressure", message: "How do I handle performance pressure and anxiety?" },
+      {
+        label: "Losing motivation",
+        message: "I'm losing motivation to train. Can you help?",
+      },
+      {
+        label: "Race day prep",
+        message: "Help me with mental preparation for race day.",
+      },
+      {
+        label: "Stay consistent",
+        message: "How can I stay more consistent with my training?",
+      },
+      {
+        label: "Handle pressure",
+        message: "How do I handle performance pressure and anxiety?",
+      },
     ],
   },
   {
@@ -68,10 +99,24 @@ const AGENTS: AgentConfig[] = [
     welcome:
       "I'm your Sports Nutritionist. I help with fueling strategies, recovery nutrition, and hydration based on your training demands.",
     quickActions: [
-      { label: "Pre-workout fuel", message: "What should I eat before my workout?" },
-      { label: "Recovery meals", message: "What are the best recovery meal suggestions after a hard session?" },
-      { label: "Calorie needs", message: "What are my calorie and macro needs based on my current training load?" },
-      { label: "Hydration plan", message: "Help me with a hydration strategy for my training." },
+      {
+        label: "Pre-workout fuel",
+        message: "What should I eat before my workout?",
+      },
+      {
+        label: "Recovery meals",
+        message:
+          "What are the best recovery meal suggestions after a hard session?",
+      },
+      {
+        label: "Calorie needs",
+        message:
+          "What are my calorie and macro needs based on my current training load?",
+      },
+      {
+        label: "Hydration plan",
+        message: "Help me with a hydration strategy for my training.",
+      },
     ],
   },
   {
@@ -84,10 +129,23 @@ const AGENTS: AgentConfig[] = [
     welcome:
       "I'm your Recovery Specialist. I analyze sleep, HRV, stress, and body battery to keep you healthy and injury-free.",
     quickActions: [
-      { label: "Enough sleep?", message: "Am I getting enough sleep? Analyze my sleep trends." },
-      { label: "Deload week?", message: "Should I take a deload week based on my current data?" },
-      { label: "Injury risk", message: "What's my current injury risk based on training load and recovery?" },
-      { label: "Recovery tips", message: "Give me specific recovery protocols for today." },
+      {
+        label: "Enough sleep?",
+        message: "Am I getting enough sleep? Analyze my sleep trends.",
+      },
+      {
+        label: "Deload week?",
+        message: "Should I take a deload week based on my current data?",
+      },
+      {
+        label: "Injury risk",
+        message:
+          "What's my current injury risk based on training load and recovery?",
+      },
+      {
+        label: "Recovery tips",
+        message: "Give me specific recovery protocols for today.",
+      },
     ],
   },
 ] as const;
@@ -186,7 +244,9 @@ function ChatBubble({
   });
 
   return (
-    <div className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}>
+    <div
+      className={cn("flex w-full", isUser ? "justify-end" : "justify-start")}
+    >
       <div className={cn("max-w-[85%] space-y-1")}>
         {!isUser && (
           <span className={cn("text-xs font-medium", agentConfig.accent)}>
@@ -196,9 +256,7 @@ function ChatBubble({
         <div
           className={cn(
             "rounded-2xl px-4 py-2.5",
-            isUser
-              ? "bg-indigo-600 text-white"
-              : "bg-zinc-700 text-zinc-100",
+            isUser ? "bg-indigo-600 text-white" : "bg-zinc-700 text-zinc-100",
           )}
         >
           {isUser ? (
@@ -235,9 +293,7 @@ export default function CoachPage() {
 
   const agentConfig = getAgentConfig(activeAgent);
 
-  const history = useQuery(
-    trpc.chat.getHistory.queryOptions({ limit: 50 }),
-  );
+  const history = useQuery(trpc.chat.getHistory.queryOptions({ limit: 50 }));
 
   const [sendError, setSendError] = useState<string | null>(null);
 
@@ -289,7 +345,7 @@ export default function CoachPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="text-zinc-400 transition-colors hover:text-zinc-200"
           >
             ← Back
           </Link>
@@ -297,14 +353,12 @@ export default function CoachPage() {
             <h1 className="text-base font-semibold text-zinc-100">
               {agentConfig.icon} AI {agentConfig.label}
             </h1>
-            <p className="text-xs text-zinc-500">
-              Powered by your Garmin data
-            </p>
+            <p className="text-xs text-zinc-500">Powered by your Garmin data</p>
           </div>
         </div>
         <button
           onClick={() => setShowClearConfirm(true)}
-          className="rounded-lg px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300 transition-colors"
+          className="rounded-lg px-2 py-1 text-xs text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
         >
           Clear
         </button>
@@ -373,15 +427,23 @@ export default function CoachPage() {
             {sendMutation.isPending && (
               <div className="flex justify-start">
                 <div className="max-w-[85%] space-y-1">
-                  <span className={cn("text-xs font-medium", agentConfig.accent)}>
+                  <span
+                    className={cn("text-xs font-medium", agentConfig.accent)}
+                  >
                     {agentConfig.icon} {agentConfig.label}
                   </span>
                   <div className="rounded-2xl bg-zinc-700 px-4 py-3 text-sm text-zinc-300">
-                    <span className="mr-2">{agentConfig.label} is thinking…</span>
+                    <span className="mr-2">
+                      {agentConfig.label} is thinking…
+                    </span>
                     <span className="inline-flex gap-1">
                       <span className="animate-bounce">●</span>
-                      <span className="animate-bounce [animation-delay:0.15s]">●</span>
-                      <span className="animate-bounce [animation-delay:0.3s]">●</span>
+                      <span className="animate-bounce [animation-delay:0.15s]">
+                        ●
+                      </span>
+                      <span className="animate-bounce [animation-delay:0.3s]">
+                        ●
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -390,12 +452,12 @@ export default function CoachPage() {
             {sendError && !sendMutation.isPending && (
               <div className="flex justify-start">
                 <div className="max-w-[85%] space-y-1">
-                  <div className="rounded-2xl bg-red-900/40 border border-red-700/50 px-4 py-2.5 text-sm text-red-300">
+                  <div className="rounded-2xl border border-red-700/50 bg-red-900/40 px-4 py-2.5 text-sm text-red-300">
                     {sendError}
                   </div>
                   <button
                     onClick={() => setSendError(null)}
-                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors"
+                    className="text-[10px] text-zinc-500 transition-colors hover:text-zinc-300"
                   >
                     Dismiss
                   </button>
@@ -427,7 +489,7 @@ export default function CoachPage() {
       )}
 
       {/* Input Area */}
-      <div className="border-t border-zinc-800 bg-zinc-900 px-4 py-3 pb-safe">
+      <div className="pb-safe border-t border-zinc-800 bg-zinc-900 px-4 py-3">
         <form
           onSubmit={(e) => {
             e.preventDefault();

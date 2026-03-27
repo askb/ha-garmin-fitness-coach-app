@@ -1,12 +1,13 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
+import type { Baselines, DailyMetricInput } from "@acme/engine";
 import { and, desc, eq, gte, lte } from "@acme/db";
 import {
-  DailyMetric,
   Activity,
-  ReadinessScore,
+  DailyMetric,
   Profile,
+  ReadinessScore,
 } from "@acme/db/schema";
 import {
   calculateReadiness,
@@ -16,7 +17,6 @@ import {
   detectAnomalies,
   getReadinessZone,
 } from "@acme/engine";
-import type { DailyMetricInput, Baselines } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
@@ -51,16 +51,10 @@ function computeDataQuality(
   const stale = daysOld > 3;
 
   return {
-    hrv:
-      metric?.hrv == null ? "missing" : stale ? "stale" : "good",
+    hrv: metric?.hrv == null ? "missing" : stale ? "stale" : "good",
     sleep:
-      metric?.totalSleepMinutes == null
-        ? "missing"
-        : stale
-          ? "stale"
-          : "good",
-    restingHr:
-      metric?.restingHr == null ? "missing" : stale ? "stale" : "good",
+      metric?.totalSleepMinutes == null ? "missing" : stale ? "stale" : "good",
+    restingHr: metric?.restingHr == null ? "missing" : stale ? "stale" : "good",
     trainingLoad:
       recentActivityCount === 0 ? "missing" : daysOld > 7 ? "stale" : "good",
   };
@@ -328,9 +322,7 @@ export const readinessRouter = {
       orderBy: desc(Activity.startedAt),
     });
 
-    const strainScores = recentActivities.map(
-      (a) => a.strainScore ?? 0,
-    );
+    const strainScores = recentActivities.map((a) => a.strainScore ?? 0);
 
     return detectAnomalies(metricInputs, baselines, strainScores);
   }),

@@ -34,7 +34,9 @@ import type { RunningFormScore } from "../types";
  * - Recreational: 240-300ms
  * - Novice: 300ms+
  */
-function rateGCT(gctMs: number): RunningFormScore["groundContactTime"]["rating"] {
+function rateGCT(
+  gctMs: number,
+): RunningFormScore["groundContactTime"]["rating"] {
   if (gctMs <= 210) return "elite";
   if (gctMs <= 250) return "good";
   if (gctMs <= 300) return "average";
@@ -59,7 +61,9 @@ function scoreGCT(gctMs: number): number {
  * - Average: 8.0-10.0 cm
  * - Poor: >10.0 cm (excessive "bouncing")
  */
-function rateVerticalOscillation(voCm: number): RunningFormScore["verticalOscillation"]["rating"] {
+function rateVerticalOscillation(
+  voCm: number,
+): RunningFormScore["verticalOscillation"]["rating"] {
   if (voCm <= 6.0) return "elite";
   if (voCm <= 8.0) return "good";
   if (voCm <= 10.0) return "average";
@@ -88,15 +92,18 @@ function scoreVO(voCm: number): number {
  * - Optimal vertical ratio: 6-8% (more horizontal = better)
  * - High ratio (>10%): excessive bouncing relative to forward progress
  */
-function rateStride(strideLengthM: number, heightCm: number | null): RunningFormScore["strideLength"]["rating"] {
+function rateStride(
+  strideLengthM: number,
+  heightCm: number | null,
+): RunningFormScore["strideLength"]["rating"] {
   if (heightCm === null) return "optimal"; // can't assess without height
 
   const heightM = heightCm / 100;
   const optimalMin = heightM * 0.65;
-  const optimalMax = heightM * 0.80;
+  const optimalMax = heightM * 0.8;
 
   if (strideLengthM > optimalMax * 1.05) return "overstriding";
-  if (strideLengthM < optimalMin * 0.90) return "understriding";
+  if (strideLengthM < optimalMin * 0.9) return "understriding";
   return "optimal";
 }
 
@@ -111,7 +118,9 @@ function rateStride(strideLengthM: number, heightCm: number | null): RunningForm
  *
  * Persistent asymmetry >2% may indicate injury risk or compensatory patterns.
  */
-function rateGCTBalance(balancePct: number): RunningFormScore["gctBalance"]["rating"] {
+function rateGCTBalance(
+  balancePct: number,
+): RunningFormScore["gctBalance"]["rating"] {
   const deviation = Math.abs(balancePct - 50);
   if (deviation <= 0.5) return "balanced";
   if (deviation <= 2.0) return "slight_imbalance";
@@ -157,12 +166,12 @@ function scoreCadence(spm: number): number {
  * - Stride length: 10% (assessed via vertical ratio if available)
  */
 export function analyzeRunningForm(
-  avgGCT: number | null,           // milliseconds
+  avgGCT: number | null, // milliseconds
   verticalOscillation: number | null, // centimeters
-  strideLength: number | null,     // meters
-  gctBalance: number | null,       // percentage (e.g., 50.2)
-  cadence: number | null,          // steps per minute
-  heightCm: number | null,         // for stride assessment
+  strideLength: number | null, // meters
+  gctBalance: number | null, // percentage (e.g., 50.2)
+  cadence: number | null, // steps per minute
+  heightCm: number | null, // for stride assessment
 ): RunningFormScore | null {
   // Need at least GCT or cadence to provide meaningful analysis
   if (avgGCT === null && cadence === null) return null;
@@ -171,21 +180,27 @@ export function analyzeRunningForm(
   let totalWeight = 0;
 
   // GCT component (30%)
-  const gctResult = avgGCT !== null ? {
-    value: avgGCT,
-    rating: rateGCT(avgGCT),
-  } : { value: 0, rating: "average" as const };
+  const gctResult =
+    avgGCT !== null
+      ? {
+          value: avgGCT,
+          rating: rateGCT(avgGCT),
+        }
+      : { value: 0, rating: "average" as const };
 
   if (avgGCT !== null) {
-    totalScore += scoreGCT(avgGCT) * 0.30;
-    totalWeight += 0.30;
+    totalScore += scoreGCT(avgGCT) * 0.3;
+    totalWeight += 0.3;
   }
 
   // Vertical oscillation (25%)
-  const voResult = verticalOscillation !== null ? {
-    value: verticalOscillation,
-    rating: rateVerticalOscillation(verticalOscillation),
-  } : { value: 0, rating: "average" as const };
+  const voResult =
+    verticalOscillation !== null
+      ? {
+          value: verticalOscillation,
+          rating: rateVerticalOscillation(verticalOscillation),
+        }
+      : { value: 0, rating: "average" as const };
 
   if (verticalOscillation !== null) {
     totalScore += scoreVO(verticalOscillation) * 0.25;
@@ -193,25 +208,35 @@ export function analyzeRunningForm(
   }
 
   // Stride length (10%)
-  const slResult = strideLength !== null ? {
-    value: strideLength,
-    rating: rateStride(strideLength, heightCm),
-  } : { value: 0, rating: "optimal" as const };
+  const slResult =
+    strideLength !== null
+      ? {
+          value: strideLength,
+          rating: rateStride(strideLength, heightCm),
+        }
+      : { value: 0, rating: "optimal" as const };
 
   if (strideLength !== null) {
     // Stride scoring via vertical ratio if we have VO data
-    const vrScore = verticalOscillation !== null && strideLength > 0
-      ? Math.max(0, 100 - ((verticalOscillation / 100) / strideLength * 100 - 7) * 15)
-      : 70; // default
-    totalScore += vrScore * 0.10;
-    totalWeight += 0.10;
+    const vrScore =
+      verticalOscillation !== null && strideLength > 0
+        ? Math.max(
+            0,
+            100 - ((verticalOscillation / 100 / strideLength) * 100 - 7) * 15,
+          )
+        : 70; // default
+    totalScore += vrScore * 0.1;
+    totalWeight += 0.1;
   }
 
   // GCT Balance (15%)
-  const balanceResult = gctBalance !== null ? {
-    value: gctBalance,
-    rating: rateGCTBalance(gctBalance),
-  } : { value: 50, rating: "balanced" as const };
+  const balanceResult =
+    gctBalance !== null
+      ? {
+          value: gctBalance,
+          rating: rateGCTBalance(gctBalance),
+        }
+      : { value: 50, rating: "balanced" as const };
 
   if (gctBalance !== null) {
     const balanceScore = Math.max(0, 100 - Math.abs(gctBalance - 50) * 25);
@@ -220,14 +245,17 @@ export function analyzeRunningForm(
   }
 
   // Cadence (20%)
-  const cadenceResult = cadence !== null ? {
-    value: cadence,
-    rating: rateCadence(cadence),
-  } : { value: 0, rating: "optimal" as const };
+  const cadenceResult =
+    cadence !== null
+      ? {
+          value: cadence,
+          rating: rateCadence(cadence),
+        }
+      : { value: 0, rating: "optimal" as const };
 
   if (cadence !== null) {
-    totalScore += scoreCadence(cadence) * 0.20;
-    totalWeight += 0.20;
+    totalScore += scoreCadence(cadence) * 0.2;
+    totalWeight += 0.2;
   }
 
   // Normalize score to account for missing components

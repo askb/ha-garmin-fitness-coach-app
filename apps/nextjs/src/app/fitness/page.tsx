@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
@@ -11,7 +12,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
@@ -21,10 +21,25 @@ import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
 
-const TREND_BADGE: Record<string, { icon: string; label: string; cls: string }> = {
-  improving: { icon: "↑", label: "Improving", cls: "bg-green-500/20 text-green-400" },
-  stable: { icon: "→", label: "Stable", cls: "bg-yellow-500/20 text-yellow-400" },
-  declining: { icon: "↓", label: "Declining", cls: "bg-red-500/20 text-red-400" },
+const TREND_BADGE: Record<
+  string,
+  { icon: string; label: string; cls: string }
+> = {
+  improving: {
+    icon: "↑",
+    label: "Improving",
+    cls: "bg-green-500/20 text-green-400",
+  },
+  stable: {
+    icon: "→",
+    label: "Stable",
+    cls: "bg-yellow-500/20 text-yellow-400",
+  },
+  declining: {
+    icon: "↓",
+    label: "Declining",
+    cls: "bg-red-500/20 text-red-400",
+  },
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -118,7 +133,8 @@ function fmtTime(secs: number): string {
   const h = Math.floor(secs / 3600);
   const m = Math.floor((secs % 3600) / 60);
   const s = Math.round(secs % 60);
-  if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  if (h > 0)
+    return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
@@ -137,7 +153,7 @@ function vdotPace(vo2max: number, fraction: number): string {
   const vo2 = vo2max * fraction;
   const speed_m_per_min = (vo2 - 3.5) / 0.2; // inverse of VO2 = 3.5 + 0.2*speed (m/min)
   if (speed_m_per_min <= 0) return "—";
-  const secPerKm = 1000 / speed_m_per_min * 60;
+  const secPerKm = (1000 / speed_m_per_min) * 60;
   const m = Math.floor(secPerKm / 60);
   const s = Math.round(secPerKm % 60);
   return `${m}:${s.toString().padStart(2, "0")}/km`;
@@ -176,15 +192,13 @@ export default function FitnessPage() {
   // Chart data (chronological order)
   const chartData = useMemo(() => {
     if (!vo2max.data?.estimates?.length) return [];
-    return [...vo2max.data.estimates]
-      .reverse()
-      .map((e) => ({
-        date: fmtDateShort(e.date),
-        fullDate: e.date,
-        value: e.value,
-        sport: e.sport,
-        source: e.source,
-      }));
+    return [...vo2max.data.estimates].reverse().map((e) => ({
+      date: fmtDateShort(e.date),
+      fullDate: e.date,
+      value: e.value,
+      sport: e.sport,
+      source: e.source,
+    }));
   }, [vo2max.data]);
 
   // Trendline data: simple linear regression overlay
@@ -241,7 +255,10 @@ export default function FitnessPage() {
     marathon: 42195,
   };
   const DISTANCE_LABEL: Record<string, string> = {
-    "5K": "5K", "10K": "10K", half_marathon: "Half Marathon", marathon: "Marathon",
+    "5K": "5K",
+    "10K": "10K",
+    half_marathon: "Half Marathon",
+    marathon: "Marathon",
   };
 
   const raceHistory = useMemo(() => {
@@ -264,7 +281,12 @@ export default function FitnessPage() {
           predicted: pred.predictedFormatted,
           diff: diffSecs,
           diffFmt: `${diffSecs >= 0 ? "+" : ""}${fmtTime(Math.abs(diffSecs))}`,
-          date: a.startedAt ? new Date(a.startedAt as string).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "",
+          date: a.startedAt
+            ? new Date(a.startedAt as string).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })
+            : "",
         };
       });
     });
@@ -290,7 +312,7 @@ export default function FitnessPage() {
   }, [trend, trainingLoads.data, workoutCount90d]);
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
@@ -319,18 +341,21 @@ export default function FitnessPage() {
         </div>
       ) : latestVO2max ? (
         <div className="bg-card rounded-2xl border p-6 text-center">
-          <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             Current VO2max
           </p>
           <p className="mt-1 text-5xl font-bold text-blue-400">
             {latestVO2max.value.toFixed(1)}
           </p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            ml/kg/min
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">ml/kg/min</p>
           {classification && (
             <p className="mt-2 text-sm">
-              <span className={cn("font-semibold", classificationColor(classification))}>
+              <span
+                className={cn(
+                  "font-semibold",
+                  classificationColor(classification),
+                )}
+              >
                 {classification}
               </span>
               <span className="text-muted-foreground"> fitness level</span>
@@ -437,9 +462,7 @@ export default function FitnessPage() {
               {latestVO2max.value.toFixed(1)}
             </span>{" "}
             puts you in the{" "}
-            <span className="font-bold text-green-400">
-              top {topPercent}%
-            </span>{" "}
+            <span className="font-bold text-green-400">top {topPercent}%</span>{" "}
             for your age group.
           </p>
           {/* Reference scale */}
@@ -546,7 +569,12 @@ export default function FitnessPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold">{r.actual}</p>
-                  <p className={cn("text-xs font-medium", r.diff > 0 ? "text-red-400" : "text-green-400")}>
+                  <p
+                    className={cn(
+                      "text-xs font-medium",
+                      r.diff > 0 ? "text-red-400" : "text-green-400",
+                    )}
+                  >
                     {r.diffFmt} vs predicted {r.predicted}
                   </p>
                 </div>
@@ -566,12 +594,35 @@ export default function FitnessPage() {
           />
           <div className="space-y-2">
             {[
-              { label: "Easy", emoji: "🟦", fraction: 0.63, info: "60-65% VO2max" },
-              { label: "Marathon", emoji: "🟩", fraction: 0.83, info: "83% VO2max" },
-              { label: "Threshold", emoji: "🟨", fraction: 0.9, info: "88-92% VO2max" },
-              { label: "Interval", emoji: "🟥", fraction: 0.975, info: "95-100% VO2max" },
+              {
+                label: "Easy",
+                emoji: "🟦",
+                fraction: 0.63,
+                info: "60-65% VO2max",
+              },
+              {
+                label: "Marathon",
+                emoji: "🟩",
+                fraction: 0.83,
+                info: "83% VO2max",
+              },
+              {
+                label: "Threshold",
+                emoji: "🟨",
+                fraction: 0.9,
+                info: "88-92% VO2max",
+              },
+              {
+                label: "Interval",
+                emoji: "🟥",
+                fraction: 0.975,
+                info: "95-100% VO2max",
+              },
             ].map((zone) => (
-              <div key={zone.label} className="flex items-center justify-between rounded-xl bg-zinc-800/60 px-4 py-2.5">
+              <div
+                key={zone.label}
+                className="flex items-center justify-between rounded-xl bg-zinc-800/60 px-4 py-2.5"
+              >
                 <div>
                   <p className="text-sm font-semibold">
                     {zone.emoji} {zone.label}
@@ -597,22 +648,38 @@ export default function FitnessPage() {
           />
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="relative h-4 flex-1 overflow-hidden rounded-full bg-secondary/50">
+              <div className="bg-secondary/50 relative h-4 flex-1 overflow-hidden rounded-full">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all",
-                    runningShape >= 75 ? "bg-green-500" : runningShape >= 50 ? "bg-yellow-500" : "bg-red-500",
+                    runningShape >= 75
+                      ? "bg-green-500"
+                      : runningShape >= 50
+                        ? "bg-yellow-500"
+                        : "bg-red-500",
                   )}
                   style={{ width: `${runningShape}%` }}
                 />
               </div>
               <span className="w-10 text-right font-bold">{runningShape}</span>
             </div>
-            <p className={cn(
-              "text-center text-sm font-semibold",
-              runningShape >= 75 ? "text-green-400" : runningShape >= 50 ? "text-yellow-400" : "text-red-400",
-            )}>
-              {runningShape >= 80 ? "Peak Shape" : runningShape >= 65 ? "Good Shape" : runningShape >= 50 ? "Building" : "Off-form"}
+            <p
+              className={cn(
+                "text-center text-sm font-semibold",
+                runningShape >= 75
+                  ? "text-green-400"
+                  : runningShape >= 50
+                    ? "text-yellow-400"
+                    : "text-red-400",
+              )}
+            >
+              {runningShape >= 80
+                ? "Peak Shape"
+                : runningShape >= 65
+                  ? "Good Shape"
+                  : runningShape >= 50
+                    ? "Building"
+                    : "Off-form"}
             </p>
           </div>
         </div>

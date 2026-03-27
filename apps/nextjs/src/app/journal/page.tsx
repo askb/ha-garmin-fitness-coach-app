@@ -1,17 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -149,14 +145,14 @@ function ScoreSlider({
         max={max}
         value={value ?? min}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-primary"
+        className="accent-primary w-full"
       />
-      <div className="flex justify-between text-[10px] text-muted-foreground">
+      <div className="text-muted-foreground flex justify-between text-[10px]">
         <span>{lowLabel}</span>
-        <span className="font-bold text-foreground">{value ?? "—"}</span>
+        <span className="text-foreground font-bold">{value ?? "—"}</span>
         <span>{highLabel}</span>
       </div>
-      <p className="text-center text-xs text-muted-foreground">{midLabel}</p>
+      <p className="text-muted-foreground text-center text-xs">{midLabel}</p>
     </div>
   );
 }
@@ -191,8 +187,9 @@ export default function JournalPage() {
 
   // -- Cycle --
   const [showCycle, setShowCycle] = useState(false);
-  const [menstrualPhase, setMenstrualPhase] =
-    useState<MenstrualPhase | null>(null);
+  const [menstrualPhase, setMenstrualPhase] = useState<MenstrualPhase | null>(
+    null,
+  );
 
   // -- Queries --
   const range = useMemo(() => dateRange(14), []);
@@ -212,9 +209,7 @@ export default function JournalPage() {
   const [syncedDate, setSyncedDate] = useState<string | null>(null);
   if (loadedDate && loadedDate !== syncedDate) {
     const entry = entryQuery.data;
-    setTags(
-      (entry?.tags as Record<string, boolean | number | string>) ?? {},
-    );
+    setTags((entry?.tags as Record<string, boolean | number | string>) ?? {});
     setNotes((entry?.notes as string) ?? "");
     setSorenessScore((entry?.sorenessScore as number) ?? null);
     setSorenessRegions((entry?.sorenessRegions as string[]) ?? []);
@@ -223,9 +218,7 @@ export default function JournalPage() {
     setCaffeineTime((entry?.caffeineTime as string) ?? "");
     setAlcoholDrinks((entry?.alcoholDrinks as number) ?? null);
     setNapMinutes((entry?.napMinutes as number) ?? null);
-    setMedicationsText(
-      ((entry?.medications as string[]) ?? []).join(", "),
-    );
+    setMedicationsText(((entry?.medications as string[]) ?? []).join(", "));
     const phase = entry?.menstrualPhase as MenstrualPhase | undefined;
     setMenstrualPhase(phase ?? null);
     if (phase) setShowCycle(true);
@@ -236,11 +229,7 @@ export default function JournalPage() {
     !entryQuery.data &&
     syncedDate !== selectedDate
   ) {
-    if (
-      syncedDate !== null ||
-      Object.keys(tags).length > 0 ||
-      notes !== ""
-    ) {
+    if (syncedDate !== null || Object.keys(tags).length > 0 || notes !== "") {
       setTags({});
       setNotes("");
       setSorenessScore(null);
@@ -362,7 +351,7 @@ export default function JournalPage() {
   const topCorrelations = (correlationsQuery.data ?? []).slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
       {/* ---- Header ---- */}
       <div>
         <h1 className="text-xl font-bold">Journal</h1>
@@ -399,7 +388,7 @@ export default function JournalPage() {
 
       {/* ---- Body Feel Section ---- */}
       <div className="bg-card space-y-5 rounded-2xl border p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           Body Feel
         </h2>
 
@@ -407,7 +396,7 @@ export default function JournalPage() {
         <div className="space-y-2">
           <p className="text-sm font-medium">
             Soreness{" "}
-            <span className="text-muted-foreground font-normal text-xs">
+            <span className="text-muted-foreground text-xs font-normal">
               (1 = None · 10 = Severe)
             </span>
           </p>
@@ -423,7 +412,7 @@ export default function JournalPage() {
         {/* Soreness Regions */}
         {sorenessScore !== null && sorenessScore > 1 && (
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
               Where?
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -435,7 +424,7 @@ export default function JournalPage() {
                     "rounded-full border px-2.5 py-1 text-xs transition-all",
                     sorenessRegions.includes(region)
                       ? "border-orange-500/50 bg-orange-500/20 text-orange-400"
-                      : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                      : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                   )}
                 >
                   {region}
@@ -449,7 +438,7 @@ export default function JournalPage() {
         <div className="space-y-2">
           <p className="text-sm font-medium">
             Mood{" "}
-            <span className="text-muted-foreground font-normal text-xs">
+            <span className="text-muted-foreground text-xs font-normal">
               (1 = Low · 10 = Great)
             </span>
           </p>
@@ -465,7 +454,7 @@ export default function JournalPage() {
 
       {/* ---- Inputs Section ---- */}
       <div className="bg-card space-y-5 rounded-2xl border p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           Inputs
         </h2>
 
@@ -483,7 +472,7 @@ export default function JournalPage() {
                   "rounded-xl border px-3 py-1.5 text-xs transition-all",
                   caffeineAmountMg === mg
                     ? "border-yellow-500/50 bg-yellow-500/20 text-yellow-400"
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 {mg === 400 ? "400+" : mg === 0 ? "None" : `${mg}mg`}
@@ -496,7 +485,7 @@ export default function JournalPage() {
               placeholder="Time (HH:MM)"
               value={caffeineTime}
               onChange={(e) => setCaffeineTime(e.target.value)}
-              className="bg-secondary/50 border-border rounded-lg border px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+              className="bg-secondary/50 border-border focus:ring-primary/40 rounded-lg border px-3 py-1.5 text-xs focus:ring-2 focus:outline-none"
             />
           )}
         </div>
@@ -508,14 +497,12 @@ export default function JournalPage() {
             {ALCOHOL_OPTIONS.map((n) => (
               <button
                 key={n}
-                onClick={() =>
-                  setAlcoholDrinks(alcoholDrinks === n ? null : n)
-                }
+                onClick={() => setAlcoholDrinks(alcoholDrinks === n ? null : n)}
                 className={cn(
                   "rounded-xl border px-3 py-1.5 text-xs transition-all",
                   alcoholDrinks === n
                     ? "border-amber-500/50 bg-amber-500/20 text-amber-400"
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 {n === 5 ? "5+" : n === 0 ? "None" : `${n}`}
@@ -531,14 +518,12 @@ export default function JournalPage() {
             {NAP_OPTIONS.map((min) => (
               <button
                 key={min}
-                onClick={() =>
-                  setNapMinutes(napMinutes === min ? null : min)
-                }
+                onClick={() => setNapMinutes(napMinutes === min ? null : min)}
                 className={cn(
                   "rounded-xl border px-3 py-1.5 text-xs transition-all",
                   napMinutes === min
                     ? "border-blue-500/50 bg-blue-500/20 text-blue-400"
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 {min === 0 ? "None" : `${min}m`}
@@ -555,14 +540,14 @@ export default function JournalPage() {
             placeholder="e.g. ibuprofen, magnesium (comma-separated)"
             value={medicationsText}
             onChange={(e) => setMedicationsText(e.target.value)}
-            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-xs focus:ring-2 focus:outline-none"
           />
         </div>
       </div>
 
       {/* ---- Lifestyle Tags Section ---- */}
       <div className="bg-card space-y-4 rounded-2xl border p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           Lifestyle
         </h2>
 
@@ -583,7 +568,7 @@ export default function JournalPage() {
                   "flex flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-xs transition-all",
                   active
                     ? TAG_COLORS[tag.key]
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 <span className="text-base">{tag.emoji}</span>
@@ -600,11 +585,11 @@ export default function JournalPage() {
 
         {/* Notes */}
         <div className="space-y-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             Notes
           </h2>
           <textarea
-            className="bg-secondary/50 border-border w-full rounded-xl border p-3 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-3 text-sm placeholder:text-zinc-500 focus:ring-2 focus:outline-none"
             rows={3}
             placeholder="How are you feeling today?"
             value={notes}
@@ -627,7 +612,7 @@ export default function JournalPage() {
 
         {showCycle && (
           <div className="mt-4 space-y-3">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
               Menstrual Phase
             </p>
             <div className="flex flex-wrap gap-2">
@@ -643,7 +628,7 @@ export default function JournalPage() {
                     "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-all",
                     menstrualPhase === phase.key
                       ? "border-pink-500/50 bg-pink-500/20 text-pink-400"
-                      : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                      : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                   )}
                 >
                   <span>{phase.emoji}</span>
@@ -666,7 +651,7 @@ export default function JournalPage() {
 
       {/* ---- Journal History ---- */}
       <div>
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
           Recent Entries
         </h2>
 
@@ -711,7 +696,7 @@ export default function JournalPage() {
                       </p>
 
                       {/* Scores summary */}
-                      <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                      <div className="text-muted-foreground mt-1 flex flex-wrap gap-2 text-xs">
                         {entry.sorenessScore != null && (
                           <span>😣 {entry.sorenessScore}/10</span>
                         )}
@@ -803,7 +788,7 @@ export default function JournalPage() {
       {/* ---- Quick Correlation Preview ---- */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+          <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             Correlation Insights
           </h2>
           <Link

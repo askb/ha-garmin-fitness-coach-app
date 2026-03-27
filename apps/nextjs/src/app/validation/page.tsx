@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
@@ -57,24 +53,28 @@ function deviationBadge(pct: number | null | undefined): React.ReactNode {
   if (abs < 5)
     return (
       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-        🟢 Excellent ({sign}{pct.toFixed(1)}%)
+        🟢 Excellent ({sign}
+        {pct.toFixed(1)}%)
       </span>
     );
   if (abs < 10)
     return (
       <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
-        🟡 Good ({sign}{pct.toFixed(1)}%)
+        🟡 Good ({sign}
+        {pct.toFixed(1)}%)
       </span>
     );
   if (abs < 15)
     return (
       <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
-        🟠 Fair ({sign}{pct.toFixed(1)}%)
+        🟠 Fair ({sign}
+        {pct.toFixed(1)}%)
       </span>
     );
   return (
     <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
-      🔴 Poor ({sign}{pct.toFixed(1)}%)
+      🔴 Poor ({sign}
+      {pct.toFixed(1)}%)
     </span>
   );
 }
@@ -87,7 +87,8 @@ export default function ValidationPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const [selectedType, setSelectedType] = useState<MeasurementTypeKey>("lab_vo2max");
+  const [selectedType, setSelectedType] =
+    useState<MeasurementTypeKey>("lab_vo2max");
   const [date, setDate] = useState(today());
   const [value, setValue] = useState("");
   const [garminValue, setGarminValue] = useState("");
@@ -162,7 +163,9 @@ export default function ValidationPage() {
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
         {/* Add Reference Measurement */}
         <div className="rounded-xl bg-white p-4 shadow-sm">
-          <h2 className="mb-3 font-semibold text-gray-800">Add Reference Measurement</h2>
+          <h2 className="mb-3 font-semibold text-gray-800">
+            Add Reference Measurement
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-3">
             {/* Type selector */}
             <div className="grid grid-cols-3 gap-2">
@@ -185,7 +188,9 @@ export default function ValidationPage() {
 
             {/* Date */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Date</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Date
+              </label>
               <input
                 type="date"
                 value={date}
@@ -211,7 +216,9 @@ export default function ValidationPage() {
                 />
               </div>
               <div className="w-28">
-                <label className="mb-1 block text-sm font-medium text-gray-700">Unit</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Unit
+                </label>
                 <div className="flex h-[38px] items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500">
                   {unit}
                 </div>
@@ -237,7 +244,8 @@ export default function ValidationPage() {
             {/* Notes */}
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Notes <span className="font-normal text-gray-400">(optional)</span>
+                Notes{" "}
+                <span className="font-normal text-gray-400">(optional)</span>
               </label>
               <textarea
                 value={notes}
@@ -267,10 +275,15 @@ export default function ValidationPage() {
                 const avg = sum / count;
                 const typeInfo = MEASUREMENT_TYPES.find((t) => t.key === type);
                 return (
-                  <div key={type} className="flex items-center justify-between text-sm">
+                  <div
+                    key={type}
+                    className="flex items-center justify-between text-sm"
+                  >
                     <span className="text-gray-700">
                       {typeInfo?.emoji} {typeInfo?.label ?? type}
-                      <span className="ml-1 text-gray-400">({count} readings)</span>
+                      <span className="ml-1 text-gray-400">
+                        ({count} readings)
+                      </span>
                     </span>
                     {deviationBadge(avg)}
                   </div>
@@ -282,17 +295,27 @@ export default function ValidationPage() {
 
         {/* History */}
         <div className="rounded-xl bg-white p-4 shadow-sm">
-          <h2 className="mb-3 font-semibold text-gray-800">Reference Measurements</h2>
+          <h2 className="mb-3 font-semibold text-gray-800">
+            Reference Measurements
+          </h2>
           {isLoading ? (
             <p className="text-sm text-gray-500">Loading…</p>
           ) : measurements.length === 0 ? (
-            <p className="text-sm text-gray-500">No reference measurements yet. Add one above to compare Garmin accuracy.</p>
+            <p className="text-sm text-gray-500">
+              No reference measurements yet. Add one above to compare Garmin
+              accuracy.
+            </p>
           ) : (
             <div className="space-y-3">
               {measurements.map((m) => {
-                const typeInfo = MEASUREMENT_TYPES.find((t) => t.key === m.measurementType);
+                const typeInfo = MEASUREMENT_TYPES.find(
+                  (t) => t.key === m.measurementType,
+                );
                 return (
-                  <div key={m.id} className="rounded-lg border border-gray-100 p-3">
+                  <div
+                    key={m.id}
+                    className="rounded-lg border border-gray-100 p-3"
+                  >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <div className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
@@ -313,14 +336,18 @@ export default function ValidationPage() {
                           {deviationBadge(m.deviationPercent)}
                         </div>
                         {m.notes && (
-                          <p className="mt-1 text-xs text-gray-500">{m.notes}</p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {m.notes}
+                          </p>
                         )}
                       </div>
                       <div>
                         {confirmDelete === m.id ? (
                           <div className="flex gap-1">
                             <button
-                              onClick={() => deleteMutation.mutate({ id: m.id })}
+                              onClick={() =>
+                                deleteMutation.mutate({ id: m.id })
+                              }
                               className="rounded px-2 py-1 text-xs text-red-600 hover:bg-red-50"
                             >
                               Confirm

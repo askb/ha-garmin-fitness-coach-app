@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useQuery } from "@tanstack/react-query";
 import {
   Bar,
@@ -19,6 +18,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -67,7 +67,9 @@ function fmtClockTime(minutesFromMidnight: number | null | undefined): string {
 function movingAvg(arr: (number | null)[], window: number): (number | null)[] {
   return arr.map((_, i) => {
     if (i < window - 1) return null;
-    const slice = arr.slice(i - window + 1, i + 1).filter((v): v is number => v != null);
+    const slice = arr
+      .slice(i - window + 1, i + 1)
+      .filter((v): v is number => v != null);
     if (slice.length < Math.ceil(window / 2)) return null;
     return +(slice.reduce((a, b) => a + b, 0) / slice.length).toFixed(1);
   });
@@ -96,13 +98,9 @@ export default function SleepDashboard() {
   // ---- Data queries ----
   const coach = useQuery(trpc.sleep.getCoach.queryOptions());
 
-  const stages = useQuery(
-    trpc.sleep.getStages.queryOptions({ days: 14 }),
-  );
+  const stages = useQuery(trpc.sleep.getStages.queryOptions({ days: 14 }));
 
-  const history = useQuery(
-    trpc.sleep.getHistory.queryOptions({ days: 28 }),
-  );
+  const history = useQuery(trpc.sleep.getHistory.queryOptions({ days: 28 }));
 
   // ---- Derived: Key stats ----
   const stats = useMemo(() => {
@@ -144,7 +142,8 @@ export default function SleepDashboard() {
       scores.length > 0
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
         : null;
-    const currentDebt = debts.length > 0 ? (debts[debts.length - 1] ?? null) : null;
+    const currentDebt =
+      debts.length > 0 ? (debts[debts.length - 1] ?? null) : null;
 
     // Efficiency: (total - awake) / total * 100
     let avgEfficiency: number | null = null;
@@ -261,9 +260,10 @@ export default function SleepDashboard() {
         date: fmtDateShort(d.date, slice.length),
         bedtime: start ?? null,
         wakeTime: d.sleepEndTime ?? null,
-        range: start != null && d.sleepEndTime != null
-          ? [start, d.sleepEndTime + 1440]
-          : [null, null],
+        range:
+          start != null && d.sleepEndTime != null
+            ? [start, d.sleepEndTime + 1440]
+            : [null, null],
       };
     });
   }, [history.data]);
@@ -280,7 +280,7 @@ export default function SleepDashboard() {
 
   // ---------------------------------------------------------------------------
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* ================================================================== */}
       {/* Header: Sleep Coach Recommendation                                 */}
       {/* ================================================================== */}
@@ -301,7 +301,7 @@ export default function SleepDashboard() {
         <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/30 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+              <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                 Tonight&apos;s Recommendation
               </p>
               <p className="mt-1 text-3xl font-bold text-indigo-300">
@@ -489,12 +489,7 @@ export default function SleepDashboard() {
                 radius={[0, 0, 0, 0]}
                 name="Deep"
               />
-              <Bar
-                dataKey="rem"
-                stackId="sleep"
-                fill="#a855f7"
-                name="REM"
-              />
+              <Bar dataKey="rem" stackId="sleep" fill="#a855f7" name="REM" />
               <Bar
                 dataKey="light"
                 stackId="sleep"
@@ -714,10 +709,7 @@ export default function SleepDashboard() {
                     fontSize: 12,
                   }}
                   labelStyle={{ color: "#a1a1aa" }}
-                  formatter={(value) => [
-                    fmtDuration(Number(value)),
-                    "Debt",
-                  ]}
+                  formatter={(value) => [fmtDuration(Number(value)), "Debt"]}
                 />
                 <ReferenceLine
                   y={30}
@@ -789,7 +781,11 @@ export default function SleepDashboard() {
             <div className="space-y-1.5">
               {timingChartData.map((d, i) => {
                 const bedLabel =
-                  d.bedtime != null ? fmtClockTime(d.bedtime > 1440 ? d.bedtime - 1440 : d.bedtime) : "—";
+                  d.bedtime != null
+                    ? fmtClockTime(
+                        d.bedtime > 1440 ? d.bedtime - 1440 : d.bedtime,
+                      )
+                    : "—";
                 const wakeLabel =
                   d.wakeTime != null ? fmtClockTime(d.wakeTime) : "—";
 
@@ -800,14 +796,18 @@ export default function SleepDashboard() {
                 const windowEnd = 1920; // 12 PM next day (8PM + 12h)
                 const windowSize = windowEnd - windowStart;
 
-                const barStart = d.bedtime != null
-                  ? Math.max(0, ((d.bedtime - windowStart) / windowSize) * 100)
-                  : 0;
+                const barStart =
+                  d.bedtime != null
+                    ? Math.max(
+                        0,
+                        ((d.bedtime - windowStart) / windowSize) * 100,
+                      )
+                    : 0;
                 const barEnd =
                   d.wakeTime != null
                     ? Math.min(
                         100,
-                        (((d.wakeTime + 1440 - windowStart) / windowSize) * 100),
+                        ((d.wakeTime + 1440 - windowStart) / windowSize) * 100,
                       )
                     : 0;
                 const barWidth = barEnd - barStart;
@@ -818,15 +818,17 @@ export default function SleepDashboard() {
                       {d.date}
                     </span>
                     <div className="relative h-5 flex-1 overflow-hidden rounded bg-zinc-800">
-                      {d.bedtime != null && d.wakeTime != null && barWidth > 0 && (
-                        <div
-                          className="absolute top-0 h-full rounded bg-gradient-to-r from-indigo-600 to-purple-500"
-                          style={{
-                            left: `${Math.max(0, Math.min(barStart, 100))}%`,
-                            width: `${Math.max(0, Math.min(barWidth, 100 - barStart))}%`,
-                          }}
-                        />
-                      )}
+                      {d.bedtime != null &&
+                        d.wakeTime != null &&
+                        barWidth > 0 && (
+                          <div
+                            className="absolute top-0 h-full rounded bg-gradient-to-r from-indigo-600 to-purple-500"
+                            style={{
+                              left: `${Math.max(0, Math.min(barStart, 100))}%`,
+                              width: `${Math.max(0, Math.min(barWidth, 100 - barStart))}%`,
+                            }}
+                          />
+                        )}
                     </div>
                     <span className="text-muted-foreground w-24 shrink-0 text-xs">
                       {bedLabel} – {wakeLabel}

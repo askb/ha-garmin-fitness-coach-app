@@ -1,7 +1,7 @@
 import type {
-  TrainingStatusType,
-  TrainingStatusResult,
   TrainingLoadMetrics,
+  TrainingStatusResult,
+  TrainingStatusType,
 } from "../types";
 
 /**

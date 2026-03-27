@@ -73,8 +73,20 @@ export interface ActivityInput {
   verticalOscillation: number | null; // cm
   verticalRatio: number | null; // %
   strideLength: number | null; // meters
-  hrZoneMinutes: { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number } | null;
-  laps: Array<{ index: number; distanceMeters: number; durationSeconds: number; avgHr?: number; avgPace?: number }> | null;
+  hrZoneMinutes: {
+    zone1: number;
+    zone2: number;
+    zone3: number;
+    zone4: number;
+    zone5: number;
+  } | null;
+  laps: Array<{
+    index: number;
+    distanceMeters: number;
+    durationSeconds: number;
+    avgHr?: number;
+    avgPace?: number;
+  }> | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -227,10 +239,22 @@ export interface CorrelationPair {
 // ---------------------------------------------------------------------------
 export interface RunningFormScore {
   overall: number; // 0-100
-  groundContactTime: { value: number; rating: "elite" | "good" | "average" | "poor" };
-  verticalOscillation: { value: number; rating: "elite" | "good" | "average" | "poor" };
-  strideLength: { value: number; rating: "optimal" | "overstriding" | "understriding" };
-  gctBalance: { value: number; rating: "balanced" | "slight_imbalance" | "imbalanced" };
+  groundContactTime: {
+    value: number;
+    rating: "elite" | "good" | "average" | "poor";
+  };
+  verticalOscillation: {
+    value: number;
+    rating: "elite" | "good" | "average" | "poor";
+  };
+  strideLength: {
+    value: number;
+    rating: "optimal" | "overstriding" | "understriding";
+  };
+  gctBalance: {
+    value: number;
+    rating: "balanced" | "slight_imbalance" | "imbalanced";
+  };
   cadence: { value: number; rating: "optimal" | "low" | "high" };
 }
 
@@ -306,7 +330,12 @@ export interface WorkoutRecommendation {
 // Anomalies & Alerts
 // ---------------------------------------------------------------------------
 export interface AnomalyAlert {
-  type: "hrv_crash" | "rhr_spike" | "sleep_deficit" | "overreaching" | "hr_drift";
+  type:
+    | "hrv_crash"
+    | "rhr_spike"
+    | "sleep_deficit"
+    | "overreaching"
+    | "hr_drift";
   severity: "warning" | "critical";
   message: string;
   recommendation: string;

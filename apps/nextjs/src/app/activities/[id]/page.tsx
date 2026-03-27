@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Area,
@@ -19,6 +18,7 @@ import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../../_components/bottom-nav";
 
@@ -66,9 +66,7 @@ function formatTime(date: Date | string): string {
 
 function sportLabel(sportType: string | null): string {
   if (!sportType) return "Activity";
-  return sportType
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return sportType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 const SPORT_ICONS: Record<string, string> = {
@@ -115,9 +113,7 @@ function teLabel(value: number): string {
   return "Overreaching";
 }
 
-function ratingColor(
-  rating: string,
-): string {
+function ratingColor(rating: string): string {
   switch (rating) {
     case "elite":
       return "text-emerald-400";
@@ -208,7 +204,13 @@ const HR_ZONE_LABELS = ["Zone 1", "Zone 2", "Zone 3", "Zone 4", "Zone 5"];
 function HrZoneChart({
   zones,
 }: {
-  zones: { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number };
+  zones: {
+    zone1: number;
+    zone2: number;
+    zone3: number;
+    zone4: number;
+    zone5: number;
+  };
 }) {
   const data = [
     { name: "Zone 1", minutes: zones.zone1, fill: HR_ZONE_COLORS[0] },
@@ -276,8 +278,14 @@ function RunningFormRow({
       <span className="text-muted-foreground text-sm">{label}</span>
       <div className="text-right">
         <span className="font-semibold">
-          {typeof value === "number" ? (Number.isInteger(value) ? value : value.toFixed(1)) : value}
-          <span className="text-muted-foreground ml-1 text-xs font-normal">{unit}</span>
+          {typeof value === "number"
+            ? Number.isInteger(value)
+              ? value
+              : value.toFixed(1)
+            : value}
+          <span className="text-muted-foreground ml-1 text-xs font-normal">
+            {unit}
+          </span>
         </span>
         <span className={cn("ml-2 text-xs font-medium", ratingColor(rating))}>
           {ratingLabel(rating)}
@@ -305,9 +313,16 @@ function LapTable({
   // Fastest / slowest by pace
   const paces = laps
     .filter((l) => l.distanceMeters > 0)
-    .map((l) => ({ idx: l.index, pace: (l.durationSeconds / l.distanceMeters) * 1000 }));
-  const fastestIdx = paces.length ? paces.reduce((a, b) => (a.pace < b.pace ? a : b)).idx : -1;
-  const slowestIdx = paces.length ? paces.reduce((a, b) => (a.pace > b.pace ? a : b)).idx : -1;
+    .map((l) => ({
+      idx: l.index,
+      pace: (l.durationSeconds / l.distanceMeters) * 1000,
+    }));
+  const fastestIdx = paces.length
+    ? paces.reduce((a, b) => (a.pace < b.pace ? a : b)).idx
+    : -1;
+  const slowestIdx = paces.length
+    ? paces.reduce((a, b) => (a.pace > b.pace ? a : b)).idx
+    : -1;
 
   function hrZoneColor(hr: number | undefined): string {
     if (!hr) return "";
@@ -323,12 +338,12 @@ function LapTable({
       <table className="w-full text-sm">
         <thead>
           <tr className="text-muted-foreground border-b text-left text-xs">
-            <th className="pb-2 pr-3">Lap</th>
-            <th className="pb-2 pr-3">Distance</th>
-            <th className="pb-2 pr-3">Time</th>
-            <th className="pb-2 pr-3">Pace</th>
-            {hasHr && <th className="pb-2 pr-3">HR</th>}
-            {hasPower && <th className="pb-2 pr-3">Power</th>}
+            <th className="pr-3 pb-2">Lap</th>
+            <th className="pr-3 pb-2">Distance</th>
+            <th className="pr-3 pb-2">Time</th>
+            <th className="pr-3 pb-2">Pace</th>
+            {hasHr && <th className="pr-3 pb-2">HR</th>}
+            {hasPower && <th className="pr-3 pb-2">Power</th>}
           </tr>
         </thead>
         <tbody>
@@ -340,21 +355,32 @@ function LapTable({
                 ? (lap.durationSeconds / lap.distanceMeters) * 1000
                 : null;
             const isFastest = lap.index === fastestIdx;
-            const isSlowest = lap.index === slowestIdx && fastestIdx !== slowestIdx;
+            const isSlowest =
+              lap.index === slowestIdx && fastestIdx !== slowestIdx;
             return (
               <tr
                 key={lap.index}
                 className={cn(
                   "border-b border-zinc-800",
-                  isFastest ? "bg-green-500/10" : isSlowest ? "bg-red-500/10" : "",
+                  isFastest
+                    ? "bg-green-500/10"
+                    : isSlowest
+                      ? "bg-red-500/10"
+                      : "",
                 )}
               >
                 <td className="py-1.5 pr-3 font-medium">
                   {lap.index}
-                  {isFastest && <span className="ml-1 text-[10px] text-green-400">⚡</span>}
-                  {isSlowest && <span className="ml-1 text-[10px] text-red-400">🐢</span>}
+                  {isFastest && (
+                    <span className="ml-1 text-[10px] text-green-400">⚡</span>
+                  )}
+                  {isSlowest && (
+                    <span className="ml-1 text-[10px] text-red-400">🐢</span>
+                  )}
                 </td>
-                <td className="py-1.5 pr-3">{formatDistance(lap.distanceMeters)}</td>
+                <td className="py-1.5 pr-3">
+                  {formatDistance(lap.distanceMeters)}
+                </td>
                 <td className="py-1.5 pr-3">
                   {m}:{s.toString().padStart(2, "0")}
                 </td>
@@ -366,7 +392,9 @@ function LapTable({
                 )}
                 {hasPower && (
                   <td className="py-1.5 pr-3">
-                    {lap.avgPower != null ? `${Math.round(lap.avgPower)}W` : "—"}
+                    {lap.avgPower != null
+                      ? `${Math.round(lap.avgPower)}W`
+                      : "—"}
                   </td>
                 )}
               </tr>
@@ -417,9 +445,7 @@ export default function ActivityDetailPage({
   const upsertReportMutation = useMutation(
     trpc.sessionReport.upsert.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries(
-          trpc.sessionReport.pathFilter(),
-        );
+        void queryClient.invalidateQueries(trpc.sessionReport.pathFilter());
         toast.success("Session report saved");
       },
       onError: (err) => toast.error(err.message),
@@ -491,15 +517,18 @@ export default function ActivityDetailPage({
       index: i + 1,
       distanceMeters: Number(lap.distanceInMeters ?? 0),
       durationSeconds: Number(lap.durationInSeconds ?? 0),
-      avgHr: lap.averageHeartRateInBeatsPerMinute != null
-        ? Number(lap.averageHeartRateInBeatsPerMinute)
-        : undefined,
-      avgPace: lap.averagePaceInMinutesPerKilometer != null
-        ? Number(lap.averagePaceInMinutesPerKilometer) * 60
-        : undefined,
-      avgPower: lap.averagePowerInWatts != null
-        ? Number(lap.averagePowerInWatts)
-        : undefined,
+      avgHr:
+        lap.averageHeartRateInBeatsPerMinute != null
+          ? Number(lap.averageHeartRateInBeatsPerMinute)
+          : undefined,
+      avgPace:
+        lap.averagePaceInMinutesPerKilometer != null
+          ? Number(lap.averagePaceInMinutesPerKilometer) * 60
+          : undefined,
+      avgPower:
+        lap.averagePowerInWatts != null
+          ? Number(lap.averagePowerInWatts)
+          : undefined,
     }));
   })();
   const hasLaps = laps.length > 0;
@@ -525,7 +554,8 @@ export default function ActivityDetailPage({
               {sportLabel(activity.sportType)}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {formatDate(activity.startedAt)} · {formatTime(activity.startedAt)}
+              {formatDate(activity.startedAt)} ·{" "}
+              {formatTime(activity.startedAt)}
             </p>
           </div>
         </div>
@@ -573,7 +603,7 @@ export default function ActivityDetailPage({
       {/* Training Effects */}
       {(activity.aerobicTE != null || activity.anaerobicTE != null) && (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             Training Effect
           </h2>
           <TrainingEffectBar label="Aerobic" value={activity.aerobicTE} />
@@ -584,7 +614,7 @@ export default function ActivityDetailPage({
       {/* HR Zones */}
       {activity.hrZoneMinutes != null && (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             Heart Rate Zones
           </h2>
           <HrZoneChart
@@ -605,7 +635,7 @@ export default function ActivityDetailPage({
       {isRunning && activity.runningFormScore != null && (
         <section className="bg-card space-y-2 rounded-xl p-4">
           <div className="flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider">
+            <h2 className="text-sm font-semibold tracking-wider uppercase">
               Running Form
             </h2>
             <div className="flex items-baseline gap-1">
@@ -654,7 +684,7 @@ export default function ActivityDetailPage({
       {/* Elevation */}
       {(activity.elevationGain != null || activity.elevationLoss != null) && (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             Elevation
           </h2>
           <div className="flex gap-6 text-sm">
@@ -683,7 +713,7 @@ export default function ActivityDetailPage({
       {/* Pace / Power Stats */}
       {(isRunning || hasPower) && (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             {hasPower ? "Power & Pace" : "Pace"}
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -698,18 +728,24 @@ export default function ActivityDetailPage({
             {activity.avgCadence != null && (
               <div>
                 <p className="text-muted-foreground text-xs">Avg Cadence</p>
-                <p className="font-semibold">{Math.round(activity.avgCadence)} spm</p>
+                <p className="font-semibold">
+                  {Math.round(activity.avgCadence)} spm
+                </p>
               </div>
             )}
             {activity.avgPower != null && (
               <div>
                 <p className="text-muted-foreground text-xs">Avg Power</p>
-                <p className="font-semibold">{Math.round(activity.avgPower)} W</p>
+                <p className="font-semibold">
+                  {Math.round(activity.avgPower)} W
+                </p>
               </div>
             )}
             {activity.normalizedPower != null && (
               <div>
-                <p className="text-muted-foreground text-xs">Normalized Power</p>
+                <p className="text-muted-foreground text-xs">
+                  Normalized Power
+                </p>
                 <p className="font-semibold">
                   {Math.round(activity.normalizedPower)} W
                 </p>
@@ -718,7 +754,9 @@ export default function ActivityDetailPage({
             {activity.maxPower != null && (
               <div>
                 <p className="text-muted-foreground text-xs">Max Power</p>
-                <p className="font-semibold">{Math.round(activity.maxPower)} W</p>
+                <p className="font-semibold">
+                  {Math.round(activity.maxPower)} W
+                </p>
               </div>
             )}
           </div>
@@ -728,7 +766,7 @@ export default function ActivityDetailPage({
       {/* Laps */}
       {hasLaps ? (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             Laps
           </h2>
           <LapTable laps={laps} />
@@ -764,26 +802,35 @@ export default function ActivityDetailPage({
       {/* ── Efficiency Analysis ── */}
       {(isRunning || hasPower) && activity.avgHr != null && (
         <section className="bg-card space-y-3 rounded-xl p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-sm font-semibold tracking-wider uppercase">
             Efficiency Analysis
           </h2>
-          {isRunning && activity.avgPaceSecPerKm != null && activity.avgHr != null && (
-            <div className="space-y-1">
-              <p className="text-muted-foreground text-xs">Aerobic Efficiency (AeT)</p>
-              <p className="text-lg font-bold">
-                {((100 / activity.avgPaceSecPerKm) * 100 / activity.avgHr).toFixed(2)}
-                <span className="text-muted-foreground ml-1 text-xs font-normal">
-                  (pace-units / HR · higher = better)
-                </span>
-              </p>
-            </div>
-          )}
+          {isRunning &&
+            activity.avgPaceSecPerKm != null &&
+            activity.avgHr != null && (
+              <div className="space-y-1">
+                <p className="text-muted-foreground text-xs">
+                  Aerobic Efficiency (AeT)
+                </p>
+                <p className="text-lg font-bold">
+                  {(
+                    ((100 / activity.avgPaceSecPerKm) * 100) /
+                    activity.avgHr
+                  ).toFixed(2)}
+                  <span className="text-muted-foreground ml-1 text-xs font-normal">
+                    (pace-units / HR · higher = better)
+                  </span>
+                </p>
+              </div>
+            )}
           {hasPower && activity.avgPower != null && activity.avgHr != null && (
             <div className="space-y-1">
               <p className="text-muted-foreground text-xs">Power:HR Ratio</p>
               <p className="text-lg font-bold">
                 {(activity.avgPower / activity.avgHr).toFixed(2)}
-                <span className="text-muted-foreground ml-1 text-xs font-normal">W/bpm</span>
+                <span className="text-muted-foreground ml-1 text-xs font-normal">
+                  W/bpm
+                </span>
               </p>
             </div>
           )}
@@ -794,11 +841,15 @@ export default function ActivityDetailPage({
             activity.distanceMeters != null &&
             activity.distanceMeters > 0 && (
               <div className="space-y-1">
-                <p className="text-muted-foreground text-xs">Flat-Equivalent Pace (GAP)</p>
+                <p className="text-muted-foreground text-xs">
+                  Flat-Equivalent Pace (GAP)
+                </p>
                 {(() => {
                   const gap =
                     activity.avgPaceSecPerKm *
-                    (1 + (activity.elevationGain / activity.distanceMeters) * 0.033);
+                    (1 +
+                      (activity.elevationGain / activity.distanceMeters) *
+                        0.033);
                   const m = Math.floor(gap / 60);
                   const s = Math.round(gap % 60);
                   return (
@@ -816,58 +867,70 @@ export default function ActivityDetailPage({
       )}
 
       {/* ── HR Zone Mini-Chart ── */}
-      {activity.hrZoneMinutes != null && (() => {
-        const z = activity.hrZoneMinutes as {
-          zone1?: number; zone2?: number; zone3?: number; zone4?: number; zone5?: number;
-        };
-        const zones = [
-          { key: "Z1", val: z.zone1 ?? 0, color: "#3b82f6" },
-          { key: "Z2", val: z.zone2 ?? 0, color: "#22c55e" },
-          { key: "Z3", val: z.zone3 ?? 0, color: "#eab308" },
-          { key: "Z4", val: z.zone4 ?? 0, color: "#f97316" },
-          { key: "Z5", val: z.zone5 ?? 0, color: "#ef4444" },
-        ];
-        const total = zones.reduce((s, z) => s + z.val, 0);
-        if (total === 0) return null;
-        return (
-          <section className="bg-card space-y-3 rounded-xl p-4">
-            <h2 className="text-sm font-semibold uppercase tracking-wider">
-              Zone Distribution
-            </h2>
-            <div className="flex h-4 w-full overflow-hidden rounded-full">
-              {zones.map((z) =>
-                z.val > 0 ? (
-                  <div
-                    key={z.key}
-                    style={{ width: `${(z.val / total) * 100}%`, backgroundColor: z.color }}
-                    title={`${z.key}: ${z.val} min`}
-                  />
-                ) : null,
-              )}
-            </div>
-            <div className="flex flex-wrap gap-3 text-xs">
-              {zones.map((z) => (
-                <span key={z.key} className="flex items-center gap-1">
-                  <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: z.color }} />
-                  <span className="text-muted-foreground">
-                    {z.key}: {z.val}m ({total > 0 ? Math.round((z.val / total) * 100) : 0}%)
+      {activity.hrZoneMinutes != null &&
+        (() => {
+          const z = activity.hrZoneMinutes as {
+            zone1?: number;
+            zone2?: number;
+            zone3?: number;
+            zone4?: number;
+            zone5?: number;
+          };
+          const zones = [
+            { key: "Z1", val: z.zone1 ?? 0, color: "#3b82f6" },
+            { key: "Z2", val: z.zone2 ?? 0, color: "#22c55e" },
+            { key: "Z3", val: z.zone3 ?? 0, color: "#eab308" },
+            { key: "Z4", val: z.zone4 ?? 0, color: "#f97316" },
+            { key: "Z5", val: z.zone5 ?? 0, color: "#ef4444" },
+          ];
+          const total = zones.reduce((s, z) => s + z.val, 0);
+          if (total === 0) return null;
+          return (
+            <section className="bg-card space-y-3 rounded-xl p-4">
+              <h2 className="text-sm font-semibold tracking-wider uppercase">
+                Zone Distribution
+              </h2>
+              <div className="flex h-4 w-full overflow-hidden rounded-full">
+                {zones.map((z) =>
+                  z.val > 0 ? (
+                    <div
+                      key={z.key}
+                      style={{
+                        width: `${(z.val / total) * 100}%`,
+                        backgroundColor: z.color,
+                      }}
+                      title={`${z.key}: ${z.val} min`}
+                    />
+                  ) : null,
+                )}
+              </div>
+              <div className="flex flex-wrap gap-3 text-xs">
+                {zones.map((z) => (
+                  <span key={z.key} className="flex items-center gap-1">
+                    <span
+                      className="h-2 w-2 rounded-sm"
+                      style={{ backgroundColor: z.color }}
+                    />
+                    <span className="text-muted-foreground">
+                      {z.key}: {z.val}m (
+                      {total > 0 ? Math.round((z.val / total) * 100) : 0}%)
+                    </span>
                   </span>
-                </span>
-              ))}
-            </div>
-          </section>
-        );
-      })()}
+                ))}
+              </div>
+            </section>
+          );
+        })()}
 
       {/* Post-Session Report */}
       <section className="bg-card space-y-4 rounded-2xl border p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-sm font-semibold tracking-wider uppercase">
           Session RPE
         </h2>
 
         {/* RPE buttons 1-10 */}
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Rate your perceived exertion (1 = very easy · 10 = max effort)
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -902,7 +965,7 @@ export default function ActivityDetailPage({
 
         {/* Session Type */}
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             Session Type
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -924,7 +987,7 @@ export default function ActivityDetailPage({
                   "flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-xs transition-all",
                   sessionType === st.key
                     ? "border-primary/50 bg-primary/20 text-primary"
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 <span>{st.emoji}</span>
@@ -936,7 +999,7 @@ export default function ActivityDetailPage({
 
         {/* Drill Notes */}
         <div className="space-y-1.5">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             Drill Notes
           </p>
           <textarea
@@ -944,7 +1007,7 @@ export default function ActivityDetailPage({
             placeholder="e.g. strides, drills, key intervals..."
             value={drillNotes}
             onChange={(e) => setDrillNotes(e.target.value)}
-            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-xs focus:ring-2 focus:outline-none"
           />
         </div>
 
@@ -958,15 +1021,16 @@ export default function ActivityDetailPage({
               garminActivityId: activity.garminActivityId ?? undefined,
               durationMinutes: activity.durationMinutes ?? undefined,
               rpe,
-              sessionType: (sessionType as
-                | "base"
-                | "threshold"
-                | "interval"
-                | "recovery"
-                | "race"
-                | "strength"
-                | "mobility"
-                | undefined) ?? undefined,
+              sessionType:
+                (sessionType as
+                  | "base"
+                  | "threshold"
+                  | "interval"
+                  | "recovery"
+                  | "race"
+                  | "strength"
+                  | "mobility"
+                  | undefined) ?? undefined,
               drillNotes: drillNotes || undefined,
             });
           }}

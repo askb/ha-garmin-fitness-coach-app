@@ -12,10 +12,10 @@ describe("Sleep Stage Analysis", () => {
   }
 
   const mockSleep: SleepData = {
-    totalSleepMinutes: 420,   // 7h
-    deepSleepMinutes: 90,     // 1.5h
-    remSleepMinutes: 90,      // 1.5h
-    lightSleepMinutes: 210,   // 3.5h
+    totalSleepMinutes: 420, // 7h
+    deepSleepMinutes: 90, // 1.5h
+    remSleepMinutes: 90, // 1.5h
+    lightSleepMinutes: 210, // 3.5h
     awakeMinutes: 30,
   };
 
@@ -26,18 +26,22 @@ describe("Sleep Stage Analysis", () => {
       mockSleep.lightSleepMinutes +
       mockSleep.awakeMinutes;
     // Should be within 5 minutes of total (Garmin rounding)
-    expect(Math.abs(stagesSum - mockSleep.totalSleepMinutes)).toBeLessThanOrEqual(5);
+    expect(
+      Math.abs(stagesSum - mockSleep.totalSleepMinutes),
+    ).toBeLessThanOrEqual(5);
   });
 
   it("deep sleep percentage is within healthy range", () => {
-    const deepPct = (mockSleep.deepSleepMinutes / mockSleep.totalSleepMinutes) * 100;
+    const deepPct =
+      (mockSleep.deepSleepMinutes / mockSleep.totalSleepMinutes) * 100;
     // Normal: 13-23% deep sleep (Hirshkowitz et al. 2015)
     expect(deepPct).toBeGreaterThanOrEqual(10);
     expect(deepPct).toBeLessThanOrEqual(30);
   });
 
   it("REM percentage is within healthy range", () => {
-    const remPct = (mockSleep.remSleepMinutes / mockSleep.totalSleepMinutes) * 100;
+    const remPct =
+      (mockSleep.remSleepMinutes / mockSleep.totalSleepMinutes) * 100;
     // Normal: 20-25% REM
     expect(remPct).toBeGreaterThanOrEqual(15);
     expect(remPct).toBeLessThanOrEqual(30);
@@ -45,9 +49,9 @@ describe("Sleep Stage Analysis", () => {
 
   it("classifies sleep duration correctly", () => {
     const classifySleep = (minutes: number): string => {
-      if (minutes >= 480) return "optimal";       // 8h+
-      if (minutes >= 420) return "adequate";      // 7h+
-      if (minutes >= 360) return "fair";          // 6h+
+      if (minutes >= 480) return "optimal"; // 8h+
+      if (minutes >= 420) return "adequate"; // 7h+
+      if (minutes >= 360) return "fair"; // 6h+
       return "insufficient";
     };
 

@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { appRouter } from "../../root";
 
 const TEST_USER_ID = "test-user-analytics";
@@ -135,9 +136,30 @@ describe("analytics router", () => {
       // Two entries on the same date — only the first (lexically earlier source)
       // should survive deduplication.
       const records = [
-        { id: "v1", userId: TEST_USER_ID, date: dateString(5), source: "running_pace_hr", value: 52, sport: "running" },
-        { id: "v2", userId: TEST_USER_ID, date: dateString(10), source: "running_pace_hr", value: 50, sport: "running" },
-        { id: "v3", userId: TEST_USER_ID, date: dateString(10), source: "uth_ratio", value: 51, sport: "running" },
+        {
+          id: "v1",
+          userId: TEST_USER_ID,
+          date: dateString(5),
+          source: "running_pace_hr",
+          value: 52,
+          sport: "running",
+        },
+        {
+          id: "v2",
+          userId: TEST_USER_ID,
+          date: dateString(10),
+          source: "running_pace_hr",
+          value: 50,
+          sport: "running",
+        },
+        {
+          id: "v3",
+          userId: TEST_USER_ID,
+          date: dateString(10),
+          source: "uth_ratio",
+          value: 51,
+          sport: "running",
+        },
       ];
       mockDb.query.VO2maxEstimate.findMany.mockResolvedValue(records);
 
@@ -174,8 +196,22 @@ describe("analytics router", () => {
     it("returns a valid training status with explanation and recommendation", async () => {
       // VO2max improving over last 28 days (trend > 0.5)
       mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([
-        { id: "v1", userId: TEST_USER_ID, date: dateString(2), value: 52, source: "running_pace_hr", sport: "running" },
-        { id: "v2", userId: TEST_USER_ID, date: dateString(20), value: 50, source: "running_pace_hr", sport: "running" },
+        {
+          id: "v1",
+          userId: TEST_USER_ID,
+          date: dateString(2),
+          value: 52,
+          source: "running_pace_hr",
+          sport: "running",
+        },
+        {
+          id: "v2",
+          userId: TEST_USER_ID,
+          date: dateString(20),
+          value: 50,
+          source: "running_pace_hr",
+          sport: "running",
+        },
       ]);
       mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(14));
 
@@ -201,7 +237,10 @@ describe("analytics router", () => {
     it("computes acute and chronic training loads from activity strain scores", async () => {
       mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([]);
       // 20 activities with a consistent strain of 10
-      const activities = makeActivities(20).map((a) => ({ ...a, strainScore: 10 }));
+      const activities = makeActivities(20).map((a) => ({
+        ...a,
+        strainScore: 10,
+      }));
       mockDb.query.Activity.findMany.mockResolvedValue(activities);
 
       const result = await caller.analytics.getTrainingStatus();
@@ -231,7 +270,9 @@ describe("analytics router", () => {
       // Need ≥ 7 paired records per metric pair for Pearson r to be computed
       const n = 10;
       mockDb.query.DailyMetric.findMany.mockResolvedValue(makeDailyMetrics(n));
-      mockDb.query.ReadinessScore.findMany.mockResolvedValue(makeReadinessScores(n));
+      mockDb.query.ReadinessScore.findMany.mockResolvedValue(
+        makeReadinessScores(n),
+      );
       mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(n));
 
       const result = await caller.analytics.getCorrelations({ period: "90d" });
@@ -387,9 +428,7 @@ describe("analytics router", () => {
         userId: TEST_USER_ID,
         age: 35,
       });
-      mockDb.query.DailyMetric.findMany.mockResolvedValue(
-        makeDailyMetrics(7),
-      );
+      mockDb.query.DailyMetric.findMany.mockResolvedValue(makeDailyMetrics(7));
 
       const result = await caller.analytics.getRecoveryTime();
 
@@ -410,7 +449,10 @@ describe("analytics router", () => {
         score: 70,
       };
       const baseProfile = { id: "p", userId: TEST_USER_ID, age: 30 };
-      const baseMetrics = makeDailyMetrics(7).map((m) => ({ ...m, sleepDebtMinutes: 0 }));
+      const baseMetrics = makeDailyMetrics(7).map((m) => ({
+        ...m,
+        sleepDebtMinutes: 0,
+      }));
 
       // Low strain activity
       mockDb.query.ReadinessScore.findFirst.mockResolvedValue(baseReadiness);
@@ -464,12 +506,19 @@ describe("analytics router", () => {
         date: today,
         score: 65,
       };
-      const baseMetrics = makeDailyMetrics(7).map((m) => ({ ...m, sleepDebtMinutes: 0 }));
+      const baseMetrics = makeDailyMetrics(7).map((m) => ({
+        ...m,
+        sleepDebtMinutes: 0,
+      }));
 
       // Young athlete
       mockDb.query.Activity.findFirst.mockResolvedValue(baseActivity);
       mockDb.query.ReadinessScore.findFirst.mockResolvedValue(baseReadiness);
-      mockDb.query.Profile.findFirst.mockResolvedValue({ id: "p1", userId: TEST_USER_ID, age: 25 });
+      mockDb.query.Profile.findFirst.mockResolvedValue({
+        id: "p1",
+        userId: TEST_USER_ID,
+        age: 25,
+      });
       mockDb.query.DailyMetric.findMany.mockResolvedValue(baseMetrics);
 
       const youngResult = await caller.analytics.getRecoveryTime();
@@ -481,7 +530,11 @@ describe("analytics router", () => {
       // Older athlete
       mockDb.query.Activity.findFirst.mockResolvedValue(baseActivity);
       mockDb.query.ReadinessScore.findFirst.mockResolvedValue(baseReadiness);
-      mockDb.query.Profile.findFirst.mockResolvedValue({ id: "p2", userId: TEST_USER_ID, age: 55 });
+      mockDb.query.Profile.findFirst.mockResolvedValue({
+        id: "p2",
+        userId: TEST_USER_ID,
+        age: 55,
+      });
       mockDb.query.DailyMetric.findMany.mockResolvedValue(baseMetrics);
 
       const olderResult = await caller.analytics.getRecoveryTime();

@@ -1,7 +1,6 @@
 "use client";
 
 // Data Export & Portability
-
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@acme/ui/button";
@@ -120,7 +119,7 @@ export default function ExportPage() {
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Data Export</h1>
@@ -131,7 +130,7 @@ export default function ExportPage() {
 
       {/* ── Data Summary ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider">
+        <h2 className="mb-3 text-sm font-semibold tracking-wider uppercase">
           Your Data
         </h2>
         {activities.isLoading ? (
@@ -146,13 +145,16 @@ export default function ExportPage() {
               <p className="text-xl font-bold">{journalCount}</p>
               <p className="text-muted-foreground text-xs">Journal entries</p>
             </div>
-            <div className="bg-secondary/40 rounded-xl p-3 col-span-2 sm:col-span-1">
-              <p className="text-sm font-bold truncate">
+            <div className="bg-secondary/40 col-span-2 rounded-xl p-3 sm:col-span-1">
+              <p className="truncate text-sm font-bold">
                 {earliestDate
-                  ? new Date(earliestDate as string).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })
+                  ? new Date(earliestDate as string).toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )
                   : "—"}
               </p>
               <p className="text-muted-foreground text-xs">Earliest data</p>
@@ -163,10 +165,10 @@ export default function ExportPage() {
 
       {/* ── Export Cards ── */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="bg-card rounded-2xl border p-4 space-y-3">
+        <div className="bg-card space-y-3 rounded-2xl border p-4">
           <div>
             <p className="font-semibold">Daily Metrics</p>
-            <p className="text-muted-foreground text-xs mt-0.5">CSV export</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">CSV export</p>
           </div>
           <Button
             size="sm"
@@ -179,10 +181,10 @@ export default function ExportPage() {
           </Button>
         </div>
 
-        <div className="bg-card rounded-2xl border p-4 space-y-3">
+        <div className="bg-card space-y-3 rounded-2xl border p-4">
           <div>
             <p className="font-semibold">Activities</p>
-            <p className="text-muted-foreground text-xs mt-0.5">
+            <p className="text-muted-foreground mt-0.5 text-xs">
               {activityCount} records · CSV
             </p>
           </div>
@@ -197,10 +199,10 @@ export default function ExportPage() {
           </Button>
         </div>
 
-        <div className="bg-card rounded-2xl border p-4 space-y-3">
+        <div className="bg-card space-y-3 rounded-2xl border p-4">
           <div>
             <p className="font-semibold">Journal</p>
-            <p className="text-muted-foreground text-xs mt-0.5">
+            <p className="text-muted-foreground mt-0.5 text-xs">
               {journalCount} entries · CSV
             </p>
           </div>
@@ -217,10 +219,10 @@ export default function ExportPage() {
       </div>
 
       {/* ── Full JSON Backup ── */}
-      <div className="bg-card rounded-2xl border p-4 space-y-3">
+      <div className="bg-card space-y-3 rounded-2xl border p-4">
         <div>
           <h2 className="font-semibold">Full Data Export (JSON)</h2>
-          <p className="text-muted-foreground text-sm mt-0.5">
+          <p className="text-muted-foreground mt-0.5 text-sm">
             Activities + journal + metrics in a single backup file with schema
             version and timestamp.
           </p>
@@ -235,15 +237,16 @@ export default function ExportPage() {
       </div>
 
       {/* ── Import (Coming Soon) ── */}
-      <div className="bg-card rounded-2xl border p-4 space-y-3 opacity-75">
+      <div className="bg-card space-y-3 rounded-2xl border p-4 opacity-75">
         <div className="flex items-center gap-2">
           <h2 className="font-semibold">Import from File</h2>
           <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-[10px] font-semibold text-yellow-600 dark:text-yellow-400">
             Coming Soon
           </span>
         </div>
-        <p className="text-muted-foreground text-xs mt-0.5">
-          Import coming in a future update. You&apos;ll be able to restore JSON backups exported from this app.
+        <p className="text-muted-foreground mt-0.5 text-xs">
+          Import coming in a future update. You&apos;ll be able to restore JSON
+          backups exported from this app.
         </p>
       </div>
 

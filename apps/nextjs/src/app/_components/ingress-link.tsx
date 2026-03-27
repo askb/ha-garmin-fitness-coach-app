@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import { useIngressHref, useIngressPath } from "./ingress-provider";
 
 export function IngressLink({
@@ -21,7 +22,9 @@ export function IngressLink({
     return (
       <a
         {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-        href={typeof resolvedHref === "string" ? resolvedHref : String(resolvedHref)}
+        href={
+          typeof resolvedHref === "string" ? resolvedHref : String(resolvedHref)
+        }
       />
     );
   }

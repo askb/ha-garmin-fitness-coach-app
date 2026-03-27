@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
@@ -145,7 +141,7 @@ export default function InterventionsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
       {/* ---- Header ---- */}
       <div>
         <h1 className="text-xl font-bold">Interventions</h1>
@@ -156,13 +152,13 @@ export default function InterventionsPage() {
 
       {/* ---- Log Form ---- */}
       <div className="bg-card space-y-4 rounded-2xl border p-4">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           Log Intervention
         </h2>
 
         {/* Date */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
+          <label className="text-muted-foreground text-xs font-medium">
             Date
           </label>
           <input
@@ -170,31 +166,29 @@ export default function InterventionsPage() {
             value={date}
             max={toDateStr(new Date())}
             onChange={(e) => setDate(e.target.value)}
-            className="bg-secondary/50 border-border w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
           />
         </div>
 
         {/* Type grid */}
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Type</p>
+          <p className="text-muted-foreground text-xs font-medium">Type</p>
           <div className="grid grid-cols-2 gap-2">
             {INTERVENTION_TYPES.map((t) => (
               <button
                 key={t.key}
                 onClick={() =>
-                  setSelectedType(
-                    selectedType === t.key ? null : t.key,
-                  )
+                  setSelectedType(selectedType === t.key ? null : t.key)
                 }
                 className={cn(
                   "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-all",
                   selectedType === t.key
                     ? "border-primary/50 bg-primary/20 text-primary"
-                    : "border-transparent bg-secondary/50 text-muted-foreground hover:bg-secondary",
+                    : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
                 )}
               >
                 <span className="text-base">{t.emoji}</span>
-                <span className="font-medium text-xs">{t.label}</span>
+                <span className="text-xs font-medium">{t.label}</span>
               </button>
             ))}
           </div>
@@ -202,7 +196,7 @@ export default function InterventionsPage() {
 
         {/* Description */}
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">
+          <label className="text-muted-foreground text-xs font-medium">
             Description (optional)
           </label>
           <textarea
@@ -210,7 +204,7 @@ export default function InterventionsPage() {
             placeholder="e.g. 10 min ice bath after long run..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-sm placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-sm placeholder:text-zinc-500 focus:ring-2 focus:outline-none"
           />
         </div>
 
@@ -225,7 +219,7 @@ export default function InterventionsPage() {
 
       {/* ---- History ---- */}
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
           History
         </h2>
 
@@ -253,7 +247,7 @@ export default function InterventionsPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-card rounded-2xl border p-4 space-y-3"
+                  className="bg-card space-y-3 rounded-2xl border p-4"
                 >
                   {/* Header row */}
                   <div className="flex items-start justify-between gap-2">
@@ -263,7 +257,7 @@ export default function InterventionsPage() {
                         <p className="text-sm font-semibold">
                           {typeInfo.label}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {fmtDate(item.date)}
                         </p>
                       </div>
@@ -294,7 +288,7 @@ export default function InterventionsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 px-2 text-xs text-muted-foreground hover:text-red-400"
+                        className="text-muted-foreground h-7 px-2 text-xs hover:text-red-400"
                         onClick={() => setDeleteConfirm(item.id)}
                       >
                         🗑
@@ -304,14 +298,14 @@ export default function InterventionsPage() {
 
                   {/* Description */}
                   {item.description && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {item.description}
                     </p>
                   )}
 
                   {/* Effectiveness stars */}
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground mr-1">
+                    <span className="text-muted-foreground mr-1 text-xs">
                       Effectiveness:
                     </span>
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -329,7 +323,7 @@ export default function InterventionsPage() {
                       </button>
                     ))}
                     {item.effectivenessRating && (
-                      <span className="text-xs text-muted-foreground ml-1">
+                      <span className="text-muted-foreground ml-1 text-xs">
                         {item.effectivenessRating}/5
                       </span>
                     )}
@@ -344,7 +338,7 @@ export default function InterventionsPage() {
                         value={outcomeText}
                         onChange={(e) => setOutcomeText(e.target.value)}
                         placeholder="Did it help? What changed?"
-                        className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-xs focus:ring-2 focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <Button
@@ -373,11 +367,11 @@ export default function InterventionsPage() {
                       className="w-full text-left"
                     >
                       {item.outcomeNotes ? (
-                        <p className="text-xs text-muted-foreground bg-secondary/30 rounded-lg p-2">
+                        <p className="text-muted-foreground bg-secondary/30 rounded-lg p-2 text-xs">
                           {item.outcomeNotes}
                         </p>
                       ) : (
-                        <p className="text-xs text-muted-foreground/50 italic">
+                        <p className="text-muted-foreground/50 text-xs italic">
                           + Add outcome notes
                         </p>
                       )}

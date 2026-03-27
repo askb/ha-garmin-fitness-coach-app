@@ -1,8 +1,7 @@
 "use client";
 
-import { cn } from "@acme/ui";
-
 import type { ReadinessZone } from "@acme/engine";
+import { cn } from "@acme/ui";
 
 const zoneConfig: Record<
   string,
@@ -69,7 +68,11 @@ function DataQualityDots({ dq }: { dq: DataQuality }) {
     ["Load", dq.trainingLoad],
   ];
   return (
-    <div className="mt-2 flex flex-wrap gap-2" role="list" aria-label="Data quality indicators">
+    <div
+      className="mt-2 flex flex-wrap gap-2"
+      role="list"
+      aria-label="Data quality indicators"
+    >
       {items.map(([label, status]) => (
         <span
           key={label}
@@ -192,7 +195,7 @@ export function ReadinessCard({
         {/* Info */}
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm font-medium uppercase tracking-wider">
+            <span className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
               Readiness
             </span>
             <span

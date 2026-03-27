@@ -1,4 +1,4 @@
-import type { TrendDirection, TrendAnalysis } from "../types";
+import type { TrendAnalysis, TrendDirection } from "../types";
 
 /**
  * LONG-TERM TREND ANALYSIS

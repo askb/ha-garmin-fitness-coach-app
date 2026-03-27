@@ -1,6 +1,8 @@
-import { describe, it, expect, afterAll } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+
 import { eq } from "@acme/db";
 import { Profile } from "@acme/db/schema";
+
 import { createTestCaller, db, TEST_USER_ID } from "./helpers";
 
 const caller = createTestCaller();
@@ -11,9 +13,7 @@ const upsertCaller = createTestCaller(UPSERT_USER);
 describe("profile router", () => {
   afterAll(async () => {
     // Clean up the profile created by the upsert test
-    await db
-      .delete(Profile)
-      .where(eq(Profile.userId, UPSERT_USER));
+    await db.delete(Profile).where(eq(Profile.userId, UPSERT_USER));
   });
 
   it("get returns the seed profile", async () => {

@@ -1,13 +1,13 @@
 "use client";
 
-import { IngressLink as Link } from "./ingress-link";
-import { useTRPC } from "~/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "./bottom-nav";
+import { IngressLink as Link } from "./ingress-link";
+import { QuickStats } from "./quick-stats";
 import { ReadinessCard } from "./readiness-card";
 import { WorkoutCard } from "./workout-card";
-import { QuickStats } from "./quick-stats";
 
 export function DashboardHome() {
   const trpc = useTRPC();
@@ -40,9 +40,7 @@ export function DashboardHome() {
     },
     {
       label: "HRV",
-      value: r?.hrvComponent
-        ? `${Math.round(r.hrvComponent as number)}`
-        : null,
+      value: r?.hrvComponent ? `${Math.round(r.hrvComponent as number)}` : null,
       icon: "💓",
     },
     {
@@ -121,7 +119,9 @@ export function DashboardHome() {
           <span className="text-2xl">🏃</span>
           <div>
             <p className="text-sm font-semibold">Fitness</p>
-            <p className="text-muted-foreground text-xs">VO2max &amp; race predictions</p>
+            <p className="text-muted-foreground text-xs">
+              VO2max &amp; race predictions
+            </p>
           </div>
         </Link>
         <Link
@@ -131,7 +131,9 @@ export function DashboardHome() {
           <span className="text-2xl">💡</span>
           <div>
             <p className="text-sm font-semibold">Insights</p>
-            <p className="text-muted-foreground text-xs">Daily recommendations</p>
+            <p className="text-muted-foreground text-xs">
+              Daily recommendations
+            </p>
           </div>
         </Link>
       </div>
@@ -140,7 +142,7 @@ export function DashboardHome() {
       {recentActivities.data && recentActivities.data.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider">
+            <h2 className="text-sm font-semibold tracking-wider uppercase">
               Recent Activities
             </h2>
             <Link
@@ -197,7 +199,7 @@ export function DashboardHome() {
       {/* Coach FAB */}
       <Link
         href="/coach"
-        className="fixed bottom-20 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-2xl shadow-lg hover:bg-indigo-500 transition-colors"
+        className="fixed right-4 bottom-20 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-2xl shadow-lg transition-colors hover:bg-indigo-500"
       >
         🏋️
       </Link>

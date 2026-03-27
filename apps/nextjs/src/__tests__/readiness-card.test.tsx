@@ -20,7 +20,12 @@ jest.mock("@tanstack/react-query", () => ({
       zone: "good",
       explanation: "Good recovery today.",
       confidence: 0.85,
-      dataQuality: { hrv: "good", sleep: "good", restingHr: "good", trainingLoad: "good" },
+      dataQuality: {
+        hrv: "good",
+        sleep: "good",
+        restingHr: "good",
+        trainingLoad: "good",
+      },
       actionSuggestion: "Good day for quality training.",
       doNotOverinterpret: false,
       sleepQuantityComponent: 80,

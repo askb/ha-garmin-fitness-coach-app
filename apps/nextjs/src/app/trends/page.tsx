@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useQuery } from "@tanstack/react-query";
 import {
   Area,
@@ -16,6 +15,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -52,7 +52,13 @@ const METRIC_LABELS: Record<string, string> = {
   stress: "Stress",
 };
 
-type TrendMetric = "readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress";
+type TrendMetric =
+  | "readiness"
+  | "sleep"
+  | "hrv"
+  | "restingHr"
+  | "strain"
+  | "stress";
 type TrendPeriod = "30d" | "90d" | "180d" | "365d";
 type CorrelationPeriod = "30d" | "90d" | "180d";
 
@@ -269,7 +275,9 @@ export default function TrendsPage() {
   ]);
 
   const chartLoading = useSmoothed
-    ? rollingReadiness.isLoading || rollingSleep.isLoading || rollingHrv.isLoading
+    ? rollingReadiness.isLoading ||
+      rollingSleep.isLoading ||
+      rollingHrv.isLoading
     : multiChart.isLoading;
 
   const s = summary.data;
@@ -284,7 +292,7 @@ export default function TrendsPage() {
 
   // ---------------------------------------------------------------------------
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Trends &amp; Analytics</h1>
@@ -727,7 +735,10 @@ function SummaryCard({
         )}
       </div>
       <p className="text-muted-foreground text-xs">{label}</p>
-      <div className="mx-auto mt-2 h-0.5 w-8 rounded" style={{ backgroundColor: color }} />
+      <div
+        className="mx-auto mt-2 h-0.5 w-8 rounded"
+        style={{ backgroundColor: color }}
+      />
     </div>
   );
 }

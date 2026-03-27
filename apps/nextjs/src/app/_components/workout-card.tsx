@@ -1,9 +1,9 @@
 "use client";
 
-import { IngressLink as Link } from "./ingress-link";
-
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
+
+import { IngressLink as Link } from "./ingress-link";
 
 interface WorkoutCardProps {
   id?: string;
@@ -65,7 +65,7 @@ export function WorkoutCard({
     <div className="bg-card space-y-4 rounded-2xl border p-6">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-muted-foreground mb-1 text-xs font-medium uppercase tracking-wider">
+          <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wider uppercase">
             Today&apos;s Workout
           </p>
           <h3 className="text-lg font-semibold">

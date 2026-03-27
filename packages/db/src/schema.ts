@@ -17,9 +17,7 @@ export const Profile = pgTable("profile", (t) => ({
   massKg: t.doublePrecision(),
   heightCm: t.doublePrecision(),
   timezone: t.varchar({ length: 50 }).default("UTC"),
-  experienceLevel: t
-    .varchar({ length: 20 })
-    .default("intermediate"),
+  experienceLevel: t.varchar({ length: 20 }).default("intermediate"),
   primarySports: t.jsonb().$type<string[]>().default([]),
   goals: t
     .jsonb()
@@ -36,27 +34,30 @@ export const Profile = pgTable("profile", (t) => ({
   lactateThreshold: t.integer(),
   functionalThresholdPower: t.doublePrecision(),
   audienceMode: t.varchar({ length: 20 }).default("all"),
-  healthConditions: t
-    .jsonb()
-    .$type<string[]>()
-    .default([]),
+  healthConditions: t.jsonb().$type<string[]>().default([]),
   currentInjuries: t
     .jsonb()
-    .$type<{ bodyPart: string; severity: "mild" | "moderate" | "severe"; since?: string; notes?: string }[]>()
+    .$type<
+      {
+        bodyPart: string;
+        severity: "mild" | "moderate" | "severe";
+        since?: string;
+        notes?: string;
+      }[]
+    >()
     .default([]),
   medications: t.text(),
   allergies: t.text(),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+    .timestamp({ mode: "date", withTimezone: true })
+    .defaultNow()
     .$onUpdateFn(() => new Date()),
 }));
 
 export const CreateProfileSchema = createInsertSchema(Profile, {
   sex: z.enum(["male", "female", "other"]).optional(),
-  experienceLevel: z
-    .enum(["beginner", "intermediate", "advanced"])
-    .optional(),
+  experienceLevel: z.enum(["beginner", "intermediate", "advanced"]).optional(),
 }).omit({
   id: true,
   createdAt: true,
@@ -156,27 +157,23 @@ export const Activity = pgTable("activity", (t) => ({
   verticalRatio: t.doublePrecision(),
   strideLength: t.doublePrecision(),
   avgRespirationRate: t.doublePrecision(),
-  laps: t
-    .jsonb()
-    .$type<
-      Array<{
-        index: number;
-        distanceMeters: number;
-        durationSeconds: number;
-        avgHr?: number;
-        avgPace?: number;
-        avgPower?: number;
-      }>
-    >(),
-  hrZoneMinutes: t
-    .jsonb()
-    .$type<{
-      zone1: number;
-      zone2: number;
-      zone3: number;
-      zone4: number;
-      zone5: number;
-    }>(),
+  laps: t.jsonb().$type<
+    Array<{
+      index: number;
+      distanceMeters: number;
+      durationSeconds: number;
+      avgHr?: number;
+      avgPace?: number;
+      avgPower?: number;
+    }>
+  >(),
+  hrZoneMinutes: t.jsonb().$type<{
+    zone1: number;
+    zone2: number;
+    zone3: number;
+    zone4: number;
+    zone5: number;
+  }>(),
   rawGarminData: t.jsonb(),
   syncedAt: t.timestamp().defaultNow().notNull(),
   garminApiVersion: t.varchar({ length: 20 }),
@@ -345,7 +342,8 @@ export const JournalEntry = pgTable(
     menstrualPhase: t.varchar({ length: 20 }),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
@@ -384,9 +382,7 @@ export const SessionReport = pgTable(
   (t) => ({
     id: t.uuid().notNull().primaryKey().defaultRandom(),
     userId: t.text().notNull(),
-    activityId: t
-      .uuid()
-      .references(() => Activity.id, { onDelete: "cascade" }),
+    activityId: t.uuid().references(() => Activity.id, { onDelete: "cascade" }),
     garminActivityId: t.varchar({ length: 100 }),
     rpe: t.integer().notNull(),
     sessionType: t.varchar({ length: 30 }),
@@ -394,7 +390,8 @@ export const SessionReport = pgTable(
     internalLoad: t.doublePrecision(),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
@@ -406,9 +403,9 @@ export const SessionReport = pgTable(
   ],
 );
 
-export const CreateSessionReportSchema = createInsertSchema(
-  SessionReport,
-).omit({ id: true, createdAt: true, updatedAt: true });
+export const CreateSessionReportSchema = createInsertSchema(SessionReport).omit(
+  { id: true, createdAt: true, updatedAt: true },
+);
 
 export const SessionReportRelations = relations(SessionReport, ({ one }) => ({
   activity: one(Activity, {
@@ -433,7 +430,8 @@ export const Intervention = pgTable(
     linkedMetricDate: t.date(),
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
@@ -560,15 +558,21 @@ export const AthleteBaseline = pgTable(
     baselineSD: t.doublePrecision(),
     windowDays: t.integer().default(30),
     seasonPhase: t.varchar({ length: 20 }), // "base"|"build"|"peak"|"taper"|"off"
-    zScoreLatest: t.doublePrecision(),        // z-score of today's value vs baseline
+    zScoreLatest: t.doublePrecision(), // z-score of today's value vs baseline
     daysOfData: t.integer(),
     computedAt: t.timestamp().defaultNow().notNull(),
   }),
   (table) => [
-    { name: "athlete_baseline_user_metric_unique", columns: [table.userId, table.metricName], unique: true },
+    {
+      name: "athlete_baseline_user_metric_unique",
+      columns: [table.userId, table.metricName],
+      unique: true,
+    },
   ],
 );
-export const CreateAthleteBaselineSchema = createInsertSchema(AthleteBaseline).omit({ id: true, computedAt: true });
+export const CreateAthleteBaselineSchema = createInsertSchema(
+  AthleteBaseline,
+).omit({ id: true, computedAt: true });
 
 // ---------------------------------------------------------------------------
 // Data Quality Log (ingestion validation issues)
@@ -586,7 +590,9 @@ export const DataQualityLog = pgTable("data_quality_log", (t) => ({
   resolvedAt: t.timestamp(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
-export const CreateDataQualityLogSchema = createInsertSchema(DataQualityLog).omit({ id: true, createdAt: true });
+export const CreateDataQualityLogSchema = createInsertSchema(
+  DataQualityLog,
+).omit({ id: true, createdAt: true });
 
 // ---------------------------------------------------------------------------
 // Audit Log (data lineage / provenance)
@@ -604,7 +610,10 @@ export const AuditLog = pgTable("audit_log", (t) => ({
   appVersion: t.varchar({ length: 20 }),
   syncedAt: t.timestamp().defaultNow().notNull(),
 }));
-export const CreateAuditLogSchema = createInsertSchema(AuditLog).omit({ id: true, syncedAt: true });
+export const CreateAuditLogSchema = createInsertSchema(AuditLog).omit({
+  id: true,
+  syncedAt: true,
+});
 
 // ---------------------------------------------------------------------------
 // Reference Measurements (lab/device vs Garmin comparison)
@@ -618,12 +627,14 @@ export const ReferenceMeasurement = pgTable("reference_measurement", (t) => ({
   value: t.doublePrecision().notNull(),
   unit: t.varchar({ length: 30 }).notNull(),
   source: t.varchar({ length: 50 }).notNull(), // "lab"|"manual"|"device_import"
-  garminComparableValue: t.doublePrecision(),  // matching Garmin estimate at same date
-  deviationPercent: t.doublePrecision(),       // (garmin - reference) / reference * 100
+  garminComparableValue: t.doublePrecision(), // matching Garmin estimate at same date
+  deviationPercent: t.doublePrecision(), // (garmin - reference) / reference * 100
   notes: t.text(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
-export const CreateReferenceMeasurementSchema = createInsertSchema(ReferenceMeasurement).omit({ id: true, userId: true, createdAt: true });
+export const CreateReferenceMeasurementSchema = createInsertSchema(
+  ReferenceMeasurement,
+).omit({ id: true, userId: true, createdAt: true });
 
 // ---------------------------------------------------------------------------
 // AI Insights (proactive rules-based and LLM-generated recommendations)
@@ -647,7 +658,8 @@ export const AiInsight = pgTable(
     generatedBy: t.varchar({ length: 30 }).default("rules"), // "rules"|"llm"
     createdAt: t.timestamp().defaultNow().notNull(),
     updatedAt: t
-      .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
@@ -674,7 +686,8 @@ export const Post = pgTable("post", (t) => ({
   content: t.text().notNull(),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true }).defaultNow()
+    .timestamp({ mode: "date", withTimezone: true })
+    .defaultNow()
     .$onUpdateFn(() => new Date()),
 }));
 

@@ -2,7 +2,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
 import { eq } from "@acme/db";
-import { Profile, CreateProfileSchema } from "@acme/db/schema";
+import { CreateProfileSchema, Profile } from "@acme/db/schema";
 
 import { protectedProcedure } from "../trpc";
 

@@ -63,9 +63,7 @@ export {
   getSleepNeedMinutes,
 } from "./baselines";
 
-export {
-  detectAnomalies,
-} from "./anomalies";
+export { detectAnomalies } from "./anomalies";
 
 export {
   generateDailyWorkout,
@@ -107,6 +105,4 @@ export {
   computeStandardCorrelations,
 } from "./correlations";
 
-export {
-  analyzeRunningForm,
-} from "./running-form";
+export { analyzeRunningForm } from "./running-form";

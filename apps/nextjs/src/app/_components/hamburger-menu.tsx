@@ -85,7 +85,7 @@ export function HamburgerMenu() {
         onClick={() => setIsOpen(true)}
         className={cn(
           "bg-card/80 border-border text-foreground fixed top-3 left-3 z-50 flex h-10 w-10 items-center justify-center rounded-lg border backdrop-blur-sm",
-          "hover:bg-accent active:scale-95 transition-all",
+          "hover:bg-accent transition-all active:scale-95",
         )}
         aria-label="Open navigation menu"
       >
@@ -128,7 +128,7 @@ export function HamburgerMenu() {
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {menuSections.map((section) => (
             <div key={section.title} className="mb-4">
-              <h3 className="text-muted-foreground mb-1 px-2 text-xs font-medium uppercase tracking-wider">
+              <h3 className="text-muted-foreground mb-1 px-2 text-xs font-medium tracking-wider uppercase">
                 {section.title}
               </h3>
               <ul className="space-y-0.5">

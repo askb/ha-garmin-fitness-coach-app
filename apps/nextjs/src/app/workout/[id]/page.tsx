@@ -1,12 +1,13 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
-import { useTRPC } from "~/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
+
+import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { useTRPC } from "~/trpc/react";
 
 const phaseColors: Record<string, string> = {
   warmup: "border-l-yellow-500",
@@ -44,15 +45,18 @@ export default function WorkoutDetailPage() {
     );
   }
 
-  const structure = (w.structure as { phase: string; description: string; durationMinutes: number; hrZone?: number }[]) ?? [];
+  const structure =
+    (w.structure as {
+      phase: string;
+      description: string;
+      durationMinutes: number;
+      hrZone?: number;
+    }[]) ?? [];
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 pb-8 pt-6">
+    <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-8">
       {/* Back */}
-      <Link
-        href="/"
-        className="text-muted-foreground text-sm hover:underline"
-      >
+      <Link href="/" className="text-muted-foreground text-sm hover:underline">
         ← Back
       </Link>
 
@@ -71,7 +75,7 @@ export default function WorkoutDetailPage() {
       {/* Why This Today */}
       {w.explanation && (
         <div className="bg-primary/5 border-primary/20 rounded-xl border p-4">
-          <p className="text-primary mb-1 text-xs font-semibold uppercase tracking-wider">
+          <p className="text-primary mb-1 text-xs font-semibold tracking-wider uppercase">
             Why This Today
           </p>
           <p className="text-foreground/80 text-sm">{w.explanation}</p>
@@ -80,7 +84,7 @@ export default function WorkoutDetailPage() {
 
       {/* Workout Structure */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Workout Structure
         </h2>
         {structure.map((block, i) => (
@@ -92,7 +96,7 @@ export default function WorkoutDetailPage() {
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">
+              <span className="text-muted-foreground text-xs font-semibold uppercase">
                 {block.phase === "warmup"
                   ? "🔥 Warm-up"
                   : block.phase === "main"
@@ -111,7 +115,7 @@ export default function WorkoutDetailPage() {
 
       {/* Target Metrics */}
       <div className="bg-card rounded-xl border p-4">
-        <h2 className="text-muted-foreground mb-3 text-xs font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground mb-3 text-xs font-semibold tracking-wider uppercase">
           Target Metrics
         </h2>
         <div className="grid grid-cols-2 gap-3 text-sm">

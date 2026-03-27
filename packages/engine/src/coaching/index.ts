@@ -1,6 +1,15 @@
-import type { ReadinessZone, WorkoutRecommendation, UserProfile } from "../types";
+import type {
+  ReadinessZone,
+  UserProfile,
+  WorkoutRecommendation,
+} from "../types";
 import type { WorkoutTemplate } from "./templates";
-import { allTemplates, runningTemplates, cyclingTemplates, strengthTemplates } from "./templates";
+import {
+  allTemplates,
+  cyclingTemplates,
+  runningTemplates,
+  strengthTemplates,
+} from "./templates";
 
 // ---- Weekly Plan Templates ----
 
@@ -85,7 +94,10 @@ export function selectWeeklyTemplate(
 /**
  * Find a workout template by sport and workout type.
  */
-function findTemplate(sport: string, workoutType: string): WorkoutTemplate | undefined {
+function findTemplate(
+  sport: string,
+  workoutType: string,
+): WorkoutTemplate | undefined {
   return allTemplates.find(
     (t) => t.sport === sport && t.workoutType === workoutType,
   );
@@ -117,7 +129,12 @@ function getRestRecommendation(): WorkoutRecommendation {
     targetStrainLow: 0,
     targetStrainHigh: 2,
     structure: [
-      { phase: "main", description: "Light walk or complete rest", durationMinutes: 20, hrZone: 1 },
+      {
+        phase: "main",
+        description: "Light walk or complete rest",
+        durationMinutes: 20,
+        hrZone: 1,
+      },
     ],
     explanation: "Your readiness is very low. Rest today to recover.",
   };
@@ -141,13 +158,21 @@ export function modulateWorkout(
     return getRestRecommendation();
   }
 
-  if (readinessZone === "low" && (template.intensity === "hard" || template.intensity === "very_hard")) {
+  if (
+    readinessZone === "low" &&
+    (template.intensity === "hard" || template.intensity === "very_hard")
+  ) {
     // Substitute with easy template
     const easy = getEasyTemplate(sport);
-    return templateToRecommendation(easy, readinessZone, "Readiness is low — swapped hard session for easy recovery.");
+    return templateToRecommendation(
+      easy,
+      readinessZone,
+      "Readiness is low — swapped hard session for easy recovery.",
+    );
   }
 
-  const durationScale = readinessZone === "moderate" ? 0.9 : readinessZone === "prime" ? 1.05 : 1.0;
+  const durationScale =
+    readinessZone === "moderate" ? 0.9 : readinessZone === "prime" ? 1.05 : 1.0;
   const explanation = getModulationExplanation(template, readinessZone);
 
   return {
@@ -190,7 +215,10 @@ function templateToRecommendation(
   };
 }
 
-function getModulationExplanation(template: WorkoutTemplate, zone: ReadinessZone): string {
+function getModulationExplanation(
+  template: WorkoutTemplate,
+  zone: ReadinessZone,
+): string {
   switch (zone) {
     case "prime":
       return `Your readiness is Prime — great day for ${template.title.toLowerCase()}. Push the pace if it feels right!`;
@@ -239,14 +267,20 @@ export function generateDailyWorkout(
   const template = findTemplate(sport, todaySlot.sessionType);
   if (!template) {
     const easy = getEasyTemplate(sport);
-    return templateToRecommendation(easy, readinessZone, "Default easy session.");
+    return templateToRecommendation(
+      easy,
+      readinessZone,
+      "Default easy session.",
+    );
   }
 
   // Prime readiness + easy day planned → consider promoting
   if (readinessZone === "prime" && todaySlot.intensity === "easy") {
     // Look for a harder session later in the week to swap
     const harderSlot = weekTemplate.find(
-      (s) => s.dayIndex > dayOfWeek && (s.intensity === "hard" || s.intensity === "very_hard"),
+      (s) =>
+        s.dayIndex > dayOfWeek &&
+        (s.intensity === "hard" || s.intensity === "very_hard"),
     );
     if (harderSlot) {
       const harderTemplate = findTemplate(sport, harderSlot.sessionType);

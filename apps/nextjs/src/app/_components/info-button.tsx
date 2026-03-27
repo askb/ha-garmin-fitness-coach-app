@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface InfoButtonProps {
   title: string;
@@ -40,7 +40,7 @@ export function InfoButton({ title, description }: InfoButtonProps) {
         i
       </button>
       {open && (
-        <div className="absolute left-0 top-7 z-50 w-72 rounded-xl border border-zinc-700 bg-zinc-800 p-3 shadow-xl sm:w-80">
+        <div className="absolute top-7 left-0 z-50 w-72 rounded-xl border border-zinc-700 bg-zinc-800 p-3 shadow-xl sm:w-80">
           <p className="mb-1 text-xs font-semibold text-zinc-200">{title}</p>
           <p className="text-[11px] leading-relaxed text-zinc-400">
             {description}
@@ -67,7 +67,7 @@ export function SectionHeader({
   return (
     <div className={className}>
       <div className="flex items-center">
-        <h2 className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           {title}
         </h2>
         <InfoButton title={title} description={info} />

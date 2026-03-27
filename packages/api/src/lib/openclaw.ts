@@ -24,12 +24,15 @@ const SUPERVISOR_URL = "http://supervisor/core/api";
 async function discoverAgent(token: string): Promise<string | null> {
   try {
     // Primary: discover via config entries (works on all HA versions)
-    const response = await fetch(`${SUPERVISOR_URL}/config/config_entries/entry`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${SUPERVISOR_URL}/config/config_entries/entry`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
     if (!response.ok) {
       console.log(`[AI] Config entries API returned ${response.status}`);
       return null;
@@ -64,7 +67,9 @@ async function discoverAgent(token: string): Promise<string | null> {
       e.domain.includes("google"),
     );
     if (googleAgent) {
-      console.log(`[AI] Using Google AI: ${googleAgent.entry_id} (${googleAgent.title})`);
+      console.log(
+        `[AI] Using Google AI: ${googleAgent.entry_id} (${googleAgent.title})`,
+      );
       return googleAgent.entry_id;
     }
 
@@ -73,21 +78,28 @@ async function discoverAgent(token: string): Promise<string | null> {
       (e) => e.domain.includes("openai") || e.domain.includes("anthropic"),
     );
     if (cloudAgent) {
-      console.log(`[AI] Using cloud agent: ${cloudAgent.entry_id} (${cloudAgent.title})`);
+      console.log(
+        `[AI] Using cloud agent: ${cloudAgent.entry_id} (${cloudAgent.title})`,
+      );
       return cloudAgent.entry_id;
     }
 
     // Last resort: any non-skipped conversation agent
     if (conversationAgents.length > 0) {
       const agent = conversationAgents[0]!;
-      console.log(`[AI] Using fallback agent: ${agent.entry_id} (${agent.title})`);
+      console.log(
+        `[AI] Using fallback agent: ${agent.entry_id} (${agent.title})`,
+      );
       return agent.entry_id;
     }
 
     console.log("[AI] No conversation agents found — will use HA default");
     return null;
   } catch (err) {
-    console.error("[AI] Agent discovery failed:", err instanceof Error ? err.message : err);
+    console.error(
+      "[AI] Agent discovery failed:",
+      err instanceof Error ? err.message : err,
+    );
     return null;
   }
 }
@@ -115,7 +127,9 @@ export async function openclawChat(
     if (!_cachedAgentId) {
       _cachedAgentId = await discoverAgent(token);
       if (_cachedAgentId) {
-        console.log(`[AI] Auto-discovered conversation agent: ${_cachedAgentId}`);
+        console.log(
+          `[AI] Auto-discovered conversation agent: ${_cachedAgentId}`,
+        );
       }
     }
     agentId = _cachedAgentId ?? undefined;
@@ -130,25 +144,28 @@ export async function openclawChat(
     const body: Record<string, string> = { text: prompt };
     if (agentId) body.agent_id = agentId;
 
-    console.log(`[AI] Calling HA Conversation API${agentId ? ` (agent: ${agentId})` : " (default agent)"}...`);
-
-    const response = await fetch(
-      `${SUPERVISOR_URL}/conversation/process`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      },
+    console.log(
+      `[AI] Calling HA Conversation API${agentId ? ` (agent: ${agentId})` : " (default agent)"}...`,
     );
+
+    const response = await fetch(`${SUPERVISOR_URL}/conversation/process`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      body: JSON.stringify(body),
+    });
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => "");
-      console.error(`[AI] HA Conversation error ${response.status}: ${errBody.slice(0, 300)}`);
-      throw new Error(`HA Conversation error ${response.status}: ${errBody.slice(0, 200)}`);
+      console.error(
+        `[AI] HA Conversation error ${response.status}: ${errBody.slice(0, 300)}`,
+      );
+      throw new Error(
+        `HA Conversation error ${response.status}: ${errBody.slice(0, 200)}`,
+      );
     }
 
     const data = (await response.json()) as {
@@ -159,7 +176,10 @@ export async function openclawChat(
 
     const text = data.response?.speech?.plain?.speech;
     if (!text) {
-      console.error("[AI] HA Conversation returned empty response:", JSON.stringify(data).slice(0, 300));
+      console.error(
+        "[AI] HA Conversation returned empty response:",
+        JSON.stringify(data).slice(0, 300),
+      );
       throw new Error("HA Conversation returned empty response");
     }
 
