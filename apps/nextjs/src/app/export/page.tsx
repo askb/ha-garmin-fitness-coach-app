@@ -74,7 +74,7 @@ export default function ExportPage() {
   const journalCount = journalQuery.data?.length ?? 0;
 
   const earliestDate = activities.data?.length
-    ? [...(activities.data as Array<{ startedAt?: Date | string | null }>)]
+    ? [...(activities.data as { startedAt?: Date | string | null }[])]
         .filter((a) => a.startedAt != null)
         .sort(
           (a, b) =>

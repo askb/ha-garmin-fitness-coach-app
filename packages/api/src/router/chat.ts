@@ -187,7 +187,8 @@ export const chatRouter = {
           })
           .returning();
 
-        return { ...assistantMsg!, agent: input.agent };
+        if (!assistantMsg) throw new Error("Failed to save assistant message");
+        return { ...assistantMsg, agent: input.agent };
       } finally {
         _aiInFlight = false;
         _aiAbortController = null;

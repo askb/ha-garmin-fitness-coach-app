@@ -1,8 +1,8 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import type { Baselines, DailyMetricInput } from "@acme/engine";
-import { and, desc, eq, gte, lte } from "@acme/db";
+import type { DailyMetricInput } from "@acme/engine";
+import { and, desc, eq, gte } from "@acme/db";
 import {
   Activity,
   DailyMetric,
@@ -13,9 +13,7 @@ import {
   calculateReadiness,
   computeBaselines,
   computeStrainScore,
-  computeTRIMP,
   detectAnomalies,
-  getReadinessZone,
 } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
@@ -45,7 +43,7 @@ function computeDataQuality(
     metric?.date != null
       ? typeof metric.date === "string"
         ? metric.date
-        : (metric.date as Date).toISOString().split("T")[0]!
+        : (metric.date as Date).toISOString().split("T")[0] ?? ""
       : null;
   const daysOld = metricDate ? daysBetween(metricDate, today) : 999;
   const stale = daysOld > 3;
@@ -129,7 +127,7 @@ function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
     floorsClimbed: row.floorsClimbed ?? null,
     bodyBatteryHigh: row.bodyBatteryHigh ?? null,
     bodyBatteryLow: row.bodyBatteryLow ?? null,
-    hrvOvernight: (row.hrvOvernight as number[] | null) ?? null,
+    hrvOvernight: (row.hrvOvernight) ?? null,
     sleepStartTime: row.sleepStartTime ?? null,
     sleepEndTime: row.sleepEndTime ?? null,
     sleepNeedMinutes: row.sleepNeedMinutes ?? null,
@@ -140,7 +138,7 @@ function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
 function getDateString(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const readinessRouter = {
@@ -218,7 +216,8 @@ export const readinessRouter = {
       (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
     );
 
-    const todayMetric = metricInputs[0]!;
+    const todayMetric = metricInputs[0];
+    if (!todayMetric) return null;
     const result = calculateReadiness({
       todayMetrics: todayMetric,
       recentStrainScores,

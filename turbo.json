@@ -51,7 +51,14 @@
     "AUTH_DISCORD_SECRET",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
-    "PORT"
+    "PORT",
+    "DATABASE_URL",
+    "DEV_BYPASS_AUTH",
+    "FORCE_SEED",
+    "OLLAMA_MODEL",
+    "OLLAMA_URL",
+    "SUPERVISOR_TOKEN",
+    "OPENCLAW_AGENT_ID"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",

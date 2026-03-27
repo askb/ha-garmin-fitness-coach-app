@@ -1,0 +1,1007 @@
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/db/src/client.ts
+  7:31  error  DATABASE_URL is not listed as a dependency in root turbo.json  turbo/no-undeclared-env-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/db/src/seed.ts
+   20:50  error  DATABASE_URL is not listed as a dependency in root turbo.json  turbo/no-undeclared-env-vars
+   62:10  error  Forbidden non-null assertion                                   @typescript-eslint/no-non-null-assertion
+  107:10  error  FORCE_SEED is not listed as a dependency in root turbo.json    turbo/no-undeclared-env-vars
+  549:17  error  Forbidden non-null assertion                                   @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/__tests__/profile.test.ts
+  22:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  23:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  24:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  25:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  26:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  39:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  40:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  41:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  46:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  47:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/__tests__/readiness.test.ts
+  10:15  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  30:19  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  31:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  32:12  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/__tests__/workout.test.ts
+  10:15  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  31:19  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/lib/data-context.ts
+   35:10  error  Forbidden non-null assertion                                                                               @typescript-eslint/no-non-null-assertion
+   98:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+   98:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  108:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  108:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  118:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  118:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  123:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  123:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  129:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  129:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  135:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  135:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  145:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  145:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  155:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  155:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  162:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  162:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  172:5   error  Unsafe call of a(n) `any` typed value                                                                      @typescript-eslint/no-unsafe-call
+  172:8   error  Unsafe member access .query on an `any` value                                                              @typescript-eslint/no-unsafe-member-access
+  539:18  error  Prefer using nullish coalescing operator (`??`) instead of a ternary expression, as it is simpler to read  @typescript-eslint/prefer-nullish-coalescing
+  783:15  error  'pctZ45' is assigned a value but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/lib/ollama.ts
+  30:35  error  OLLAMA_MODEL is not listed as a dependency in root turbo.json  turbo/no-undeclared-env-vars
+  31:15  error  OLLAMA_URL is not listed as a dependency in root turbo.json    turbo/no-undeclared-env-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/lib/openclaw.ts
+   89:21  error  Forbidden non-null assertion                                        @typescript-eslint/no-non-null-assertion
+  117:17  error  SUPERVISOR_TOKEN is not listed as a dependency in root turbo.json   turbo/no-undeclared-env-vars
+  123:37  error  OPENCLAW_AGENT_ID is not listed as a dependency in root turbo.json  turbo/no-undeclared-env-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/__tests__/analytics.test.ts
+   34:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  173:14  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  174:14  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  177:14  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  328:27  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  355:9   error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  355:9   error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/activity.ts
+  10:10  error  'getDateString' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  13:10  error  Forbidden non-null assertion                                                     @typescript-eslint/no-non-null-assertion
+  79:29  error  Unnecessary optional chain on a non-nullish value                                @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/advanced-metrics.ts
+  29:36  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/analytics.ts
+    4:35  error  'lte' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   10:3   error  'TrainingStatus' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   32:10  error  Forbidden non-null assertion                                                      @typescript-eslint/no-non-null-assertion
+   80:20  error  Forbidden non-null assertion                                                      @typescript-eslint/no-non-null-assertion
+   81:21  error  Forbidden non-null assertion                                                      @typescript-eslint/no-non-null-assertion
+  197:22  error  Forbidden non-null assertion                                                      @typescript-eslint/no-non-null-assertion
+  236:22  error  Unnecessary optional chain on a non-nullish value                                 @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/baselines.ts
+  12:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/chat.ts
+  190:21  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/data-quality.ts
+  12:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/garmin.ts
+  14:58  error  'ctx' is defined but never used. Allowed unused args must match /^_/u                        @typescript-eslint/no-unused-vars
+  14:65  error  Async arrow function has no 'await' expression                                               @typescript-eslint/require-await
+  24:55  error  Async arrow function has no 'await' expression                                               @typescript-eslint/require-await
+  25:22  error  'oauthTokenSecret' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  37:24  error  'ctx' is defined but never used. Allowed unused args must match /^_/u                        @typescript-eslint/no-unused-vars
+  37:38  error  Async arrow function has no 'await' expression                                               @typescript-eslint/require-await
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/journal.ts
+   84:15  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  103:19  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/proactive.ts
+   6:3   error  'Activity' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  25:10  error  Forbidden non-null assertion                                                @typescript-eslint/no-non-null-assertion
+  31:19  error  Forbidden non-null assertion                                                @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/readiness.ts
+    4:15  error  'Baselines' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+    5:30  error  'lte' is defined but never used. Allowed unused vars must match /^_/u               @typescript-eslint/no-unused-vars
+   16:3   error  'computeTRIMP' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+   18:3   error  'getReadinessZone' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   48:11  error  Forbidden non-null assertion                                                        @typescript-eslint/no-non-null-assertion
+  143:10  error  Forbidden non-null assertion                                                        @typescript-eslint/no-non-null-assertion
+  221:25  error  Forbidden non-null assertion                                                        @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/sleep.ts
+  49:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/trends.ts
+   48:18  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+   99:41  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  105:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  145:43  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  155:43  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/workout.ts
+   11:3   error  'WeeklyPlan' is defined but never used. Allowed unused vars must match /^_/u                                @typescript-eslint/no-unused-vars
+   24:10  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+   58:8   error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+   73:63  error  Unnecessary optional chain on a non-nullish value                                                           @typescript-eslint/no-unnecessary-condition
+  158:22  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  158:22  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  158:46  error  Unnecessary optional chain on a non-nullish value                                                           @typescript-eslint/no-unnecessary-condition
+  171:21  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  171:43  error  Unexpected any. Specify a different type                                                                    @typescript-eslint/no-explicit-any
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/router/zones.ts
+   26:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+   34:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  291:34  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  292:46  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  295:20  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  296:27  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/packages/api/src/trpc.ts
+  121:30  error  DEV_BYPASS_AUTH is not listed as a dependency in root turbo.json  turbo/no-undeclared-env-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/__mocks__/styleMock.js
+  1:1  error  'module' is not defined  no-undef
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/athlete-accuracy.test.ts
+   53:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   54:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   59:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   59:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   59:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+   60:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   60:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   60:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+   63:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   67:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   67:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   67:17  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+   70:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   74:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   74:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   74:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+   77:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   80:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   80:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   80:17  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+   83:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   86:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   86:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   86:40  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+   87:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   87:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   87:40  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+   89:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   89:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   89:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+   92:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   99:7   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   99:7   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+   99:14  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+   99:24  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+   99:47  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  106:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  107:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  111:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  111:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  111:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  112:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  112:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  112:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  115:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  120:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  120:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  120:22  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  123:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  126:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  126:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  126:22  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  129:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  137:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  137:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  137:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  143:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  144:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  147:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  147:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  147:24  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  150:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  152:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  152:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  152:24  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  155:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  160:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  160:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  160:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  163:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  165:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  165:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  165:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  166:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  166:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  166:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  172:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  173:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  177:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  177:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  177:18  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+  178:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  178:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  178:18  error  Unsafe member access .toBeLessThanOrEqual on an `error` typed value     @typescript-eslint/no-unsafe-member-access
+  181:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  185:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  185:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  185:18  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  188:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  195:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  195:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  195:18  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  198:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  202:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  202:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  202:18  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  205:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  205:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  205:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  211:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  212:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  214:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  214:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  214:27  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  215:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  215:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  215:27  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  218:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  221:10  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  226:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  226:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  226:29  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  229:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  232:10  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  237:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  237:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  237:29  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  243:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  244:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  247:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  247:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  247:15  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  250:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  253:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  253:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  253:15  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  256:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  258:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  258:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  258:15  error  Unsafe member access .toBe on an `error` typed value                    @typescript-eslint/no-unsafe-member-access
+  261:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  263:22  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  264:29  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  265:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  265:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  265:15  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  271:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  272:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  278:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  278:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  278:22  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  281:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  285:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  285:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  285:32  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  291:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  292:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  295:10  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  300:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  300:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  300:18  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  303:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  305:10  error  Forbidden non-null assertion                                            @typescript-eslint/no-non-null-assertion
+  310:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  310:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  310:18  error  Unsafe member access .toBe on an `error` typed value                    @typescript-eslint/no-unsafe-member-access
+  316:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  317:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  324:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  324:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  324:17  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  325:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  325:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  325:17  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  328:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  334:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  334:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  334:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+  335:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  335:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  335:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+  338:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  341:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  341:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  341:17  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+  342:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  342:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  342:17  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value  @typescript-eslint/no-unsafe-member-access
+  348:1   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  349:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  351:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  351:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  351:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+  352:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  352:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  352:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+  353:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  353:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  353:24  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+  356:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  359:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  359:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  359:24  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  360:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  360:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  360:24  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  363:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  365:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  365:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  365:24  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  366:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  366:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  366:24  error  Unsafe member access .toBeLessThan on an `error` typed value            @typescript-eslint/no-unsafe-member-access
+  369:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  371:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  371:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  371:24  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  372:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  372:5   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  372:24  error  Unsafe member access .toBeGreaterThan on an `error` typed value         @typescript-eslint/no-unsafe-member-access
+  375:3   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  381:7   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  381:7   error  Unsafe call of a(n) `error` type typed value                            @typescript-eslint/no-unsafe-call
+  381:19  error  Unsafe member access .toBeCloseTo on an `error` typed value             @typescript-eslint/no-unsafe-member-access
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/chart-accuracy.test.ts
+   20:3   error  'getReadinessZone' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   21:3   error  'scoreHRV' is defined but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+   22:3   error  'scoreRestingHR' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   23:3   error  'scoreSleepQuality' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+   24:3   error  'scoreSleepQuantity' is defined but never used. Allowed unused vars must match /^_/u                @typescript-eslint/no-unused-vars
+   25:3   error  'scoreStressAndBattery' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   26:3   error  'scoreTrainingLoad' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+   31:3   error  'athleteAExpected' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   35:3   error  'athleteCExpected' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+   36:3   error  'simulateCTLATL' is defined but never used. Allowed unused vars must match /^_/u                    @typescript-eslint/no-unused-vars
+   67:26  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   67:32  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+   68:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  114:9   error  Unsafe assignment of an `any` value                                                                 @typescript-eslint/no-unsafe-assignment
+  114:55  error  Unsafe return of a value of type `any`                                                              @typescript-eslint/no-unsafe-return
+  129:1   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  142:15  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  152:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  157:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  157:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  157:14  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  157:33  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  157:38  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  161:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  166:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  166:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  166:14  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  166:33  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  166:38  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  170:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  176:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  176:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  176:23  error  Unsafe member access .toBeCloseTo on an `error` typed value                                         @typescript-eslint/no-unsafe-member-access
+  181:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  198:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  198:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  198:24  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value                              @typescript-eslint/no-unsafe-member-access
+  199:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  199:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  199:24  error  Unsafe member access .toBeLessThanOrEqual on an `error` typed value                                 @typescript-eslint/no-unsafe-member-access
+  200:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  200:9   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  200:41  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  205:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  212:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  212:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  212:21  error  Unsafe member access .toHaveLength on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  213:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  213:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  213:21  error  Unsafe member access .toHaveLength on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  217:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  217:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  217:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  220:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  221:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  221:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  221:30  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  222:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  222:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  222:30  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  223:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  223:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  223:30  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  224:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  224:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  224:28  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  225:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  225:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  225:29  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  226:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  226:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  226:29  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  227:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  227:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  227:29  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  232:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  232:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  232:37  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  237:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  237:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  237:34  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  240:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  244:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  244:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  244:23  error  Unsafe member access .toHaveLength on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  247:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  247:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  247:34  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  250:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  256:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  256:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  256:23  error  Unsafe member access .toHaveLength on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  257:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  257:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  257:12  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  257:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  258:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  258:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  258:12  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  258:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  259:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  259:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  259:12  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  259:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  261:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  261:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  261:12  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  261:32  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  269:1   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  272:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  274:21  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  282:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  282:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  282:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  285:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  287:10  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  297:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  297:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  297:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  300:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  302:10  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  312:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  312:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  312:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  315:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  324:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  324:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  324:31  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  325:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  325:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  325:34  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  326:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  326:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  326:32  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  330:10  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  340:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  340:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  340:46  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  343:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  346:10  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  358:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  358:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  358:46  error  Unsafe member access .toMatch on an `error` typed value                                             @typescript-eslint/no-unsafe-member-access
+  366:1   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  367:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  378:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  378:7   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  378:37  error  Unsafe member access .toBeLessThan on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  382:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  392:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  392:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  392:18  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  393:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  393:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  393:18  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  394:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  394:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  394:18  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  395:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  395:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  395:18  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  396:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  396:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  396:18  error  Unsafe member access .toContain on an `error` typed value                                           @typescript-eslint/no-unsafe-member-access
+  397:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  397:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  397:18  error  Unsafe member access .toHaveLength on an `error` typed value                                        @typescript-eslint/no-unsafe-member-access
+  400:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  400:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  400:23  error  Unsafe member access .toBeCloseTo on an `error` typed value                                         @typescript-eslint/no-unsafe-member-access
+  401:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  401:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  401:23  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  402:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  402:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  402:23  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  403:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  403:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  403:23  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  404:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  404:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  404:23  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  407:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  417:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  417:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  417:18  error  Unsafe member access .toEqual on an `error` typed value                                             @typescript-eslint/no-unsafe-member-access
+  425:1   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  426:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  427:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  427:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  427:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  428:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  428:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  428:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  429:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  429:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  429:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  430:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  430:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  430:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  431:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  431:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  431:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  434:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  435:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  435:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  435:36  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  436:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  436:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  436:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  437:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  437:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  437:36  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  442:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  442:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  442:18  error  Unsafe member access .toBeGreaterThan on an `error` typed value                                     @typescript-eslint/no-unsafe-member-access
+  443:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  443:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  443:36  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  446:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  447:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  447:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  447:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  448:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  448:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  448:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  449:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  449:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  449:36  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  450:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  450:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  450:35  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  453:3   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  456:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  456:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  456:26  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  461:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  461:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  461:43  error  Unsafe member access .toBe on an `error` typed value                                                @typescript-eslint/no-unsafe-member-access
+  462:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  462:5   error  Unsafe call of a(n) `error` type typed value                                                        @typescript-eslint/no-unsafe-call
+  462:26  error  Unsafe member access .toBeGreaterThanOrEqual on an `error` typed value                              @typescript-eslint/no-unsafe-member-access
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/export-utils.test.ts
+   8:3   error  'filename' is defined but never used. Allowed unused args must match /^_/u                   @typescript-eslint/no-unused-vars
+  11:31  error  Forbidden non-null assertion                                                                 @typescript-eslint/no-non-null-assertion
+  18:23  error  'val' will use Object's default stringification format ('[object Object]') when stringified  @typescript-eslint/no-base-to-string
+  47:22  error  Forbidden non-null assertion                                                                 @typescript-eslint/no-non-null-assertion
+  54:22  error  Forbidden non-null assertion                                                                 @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/fixtures/athlete-90day.ts
+  26:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  81:13  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  82:13  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  84:22  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  85:22  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/pmc-chart.test.tsx
+  63:19  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  64:18  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/proactive-insights.test.ts
+    5:10  error  'beforeEach' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+   21:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   22:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   24:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   24:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   24:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   25:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   25:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   25:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   26:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   26:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   26:31  error  Unsafe member access .toBeGreaterThan on an `error` typed value               @typescript-eslint/no-unsafe-member-access
+   29:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   31:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   31:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   31:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   32:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   32:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   32:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   35:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   37:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   37:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   37:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   38:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   38:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   38:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   39:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   39:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   39:31  error  Unsafe member access .toBeGreaterThan on an `error` typed value               @typescript-eslint/no-unsafe-member-access
+   42:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   44:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   44:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   44:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   45:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   45:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   45:29  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+   48:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   50:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   50:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   50:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   51:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   51:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   51:29  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+   58:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   59:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   61:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   61:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   61:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   62:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   62:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   62:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   63:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   63:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   63:31  error  Unsafe member access .toBeGreaterThan on an `error` typed value               @typescript-eslint/no-unsafe-member-access
+   66:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   68:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   68:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   68:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   69:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   69:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   69:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   72:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   74:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   74:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   74:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   75:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   75:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   75:29  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+   78:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   80:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   80:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   80:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   87:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   91:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   94:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   94:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   94:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   95:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   95:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+   95:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+   98:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  101:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  101:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  101:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  102:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  102:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  102:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  105:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  107:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  107:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  107:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  108:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  108:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  108:29  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+  111:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  113:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  113:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  113:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  120:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  121:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  123:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  123:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  123:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  124:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  124:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  124:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  127:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  129:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  129:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  129:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  130:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  130:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  130:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  133:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  135:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  135:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  135:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  136:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  136:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  136:29  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+  139:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  141:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  141:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  141:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  148:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  149:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  153:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  153:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  153:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  154:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  154:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  154:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  155:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  155:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  155:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  158:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  161:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  161:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  161:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  162:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  162:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  162:29  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  163:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  163:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  163:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  166:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  169:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  169:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  169:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  170:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  170:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  170:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  173:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  176:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  176:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  176:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  179:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  181:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  181:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  181:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  182:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  182:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  182:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  189:1   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  190:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  199:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  199:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  199:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  200:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  200:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  200:24  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  201:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  201:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  201:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  204:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  207:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  207:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  207:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  208:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  208:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  208:24  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  209:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  209:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  209:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  212:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  215:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  215:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  215:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  216:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  216:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  216:24  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+  217:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  217:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  217:26  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  220:3   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  222:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  222:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  222:30  error  Unsafe member access .toBe on an `error` typed value                          @typescript-eslint/no-unsafe-member-access
+  223:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  223:5   error  Unsafe call of a(n) `error` type typed value                                  @typescript-eslint/no-unsafe-call
+  223:24  error  Unsafe member access .toBeNull on an `error` typed value                      @typescript-eslint/no-unsafe-member-access
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/readiness-card.test.tsx
+  4:8   error  'React' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+  5:10  error  'render' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  5:18  error  'screen' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/__tests__/zone-distribution.test.ts
+  15:11  error  Unsafe assignment of an `any` value     @typescript-eslint/no-unsafe-assignment
+  15:57  error  Unsafe return of a value of type `any`  @typescript-eslint/no-unsafe-return
+  45:26  error  Forbidden non-null assertion            @typescript-eslint/no-non-null-assertion
+  45:39  error  Forbidden non-null assertion            @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/dashboard-home.tsx
+   78:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   79:16  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   80:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   81:22  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   83:12  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   90:28  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   91:30  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   98:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+   99:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  100:21  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  101:29  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  102:29  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  103:27  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  104:28  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  105:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  158:15  error  Unnecessary conditional, the types have no overlap                                                  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/hamburger-menu.tsx
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/hamburger-menu.tsx:77:5
+  75 |   // Close menu on route change
+  76 |   useEffect(() => {
+  78 |   }, [pathname]);
+  79 |
+  80 |   return (  react-hooks/set-state-in-effect
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/ingress-link.tsx
+  26:68  error  'resolvedHref' will use Object's default stringification format ('[object Object]') when stringified  @typescript-eslint/no-base-to-string
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/readiness-card.tsx
+    3:15  error  'ReadinessZone' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  137:38  error  Forbidden non-null assertion                                                     @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/_components/workout-card.tsx
+   3:10  error  'cn' is defined but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+  33:3   error  'description' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/activities/[id]/page.tsx
+     6:3   error  'Area' is defined but never used. Allowed unused vars must match /^_/u                              @typescript-eslint/no-unused-vars
+     7:3   error  'AreaChart' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+     8:3   error  'Bar' is defined but never used. Allowed unused vars must match /^_/u                               @typescript-eslint/no-unused-vars
+     9:3   error  'BarChart' is defined but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+    10:3   error  'Cell' is defined but never used. Allowed unused vars must match /^_/u                              @typescript-eslint/no-unused-vars
+    11:3   error  'ResponsiveContainer' is defined but never used. Allowed unused vars must match /^_/u               @typescript-eslint/no-unused-vars
+    12:3   error  'Tooltip' is defined but never used. Allowed unused vars must match /^_/u                           @typescript-eslint/no-unused-vars
+    13:3   error  'XAxis' is defined but never used. Allowed unused vars must match /^_/u                             @typescript-eslint/no-unused-vars
+    14:3   error  'YAxis' is defined but never used. Allowed unused vars must match /^_/u                             @typescript-eslint/no-unused-vars
+   490:39  error  Unnecessary optional chain on a non-nullish value                                                   @typescript-eslint/no-unnecessary-condition
+   810:13  error  Unnecessary conditional, the types have no overlap                                                  @typescript-eslint/no-unnecessary-condition
+   826:53  error  Unnecessary conditional, the types have no overlap                                                  @typescript-eslint/no-unnecessary-condition
+  1022:32  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/api/garmin/auth/route.ts
+  5:18  error  'process.env' is restricted from being used. Use `import { env } from '~/env'` instead to ensure validated types  no-restricted-properties
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/api/garmin/sync/route.ts
+  4:18  error  'process.env' is restricted from being used. Use `import { env } from '~/env'` instead to ensure validated types  no-restricted-properties
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/coach/page.tsx
+  154:10  error  Forbidden non-null assertion                                                                        @typescript-eslint/no-non-null-assertion
+  309:22  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/correlations/page.tsx
+    7:10  error    'Button' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                    @typescript-eslint/no-unused-vars
+   34:6   error    'Metric' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                    @typescript-eslint/no-unused-vars
+  127:9   warning  The 'pairs' logical expression could make the dependencies of useMemo Hook (at line 137) change on every render. To fix this, wrap the initialization of 'pairs' in its own useMemo() Hook  react-hooks/exhaustive-deps
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/export/page.tsx
+  19:31  error  Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-non-null-assertion
+  24:47  error  'val' will use Object's default stringification format ('[object Object]') when stringified                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-base-to-string
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/export/page.tsx:65:27
+  63 |   const journalQuery = useQuery(
+  64 |     trpc.journal.list.queryOptions({
+  66 |         .toISOString()
+  67 |         .slice(0, 10),
+  68 |       endDate: new Date().toISOString().slice(0, 10),  react-hooks/purity
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/fitness/page.tsx
+   74:53  error    Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-assertion
+  185:32  error    Unnecessary optional chain on a non-nullish value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unnecessary-condition
+  186:12  error    Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-non-null-assertion
+  194:32  error    Unnecessary optional chain on a non-nullish value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unnecessary-condition
+  264:31  error    Compilation Skipped: Existing memoization could not be preserved
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/fitness/page.tsx:264:31
+  262 |   };
+  263 |
+  294 |
+  295 |   /* ── Running Shape gauge (0–100) ── */
+  296 |   const runningShape = useMemo(() => {  react-hooks/preserve-manual-memoization
+  264:31  error    Compilation Skipped: Existing memoization could not be preserved
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/fitness/page.tsx:264:31
+  262 |   };
+  263 |
+  294 |
+  295 |   /* ── Running Shape gauge (0–100) ── */
+  296 |   const runningShape = useMemo(() => {   react-hooks/preserve-manual-memoization
+  293:6   warning  React Hook useMemo has missing dependencies: 'DISTANCE_LABEL' and 'RACE_DISTANCES'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+  418:30  error    Unnecessary optional chain on a non-nullish value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unnecessary-condition
+  516:53  error    Unnecessary optional chain on a non-nullish value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/insights/page.tsx
+   3:19  error  'useState' is defined but never used. Allowed unused vars must match /^_/u                          @typescript-eslint/no-unused-vars
+  59:21  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+  60:17  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/journal/page.tsx
+  212:14  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  212:14  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  212:14  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  213:15  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  213:15  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  213:15  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  214:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  214:23  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  214:23  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  215:25  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  215:25  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  215:25  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  216:19  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  216:19  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  216:19  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  217:26  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  217:26  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  217:26  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  218:22  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  218:22  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  218:22  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  219:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  219:23  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  219:23  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  220:20  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  220:20  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  220:20  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  221:26  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined          @typescript-eslint/no-unnecessary-condition
+  221:26  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  221:26  error  Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong  @typescript-eslint/no-non-null-asserted-optional-chain
+  292:21  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  298:23  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+  565:47  error  Forbidden non-null assertion                                                                                @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/page.tsx
+  4:10  error  'AuthShowcase' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/power/page.tsx
+   74:31  error    Compilation Skipped: Existing memoization could not be preserved
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/power/page.tsx:74:31
+  72 |   const DURATION_BUCKETS = [1, 5, 10, 20, 30, 60];
+  73 |
+  88 |
+  89 |   /* ── W' Depletion Curves ── */
+  90 |   const DEPLETION_COLORS = ["#ef4444", "#f97316", "#eab308", "#3b82f6"];  react-hooks/preserve-manual-memoization
+   87:6   warning  React Hook useMemo has a missing dependency: 'DURATION_BUCKETS'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+  114:6   warning  React Hook useMemo has a missing dependency: 'DEPLETION_COLORS'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/settings/page.tsx
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/settings/page.tsx:59:7
+  57 |   useEffect(() => {
+  58 |     if (profile) {
+  60 |       setMassKg(profile.massKg?.toString() ?? "");
+  61 |       setHeightCm(profile.heightCm?.toString() ?? "");
+  62 |       setSex(profile.sex ?? "male");  react-hooks/set-state-in-effect
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/settings/page.tsx:212:7
+  210 |   useEffect(() => {
+  211 |     if (profile) {
+  213 |       setInjuries(
+  214 |         (profile.currentInjuries as {
+  215 |           bodyPart: string;                                  react-hooks/set-state-in-effect
+  212:22  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unnecessary-condition
+  212:22  error  Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-non-null-assertion
+  214:10  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unnecessary-condition
+  219:23  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unnecessary-condition
+  219:23  error  Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-non-null-assertion
+  220:21  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unnecessary-condition
+  220:21  error  Forbidden non-null assertion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/training/page.tsx
+   77:3   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+   91:14  error  'arr' is defined but never used. Allowed unused args must match /^_/u                                                @typescript-eslint/no-unused-vars
+   94:28  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                   @typescript-eslint/no-unnecessary-condition
+   94:34  error  Unnecessary optional chain on a non-nullish value                                                                    @typescript-eslint/no-unnecessary-condition
+   95:19  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined                   @typescript-eslint/no-unnecessary-condition
+  218:36  error  Unnecessary optional chain on a non-nullish value                                                                    @typescript-eslint/no-unnecessary-condition
+  765:10  error  'ACWRGauge' is defined but never used. Allowed unused vars must match /^_/u                                          @typescript-eslint/no-unused-vars
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/trends/page.tsx
+   72:10  error  Forbidden non-null assertion                        @typescript-eslint/no-non-null-assertion
+  342:20  error  Forbidden non-null assertion                        @typescript-eslint/no-non-null-assertion
+  348:20  error  Forbidden non-null assertion                        @typescript-eslint/no-non-null-assertion
+  355:20  error  Forbidden non-null assertion                        @typescript-eslint/no-non-null-assertion
+  361:20  error  Forbidden non-null assertion                        @typescript-eslint/no-non-null-assertion
+  455:40  error  Unnecessary conditional, the types have no overlap  @typescript-eslint/no-unnecessary-condition
+  457:38  error  Unnecessary conditional, the types have no overlap  @typescript-eslint/no-unnecessary-condition
+  459:44  error  Unnecessary conditional, the types have no overlap  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/validation/page.tsx
+   46:10  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  149:5   error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  150:5   error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/workout/[id]/page.tsx
+  49:6  error  Unnecessary conditional, expected left-hand side of `??` operator to be possibly null or undefined  @typescript-eslint/no-unnecessary-condition
+/home/runner/work/ha-garmin-fitness-coach-app/ha-garmin-fitness-coach-app/apps/nextjs/src/app/zones/page.tsx
+   99:35  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+   99:60  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  104:35  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  104:60  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+  956:18  error  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion

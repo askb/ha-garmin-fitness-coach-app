@@ -31,6 +31,7 @@ function makeSession(userId = TEST_USER_ID) {
 function dateString(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return d.toISOString().split("T")[0]!;
 }
 
@@ -170,10 +171,13 @@ describe("analytics router", () => {
 
       // Most recent date must be first
       const [first, second] = result.estimates;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(first!.date).toBe(dateString(5));
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(second!.date).toBe(dateString(10));
 
       // Duplicate removed — only running_pace_hr kept for the shared date
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(second!.source).toBe("running_pace_hr");
 
       // trend field must be present
@@ -325,6 +329,7 @@ describe("analytics router", () => {
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(4);
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const predictions = result!;
       const distances = predictions.map((r) => r.distance);
       expect(distances).toContain("5K");
@@ -352,6 +357,7 @@ describe("analytics router", () => {
 
       const result = await caller.analytics.getRacePredictions();
       const byDistance = (name: string) =>
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         result!.find((r) => r.distance === name)!.predictedSeconds;
 
       expect(byDistance("5K")).toBeLessThan(byDistance("10K"));

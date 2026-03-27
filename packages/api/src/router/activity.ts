@@ -7,12 +7,6 @@ import { analyzeRunningForm } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
-function getDateString(daysAgo: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
-}
-
 export const activityRouter = {
   list: protectedProcedure
     .input(
@@ -76,7 +70,7 @@ export const activityRouter = {
       });
 
       let runningFormScore = null;
-      if (activity.sportType?.toLowerCase().includes("run")) {
+      if (activity.sportType.toLowerCase().includes("run")) {
         runningFormScore = analyzeRunningForm(
           activity.avgGroundContactTime,
           activity.verticalOscillation,

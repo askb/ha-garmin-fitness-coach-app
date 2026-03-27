@@ -158,14 +158,14 @@ export const Activity = pgTable("activity", (t) => ({
   strideLength: t.doublePrecision(),
   avgRespirationRate: t.doublePrecision(),
   laps: t.jsonb().$type<
-    Array<{
+    {
       index: number;
       distanceMeters: number;
       durationSeconds: number;
       avgHr?: number;
       avgPace?: number;
       avgPower?: number;
-    }>
+    }[]
   >(),
   hrZoneMinutes: t.jsonb().$type<{
     zone1: number;

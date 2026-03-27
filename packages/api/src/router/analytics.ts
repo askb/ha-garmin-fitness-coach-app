@@ -1,13 +1,12 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, asc, desc, eq, gte, lte } from "@acme/db";
+import { and, asc, desc, eq, gte } from "@acme/db";
 import {
   Activity,
   DailyMetric,
   Profile,
   ReadinessScore,
-  TrainingStatus,
   VO2maxEstimate,
 } from "@acme/db/schema";
 import {
@@ -29,7 +28,7 @@ import { protectedProcedure } from "../trpc";
 function getDateString(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const analyticsRouter = {
@@ -77,9 +76,9 @@ export const analyticsRouter = {
 
     let vo2maxTrend = 0;
     if (vo2maxRecords.length >= 2) {
-      const last = vo2maxRecords[0]!;
-      const first = vo2maxRecords[vo2maxRecords.length - 1]!;
-      vo2maxTrend = last.value - first.value;
+      const last = vo2maxRecords[0];
+      const first = vo2maxRecords[vo2maxRecords.length - 1];
+      vo2maxTrend = (last?.value ?? 0) - (first?.value ?? 0);
     }
 
     const recentActivities = await ctx.db.query.Activity.findMany({
@@ -194,7 +193,7 @@ export const analyticsRouter = {
       // Max strain per day from activities
       const strainMap = new Map<string, number>();
       for (const a of activities) {
-        const date = a.startedAt.toISOString().split("T")[0]!;
+        const date = a.startedAt.toISOString().split("T")[0] ?? "";
         const strain = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
         const existing = strainMap.get(date) ?? 0;
         strainMap.set(date, Math.max(existing, strain));
@@ -233,7 +232,7 @@ export const analyticsRouter = {
           orderBy: desc(Activity.startedAt),
         });
         activity = activities.find((a) =>
-          a.sportType?.toLowerCase().includes("run"),
+          a.sportType.toLowerCase().includes("run"),
         );
       }
 

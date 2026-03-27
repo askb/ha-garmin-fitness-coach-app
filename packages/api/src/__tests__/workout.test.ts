@@ -7,6 +7,7 @@ import { createTestCaller, db } from "./helpers";
 
 const caller = createTestCaller();
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const today = new Date().toISOString().split("T")[0]!;
 
 describe("workout router", () => {
@@ -28,6 +29,7 @@ describe("workout router", () => {
     expect(result).toHaveProperty("sportType");
     expect(result).toHaveProperty("workoutType");
     expect(result).toHaveProperty("title");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(typeof result!.title).toBe("string");
   });
 

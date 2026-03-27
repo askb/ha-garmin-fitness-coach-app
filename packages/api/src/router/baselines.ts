@@ -9,7 +9,7 @@ import { protectedProcedure } from "../trpc";
 function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const baselinesRouter = {
@@ -60,7 +60,7 @@ export const baselinesRouter = {
         floorsClimbed: m.floorsClimbed,
         bodyBatteryHigh: m.bodyBatteryHigh,
         bodyBatteryLow: m.bodyBatteryLow,
-        hrvOvernight: m.hrvOvernight as number[] | null,
+        hrvOvernight: m.hrvOvernight,
         sleepStartTime: m.sleepStartTime,
         sleepEndTime: m.sleepEndTime,
         sleepNeedMinutes: m.sleepNeedMinutes,

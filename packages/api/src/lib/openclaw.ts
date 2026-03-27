@@ -37,11 +37,11 @@ async function discoverAgent(token: string): Promise<string | null> {
       console.log(`[AI] Config entries API returned ${response.status}`);
       return null;
     }
-    const entries = (await response.json()) as Array<{
+    const entries = (await response.json()) as {
       domain: string;
       title: string;
       entry_id: string;
-    }>;
+    }[];
 
     // Find conversation-capable integrations
     const CONVERSATION_DOMAINS = [
@@ -85,8 +85,8 @@ async function discoverAgent(token: string): Promise<string | null> {
     }
 
     // Last resort: any non-skipped conversation agent
-    if (conversationAgents.length > 0) {
-      const agent = conversationAgents[0]!;
+    const agent = conversationAgents[0];
+    if (agent) {
       console.log(
         `[AI] Using fallback agent: ${agent.entry_id} (${agent.title})`,
       );

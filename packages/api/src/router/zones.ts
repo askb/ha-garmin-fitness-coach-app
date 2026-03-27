@@ -23,7 +23,7 @@ function getISOWeekMonday(date: Date): string {
   const day = d.getUTCDay();
   const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1);
   d.setUTCDate(diff);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 function getMonthString(date: Date): string {
@@ -31,7 +31,7 @@ function getMonthString(date: Date): string {
 }
 
 function getDateString(date: Date): string {
-  return date.toISOString().split("T")[0]!;
+  return date.toISOString().split("T")[0] ?? "";
 }
 
 function parseZones(raw: unknown): HrZoneMinutes | null {
@@ -288,12 +288,12 @@ export const zonesRouter = {
             a.avgPaceSecPerKm > 0,
         )
         .map((a) => {
-          const speedMs = 1000 / a.avgPaceSecPerKm!;
-          const efficiencyIndex = (speedMs / a.avgHr!) * 1000;
+          const speedMs = 1000 / (a.avgPaceSecPerKm ?? 1);
+          const efficiencyIndex = (speedMs / (a.avgHr ?? 1)) * 1000;
           return {
             date: getDateString(a.startedAt),
-            avgHr: a.avgHr!,
-            paceSecPerKm: a.avgPaceSecPerKm!,
+            avgHr: a.avgHr ?? 0,
+            paceSecPerKm: a.avgPaceSecPerKm ?? 0,
             efficiencyIndex: Math.round(efficiencyIndex * 100) / 100,
           };
         });

@@ -7,6 +7,7 @@ import { createTestCaller, db } from "./helpers";
 
 const caller = createTestCaller();
 
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const today = new Date().toISOString().split("T")[0]!;
 
 describe("readiness router", () => {
@@ -27,8 +28,11 @@ describe("readiness router", () => {
     expect(result).not.toBeNull();
     expect(result).toHaveProperty("score");
     expect(result).toHaveProperty("zone");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(typeof result!.score).toBe("number");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(result!.score).toBeGreaterThanOrEqual(0);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     expect(result!.score).toBeLessThanOrEqual(100);
   });
 

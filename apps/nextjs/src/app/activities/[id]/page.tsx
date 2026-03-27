@@ -298,14 +298,14 @@ function RunningFormRow({
 function LapTable({
   laps,
 }: {
-  laps: Array<{
+  laps: {
     index: number;
     distanceMeters: number;
     durationSeconds: number;
     avgHr?: number;
     avgPace?: number;
     avgPower?: number;
-  }>;
+  }[];
 }) {
   const hasHr = laps.some((l) => l.avgHr);
   const hasPower = laps.some((l) => l.avgPower);
@@ -492,21 +492,21 @@ export default function ActivityDetailPage({
     activity.avgPower != null || activity.normalizedPower != null;
 
   // Prefer the pre-parsed laps column; fall back to rawGarminData.laps
-  const laps: Array<{
+  const laps: {
     index: number;
     distanceMeters: number;
     durationSeconds: number;
     avgHr?: number;
     avgPace?: number;
     avgPower?: number;
-  }> = (() => {
+  }[] = (() => {
     if (activity.laps != null && activity.laps.length > 0) {
       return activity.laps;
     }
 
     // Try extracting from rawGarminData
     const raw = activity.rawGarminData as
-      | { laps?: Array<Record<string, unknown>> }
+      | { laps?: Record<string, unknown>[] }
       | null
       | undefined;
     if (!raw?.laps || !Array.isArray(raw.laps) || raw.laps.length === 0) {

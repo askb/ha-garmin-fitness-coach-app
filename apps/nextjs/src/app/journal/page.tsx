@@ -209,16 +209,16 @@ export default function JournalPage() {
   const [syncedDate, setSyncedDate] = useState<string | null>(null);
   if (loadedDate && loadedDate !== syncedDate) {
     const entry = entryQuery.data;
-    setTags((entry?.tags as Record<string, boolean | number | string>) ?? {});
-    setNotes((entry?.notes as string) ?? "");
-    setSorenessScore((entry?.sorenessScore as number) ?? null);
-    setSorenessRegions((entry?.sorenessRegions as string[]) ?? []);
-    setMoodScore((entry?.moodScore as number) ?? null);
-    setCaffeineAmountMg((entry?.caffeineAmountMg as number) ?? null);
-    setCaffeineTime((entry?.caffeineTime as string) ?? "");
-    setAlcoholDrinks((entry?.alcoholDrinks as number) ?? null);
-    setNapMinutes((entry?.napMinutes as number) ?? null);
-    setMedicationsText(((entry?.medications as string[]) ?? []).join(", "));
+    setTags((entry?.tags!) ?? {});
+    setNotes((entry?.notes!) ?? "");
+    setSorenessScore((entry?.sorenessScore!) ?? null);
+    setSorenessRegions((entry?.sorenessRegions!) ?? []);
+    setMoodScore((entry?.moodScore!) ?? null);
+    setCaffeineAmountMg((entry?.caffeineAmountMg!) ?? null);
+    setCaffeineTime((entry?.caffeineTime!) ?? "");
+    setAlcoholDrinks((entry?.alcoholDrinks!) ?? null);
+    setNapMinutes((entry?.napMinutes!) ?? null);
+    setMedicationsText(((entry?.medications!) ?? []).join(", "));
     const phase = entry?.menstrualPhase as MenstrualPhase | undefined;
     setMenstrualPhase(phase ?? null);
     if (phase) setShowCycle(true);
@@ -673,10 +673,7 @@ export default function JournalPage() {
         ) : (
           <div className="space-y-2">
             {historyQuery.data.map((entry) => {
-              const entryTags = (entry.tags ?? {}) as Record<
-                string,
-                boolean | number | string
-              >;
+              const entryTags = (entry.tags ?? {});
               const activeTagKeys = Object.keys(entryTags);
               const isActive = entry.date === selectedDate;
 
@@ -730,7 +727,7 @@ export default function JournalPage() {
 
                       {entry.notes && (
                         <p className="text-muted-foreground mt-1 line-clamp-1 text-xs">
-                          {entry.notes as string}
+                          {entry.notes}
                         </p>
                       )}
                     </div>

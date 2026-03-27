@@ -32,7 +32,7 @@ type DB = any;
 function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 function fmtMin(mins: number | null | undefined): string {
@@ -95,6 +95,7 @@ export async function buildDataContext(
     baselines,
   ] = await Promise.all([
     // Last 14 days of daily metrics
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.DailyMetric.findMany({
       where: and(
         eq(DailyMetric.userId, userId),
@@ -105,6 +106,7 @@ export async function buildDataContext(
     }) as Promise<(typeof DailyMetric.$inferSelect)[]>,
 
     // Last 10 activities
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
@@ -115,23 +117,27 @@ export async function buildDataContext(
     }) as Promise<(typeof Activity.$inferSelect)[]>,
 
     // Profile
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.Profile.findFirst({
       where: eq(Profile.userId, userId),
     }) as Promise<typeof Profile.$inferSelect | undefined>,
 
     // Latest readiness score
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.ReadinessScore.findFirst({
       where: eq(ReadinessScore.userId, userId),
       orderBy: desc(ReadinessScore.date),
     }) as Promise<typeof ReadinessScore.$inferSelect | undefined>,
 
     // Latest VO2max estimate
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.VO2maxEstimate.findFirst({
       where: eq(VO2maxEstimate.userId, userId),
       orderBy: desc(VO2maxEstimate.date),
     }) as Promise<typeof VO2maxEstimate.$inferSelect | undefined>,
 
     // 30-day activities for zone distribution
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
@@ -142,6 +148,7 @@ export async function buildDataContext(
     }) as Promise<(typeof Activity.$inferSelect)[]>,
 
     // 7 days of journal entries
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.JournalEntry.findMany({
       where: and(
         eq(JournalEntry.userId, userId),
@@ -152,6 +159,7 @@ export async function buildDataContext(
     }) as Promise<(typeof JournalEntry.$inferSelect)[]>,
 
     // Last 10 interventions
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.Intervention.findMany({
       where: eq(Intervention.userId, userId),
       orderBy: desc(Intervention.date),
@@ -159,6 +167,7 @@ export async function buildDataContext(
     }) as Promise<(typeof Intervention.$inferSelect)[]>,
 
     // Latest advanced metrics (last 42 days for CTL/ATL/TSB history)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.AdvancedMetric.findMany({
       where: and(
         eq(AdvancedMetric.userId, userId),
@@ -169,6 +178,7 @@ export async function buildDataContext(
     }) as Promise<(typeof AdvancedMetric.$inferSelect)[]>,
 
     // Athlete baselines
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     db.query.AthleteBaseline.findMany({
       where: eq(AthleteBaseline.userId, userId),
     }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
@@ -237,7 +247,7 @@ export async function buildDataContext(
           `- Sleep baseline: ${Math.round(profile.sleepBaseline)} min`,
         );
 
-      const conditions = profile.healthConditions as string[] | null;
+      const conditions = profile.healthConditions;
       if (conditions && conditions.length > 0)
         lines.push(`- Health conditions: ${conditions.join(", ")}`);
 
@@ -536,7 +546,7 @@ export async function buildDataContext(
       for (const item of arr) {
         if (item.date <= target) {
           const v = getter(item);
-          return v != null ? v : null;
+          return v ?? null;
         }
       }
       return null;
@@ -780,7 +790,7 @@ export async function buildDataContext(
         const total = totalZ1 + totalZ2 + totalZ3 + totalZ4 + totalZ5 || 1;
         const pctZ12 = ((totalZ1 + totalZ2) / total) * 100;
         const pctZ3 = (totalZ3 / total) * 100;
-        const pctZ45 = ((totalZ4 + totalZ5) / total) * 100;
+        const _pctZ45 = ((totalZ4 + totalZ5) / total) * 100;
         const pct = (v: number) => ((v / total) * 100).toFixed(0);
         let advice = "";
         if (pctZ3 > 25) {

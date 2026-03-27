@@ -81,7 +81,7 @@ export const journalRouter = {
       const values = {
         userId,
         date,
-        tags: tags ?? {},
+        tags: tags,
         notes: notes ?? null,
         sorenessScore: sorenessScore ?? null,
         sorenessRegions: sorenessRegions ?? null,
@@ -100,7 +100,7 @@ export const journalRouter = {
         .onConflictDoUpdate({
           target: [JournalEntry.userId, JournalEntry.date],
           set: {
-            tags: tags ?? {},
+            tags: tags,
             notes: notes ?? null,
             sorenessScore: sorenessScore ?? null,
             sorenessRegions: sorenessRegions ?? null,

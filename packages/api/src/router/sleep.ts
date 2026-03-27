@@ -46,7 +46,7 @@ function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
 function getDateString(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const sleepRouter = {

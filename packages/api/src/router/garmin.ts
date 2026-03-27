@@ -11,7 +11,7 @@ import {
 import { protectedProcedure } from "../trpc";
 
 export const garminRouter = {
-  getConnectionStatus: protectedProcedure.query(async ({ ctx }) => {
+  getConnectionStatus: protectedProcedure.query(({ ctx: _ctx }) => {
     // TODO: Look up stored Garmin tokens for this user in the DB
     // For now return a mock connected status
     return {
@@ -21,8 +21,8 @@ export const garminRouter = {
     };
   }),
 
-  initiateOAuth: protectedProcedure.mutation(async () => {
-    const { authUrl, oauthTokenSecret } = initiateOAuth();
+  initiateOAuth: protectedProcedure.mutation(() => {
+    const { authUrl, oauthTokenSecret: _oauthTokenSecret } = initiateOAuth();
     // TODO: Store oauthTokenSecret in session/DB keyed to the user
     return { authUrl };
   }),
@@ -34,7 +34,7 @@ export const garminRouter = {
         oauthVerifier: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(({ ctx: _ctx, input }) => {
       const tokens = garminHandleCallback(
         input.oauthToken,
         input.oauthVerifier,

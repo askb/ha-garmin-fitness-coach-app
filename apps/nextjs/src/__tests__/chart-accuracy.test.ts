@@ -321,9 +321,9 @@ describe("Readiness Score Validation", () => {
       medium: false,
       high: false,
     };
-    expect(confidenceMap["low"]).toBe(true);
-    expect(confidenceMap["medium"]).toBe(false);
-    expect(confidenceMap["high"]).toBe(false);
+    expect(confidenceMap.low).toBe(true);
+    expect(confidenceMap.medium).toBe(false);
+    expect(confidenceMap.high).toBe(false);
 
     // Also verify the engine returns 'low' when data is insufficient
     const dayMissing3 = {

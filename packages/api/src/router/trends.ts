@@ -2,7 +2,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
 import { and, asc, desc, eq, gte } from "@acme/db";
-import { db as _dependencies_db } from "@acme/db/client";
+import type { db as _dependencies_db } from "@acme/db/client";
 import { Activity, DailyMetric, ReadinessScore } from "@acme/db/schema";
 import {
   analyzeTrend,
@@ -33,7 +33,7 @@ async function fetchStrainByDate(
   db: DB,
   userId: string,
   since: string,
-): Promise<Array<{ date: string; value: number }>> {
+): Promise<{ date: string; value: number }[]> {
   const activities = await db.query.Activity.findMany({
     where: and(
       eq(Activity.userId, userId),
@@ -45,7 +45,7 @@ async function fetchStrainByDate(
   // Group by date, take max strain per day
   const byDate = new Map<string, number>();
   for (const a of activities) {
-    const date = a.startedAt.toISOString().split("T")[0]!;
+    const date = a.startedAt.toISOString().split("T")[0] ?? "";
     const strain = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
     const existing = byDate.get(date) ?? 0;
     byDate.set(date, Math.max(existing, strain));
@@ -61,7 +61,7 @@ async function fetchMetricData(
   userId: string,
   metric: z.infer<typeof trendMetricEnum>,
   since: string,
-): Promise<Array<{ date: string; value: number }>> {
+): Promise<{ date: string; value: number }[]> {
   if (metric === "readiness") {
     const scores = await db.query.ReadinessScore.findMany({
       where: and(
@@ -93,16 +93,16 @@ async function fetchMetricData(
     stress: (m) => m.stressScore,
   };
 
-  const extractor = fieldMap[metric as keyof typeof fieldMap];
+  const extractor = fieldMap[metric];
   return metrics
     .filter((m) => extractor(m) !== null)
-    .map((m) => ({ date: m.date, value: extractor(m)! }));
+    .map((m) => ({ date: m.date, value: extractor(m) ?? 0 }));
 }
 
 function getDateString(daysAgo: number): string {
   const d = new Date();
   d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const trendsRouter = {
@@ -142,7 +142,7 @@ export const trendsRouter = {
           ? Math.round(
               metrics
                 .filter((m) => m.totalSleepMinutes !== null)
-                .reduce((sum, m) => sum + m.totalSleepMinutes!, 0) /
+                .reduce((sum, m) => sum + (m.totalSleepMinutes ?? 0), 0) /
                 metrics.filter((m) => m.totalSleepMinutes !== null).length,
             )
           : null;
@@ -152,7 +152,7 @@ export const trendsRouter = {
           ? Math.round(
               (metrics
                 .filter((m) => m.hrv !== null)
-                .reduce((sum, m) => sum + m.hrv!, 0) /
+                .reduce((sum, m) => sum + (m.hrv ?? 0), 0) /
                 metrics.filter((m) => m.hrv !== null).length) *
                 10,
             ) / 10
@@ -296,7 +296,7 @@ export const trendsRouter = {
 
       return Object.fromEntries(entries) as Record<
         string,
-        Array<{ date: string; value: number }>
+        { date: string; value: number }[]
       >;
     }),
 } satisfies TRPCRouterRecord;

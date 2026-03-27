@@ -59,7 +59,7 @@ function dateStr(daysAgo: number): string {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
   d.setDate(d.getDate() - daysAgo);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 function dateAt(daysAgo: number, hour: number, minute = 0): Date {
@@ -273,7 +273,7 @@ async function seed() {
         calories = rng.int(700, 950);
         avgPower = rng.float(195, 240, 0);
         normalizedPower = parseFloat(
-          ((avgPower as number) * rng.float(1.02, 1.08, 3)).toFixed(0),
+          ((avgPower) * rng.float(1.02, 1.08, 3)).toFixed(0),
         );
         elevationGain = rng.float(300, 900, 0);
         avgCadence = rng.float(84, 94, 0);
@@ -308,7 +308,7 @@ async function seed() {
         ? { avgPace: avgPaceSecPerKm + rng.int(-5, 10) }
         : {}),
       ...(avgPower
-        ? { avgPower: (avgPower as number) + rng.int(-10, 10) }
+        ? { avgPower: (avgPower) + rng.int(-10, 10) }
         : {}),
     }));
 
@@ -546,7 +546,8 @@ async function seed() {
   let advancedCount = 0;
 
   for (let i = 0; i < days.length; i++) {
-    const day = days[i]!;
+    const day = days[i];
+    if (!day) continue;
     const { date, load } = day;
 
     const tsb = ctl - atl; // computed from yesterday's values

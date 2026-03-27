@@ -26,7 +26,7 @@ export const advancedMetricsRouter = {
         const since = new Date();
         since.setDate(since.getDate() - input.days);
         conditions.push(
-          gte(AdvancedMetric.date, since.toISOString().split("T")[0]!),
+          gte(AdvancedMetric.date, since.toISOString().split("T")[0] ?? ""),
         );
       }
       return ctx.db.query.AdvancedMetric.findMany({

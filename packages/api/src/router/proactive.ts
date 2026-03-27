@@ -3,7 +3,6 @@ import { z } from "zod/v4";
 
 import { and, desc, eq, gte } from "@acme/db";
 import {
-  Activity,
   AdvancedMetric,
   AiInsight,
   AthleteBaseline,
@@ -22,13 +21,13 @@ import { protectedProcedure } from "../trpc";
 function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split("T")[0]!;
+  return d.toISOString().split("T")[0] ?? "";
 }
 
 export const proactiveRouter = {
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.session.user.id;
-    const today = new Date().toISOString().split("T")[0]!;
+    const today = new Date().toISOString().split("T")[0] ?? "";
     const insights: (typeof AiInsight.$inferInsert)[] = [];
 
     // Parallel data fetch

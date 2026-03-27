@@ -209,15 +209,15 @@ function HealthProfile() {
 
   useEffect(() => {
     if (profile) {
-      setConditions((profile.healthConditions as string[]) ?? []);
+      setConditions((profile.healthConditions!) ?? []);
       setInjuries(
         (profile.currentInjuries as {
           bodyPart: string;
           severity: "mild" | "moderate" | "severe";
         }[]) ?? [],
       );
-      setMedications((profile.medications as string) ?? "");
-      setAllergies((profile.allergies as string) ?? "");
+      setMedications((profile.medications!) ?? "");
+      setAllergies((profile.allergies!) ?? "");
     }
   }, [profile]);
 
@@ -471,9 +471,7 @@ function GarminConnection() {
   // Inline ingress detection — no external deps
   const apiUrl = useCallback((path: string) => {
     if (typeof window === "undefined") return path;
-    const match = window.location.pathname.match(
-      /^(\/api\/hassio_ingress\/[^/]+)/,
-    );
+    const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(window.location.pathname);
     return match ? match[1] + path : path;
   }, []);
 
