@@ -8,13 +8,15 @@ import {
   ReadinessScore,
   Activity,
   Profile,
+  DailyMetric,
+  AdvancedMetric,
 } from "@acme/db/schema";
 import {
   generateDailyWorkout,
   adjustDifficulty,
   countConsecutiveHardDays,
 } from "@acme/engine";
-import type { ReadinessZone } from "@acme/engine";
+import type { ReadinessZone, RecoveryContext } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
@@ -74,6 +76,30 @@ export const workoutRouter = {
     const goal = (profile.goals as { sport: string; goalType: string }[])?.[0]?.goalType ?? "maintain";
     const availableDays = (profile.weeklyDays as string[])?.length ?? 3;
 
+    // Fetch recovery context for evidence-based workout modulation
+    const [dailyMetric, advancedMetric] = await Promise.all([
+      ctx.db.query.DailyMetric.findFirst({
+        where: and(
+          eq(DailyMetric.userId, userId),
+          eq(DailyMetric.date, today),
+        ),
+      }),
+      ctx.db.query.AdvancedMetric.findFirst({
+        where: and(
+          eq(AdvancedMetric.userId, userId),
+          eq(AdvancedMetric.date, today),
+        ),
+      }),
+    ]);
+
+    const recovery: RecoveryContext = {
+      acwr: (advancedMetric?.acwr as number) ?? null,
+      tsb: (advancedMetric?.tsb as number) ?? null,
+      bodyBattery: (dailyMetric?.bodyBatteryEnd as number) ?? null,
+      sleepDebtMinutes: (dailyMetric?.sleepDebtMinutes as number) ?? null,
+      stressScore: (dailyMetric?.stressScore as number) ?? null,
+    };
+
     const recommendation = generateDailyWorkout(
       sport,
       goal,
@@ -81,6 +107,7 @@ export const workoutRouter = {
       availableDays,
       zone,
       consecutiveHard,
+      recovery,
     );
 
     // Persist
