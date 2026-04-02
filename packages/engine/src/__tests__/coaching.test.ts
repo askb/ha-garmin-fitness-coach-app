@@ -35,9 +35,31 @@ describe("modulateWorkout", () => {
   const tempoTemplate = allTemplates.find((t) => t.id === "run-tempo")!;
   const easyTemplate = allTemplates.find((t) => t.id === "run-easy")!;
 
-  it("returns rest for poor readiness", () => {
+  it("returns active recovery for poor readiness without critical signals", () => {
     const result = modulateWorkout(tempoTemplate, "poor", "running");
+    expect(result.workoutType).toBe("active_recovery");
+    expect(result.targetHrZoneHigh).toBe(1);
+  });
+
+  it("returns rest for poor readiness with critical ACWR", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: 1.6, tsb: null, bodyBattery: null, sleepDebtMinutes: null, stressScore: null,
+    });
     expect(result.workoutType).toBe("rest");
+  });
+
+  it("returns rest for poor readiness with deep overreach TSB", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: null, tsb: -30, bodyBattery: null, sleepDebtMinutes: null, stressScore: null,
+    });
+    expect(result.workoutType).toBe("rest");
+  });
+
+  it("returns active recovery for poor readiness with moderate signals", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: 1.1, tsb: -10, bodyBattery: 35, sleepDebtMinutes: 60, stressScore: 50,
+    });
+    expect(result.workoutType).toBe("active_recovery");
   });
 
   it("substitutes easy on low readiness + hard workout", () => {
