@@ -93,11 +93,11 @@ export const workoutRouter = {
     ]);
 
     const recovery: RecoveryContext = {
-      acwr: (advancedMetric?.acwr as number) ?? null,
-      tsb: (advancedMetric?.tsb as number) ?? null,
-      bodyBattery: (dailyMetric?.bodyBatteryEnd as number) ?? null,
-      sleepDebtMinutes: (dailyMetric?.sleepDebtMinutes as number) ?? null,
-      stressScore: (dailyMetric?.stressScore as number) ?? null,
+      acwr: advancedMetric?.acwr ?? null,
+      tsb: advancedMetric?.tsb ?? null,
+      bodyBattery: dailyMetric?.bodyBatteryEnd ?? null,
+      sleepDebtMinutes: dailyMetric?.sleepDebtMinutes ?? null,
+      stressScore: dailyMetric?.stressScore ?? null,
     };
 
     const recommendation = generateDailyWorkout(

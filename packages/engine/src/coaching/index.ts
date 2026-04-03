@@ -146,7 +146,7 @@ function getActiveRecoveryRecommendation(sport: string, reason: string): Workout
     workoutType: "active_recovery",
     title: "Active Recovery",
     description: desc,
-    targetDurationMin: 20,
+    targetDurationMin: 30,
     targetDurationMax: 30,
     targetHrZoneLow: 1,
     targetHrZoneHigh: 1,
@@ -178,7 +178,8 @@ function recommendForPoorReadiness(
   sport: string,
   recovery: RecoveryContext | undefined,
 ): WorkoutRecommendation {
-  // Without recovery context, fall back to conservative rest
+  // Without recovery context, default to active recovery (conservative but
+  // not complete rest — active recovery promotes adaptation per Barnett 2006)
   if (!recovery) {
     return getActiveRecoveryRecommendation(
       sport,
