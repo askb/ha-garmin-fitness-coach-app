@@ -115,18 +115,34 @@ export const analyticsRouter = {
           eq(VO2maxEstimate.userId, userId),
           gte(VO2maxEstimate.date, getDateString(input.days)),
         ),
-        // 'running_pace_hr' < 'uth_method' lexically, so ACSM comes first per date
-        orderBy: [desc(VO2maxEstimate.date), asc(VO2maxEstimate.source)],
+        orderBy: [desc(VO2maxEstimate.date)],
       });
 
-      // Deduplicate: keep first (preferred) estimate per date
-      const seen = new Set<string>();
-      const estimates = allEstimates.filter((e) => {
-        const key = e.date;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+      // Deduplicate: keep the highest-priority source per date.
+      // Priority: garmin_official > running_pace_hr > cooper > uth_method
+      // Garmin's Firstbeat algorithm (pace+HR during runs) is far more accurate
+      // than the Uth ratio method (±5 ml/kg/min, overestimates for age >35).
+      // Ref: Uth et al. 2004, PMC8443998 (2021 age-correction study)
+      const SOURCE_PRIORITY: Record<string, number> = {
+        garmin_official: 0,
+        running_pace_hr: 1,
+        cooper: 2,
+        uth_method: 3,
+        uth_ratio: 3,
+      };
+      const bestByDate = new Map<string, typeof allEstimates[number]>();
+      for (const e of allEstimates) {
+        const existing = bestByDate.get(e.date);
+        const ePriority = SOURCE_PRIORITY[e.source] ?? 2;
+        const existingPriority = existing ? (SOURCE_PRIORITY[existing.source] ?? 2) : Infinity;
+        if (ePriority < existingPriority) {
+          bestByDate.set(e.date, e);
+        }
+      }
+      // Return in descending date order
+      const estimates = [...bestByDate.values()].sort(
+        (a, b) => b.date.localeCompare(a.date),
+      );
 
       const trend = computeVO2maxTrend(estimates);
 
@@ -136,19 +152,41 @@ export const analyticsRouter = {
   getRacePredictions: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const latest = await ctx.db.query.VO2maxEstimate.findFirst({
+    // Prefer garmin_official source, then running_pace_hr, then any.
+    // Uth method overestimates VO2max by 10-20% for age >35 (PMC8443998),
+    // which would produce unrealistically fast race predictions.
+    const recentEstimates = await ctx.db.query.VO2maxEstimate.findMany({
       where: and(
         eq(VO2maxEstimate.userId, userId),
-        eq(VO2maxEstimate.sport, "running"),
+        gte(VO2maxEstimate.date, getDateString(90)),
       ),
       orderBy: desc(VO2maxEstimate.date),
     });
 
-    if (!latest) {
-      return null;
-    }
+    const RACE_SOURCE_PRIORITY: Record<string, number> = {
+      garmin_official: 0,
+      running_pace_hr: 1,
+      cooper: 2,
+      uth_method: 4,
+      uth_ratio: 4,
+    };
 
-    return predictRaceTimesFromVO2max(latest.value);
+    const best = recentEstimates.reduce<typeof recentEstimates[number] | null>(
+      (acc, e) => {
+        if (!acc) return e;
+        const aPriority = RACE_SOURCE_PRIORITY[acc.source] ?? 3;
+        const ePriority = RACE_SOURCE_PRIORITY[e.source] ?? 3;
+        if (ePriority < aPriority) return e;
+        // Same priority: prefer more recent
+        if (ePriority === aPriority && e.date > acc.date) return e;
+        return acc;
+      },
+      null,
+    );
+
+    if (!best) return null;
+
+    return predictRaceTimesFromVO2max(best.value);
   }),
 
   getCorrelations: protectedProcedure
