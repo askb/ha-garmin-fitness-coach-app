@@ -33,7 +33,6 @@ describe("selectWeeklyTemplate", () => {
 
 describe("modulateWorkout", () => {
   const tempoTemplate = allTemplates.find((t) => t.id === "run-tempo")!;
-  const easyTemplate = allTemplates.find((t) => t.id === "run-easy")!;
 
   it("returns active recovery for poor readiness without critical signals", () => {
     const result = modulateWorkout(tempoTemplate, "poor", "running");
@@ -53,6 +52,27 @@ describe("modulateWorkout", () => {
       acwr: null, tsb: -30, bodyBattery: null, sleepDebtMinutes: null, stressScore: null,
     });
     expect(result.workoutType).toBe("rest");
+  });
+
+  it("returns rest for poor readiness with critically low body battery", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: null, tsb: null, bodyBattery: 15, sleepDebtMinutes: null, stressScore: null,
+    });
+    expect(result.workoutType).toBe("rest");
+  });
+
+  it("returns rest for poor readiness with high sleep debt", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: null, tsb: null, bodyBattery: null, sleepDebtMinutes: 200, stressScore: null,
+    });
+    expect(result.workoutType).toBe("rest");
+  });
+
+  it("returns active recovery for poor readiness with all-null recovery context", () => {
+    const result = modulateWorkout(tempoTemplate, "poor", "running", {
+      acwr: null, tsb: null, bodyBattery: null, sleepDebtMinutes: null, stressScore: null,
+    });
+    expect(result.workoutType).toBe("active_recovery");
   });
 
   it("returns active recovery for poor readiness with moderate signals", () => {

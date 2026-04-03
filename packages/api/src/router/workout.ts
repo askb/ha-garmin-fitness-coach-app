@@ -76,29 +76,32 @@ export const workoutRouter = {
     const goal = (profile.goals as { sport: string; goalType: string }[])?.[0]?.goalType ?? "maintain";
     const availableDays = (profile.weeklyDays as string[])?.length ?? 3;
 
-    // Fetch recovery context for evidence-based workout modulation
-    const [dailyMetric, advancedMetric] = await Promise.all([
-      ctx.db.query.DailyMetric.findFirst({
-        where: and(
-          eq(DailyMetric.userId, userId),
-          eq(DailyMetric.date, today),
-        ),
-      }),
-      ctx.db.query.AdvancedMetric.findFirst({
-        where: and(
-          eq(AdvancedMetric.userId, userId),
-          eq(AdvancedMetric.date, today),
-        ),
-      }),
-    ]);
+    // Only fetch recovery context when the engine actually uses it (poor/low zones)
+    let recovery: RecoveryContext | undefined;
+    if (zone === "poor" || zone === "low") {
+      const [dailyMetric, advancedMetric] = await Promise.all([
+        ctx.db.query.DailyMetric.findFirst({
+          where: and(
+            eq(DailyMetric.userId, userId),
+            eq(DailyMetric.date, today),
+          ),
+        }),
+        ctx.db.query.AdvancedMetric.findFirst({
+          where: and(
+            eq(AdvancedMetric.userId, userId),
+            eq(AdvancedMetric.date, today),
+          ),
+        }),
+      ]);
 
-    const recovery: RecoveryContext = {
-      acwr: advancedMetric?.acwr ?? null,
-      tsb: advancedMetric?.tsb ?? null,
-      bodyBattery: dailyMetric?.bodyBatteryEnd ?? null,
-      sleepDebtMinutes: dailyMetric?.sleepDebtMinutes ?? null,
-      stressScore: dailyMetric?.stressScore ?? null,
-    };
+      recovery = {
+        acwr: advancedMetric?.acwr ?? null,
+        tsb: advancedMetric?.tsb ?? null,
+        bodyBattery: dailyMetric?.bodyBatteryEnd ?? null,
+        sleepDebtMinutes: dailyMetric?.sleepDebtMinutes ?? null,
+        stressScore: dailyMetric?.stressScore ?? null,
+      };
+    }
 
     const recommendation = generateDailyWorkout(
       sport,

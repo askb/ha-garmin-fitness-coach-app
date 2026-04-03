@@ -178,9 +178,12 @@ function recommendForPoorReadiness(
   sport: string,
   recovery: RecoveryContext | undefined,
 ): WorkoutRecommendation {
-  // Without recovery context, default to active recovery (conservative but
-  // not complete rest — active recovery promotes adaptation per Barnett 2006)
-  if (!recovery) {
+  // Without recovery context (or all-null fields), default to active recovery
+  // (conservative but not complete rest — promotes adaptation per Barnett 2006)
+  const hasAnySignal = recovery &&
+    (recovery.acwr !== null || recovery.tsb !== null ||
+     recovery.bodyBattery !== null || recovery.sleepDebtMinutes !== null);
+  if (!hasAnySignal) {
     return getActiveRecoveryRecommendation(
       sport,
       "Readiness is poor — light active recovery to promote blood flow.",
