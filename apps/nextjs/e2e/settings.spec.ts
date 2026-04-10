@@ -1,11 +1,9 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Settings page", () => {
   test("renders settings heading", async ({ page }) => {
     await page.goto("/settings");
-    await expect(
-      page.getByRole("heading", { name: "Settings" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   });
 
   test("shows profile section", async ({ page }) => {
@@ -16,7 +14,9 @@ test.describe("Settings page", () => {
   test("shows Garmin connection section", async ({ page }) => {
     await page.goto("/settings");
     await expect(page.getByText("Garmin Connection")).toBeVisible();
-    await expect(page.getByText("Garmin Connect", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Garmin Connect", { exact: true }),
+    ).toBeVisible();
   });
 
   test("shows data & privacy section", async ({ page }) => {

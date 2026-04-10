@@ -1,7 +1,9 @@
 import type { TRPCRouterRecord } from "@trpc/server";
+
 import { and, desc, eq, gte } from "@acme/db";
 import { AthleteBaseline, DailyMetric, Profile } from "@acme/db/schema";
 import { computeBaselines, computeZScore } from "@acme/engine";
+
 import { protectedProcedure } from "../trpc";
 
 function dateNDaysAgo(n: number): string {
@@ -58,7 +60,7 @@ export const baselinesRouter = {
         floorsClimbed: m.floorsClimbed,
         bodyBatteryHigh: m.bodyBatteryHigh,
         bodyBatteryLow: m.bodyBatteryLow,
-        hrvOvernight: m.hrvOvernight as number[] | null,
+        hrvOvernight: m.hrvOvernight,
         sleepStartTime: m.sleepStartTime,
         sleepEndTime: m.sleepEndTime,
         sleepNeedMinutes: m.sleepNeedMinutes,
@@ -70,15 +72,31 @@ export const baselinesRouter = {
 
     const latest = metrics90[0];
     const metricUpdates = [
-      { name: "hrv", val: baselines.hrv, sd: baselines.hrvSD, latestVal: latest?.hrv },
-      { name: "restingHr", val: baselines.restingHr, sd: baselines.restingHrSD, latestVal: latest?.restingHr },
-      { name: "sleep", val: baselines.sleep, sd: baselines.sleepSD, latestVal: latest?.totalSleepMinutes },
+      {
+        name: "hrv",
+        val: baselines.hrv,
+        sd: baselines.hrvSD,
+        latestVal: latest?.hrv,
+      },
+      {
+        name: "restingHr",
+        val: baselines.restingHr,
+        sd: baselines.restingHrSD,
+        latestVal: latest?.restingHr,
+      },
+      {
+        name: "sleep",
+        val: baselines.sleep,
+        sd: baselines.sleepSD,
+        latestVal: latest?.totalSleepMinutes,
+      },
     ];
 
     const results = [];
     for (const m of metricUpdates) {
       if (!m.val) continue;
-      const zScore = m.latestVal && m.sd ? computeZScore(m.latestVal, m.val, m.sd) : null;
+      const zScore =
+        m.latestVal && m.sd ? computeZScore(m.latestVal, m.val, m.sd) : null;
       const [row] = await ctx.db
         .insert(AthleteBaseline)
         .values({

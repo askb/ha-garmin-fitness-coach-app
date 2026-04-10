@@ -29,19 +29,19 @@ Reason           : First formal constitution establishing governance,
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Node.js 22, pnpm 10.x, Turborepo |
-| Framework | Next.js 16 (App Router, Turbopack) |
-| API | tRPC v11 + React Query |
-| Database | Drizzle ORM + PostgreSQL 16 |
-| Auth | Better-Auth |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Charts | Recharts |
-| AI | Ollama (local), OpenAI (optional) |
-| Testing | Vitest (239 tests) |
-| Package Manager | pnpm 10.x |
-| Build Orchestration | Turborepo |
+| Layer               | Technology                         |
+| ------------------- | ---------------------------------- |
+| Runtime             | Node.js 22, pnpm 10.x, Turborepo   |
+| Framework           | Next.js 16 (App Router, Turbopack) |
+| API                 | tRPC v11 + React Query             |
+| Database            | Drizzle ORM + PostgreSQL 16        |
+| Auth                | Better-Auth                        |
+| Styling             | Tailwind CSS v4 + shadcn/ui        |
+| Charts              | Recharts                           |
+| AI                  | Ollama (local), OpenAI (optional)  |
+| Testing             | Vitest (239 tests)                 |
+| Package Manager     | pnpm 10.x                          |
+| Build Orchestration | Turborepo                          |
 
 ---
 
@@ -270,4 +270,4 @@ documentation, **this constitution takes precedence**.
 
 ---
 
-*End of Constitution v1.0.0*
+_End of Constitution v1.0.0_

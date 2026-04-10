@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 
-import {
-  verifyWebhookSignature,
-  parseWebhookPayload,
-} from "@acme/garmin/webhook";
-import {
-  normalizeDailySummary,
-  normalizeActivity,
-} from "@acme/garmin/normalize";
-import type { GarminDailySummary, GarminActivity } from "@acme/garmin/webhook";
+import type { GarminActivity, GarminDailySummary } from "@acme/garmin/webhook";
 import { db } from "@acme/db/client";
 import { Activity, DailyMetric } from "@acme/db/schema";
+import {
+  normalizeActivity,
+  normalizeDailySummary,
+} from "@acme/garmin/normalize";
+import {
+  parseWebhookPayload,
+  verifyWebhookSignature,
+} from "@acme/garmin/webhook";
 
 /** Garmin verification ping. */
 export function GET() {

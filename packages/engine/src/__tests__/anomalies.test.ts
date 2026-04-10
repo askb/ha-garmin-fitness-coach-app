@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import type { Baselines, DailyMetricInput } from "../types";
 import { detectAnomalies } from "../anomalies";
-import type { DailyMetricInput, Baselines } from "../types";
 
 const BASELINE: Baselines = {
   hrv: 45,
@@ -13,7 +14,9 @@ const BASELINE: Baselines = {
   daysOfData: 30,
 };
 
-function makeMetric(overrides: Partial<DailyMetricInput> = {}): DailyMetricInput {
+function makeMetric(
+  overrides: Partial<DailyMetricInput> = {},
+): DailyMetricInput {
   return {
     date: "2026-03-15",
     sleepScore: null,
@@ -101,7 +104,10 @@ describe("detectAnomalies", () => {
   it("detects overreaching (ACWR > 1.5)", () => {
     const metrics = [makeMetric(), makeMetric(), makeMetric()];
     // Need 7+ strain scores for ACWR calculation (7-day acute / 28-day chronic)
-    const strains = [20, 20, 20, 20, 20, 20, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+    const strains = [
+      20, 20, 20, 20, 20, 20, 20, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+      5, 5, 5, 5, 5, 5,
+    ];
     const alerts = detectAnomalies(metrics, BASELINE, strains);
     expect(alerts.find((a) => a.type === "overreaching")).toBeDefined();
   });

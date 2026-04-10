@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
-import { cn } from "@acme/ui";
+
 import { useTRPC } from "~/trpc/react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BottomNav } from "../_components/bottom-nav";
 
 const HEALTH_CONDITIONS = [
@@ -24,14 +25,28 @@ const HEALTH_CONDITIONS = [
 ];
 
 const BODY_PARTS = [
-  "knee", "ankle", "hip", "shoulder", "lower_back", "upper_back",
-  "wrist", "elbow", "neck", "foot", "shin", "hamstring", "calf", "quad",
+  "knee",
+  "ankle",
+  "hip",
+  "shoulder",
+  "lower_back",
+  "upper_back",
+  "wrist",
+  "elbow",
+  "neck",
+  "foot",
+  "shin",
+  "hamstring",
+  "calf",
+  "quad",
 ];
 
 function ProfileEditor() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data: profile, isLoading } = useQuery(trpc.profile.get.queryOptions());
+  const { data: profile, isLoading } = useQuery(
+    trpc.profile.get.queryOptions(),
+  );
 
   const [editing, setEditing] = useState(false);
   const [age, setAge] = useState("");
@@ -51,7 +66,9 @@ function ProfileEditor() {
   const upsertProfile = useMutation(
     trpc.profile.upsert.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: trpc.profile.get.queryKey() });
+        void queryClient.invalidateQueries({
+          queryKey: trpc.profile.get.queryKey(),
+        });
         setEditing(false);
       },
     }),
@@ -60,7 +77,7 @@ function ProfileEditor() {
   if (isLoading) {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Athlete Profile
         </h2>
         <p className="text-muted-foreground text-sm">Loading profile…</p>
@@ -72,7 +89,7 @@ function ProfileEditor() {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
             Athlete Profile
           </h2>
           <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
@@ -103,13 +120,17 @@ function ProfileEditor() {
 
   return (
     <div className="bg-card space-y-3 rounded-2xl border p-4">
-      <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+      <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
         Athlete Profile
       </h2>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Age</Label>
-          <Input type="number" value={age} onChange={(e) => setAge(e.target.value)} />
+          <Input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
         </div>
         <div>
           <Label>Sex</Label>
@@ -132,11 +153,19 @@ function ProfileEditor() {
         </div>
         <div>
           <Label>Weight (kg)</Label>
-          <Input type="number" value={massKg} onChange={(e) => setMassKg(e.target.value)} />
+          <Input
+            type="number"
+            value={massKg}
+            onChange={(e) => setMassKg(e.target.value)}
+          />
         </div>
         <div>
           <Label>Height (cm)</Label>
-          <Input type="number" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
+          <Input
+            type="number"
+            value={heightCm}
+            onChange={(e) => setHeightCm(e.target.value)}
+          />
         </div>
       </div>
       <div className="flex gap-2">
@@ -166,29 +195,38 @@ function ProfileEditor() {
 function HealthProfile() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data: profile, isLoading } = useQuery(trpc.profile.get.queryOptions());
+  const { data: profile, isLoading } = useQuery(
+    trpc.profile.get.queryOptions(),
+  );
 
   const [editing, setEditing] = useState(false);
   const [conditions, setConditions] = useState<string[]>([]);
-  const [injuries, setInjuries] = useState<{ bodyPart: string; severity: "mild" | "moderate" | "severe" }[]>([]);
+  const [injuries, setInjuries] = useState<
+    { bodyPart: string; severity: "mild" | "moderate" | "severe" }[]
+  >([]);
   const [medications, setMedications] = useState("");
   const [allergies, setAllergies] = useState("");
 
   useEffect(() => {
     if (profile) {
-      setConditions((profile.healthConditions as string[]) ?? []);
+      setConditions((profile.healthConditions!) ?? []);
       setInjuries(
-        (profile.currentInjuries as { bodyPart: string; severity: "mild" | "moderate" | "severe" }[]) ?? [],
+        (profile.currentInjuries as {
+          bodyPart: string;
+          severity: "mild" | "moderate" | "severe";
+        }[]) ?? [],
       );
-      setMedications((profile.medications as string) ?? "");
-      setAllergies((profile.allergies as string) ?? "");
+      setMedications((profile.medications!) ?? "");
+      setAllergies((profile.allergies!) ?? "");
     }
   }, [profile]);
 
   const updateHealth = useMutation(
     trpc.profile.updateHealth.mutationOptions({
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: trpc.profile.get.queryKey() });
+        void queryClient.invalidateQueries({
+          queryKey: trpc.profile.get.queryKey(),
+        });
         setEditing(false);
       },
     }),
@@ -197,16 +235,13 @@ function HealthProfile() {
   if (isLoading) return null;
 
   const hasAny =
-    conditions.length > 0 ||
-    injuries.length > 0 ||
-    medications ||
-    allergies;
+    conditions.length > 0 || injuries.length > 0 || medications || allergies;
 
   if (!editing) {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+          <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
             Health & Safety
           </h2>
           <Button variant="ghost" size="sm" onClick={() => setEditing(true)}>
@@ -219,7 +254,10 @@ function HealthProfile() {
               <p>
                 <span className="text-muted-foreground">Conditions:</span>{" "}
                 {conditions
-                  .map((c) => HEALTH_CONDITIONS.find((h) => h.id === c)?.label ?? c)
+                  .map(
+                    (c) =>
+                      HEALTH_CONDITIONS.find((h) => h.id === c)?.label ?? c,
+                  )
                   .join(", ")}
               </p>
             )}
@@ -256,7 +294,7 @@ function HealthProfile() {
 
   return (
     <div className="bg-card space-y-4 rounded-2xl border p-4">
-      <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+      <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
         Health & Safety
       </h2>
 
@@ -300,13 +338,16 @@ function HealthProfile() {
                   setInjuries((prev) =>
                     existing
                       ? prev.filter((i) => i.bodyPart !== part)
-                      : [...prev, { bodyPart: part, severity: "mild" as const }],
+                      : [
+                          ...prev,
+                          { bodyPart: part, severity: "mild" as const },
+                        ],
                   )
                 }
                 className={cn(
                   "rounded-full border px-2 py-1 text-xs capitalize transition-colors",
                   existing
-                    ? "border-amber-500 bg-amber-500/10 text-amber-600 font-medium"
+                    ? "border-amber-500 bg-amber-500/10 font-medium text-amber-600"
                     : "text-muted-foreground hover:border-foreground/30",
                 )}
               >
@@ -318,8 +359,11 @@ function HealthProfile() {
         {injuries.length > 0 && (
           <div className="mt-2 space-y-1">
             {injuries.map((injury) => (
-              <div key={injury.bodyPart} className="flex items-center gap-2 text-xs">
-                <span className="min-w-[70px] capitalize font-medium">
+              <div
+                key={injury.bodyPart}
+                className="flex items-center gap-2 text-xs"
+              >
+                <span className="min-w-[70px] font-medium capitalize">
                   {injury.bodyPart.replace("_", " ")}:
                 </span>
                 {(["mild", "moderate", "severe"] as const).map((sev) => (
@@ -328,7 +372,9 @@ function HealthProfile() {
                     onClick={() =>
                       setInjuries((prev) =>
                         prev.map((i) =>
-                          i.bodyPart === injury.bodyPart ? { ...i, severity: sev } : i,
+                          i.bodyPart === injury.bodyPart
+                            ? { ...i, severity: sev }
+                            : i,
                         ),
                       )
                     }
@@ -425,9 +471,7 @@ function GarminConnection() {
   // Inline ingress detection — no external deps
   const apiUrl = useCallback((path: string) => {
     if (typeof window === "undefined") return path;
-    const match = window.location.pathname.match(
-      /^(\/api\/hassio_ingress\/[^/]+)/,
-    );
+    const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(window.location.pathname);
     return match ? match[1] + path : path;
   }, []);
 
@@ -471,7 +515,7 @@ function GarminConnection() {
     const fetchSyncStatus = async () => {
       try {
         const res = await fetch(apiUrl("/api/garmin/sync"));
-        const data = await res.json() as {
+        const data = (await res.json()) as {
           syncing: boolean;
           phase: string;
           detail: string;
@@ -485,9 +529,12 @@ function GarminConnection() {
 
     void fetchSyncStatus();
     // Poll every 3s while syncing, 30s otherwise
-    const interval = setInterval(() => {
-      void fetchSyncStatus();
-    }, syncStatus?.syncing ? 3000 : 30000);
+    const interval = setInterval(
+      () => {
+        void fetchSyncStatus();
+      },
+      syncStatus?.syncing ? 3000 : 30000,
+    );
 
     return () => clearInterval(interval);
   }, [status?.connected, apiUrl, syncStatus?.syncing]);
@@ -496,7 +543,7 @@ function GarminConnection() {
     setTriggeringSyncState(true);
     try {
       const res = await fetch(apiUrl("/api/garmin/sync"), { method: "POST" });
-      const data = await res.json() as { success: boolean; message?: string };
+      const data = (await res.json()) as { success: boolean; message?: string };
       if (!data.success) {
         setError(data.message ?? "Failed to start sync");
       }
@@ -581,10 +628,12 @@ function GarminConnection() {
   if (loading) {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Garmin Connection
         </h2>
-        <p className="text-muted-foreground text-sm">Checking connection… {debugUrl && `(${debugUrl})`}</p>
+        <p className="text-muted-foreground text-sm">
+          Checking connection… {debugUrl && `(${debugUrl})`}
+        </p>
       </div>
     );
   }
@@ -593,7 +642,7 @@ function GarminConnection() {
   if (status?.connected) {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Garmin Connection
         </h2>
         <div className="flex items-center gap-3">
@@ -616,16 +665,33 @@ function GarminConnection() {
         {syncStatus?.syncing ? (
           <div className="space-y-2 pt-2">
             <div className="flex items-center gap-2">
-              <svg className="h-4 w-4 animate-spin text-primary" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <svg
+                className="text-primary h-4 w-4 animate-spin"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
               </svg>
-              <span className="text-sm font-medium text-primary">Syncing...</span>
+              <span className="text-primary text-sm font-medium">
+                Syncing...
+              </span>
             </div>
             <p className="text-muted-foreground text-xs">
               {syncStatus.detail || syncStatus.phase}
             </p>
-            <div className="bg-muted h-1.5 w-full rounded-full overflow-hidden">
+            <div className="bg-muted h-1.5 w-full overflow-hidden rounded-full">
               <div
                 className="bg-primary h-full rounded-full transition-all duration-500"
                 style={{ width: `${syncStatus.progress}%` }}
@@ -660,7 +726,7 @@ function GarminConnection() {
   if (showMfa) {
     return (
       <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Garmin Connection
         </h2>
         <p className="text-sm">
@@ -703,7 +769,7 @@ function GarminConnection() {
   // Disconnected — login form
   return (
     <div className="bg-card space-y-3 rounded-2xl border p-4">
-      <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+      <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
         Garmin Connection
       </h2>
       <div className="flex items-center gap-3">
@@ -745,7 +811,7 @@ function GarminConnection() {
 
 export default function SettingsPage() {
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
       <h1 className="text-2xl font-bold">Settings</h1>
 
       {/* Athlete Profile */}
@@ -759,7 +825,7 @@ export default function SettingsPage() {
 
       {/* Data & Privacy */}
       <div className="bg-card space-y-3 rounded-2xl border p-4">
-        <h2 className="text-muted-foreground text-sm font-semibold uppercase tracking-wider">
+        <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
           Data & Privacy
         </h2>
         <p className="text-muted-foreground text-xs">
@@ -769,10 +835,10 @@ export default function SettingsPage() {
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
           <p className="text-xs text-amber-700 dark:text-amber-400">
             <strong>⚠️ Medical Disclaimer:</strong> PulseCoach provides
-            AI-generated fitness guidance and is not a substitute for professional
-            medical advice, diagnosis, or treatment. Always consult a qualified
-            healthcare professional before starting or modifying any exercise
-            program. Individual results may vary.
+            AI-generated fitness guidance and is not a substitute for
+            professional medical advice, diagnosis, or treatment. Always consult
+            a qualified healthcare professional before starting or modifying any
+            exercise program. Individual results may vary.
           </p>
         </div>
       </div>

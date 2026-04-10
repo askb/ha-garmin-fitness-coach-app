@@ -12,13 +12,13 @@ SPDX-License-Identifier: Apache-2.0
      Remove instructional HTML comments from the final task list.
 -->
 
-| Field         | Value |
-| ------------- | ----- |
-| Feature       | [Feature Name] |
-| Spec          | `specs/###-feature/spec.md` |
-| Plan          | `specs/###-feature/plan.md` |
-| Data Model    | `specs/###-feature/data-model.md` |
-| Contracts     | `specs/###-feature/contracts/` |
+| Field         | Value                                          |
+| ------------- | ---------------------------------------------- |
+| Feature       | [Feature Name]                                 |
+| Spec          | `specs/###-feature/spec.md`                    |
+| Plan          | `specs/###-feature/plan.md`                    |
+| Data Model    | `specs/###-feature/data-model.md`              |
+| Contracts     | `specs/###-feature/contracts/`                 |
 | Prerequisites | Phase 0 & Phase 1 of the plan must be complete |
 
 ---
@@ -41,13 +41,13 @@ Each task follows this format:
 
 <!-- SPECKIT: These are fixed for this T3 Turbo monorepo. -->
 
-| Layer   | Path |
-| ------- | ---- |
-| Engine  | `packages/engine/src/` |
-| API     | `packages/api/src/router/` |
-| DB      | `packages/db/src/schema/` |
-| UI      | `apps/nextjs/src/app/` |
-| Tests   | `packages/engine/src/__tests__/` |
+| Layer        | Path                                     |
+| ------------ | ---------------------------------------- |
+| Engine       | `packages/engine/src/`                   |
+| API          | `packages/api/src/router/`               |
+| DB           | `packages/db/src/schema/`                |
+| UI           | `apps/nextjs/src/app/`                   |
+| Tests        | `packages/engine/src/__tests__/`         |
 | Shared Types | `packages/engine/src/[feature]/types.ts` |
 
 ---
@@ -182,6 +182,7 @@ TASK-022 → TASK-023  (API needed before UI wiring)
 
 3. **Small commits** — One task per commit where practical. Use the
    task ID in the commit message:
+
    ```
    feat(engine): implement training load calculation [TASK-021]
    ```

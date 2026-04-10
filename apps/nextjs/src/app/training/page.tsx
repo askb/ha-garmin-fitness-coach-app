@@ -1,27 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  AreaChart,
   Area,
-  BarChart,
+  AreaChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
   ComposedChart,
   Line,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  ReferenceLine,
 } from "recharts";
-import { useTRPC } from "~/trpc/react";
-import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
+
+import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
 
@@ -74,7 +75,9 @@ export default function TrainingLoadPage() {
     trpc.trends.getChart.queryOptions({ metric: "stress", days: 14 }),
   );
   // @ts-ignore — route added by gc-backend branch
-  const pmcData = useQuery(trpc.advancedMetrics.list.queryOptions({ days: pmcDays }));
+  const pmcData = useQuery(
+    trpc.advancedMetrics.list.queryOptions({ days: pmcDays }),
+  );
 
   /* ── derive PMC chart data ── */
   interface PmcEntry {
@@ -84,24 +87,26 @@ export default function TrainingLoadPage() {
     tsb?: number | null;
     acwr?: number | null;
   }
-  const pmcChartData = ((pmcData.data ?? []) as PmcEntry[]).map((d, idx, arr) => {
-    const showLabel = idx % 7 === 0;
-    return {
-      date: showLabel ? d.date?.slice(5) ?? "" : "",
-      fullDate: d.date ?? "",
-      ctl: d.ctl ?? null,
-      atl: d.atl ?? null,
-      tsb: d.tsb ?? null,
-      acwr: d.acwr ?? null,
-      tsbPos: (d.tsb ?? 0) >= 0 ? (d.tsb ?? 0) : 0,
-      tsbNeg: (d.tsb ?? 0) < 0 ? (d.tsb ?? 0) : 0,
-    };
-  });
+  const pmcChartData = ((pmcData.data ?? []) as PmcEntry[]).map(
+    (d, idx, arr) => {
+      const showLabel = idx % 7 === 0;
+      return {
+        date: showLabel ? (d.date?.slice(5) ?? "") : "",
+        fullDate: d.date ?? "",
+        ctl: d.ctl ?? null,
+        atl: d.atl ?? null,
+        tsb: d.tsb ?? null,
+        acwr: d.acwr ?? null,
+        tsbPos: (d.tsb ?? 0) >= 0 ? (d.tsb ?? 0) : 0,
+        tsbNeg: (d.tsb ?? 0) < 0 ? (d.tsb ?? 0) : 0,
+      };
+    },
+  );
 
   const currentAcwr = loads.data?.acwr;
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Training Load</h1>
@@ -155,7 +160,10 @@ export default function TrainingLoadPage() {
           <div className="bg-muted h-52 animate-pulse rounded-lg" />
         ) : pmcChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={220}>
-            <ComposedChart data={pmcChartData} margin={{ top: 5, right: 40, left: -10, bottom: 0 }}>
+            <ComposedChart
+              data={pmcChartData}
+              margin={{ top: 5, right: 40, left: -10, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="tsbPosGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
@@ -167,12 +175,36 @@ export default function TrainingLoadPage() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis dataKey="date" tick={{ fill: "#888", fontSize: 10 }} interval={0} />
-              <YAxis yAxisId="left" tick={{ fill: "#888", fontSize: 10 }} width={32} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fill: "#f97316", fontSize: 10 }} width={32} domain={[0, 2]} />
-              <ReferenceLine yAxisId="left" y={0} stroke="#555" strokeDasharray="4 2" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#888", fontSize: 10 }}
+                interval={0}
+              />
+              <YAxis
+                yAxisId="left"
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={32}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                tick={{ fill: "#f97316", fontSize: 10 }}
+                width={32}
+                domain={[0, 2]}
+              />
+              <ReferenceLine
+                yAxisId="left"
+                y={0}
+                stroke="#555"
+                strokeDasharray="4 2"
+              />
               <Tooltip
-                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 11 }}
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 11,
+                }}
                 formatter={(value: unknown, name: unknown) => {
                   const v = Number(value);
                   const n = String(name);
@@ -183,19 +215,71 @@ export default function TrainingLoadPage() {
                   return !isNaN(v) ? v.toFixed(1) : String(value);
                 }}
                 labelFormatter={(label, payload) => {
-                  const p = payload?.[0]?.payload as { fullDate?: string } | undefined;
+                  const p = payload?.[0]?.payload as
+                    | { fullDate?: string }
+                    | undefined;
                   return p?.fullDate ?? String(label);
                 }}
               />
               {/* TSB filled areas */}
-              <Area yAxisId="left" type="monotone" dataKey="tsbPos" fill="url(#tsbPosGrad)" stroke="none" name="TSB+" legendType="none" />
-              <Area yAxisId="left" type="monotone" dataKey="tsbNeg" fill="url(#tsbNegGrad)" stroke="none" name="TSB-" legendType="none" />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="tsbPos"
+                fill="url(#tsbPosGrad)"
+                stroke="none"
+                name="TSB+"
+                legendType="none"
+              />
+              <Area
+                yAxisId="left"
+                type="monotone"
+                dataKey="tsbNeg"
+                fill="url(#tsbNegGrad)"
+                stroke="none"
+                name="TSB-"
+                legendType="none"
+              />
               {/* CTL / ATL lines */}
-              <Line yAxisId="left" type="monotone" dataKey="ctl" stroke="#3b82f6" strokeWidth={2} dot={false} name="CTL" />
-              <Line yAxisId="left" type="monotone" dataKey="atl" stroke="#a855f7" strokeWidth={2} dot={false} name="ATL" />
-              <Line yAxisId="left" type="monotone" dataKey="tsb" stroke="#22c55e" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="TSB" />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="ctl"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={false}
+                name="CTL"
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="atl"
+                stroke="#a855f7"
+                strokeWidth={2}
+                dot={false}
+                name="ATL"
+              />
+              <Line
+                yAxisId="left"
+                type="monotone"
+                dataKey="tsb"
+                stroke="#22c55e"
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+                dot={false}
+                name="TSB"
+              />
               {/* ACWR on right axis */}
-              <Line yAxisId="right" type="monotone" dataKey="acwr" stroke="#f97316" strokeWidth={1.5} strokeDasharray="6 3" dot={false} name="ACWR" />
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="acwr"
+                stroke="#f97316"
+                strokeWidth={1.5}
+                strokeDasharray="6 3"
+                dot={false}
+                name="ACWR"
+              />
             </ComposedChart>
           </ResponsiveContainer>
         ) : (
@@ -213,7 +297,10 @@ export default function TrainingLoadPage() {
             { color: "#f97316", label: "ACWR (right)" },
           ].map((l) => (
             <span key={l.label} className="flex items-center gap-1">
-              <span className="inline-block h-0.5 w-5 rounded" style={{ background: l.color }} />
+              <span
+                className="inline-block h-0.5 w-5 rounded"
+                style={{ background: l.color }}
+              />
               <span className="text-muted-foreground">{l.label}</span>
             </span>
           ))}
@@ -232,7 +319,9 @@ export default function TrainingLoadPage() {
         ) : loads.isLoading ? (
           <div className="bg-muted h-12 animate-pulse rounded-lg" />
         ) : (
-          <p className="text-muted-foreground py-4 text-center text-sm">No data yet</p>
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            No data yet
+          </p>
         )}
       </div>
 
@@ -240,10 +329,24 @@ export default function TrainingLoadPage() {
       <div className="bg-card rounded-2xl border p-4">
         <h3 className="mb-3 text-sm font-semibold">Risk Zone Legend</h3>
         <div className="flex flex-wrap gap-3 text-xs">
-          <span className="flex items-center gap-1.5"><span className="text-base">⚫</span><span className="text-muted-foreground">&lt;0.8 — Under-training</span></span>
-          <span className="flex items-center gap-1.5"><span className="text-base">🟢</span><span className="text-muted-foreground">0.8–1.3 — Optimal</span></span>
-          <span className="flex items-center gap-1.5"><span className="text-base">🟡</span><span className="text-muted-foreground">1.3–1.5 — Caution</span></span>
-          <span className="flex items-center gap-1.5"><span className="text-base">🔴</span><span className="text-muted-foreground">&gt;1.5 — High Risk</span></span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-base">⚫</span>
+            <span className="text-muted-foreground">
+              &lt;0.8 — Under-training
+            </span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-base">🟢</span>
+            <span className="text-muted-foreground">0.8–1.3 — Optimal</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-base">🟡</span>
+            <span className="text-muted-foreground">1.3–1.5 — Caution</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="text-base">🔴</span>
+            <span className="text-muted-foreground">&gt;1.5 — High Risk</span>
+          </span>
         </div>
       </div>
 
@@ -276,7 +379,11 @@ export default function TrainingLoadPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={32} domain={[0, 21]} />
+              <YAxis
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={32}
+                domain={[0, 21]}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#18181b",
@@ -377,9 +484,7 @@ export default function TrainingLoadPage() {
             <p className="text-2xl font-bold text-blue-500">
               {loads.data.ctl.toFixed(1)}
             </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              CTL — Fitness
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">CTL — Fitness</p>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
               42-day chronic load
             </p>
@@ -390,9 +495,7 @@ export default function TrainingLoadPage() {
             <p className="text-2xl font-bold text-red-500">
               {loads.data.atl.toFixed(1)}
             </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              ATL — Fatigue
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">ATL — Fatigue</p>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
               7-day acute load
             </p>
@@ -420,16 +523,12 @@ export default function TrainingLoadPage() {
             <p
               className={cn(
                 "text-2xl font-bold",
-                loads.data.rampRate > 8
-                  ? "text-orange-500"
-                  : "text-foreground",
+                loads.data.rampRate > 8 ? "text-orange-500" : "text-foreground",
               )}
             >
               {loads.data.rampRate.toFixed(1)}
             </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              Ramp Rate
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">Ramp Rate</p>
             <p className="text-muted-foreground mt-0.5 text-[10px]">
               {loads.data.rampRate > 8 ? "⚠ High — injury risk" : "pts/week"}
             </p>
@@ -520,7 +619,11 @@ export default function TrainingLoadPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={28} domain={[0, 21]} />
+              <YAxis
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={28}
+                domain={[0, 21]}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#18181b",
@@ -630,7 +733,10 @@ function ACWRGaugeEnhanced({ value }: { value: number }) {
       <div className="relative h-5 w-full overflow-hidden rounded-full">
         <div className="flex h-full w-full">
           {segments.map((s) => (
-            <div key={s.label} style={{ width: s.width, backgroundColor: s.color + "60" }} />
+            <div
+              key={s.label}
+              style={{ width: s.width, backgroundColor: s.color + "60" }}
+            />
           ))}
         </div>
         {/* Marker */}
@@ -639,8 +745,12 @@ function ACWRGaugeEnhanced({ value }: { value: number }) {
           style={{ left: `calc(${pct}% - 3px)` }}
         />
       </div>
-      <div className="flex justify-between text-[10px] text-muted-foreground">
-        <span>0</span><span>0.8</span><span>1.3</span><span>1.5</span><span>2.0</span>
+      <div className="text-muted-foreground flex justify-between text-[10px]">
+        <span>0</span>
+        <span>0.8</span>
+        <span>1.3</span>
+        <span>1.5</span>
+        <span>2.0</span>
       </div>
       <p className="text-center">
         <span className="text-xl font-bold">{value.toFixed(2)}</span>

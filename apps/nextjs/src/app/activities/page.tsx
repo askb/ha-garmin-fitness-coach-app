@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
+import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -89,9 +89,7 @@ function formatTime(date: Date | string): string {
 
 function sportLabel(sportType: string | null): string {
   if (!sportType) return "Activity";
-  return sportType
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return sportType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ---------------------------------------------------------------------------
@@ -114,9 +112,7 @@ export default function ActivitiesPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold">Activities</h1>
-        <p className="text-muted-foreground text-sm">
-          Your recent workouts
-        </p>
+        <p className="text-muted-foreground text-sm">Your recent workouts</p>
       </div>
 
       {/* Sport Filter */}
@@ -141,10 +137,7 @@ export default function ActivitiesPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-card h-20 animate-pulse rounded-xl"
-            />
+            <div key={i} className="bg-card h-20 animate-pulse rounded-xl" />
           ))}
         </div>
       ) : !activities?.length ? (
@@ -200,9 +193,7 @@ export default function ActivitiesPage() {
                   )}
                 </div>
                 <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                  {a.avgHr != null && (
-                    <span>❤️ {a.avgHr}</span>
-                  )}
+                  {a.avgHr != null && <span>❤️ {a.avgHr}</span>}
                   {a.strainScore != null && (
                     <span>🔥 {Math.round(a.strainScore)}</span>
                   )}

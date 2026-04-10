@@ -15,13 +15,14 @@
  *   Hulin BT et al. Br J Sports Med. 2016;50(4):231-236.    (ACWR)
  *   Buchheit M. IJSPP. 2014;9:883-895.                      (HRV z-scores)
  */
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
+
 import {
-  computeTrainingLoads,
+  calculateSleepDebt,
   computeACWR,
   computeBaselines,
+  computeTrainingLoads,
   computeZScore,
-  calculateSleepDebt,
 } from "@acme/engine";
 
 import {
@@ -30,9 +31,9 @@ import {
   athleteBData,
   athleteBExpected,
   athleteCData,
-  simulateCTLATL,
   C_HRV_MEAN,
   C_HRV_SD,
+  simulateCTLATL,
 } from "./fixtures/athlete-90day";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

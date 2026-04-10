@@ -2,7 +2,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
 import { and, asc, desc, eq, gte } from "@acme/db";
-import { db as _dependencies_db } from "@acme/db/client";
+import type { db as _dependencies_db } from "@acme/db/client";
 import { Activity, DailyMetric, ReadinessScore } from "@acme/db/schema";
 import {
   analyzeTrend,
@@ -33,7 +33,7 @@ async function fetchStrainByDate(
   db: DB,
   userId: string,
   since: string,
-): Promise<Array<{ date: string; value: number }>> {
+): Promise<{ date: string; value: number }[]> {
   const activities = await db.query.Activity.findMany({
     where: and(
       eq(Activity.userId, userId),
@@ -61,7 +61,7 @@ async function fetchMetricData(
   userId: string,
   metric: z.infer<typeof trendMetricEnum>,
   since: string,
-): Promise<Array<{ date: string; value: number }>> {
+): Promise<{ date: string; value: number }[]> {
   if (metric === "readiness") {
     const scores = await db.query.ReadinessScore.findMany({
       where: and(
@@ -93,7 +93,7 @@ async function fetchMetricData(
     stress: (m) => m.stressScore,
   };
 
-  const extractor = fieldMap[metric as keyof typeof fieldMap];
+  const extractor = fieldMap[metric];
   return metrics
     .filter((m) => extractor(m) !== null)
     .map((m) => ({ date: m.date, value: extractor(m)! }));
@@ -150,10 +150,11 @@ export const trendsRouter = {
       const avgHrv =
         metrics.filter((m) => m.hrv !== null).length > 0
           ? Math.round(
-              metrics
+              (metrics
                 .filter((m) => m.hrv !== null)
                 .reduce((sum, m) => sum + m.hrv!, 0) /
-                metrics.filter((m) => m.hrv !== null).length * 10,
+                metrics.filter((m) => m.hrv !== null).length) *
+                10,
             ) / 10
           : null;
 
@@ -235,12 +236,7 @@ export const trendsRouter = {
       const userId = ctx.session.user.id;
       const since = getDateString(days);
 
-      const values = await fetchMetricData(
-        ctx.db,
-        userId,
-        input.metric,
-        since,
-      );
+      const values = await fetchMetricData(ctx.db, userId, input.metric, since);
       if (values.length === 0) return null;
 
       return analyzeTrend(values, input.metric, input.period);
@@ -258,12 +254,7 @@ export const trendsRouter = {
       const userId = ctx.session.user.id;
       const since = getDateString(input.days);
 
-      const values = await fetchMetricData(
-        ctx.db,
-        userId,
-        input.metric,
-        since,
-      );
+      const values = await fetchMetricData(ctx.db, userId, input.metric, since);
 
       return computeRollingAverage(values, input.window);
     }),
@@ -280,12 +271,7 @@ export const trendsRouter = {
       const userId = ctx.session.user.id;
       const since = getDateString(input.days);
 
-      const values = await fetchMetricData(
-        ctx.db,
-        userId,
-        input.metric,
-        since,
-      );
+      const values = await fetchMetricData(ctx.db, userId, input.metric, since);
 
       return findNotableChanges(values, input.metric, input.threshold);
     }),
@@ -310,7 +296,7 @@ export const trendsRouter = {
 
       return Object.fromEntries(entries) as Record<
         string,
-        Array<{ date: string; value: number }>
+        { date: string; value: number }[]
       >;
     }),
 } satisfies TRPCRouterRecord;

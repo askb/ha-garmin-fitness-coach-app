@@ -1,7 +1,9 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
+
 import { and, count, desc, eq, gte, sql } from "@acme/db";
 import { DataQualityLog } from "@acme/db/schema";
+
 import { protectedProcedure } from "../trpc";
 
 function dateNDaysAgo(n: number): string {
@@ -34,27 +36,32 @@ export const dataQualityRouter = {
         cnt: count(),
       })
       .from(DataQualityLog)
-      .where(and(eq(DataQualityLog.userId, userId), gte(DataQualityLog.date, since)))
+      .where(
+        and(eq(DataQualityLog.userId, userId), gte(DataQualityLog.date, since)),
+      )
       .groupBy(DataQualityLog.date, DataQualityLog.severity);
 
     // Aggregate counts per severity
     let errors = 0;
     let warnings = 0;
     let infos = 0;
-    const byDate: Record<string, { errors: number; warnings: number; infos: number }> = {};
+    const byDate: Record<
+      string,
+      { errors: number; warnings: number; infos: number }
+    > = {};
 
     for (const row of rows) {
       const d = row.date;
       byDate[d] ??= { errors: 0, warnings: 0, infos: 0 };
       if (row.severity === "error") {
         errors += row.cnt;
-        byDate[d]!.errors += row.cnt;
+        byDate[d].errors += row.cnt;
       } else if (row.severity === "warn") {
         warnings += row.cnt;
-        byDate[d]!.warnings += row.cnt;
+        byDate[d].warnings += row.cnt;
       } else {
         infos += row.cnt;
-        byDate[d]!.infos += row.cnt;
+        byDate[d].infos += row.cnt;
       }
     }
 

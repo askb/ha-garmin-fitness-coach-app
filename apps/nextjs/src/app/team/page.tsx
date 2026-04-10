@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
@@ -68,13 +68,17 @@ export default function TeamPage() {
     let url = newUrl.trim();
     try {
       const parsed = new URL(url.startsWith("http") ? url : `https://${url}`);
-      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid protocol");
+      if (!["http:", "https:"].includes(parsed.protocol))
+        throw new Error("Invalid protocol");
       url = parsed.href;
     } catch {
       toast.error("Please enter a valid HTTP/HTTPS URL");
       return;
     }
-    const updated = [...athletes, { name: newName.trim(), url, lastReadiness: null }];
+    const updated = [
+      ...athletes,
+      { name: newName.trim(), url, lastReadiness: null },
+    ];
     setAthletes(updated);
     saveAthletes(updated);
     setNewName("");
@@ -96,7 +100,7 @@ export default function TeamPage() {
   const acwr = loads.data?.acwr ?? null;
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Team</h1>
@@ -105,7 +109,7 @@ export default function TeamPage() {
 
       {/* ── Current Athlete ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider">
+        <h2 className="mb-3 text-sm font-semibold tracking-wider uppercase">
           Current Athlete
         </h2>
         {profile.isLoading ? (
@@ -119,7 +123,7 @@ export default function TeamPage() {
         ) : (
           <div className="flex items-center gap-4">
             {/* Avatar */}
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 text-xl font-bold text-primary">
+            <div className="bg-primary/20 text-primary flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold">
               {initials(athleteName)}
             </div>
             <div>
@@ -148,19 +152,46 @@ export default function TeamPage() {
         {/* Quick Stats */}
         <div className="mt-4 grid grid-cols-3 gap-3 text-center">
           <div className="bg-secondary/40 rounded-xl p-3">
-            <p className={cn("text-xl font-bold", currentReadiness != null && currentReadiness >= 70 ? "text-green-400" : currentReadiness != null && currentReadiness >= 50 ? "text-yellow-400" : "text-red-400")}>
+            <p
+              className={cn(
+                "text-xl font-bold",
+                currentReadiness != null && currentReadiness >= 70
+                  ? "text-green-400"
+                  : currentReadiness != null && currentReadiness >= 50
+                    ? "text-yellow-400"
+                    : "text-red-400",
+              )}
+            >
               {currentReadiness ?? "—"}
             </p>
             <p className="text-muted-foreground text-xs">Readiness</p>
           </div>
           <div className="bg-secondary/40 rounded-xl p-3">
-            <p className={cn("text-xl font-bold", tsb != null && tsb >= 0 ? "text-green-400" : "text-red-400")}>
-              {tsb != null ? (tsb >= 0 ? `+${tsb.toFixed(0)}` : tsb.toFixed(0)) : "—"}
+            <p
+              className={cn(
+                "text-xl font-bold",
+                tsb != null && tsb >= 0 ? "text-green-400" : "text-red-400",
+              )}
+            >
+              {tsb != null
+                ? tsb >= 0
+                  ? `+${tsb.toFixed(0)}`
+                  : tsb.toFixed(0)
+                : "—"}
             </p>
             <p className="text-muted-foreground text-xs">Form (TSB)</p>
           </div>
           <div className="bg-secondary/40 rounded-xl p-3">
-            <p className={cn("text-xl font-bold", acwr != null && acwr >= 0.8 && acwr <= 1.3 ? "text-green-400" : acwr != null && acwr > 1.5 ? "text-red-400" : "text-yellow-400")}>
+            <p
+              className={cn(
+                "text-xl font-bold",
+                acwr != null && acwr >= 0.8 && acwr <= 1.3
+                  ? "text-green-400"
+                  : acwr != null && acwr > 1.5
+                    ? "text-red-400"
+                    : "text-yellow-400",
+              )}
+            >
               {acwr != null ? acwr.toFixed(2) : "—"}
             </p>
             <p className="text-muted-foreground text-xs">ACWR</p>
@@ -171,7 +202,7 @@ export default function TeamPage() {
       {/* ── Saved Athletes ── */}
       {mounted && (
         <div className="bg-card rounded-2xl border p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider">
+          <h2 className="mb-3 text-sm font-semibold tracking-wider uppercase">
             Saved Athletes
           </h2>
           {athletes.length === 0 ? (
@@ -183,10 +214,10 @@ export default function TeamPage() {
               {athletes.map((athlete, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-xl bg-secondary/40 px-3 py-3"
+                  className="bg-secondary/40 flex items-center justify-between rounded-xl px-3 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
+                    <div className="bg-primary/20 text-primary flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold">
                       {initials(athlete.name)}
                     </div>
                     <div>
@@ -210,7 +241,7 @@ export default function TeamPage() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="text-muted-foreground hover:text-red-400 h-7 px-2 text-xs"
+                      className="text-muted-foreground h-7 px-2 text-xs hover:text-red-400"
                       onClick={() => removeAthlete(i)}
                     >
                       ✕
@@ -224,8 +255,8 @@ export default function TeamPage() {
       )}
 
       {/* ── Add Athlete ── */}
-      <div className="bg-card rounded-2xl border p-4 space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider">
+      <div className="bg-card space-y-3 rounded-2xl border p-4">
+        <h2 className="text-sm font-semibold tracking-wider uppercase">
           Add Athlete
         </h2>
         <div className="space-y-2">
@@ -234,7 +265,7 @@ export default function TeamPage() {
             placeholder="Athlete name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-sm focus:ring-2 focus:outline-none"
           />
           <input
             type="url"
@@ -242,7 +273,7 @@ export default function TeamPage() {
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addAthlete()}
-            className="bg-secondary/50 border-border w-full rounded-xl border p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+            className="bg-secondary/50 border-border focus:ring-primary/40 w-full rounded-xl border p-2.5 text-sm focus:ring-2 focus:outline-none"
           />
           <Button className="w-full" onClick={addAthlete}>
             Save Athlete
@@ -251,7 +282,7 @@ export default function TeamPage() {
       </div>
 
       {/* ── About Team Mode ── */}
-      <div className="bg-blue-500/10 rounded-2xl border border-blue-500/20 p-4">
+      <div className="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4">
         <h2 className="mb-2 text-sm font-semibold text-blue-400">
           ℹ️ About Team Mode
         </h2>

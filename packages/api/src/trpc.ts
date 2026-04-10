@@ -122,7 +122,11 @@ export const protectedProcedure = t.procedure
         return next({
           ctx: {
             session: {
-              user: { id: "seed-user-001", name: "Dev User", email: "dev@local" },
+              user: {
+                id: "seed-user-001",
+                name: "Dev User",
+                email: "dev@local",
+              },
               session: { id: "dev-session" },
             },
           },

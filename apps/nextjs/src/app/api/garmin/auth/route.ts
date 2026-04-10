@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 
 const AUTH_SERVER = "http://127.0.0.1:8099";
 const IS_ADDON = process.env.NODE_ENV === "production";

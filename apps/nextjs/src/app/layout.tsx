@@ -5,10 +5,10 @@ import { cn } from "@acme/ui";
 import { ThemeProvider, ThemeToggle } from "@acme/ui/theme";
 import { Toaster } from "@acme/ui/toast";
 
-import { env } from "~/env";
-import { TRPCReactProvider } from "~/trpc/react";
 import { HamburgerMenu } from "~/app/_components/hamburger-menu";
 import { IngressProvider } from "~/app/_components/ingress-provider";
+import { env } from "~/env";
+import { TRPCReactProvider } from "~/trpc/react";
 
 import "~/app/styles.css";
 
@@ -23,7 +23,8 @@ export const metadata: Metadata = {
     "WHOOP-like coaching app powered by your Garmin data. Daily readiness scores, personalized workouts, and smart training guidance.",
   openGraph: {
     title: "PulseCoach",
-    description: "Daily readiness + personalized workouts from your Garmin data",
+    description:
+      "Daily readiness + personalized workouts from your Garmin data",
   },
 };
 

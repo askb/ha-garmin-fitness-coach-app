@@ -74,9 +74,7 @@ export const zonesRouter = {
         where: and(
           eq(Activity.userId, userId),
           gte(Activity.startedAt, since),
-          input.sportType
-            ? eq(Activity.sportType, input.sportType)
-            : undefined,
+          input.sportType ? eq(Activity.sportType, input.sportType) : undefined,
         ),
         orderBy: Activity.startedAt,
       });
@@ -122,10 +120,7 @@ export const zonesRouter = {
           z3: Math.round(d.z3 * 10) / 10,
           z4: Math.round(d.z4 * 10) / 10,
           z5: Math.round(d.z5 * 10) / 10,
-          total:
-            Math.round(
-              (d.z1 + d.z2 + d.z3 + d.z4 + d.z5) * 10,
-            ) / 10,
+          total: Math.round((d.z1 + d.z2 + d.z3 + d.z4 + d.z5) * 10) / 10,
           activities: d.activities,
         }))
         .sort((a, b) => a.week.localeCompare(b.week));
@@ -142,10 +137,7 @@ export const zonesRouter = {
       const since = getDateAgo(input.days);
 
       const activities = await ctx.db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, since),
-        ),
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, since)),
         orderBy: Activity.startedAt,
       });
 
@@ -186,15 +178,13 @@ export const zonesRouter = {
           const pHard = d.hard / total;
           const sumPiSq = pEasy ** 2 + pMod ** 2 + pHard ** 2;
           // Seiler's PI = ln(1 / Σpi²). Perfect polarized ≈ 2.0+
-          const polarizationIndex =
-            sumPiSq > 0 ? Math.log(1 / sumPiSq) : 0;
+          const polarizationIndex = sumPiSq > 0 ? Math.log(1 / sumPiSq) : 0;
           return {
             week,
             easyPct: Math.round(pEasy * 1000) / 10,
             moderatePct: Math.round(pMod * 1000) / 10,
             hardPct: Math.round(pHard * 1000) / 10,
-            polarizationIndex:
-              Math.round(polarizationIndex * 100) / 100,
+            polarizationIndex: Math.round(polarizationIndex * 100) / 100,
           };
         })
         .sort((a, b) => a.week.localeCompare(b.week));
@@ -215,9 +205,7 @@ export const zonesRouter = {
         where: and(
           eq(Activity.userId, userId),
           gte(Activity.startedAt, since),
-          input.sportType
-            ? eq(Activity.sportType, input.sportType)
-            : undefined,
+          input.sportType ? eq(Activity.sportType, input.sportType) : undefined,
         ),
         orderBy: Activity.startedAt,
       });
@@ -306,8 +294,7 @@ export const zonesRouter = {
             date: getDateString(a.startedAt),
             avgHr: a.avgHr!,
             paceSecPerKm: a.avgPaceSecPerKm!,
-            efficiencyIndex:
-              Math.round(efficiencyIndex * 100) / 100,
+            efficiencyIndex: Math.round(efficiencyIndex * 100) / 100,
           };
         });
     }),
@@ -323,10 +310,7 @@ export const zonesRouter = {
       const since = getDateAgo(input.days);
 
       const activities = await ctx.db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, since),
-        ),
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, since)),
         orderBy: Activity.startedAt,
       });
 
@@ -392,10 +376,7 @@ export const zonesRouter = {
       const since = getDateAgo(input.days);
 
       const activities = await ctx.db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, since),
-        ),
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, since)),
         orderBy: Activity.startedAt,
       });
 

@@ -152,7 +152,9 @@ function generateCorrelationInsight(
 
   const direction = r > 0 ? "positively" : "negatively";
   const significance =
-    pValue < 0.05 ? "statistically significant" : "not statistically significant";
+    pValue < 0.05
+      ? "statistically significant"
+      : "not statistically significant";
 
   let actionable = "";
   if (strength === "strong" && pValue < 0.05) {
@@ -203,12 +205,7 @@ export function computeStandardCorrelations(
     ["sleep_quality", "hrv", (d) => d.sleepScore, (d) => d.hrv],
     ["strain", "next_day_hrv", (d) => d.strainScore, null], // needs lag
     ["stress", "sleep_quality", (d) => d.stressScore, (d) => d.sleepScore],
-    [
-      "resting_hr",
-      "readiness",
-      (d) => d.restingHr,
-      (d) => d.readinessScore,
-    ],
+    ["resting_hr", "readiness", (d) => d.restingHr, (d) => d.readinessScore],
   ];
 
   for (const [nameA, nameB, getA, getB] of PAIRS) {
@@ -216,7 +213,9 @@ export function computeStandardCorrelations(
 
     const paired = dailyData
       .map((d) => ({ a: getA(d), b: getB(d) }))
-      .filter((p): p is { a: number; b: number } => p.a !== null && p.b !== null);
+      .filter(
+        (p): p is { a: number; b: number } => p.a !== null && p.b !== null,
+      );
 
     if (paired.length >= 7) {
       const result = analyzeCorrelation(

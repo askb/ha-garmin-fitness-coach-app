@@ -3,17 +3,18 @@
  *
  * Usage: pnpm --filter @acme/db db:seed
  */
-import pg from "pg";
-import { drizzle } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
+
 import {
-  Profile,
-  DailyMetric,
   Activity,
-  JournalEntry,
-  SessionReport,
-  Intervention,
   AdvancedMetric,
+  DailyMetric,
+  Intervention,
+  JournalEntry,
+  Profile,
+  SessionReport,
 } from "./schema";
 
 const DATABASE_URL = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
@@ -106,7 +107,9 @@ async function seed() {
     if (!process.env.FORCE_SEED) {
       process.exit(1);
     }
-    console.warn("⚠️  FORCE_SEED=1 set — seeding anyway (may mix with real data)");
+    console.warn(
+      "⚠️  FORCE_SEED=1 set — seeding anyway (may mix with real data)",
+    );
   }
   console.log("🌱 Seeding 90 days of realistic athlete data…");
 
@@ -172,7 +175,13 @@ async function seed() {
       load = rng.int(60, 88);
     }
 
-    days.push({ daysAgo, date: dateStr(daysAgo), dayOfWeek: dow, actType, load });
+    days.push({
+      daysAgo,
+      date: dateStr(daysAgo),
+      dayOfWeek: dow,
+      actType,
+      load,
+    });
   }
 
   // --- Insert activities ---
@@ -264,7 +273,7 @@ async function seed() {
         calories = rng.int(700, 950);
         avgPower = rng.float(195, 240, 0);
         normalizedPower = parseFloat(
-          ((avgPower as number) * rng.float(1.02, 1.08, 3)).toFixed(0),
+          ((avgPower) * rng.float(1.02, 1.08, 3)).toFixed(0),
         );
         elevationGain = rng.float(300, 900, 0);
         avgCadence = rng.float(84, 94, 0);
@@ -298,7 +307,9 @@ async function seed() {
       ...(avgPaceSecPerKm
         ? { avgPace: avgPaceSecPerKm + rng.int(-5, 10) }
         : {}),
-      ...(avgPower ? { avgPower: (avgPower as number) + rng.int(-10, 10) } : {}),
+      ...(avgPower
+        ? { avgPower: (avgPower) + rng.int(-10, 10) }
+        : {}),
     }));
 
     const [inserted] = await db
@@ -354,8 +365,14 @@ async function seed() {
     const restingHr = rng.int(rhrBase - 2, rhrBase + 3);
 
     const sleepBase = isHardDay ? 68 : isRestDay ? 82 : 76;
-    const sleepScore = Math.min(95, Math.max(50, rng.int(sleepBase - 8, sleepBase + 10)));
-    const totalSleepMinutes = rng.int(sleepScore > 75 ? 420 : 370, sleepScore > 75 ? 480 : 430);
+    const sleepScore = Math.min(
+      95,
+      Math.max(50, rng.int(sleepBase - 8, sleepBase + 10)),
+    );
+    const totalSleepMinutes = rng.int(
+      sleepScore > 75 ? 420 : 370,
+      sleepScore > 75 ? 480 : 430,
+    );
 
     const fatigueFactor = Math.min(runningFatigue / 180, 1);
     const bbHigh = Math.round(
@@ -388,7 +405,11 @@ async function seed() {
       intensityMinutes: actType !== null ? rng.int(20, 55) : rng.int(0, 10),
       floorsClimbed: rng.int(3, 20),
       calories: actType !== null ? rng.int(2400, 3200) : rng.int(1900, 2400),
-      maxHr: isRestDay ? null : isHardDay ? rng.int(178, 189) : rng.int(155, 172),
+      maxHr: isRestDay
+        ? null
+        : isHardDay
+          ? rng.int(178, 189)
+          : rng.int(155, 172),
       sleepStartTime: `${rng.int(21, 23)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
       sleepEndTime: `${rng.int(5, 7)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
     });
@@ -400,7 +421,9 @@ async function seed() {
   console.log(`✅ ${dailyMetrics.length} daily metrics inserted`);
 
   // --- Journal Entries (~5x/week: skip Thu & Fri) ---
-  const journalDays = days.filter((d) => d.dayOfWeek !== 4 && d.dayOfWeek !== 5);
+  const journalDays = days.filter(
+    (d) => d.dayOfWeek !== 4 && d.dayOfWeek !== 5,
+  );
   let journalCount = 0;
 
   for (const day of journalDays) {

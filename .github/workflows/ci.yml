@@ -111,5 +111,5 @@ jobs:
         run: pip install pytest psycopg2-binary garminconnect
 
       - name: Run ${{ matrix.test-file }}
-        working-directory: garmincoach-addon/garmincoach/rootfs/app/tests
+        working-directory: garmincoach-addon/pulsecoach/rootfs/app/tests
         run: pytest ${{ matrix.test-file }} -v

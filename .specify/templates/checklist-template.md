@@ -12,12 +12,12 @@ SPDX-License-Identifier: Apache-2.0
      Remove instructional HTML comments from the final checklist.
 -->
 
-| Field    | Value |
-| -------- | ----- |
-| Type     | [Checklist Type — e.g., Pre-Merge, Design Review, Release] |
-| Feature  | [Feature Name] |
-| Purpose  | [One-sentence description of what this checklist verifies] |
-| Date     | YYYY-MM-DD |
+| Field   | Value                                                      |
+| ------- | ---------------------------------------------------------- |
+| Type    | [Checklist Type — e.g., Pre-Merge, Design Review, Release] |
+| Feature | [Feature Name]                                             |
+| Purpose | [One-sentence description of what this checklist verifies] |
+| Date    | YYYY-MM-DD                                                 |
 
 ---
 

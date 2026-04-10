@@ -62,9 +62,7 @@ function ProactiveInsightCard({
     insight.confidence != null
       ? `${(insight.confidence * 100).toFixed(0)}% confidence`
       : null;
-  const metricEntries = insight.metrics
-    ? Object.entries(insight.metrics)
-    : [];
+  const metricEntries = insight.metrics ? Object.entries(insight.metrics) : [];
 
   return (
     <div
@@ -76,7 +74,7 @@ function ProactiveInsightCard({
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold leading-snug">{insight.title}</h3>
+        <h3 className="text-sm leading-snug font-semibold">{insight.title}</h3>
         <div className="flex shrink-0 items-center gap-1">
           {confidencePct && (
             <span
@@ -199,9 +197,11 @@ function generateInsights(data: InsightData): InsightCard[] {
     const severity: InsightCard["severity"] =
       score >= 70 ? "positive" : score >= 40 ? "info" : "warning";
     insights.push({
-      icon: severity === "positive" ? "✅" : severity === "warning" ? "⚠️" : "📊",
+      icon:
+        severity === "positive" ? "✅" : severity === "warning" ? "⚠️" : "📊",
       title: `Readiness: ${score} (${zone})`,
-      body: explanation || `Your readiness score is ${score}, in the ${zone} zone.`,
+      body:
+        explanation || `Your readiness score is ${score}, in the ${zone} zone.`,
       severity,
       metric: `${score}`,
     });
@@ -337,7 +337,9 @@ function generateInsights(data: InsightData): InsightCard[] {
     const severity: InsightCard["severity"] =
       status === "productive" || status === "peaking"
         ? "positive"
-        : status === "overreaching" || status === "detraining" || status === "unproductive"
+        : status === "overreaching" ||
+            status === "detraining" ||
+            status === "unproductive"
           ? "warning"
           : "info";
 
@@ -367,13 +369,7 @@ function generateInsights(data: InsightData): InsightCard[] {
 function InsightCardUI({ insight }: { insight: InsightCard }) {
   const style = SEVERITY_STYLES[insight.severity];
   return (
-    <div
-      className={cn(
-        "rounded-2xl border p-4",
-        style.border,
-        style.bg,
-      )}
-    >
+    <div className={cn("rounded-2xl border p-4", style.border, style.bg)}>
       <div className="flex items-start gap-3">
         <span
           className={cn(
@@ -408,7 +404,9 @@ export default function InsightsPage() {
   const queryClient = useQueryClient();
 
   // Proactive AI insights
-  const proactiveInsights = useQuery(trpc.proactive.listInsights.queryOptions());
+  const proactiveInsights = useQuery(
+    trpc.proactive.listInsights.queryOptions(),
+  );
   const generateMutation = useMutation(
     trpc.proactive.generateInsights.mutationOptions({
       onSuccess: () => {
@@ -452,12 +450,20 @@ export default function InsightsPage() {
 
   const insights = useMemo(() => {
     return generateInsights({
-      readiness: (readiness.data as Record<string, unknown> | undefined) ?? null,
+      readiness:
+        (readiness.data as Record<string, unknown> | undefined) ?? null,
       loads: (loads.data as Record<string, unknown> | undefined) ?? null,
-      sleepCoach: (sleepCoach.data as unknown as Record<string, unknown> | undefined) ?? null,
+      sleepCoach:
+        (sleepCoach.data as unknown as Record<string, unknown> | undefined) ??
+        null,
       recovery: (recovery.data as Record<string, unknown> | undefined) ?? null,
-      hrvTrend: (hrvTrend.data as unknown as Record<string, unknown> | undefined) ?? null,
-      trainingStatus: (trainingStatus.data as unknown as Record<string, unknown> | undefined) ?? null,
+      hrvTrend:
+        (hrvTrend.data as unknown as Record<string, unknown> | undefined) ??
+        null,
+      trainingStatus:
+        (trainingStatus.data as unknown as
+          | Record<string, unknown>
+          | undefined) ?? null,
       summary: (summary.data as Record<string, unknown> | undefined) ?? null,
     });
   }, [
@@ -470,10 +476,13 @@ export default function InsightsPage() {
     summary.data,
   ]);
 
-  const summaryData = summary.data as Record<string, unknown> | null | undefined;
+  const summaryData = summary.data as
+    | Record<string, unknown>
+    | null
+    | undefined;
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Insights</h1>
@@ -555,7 +564,9 @@ export default function InsightsPage() {
                 <p className="text-xl font-bold text-blue-400">
                   {summaryData.totalDays as number}
                 </p>
-                <p className="text-muted-foreground text-[10px]">Days tracked</p>
+                <p className="text-muted-foreground text-[10px]">
+                  Days tracked
+                </p>
               </div>
             )}
             {summaryData.avgReadiness != null && (
@@ -563,7 +574,9 @@ export default function InsightsPage() {
                 <p className="text-xl font-bold text-green-400">
                   {Math.round(summaryData.avgReadiness as number)}
                 </p>
-                <p className="text-muted-foreground text-[10px]">Avg readiness</p>
+                <p className="text-muted-foreground text-[10px]">
+                  Avg readiness
+                </p>
               </div>
             )}
             {summaryData.avgSleepMinutes != null && (

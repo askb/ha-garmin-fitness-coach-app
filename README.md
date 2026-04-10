@@ -55,37 +55,37 @@ graph TD
 
 ## Packages
 
-| Package | Purpose |
-|---------|---------|
-| `apps/nextjs` | Next.js web application |
-| `packages/api` | tRPC routers + AI context builder |
-| `packages/db` | Drizzle schema + migrations (22 tables) |
-| `packages/engine` | Pure TS computation (readiness, strain, baselines, anomalies, correlations) |
-| `packages/garmin` | Garmin Connect API client |
-| `packages/auth` | Better Auth configuration |
-| `packages/validators` | Shared Zod schemas |
-| `packages/ui` | shadcn/ui component library |
+| Package               | Purpose                                                                     |
+| --------------------- | --------------------------------------------------------------------------- |
+| `apps/nextjs`         | Next.js web application                                                     |
+| `packages/api`        | tRPC routers + AI context builder                                           |
+| `packages/db`         | Drizzle schema + migrations (22 tables)                                     |
+| `packages/engine`     | Pure TS computation (readiness, strain, baselines, anomalies, correlations) |
+| `packages/garmin`     | Garmin Connect API client                                                   |
+| `packages/auth`       | Better Auth configuration                                                   |
+| `packages/validators` | Shared Zod schemas                                                          |
+| `packages/ui`         | shadcn/ui component library                                                 |
 
 ## Pages
 
-| Route | Description |
-|-------|-------------|
-| `/` | Dashboard — readiness score, today's workout, recent activities |
-| `/training` | PMC chart (CTL/ATL/TSB), ACWR gauge, risk zones |
-| `/fitness` | VDOT, race predictions with confidence intervals |
-| `/activities/[id]` | Activity detail — laps, efficiency, RPE, zone distribution |
-| `/insights` | Proactive AI insight cards (6-rule engine) |
-| `/journal` | Whoop-style daily check-in (body feel, inputs, cycle) |
-| `/interventions` | Recovery intervention log with effectiveness ratings |
-| `/sleep` | Sleep analysis, debt tracking, stage breakdown |
-| `/trends` | 6+ year multi-metric overlay charts |
-| `/coach` | AI coaching chat (sport scientist, psychologist, nutritionist, recovery) |
-| `/power` | Critical power curve, power-duration chart |
-| `/validation` | Reference measurement comparison |
-| `/export` | CSV/JSON data export |
-| `/team` | Multi-athlete profile switcher |
-| `/correlations` | Metric correlation analysis |
-| `/zones` | HR zone distribution + Seiler polarization |
+| Route              | Description                                                              |
+| ------------------ | ------------------------------------------------------------------------ |
+| `/`                | Dashboard — readiness score, today's workout, recent activities          |
+| `/training`        | PMC chart (CTL/ATL/TSB), ACWR gauge, risk zones                          |
+| `/fitness`         | VDOT, race predictions with confidence intervals                         |
+| `/activities/[id]` | Activity detail — laps, efficiency, RPE, zone distribution               |
+| `/insights`        | Proactive AI insight cards (6-rule engine)                               |
+| `/journal`         | Whoop-style daily check-in (body feel, inputs, cycle)                    |
+| `/interventions`   | Recovery intervention log with effectiveness ratings                     |
+| `/sleep`           | Sleep analysis, debt tracking, stage breakdown                           |
+| `/trends`          | 6+ year multi-metric overlay charts                                      |
+| `/coach`           | AI coaching chat (sport scientist, psychologist, nutritionist, recovery) |
+| `/power`           | Critical power curve, power-duration chart                               |
+| `/validation`      | Reference measurement comparison                                         |
+| `/export`          | CSV/JSON data export                                                     |
+| `/team`            | Multi-athlete profile switcher                                           |
+| `/correlations`    | Metric correlation analysis                                              |
+| `/zones`           | HR zone distribution + Seiler polarization                               |
 
 ## Database Schema (22 tables)
 
@@ -98,19 +98,19 @@ Key tables: `profile`, `daily_metric`, `activity`, `readiness_score`,
 
 ## Engine Modules
 
-| Module | Computes |
-|--------|----------|
-| `readiness` | Daily score (0–100) from HRV, sleep, load, RHR, stress via z-scores |
-| `strain` | TRIMP-based training load with sex-specific constants |
-| `baselines` | 30-day EMA + rolling SD for z-score transformations |
-| `anomalies` | HRV crashes, sleep deficiency, overtraining signals |
-| `vo2max` | ACSM / Uth / Cooper estimates + Riegel race predictions |
+| Module            | Computes                                                             |
+| ----------------- | -------------------------------------------------------------------- |
+| `readiness`       | Daily score (0–100) from HRV, sleep, load, RHR, stress via z-scores  |
+| `strain`          | TRIMP-based training load with sex-specific constants                |
+| `baselines`       | 30-day EMA + rolling SD for z-score transformations                  |
+| `anomalies`       | HRV crashes, sleep deficiency, overtraining signals                  |
+| `vo2max`          | ACSM / Uth / Cooper estimates + Riegel race predictions              |
 | `training-status` | Productive, maintaining, detraining, overreaching, peaking, recovery |
-| `sleep-coach` | Debt tracking, extension recommendations |
-| `correlations` | Pearson coefficients between metrics and journal tags |
-| `trends` | Rolling averages (30/90/180/365d) + linear regression |
-| `coaching` | Weekly plan generation from templates |
-| `running-form` | Running form metrics and analysis |
+| `sleep-coach`     | Debt tracking, extension recommendations                             |
+| `correlations`    | Pearson coefficients between metrics and journal tags                |
+| `trends`          | Rolling averages (30/90/180/365d) + linear regression                |
+| `coaching`        | Weekly plan generation from templates                                |
+| `running-form`    | Running form metrics and analysis                                    |
 
 ## AI Context Pipeline
 
@@ -136,27 +136,27 @@ known values from the original papers.
 
 ### Strain vs Stress — Two Different Metrics
 
-| Metric | What It Measures | Scale | Formula | Reference |
-|--------|-----------------|-------|---------|-----------|
-| **Strain** | Activity cardiovascular load | 0–21 | TRIMP → exponential saturation | Banister (1991) |
-| **Stress** | Daily HRV-based body stress | 0–100 | Garmin proprietary (from watch) | Garmin HRV API |
+| Metric     | What It Measures             | Scale | Formula                         | Reference       |
+| ---------- | ---------------------------- | ----- | ------------------------------- | --------------- |
+| **Strain** | Activity cardiovascular load | 0–21  | TRIMP → exponential saturation  | Banister (1991) |
+| **Stress** | Daily HRV-based body stress  | 0–100 | Garmin proprietary (from watch) | Garmin HRV API  |
 
 **Strain** is per-workout intensity derived from HR zones (like WHOOP Strain).
 **Stress** is all-day autonomic nervous system load (Garmin-specific).
 
 ### How We Compare to Garmin / WHOOP
 
-| Chart | Our Method | Garmin Shows | WHOOP Shows | Accuracy Notes |
-|-------|-----------|--------------|-------------|----------------|
-| **Training Strain** | TRIMP × exponential curve (0–21) | Training Effect / Load | Day Strain (0–21) | Same TRIMP basis as WHOOP; our curve uses `21×(1-e^(-TRIMP/250))`. WHOOP uses proprietary weighting but same HR-zone foundation. ±1–2 points vs WHOOP. |
-| **Body Stress** | Direct from Garmin API (`avgStressLevel`) | Stress Widget (0–100) | N/A (no equivalent) | **Identical** to Garmin — we read the same value your watch displays. |
-| **ACWR** | 7d avg / 28d avg of strain scores | N/A (not shown) | N/A | Hulin et al. (2016). Standard sports science formula. |
-| **Readiness** | Weighted z-score: HRV 35%, sleep 25%, load 20%, RHR 10%, stress 10% | Morning Report / Body Battery | Recovery Score | Different from both — ours is transparent and configurable. Garmin/WHOOP use proprietary ML. |
-| **VO2max** | Uth formula: 15.3 × (maxHR / restHR) | Garmin VO2max (Firstbeat) | N/A | Uth et al. (2004). ±3–5 mL/kg/min vs lab test. Garmin uses Firstbeat (proprietary, more accurate with GPS pace). |
-| **Race Predictions** | Riegel model: T₂ = T₁ × (D₂/D₁)^1.06 | Race Predictor | N/A | Riegel (1981). Classic model, ±2–5% for trained runners. |
-| **Sleep Score** | Weighted: duration 40%, efficiency 25%, deep 20%, REM 15% | Sleep Score | Sleep Performance | Similar components, different weights. Garmin/WHOOP use Firstbeat/ML. |
-| **HRV Trend** | Direct from Garmin API | HRV Status | HRV (RMSSD) | **Identical** to Garmin — same nightly HRV value. |
-| **Recovery Time** | Composite: strain × 6h base, adjusted for sleep, HRV, RHR | Recovery Time Advisor | Recovery hours | Ours is simpler; Garmin uses Firstbeat model with VO2max input. ±4–8h difference possible. |
+| Chart                | Our Method                                                          | Garmin Shows                  | WHOOP Shows         | Accuracy Notes                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------- | ----------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Training Strain**  | TRIMP × exponential curve (0–21)                                    | Training Effect / Load        | Day Strain (0–21)   | Same TRIMP basis as WHOOP; our curve uses `21×(1-e^(-TRIMP/250))`. WHOOP uses proprietary weighting but same HR-zone foundation. ±1–2 points vs WHOOP. |
+| **Body Stress**      | Direct from Garmin API (`avgStressLevel`)                           | Stress Widget (0–100)         | N/A (no equivalent) | **Identical** to Garmin — we read the same value your watch displays.                                                                                  |
+| **ACWR**             | 7d avg / 28d avg of strain scores                                   | N/A (not shown)               | N/A                 | Hulin et al. (2016). Standard sports science formula.                                                                                                  |
+| **Readiness**        | Weighted z-score: HRV 35%, sleep 25%, load 20%, RHR 10%, stress 10% | Morning Report / Body Battery | Recovery Score      | Different from both — ours is transparent and configurable. Garmin/WHOOP use proprietary ML.                                                           |
+| **VO2max**           | Uth formula: 15.3 × (maxHR / restHR)                                | Garmin VO2max (Firstbeat)     | N/A                 | Uth et al. (2004). ±3–5 mL/kg/min vs lab test. Garmin uses Firstbeat (proprietary, more accurate with GPS pace).                                       |
+| **Race Predictions** | Riegel model: T₂ = T₁ × (D₂/D₁)^1.06                                | Race Predictor                | N/A                 | Riegel (1981). Classic model, ±2–5% for trained runners.                                                                                               |
+| **Sleep Score**      | Weighted: duration 40%, efficiency 25%, deep 20%, REM 15%           | Sleep Score                   | Sleep Performance   | Similar components, different weights. Garmin/WHOOP use Firstbeat/ML.                                                                                  |
+| **HRV Trend**        | Direct from Garmin API                                              | HRV Status                    | HRV (RMSSD)         | **Identical** to Garmin — same nightly HRV value.                                                                                                      |
+| **Recovery Time**    | Composite: strain × 6h base, adjusted for sleep, HRV, RHR           | Recovery Time Advisor         | Recovery hours      | Ours is simpler; Garmin uses Firstbeat model with VO2max input. ±4–8h difference possible.                                                             |
 
 ### Key Differences from Garmin Connect
 
@@ -207,15 +207,16 @@ Call convention: `trpc.<router>.<procedure>(input)`.
 
 ### `activity` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `activity.list` | query | List activities for the past N days |
+| Procedure            | Type  | Description                                          |
+| -------------------- | ----- | ---------------------------------------------------- |
+| `activity.list`      | query | List activities for the past N days                  |
 | `activity.getDetail` | query | Get full activity details with running-form analysis |
-| `activity.getRecent` | query | Get the 5 most recent activities |
+| `activity.getRecent` | query | Get the 5 most recent activities                     |
 
 #### `activity.list`
 
 **Input**
+
 ```ts
 {
   days?: number       // 1–365, default 30
@@ -224,28 +225,33 @@ Call convention: `trpc.<router>.<procedure>(input)`.
 ```
 
 **Output** – array of activity rows (up to 50):
+
 ```ts
 Array<{
-  id: string
-  sportType: string
-  subType: string | null
-  startedAt: Date
-  durationMinutes: number
-  distanceMeters: number | null
-  avgHr: number | null
-  strainScore: number | null
-  vo2maxEstimate: number | null
-  avgPaceSecPerKm: number | null
-  calories: number | null
-  aerobicTE: number | null
-  anaerobicTE: number | null
-}>
+  id: string;
+  sportType: string;
+  subType: string | null;
+  startedAt: Date;
+  durationMinutes: number;
+  distanceMeters: number | null;
+  avgHr: number | null;
+  strainScore: number | null;
+  vo2maxEstimate: number | null;
+  avgPaceSecPerKm: number | null;
+  calories: number | null;
+  aerobicTE: number | null;
+  anaerobicTE: number | null;
+}>;
 ```
 
 **Example**
+
 ```ts
 // Request
-const activities = await trpc.activity.list.query({ days: 14, sportType: "running" });
+const activities = await trpc.activity.list.query({
+  days: 14,
+  sportType: "running",
+});
 
 // Response (abbreviated)
 [
@@ -256,19 +262,23 @@ const activities = await trpc.activity.list.query({ days: 14, sportType: "runnin
     durationMinutes: 45.2,
     distanceMeters: 8500,
     avgHr: 148,
-    strainScore: 9.4
-  }
-]
+    strainScore: 9.4,
+  },
+];
 ```
 
 #### `activity.getDetail`
 
 **Input**
+
 ```ts
-{ id: string }
+{
+  id: string;
+}
 ```
 
 **Output** – full activity row plus `runningFormScore` (object or `null`):
+
 ```ts
 {
   /* all Activity columns */
@@ -289,52 +299,55 @@ const activities = await trpc.activity.list.query({ days: 14, sportType: "runnin
 **Input** – none
 
 **Output** – array of the 5 most recent activities (subset of columns):
+
 ```ts
 Array<{
-  id: string
-  sportType: string
-  subType: string | null
-  startedAt: Date
-  durationMinutes: number
-  distanceMeters: number | null
-  avgHr: number | null
-  strainScore: number | null
-  calories: number | null
-}>
+  id: string;
+  sportType: string;
+  subType: string | null;
+  startedAt: Date;
+  durationMinutes: number;
+  distanceMeters: number | null;
+  avgHr: number | null;
+  strainScore: number | null;
+  calories: number | null;
+}>;
 ```
 
 ---
 
 ### `analytics` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `analytics.getTrainingLoads` | query | CTL / ATL / TSB / ACWR from last 42 days |
-| `analytics.getTrainingStatus` | query | Classify training phase (productive, overreaching, …) |
-| `analytics.getVO2maxHistory` | query | VO2max estimates over time with trend |
-| `analytics.getRacePredictions` | query | Riegel race-time predictions from latest VO2max |
-| `analytics.getCorrelations` | query | Pearson correlations between daily metrics |
-| `analytics.getRunningForm` | query | Running form analysis for a specific or latest run |
-| `analytics.getRecoveryTime` | query | Estimated hours until full recovery |
+| Procedure                      | Type  | Description                                           |
+| ------------------------------ | ----- | ----------------------------------------------------- |
+| `analytics.getTrainingLoads`   | query | CTL / ATL / TSB / ACWR from last 42 days              |
+| `analytics.getTrainingStatus`  | query | Classify training phase (productive, overreaching, …) |
+| `analytics.getVO2maxHistory`   | query | VO2max estimates over time with trend                 |
+| `analytics.getRacePredictions` | query | Riegel race-time predictions from latest VO2max       |
+| `analytics.getCorrelations`    | query | Pearson correlations between daily metrics            |
+| `analytics.getRunningForm`     | query | Running form analysis for a specific or latest run    |
+| `analytics.getRecoveryTime`    | query | Estimated hours until full recovery                   |
 
 #### `analytics.getTrainingLoads`
 
 **Input** – none
 
 **Output**
+
 ```ts
 {
-  ctl: number        // Chronic Training Load (fitness)
-  atl: number        // Acute Training Load (fatigue)
-  tsb: number        // Training Stress Balance (form = CTL - ATL)
-  acwr: number       // Acute:Chronic Workload Ratio (7d / 28d average)
-  acwrEwma: number   // EWMA-smoothed ACWR
-  loadFocus: string  // "aerobic" | "anaerobic" | "mixed" | "recovery"
-  rampRate: number   // % week-over-week change in load
+  ctl: number; // Chronic Training Load (fitness)
+  atl: number; // Acute Training Load (fatigue)
+  tsb: number; // Training Stress Balance (form = CTL - ATL)
+  acwr: number; // Acute:Chronic Workload Ratio (7d / 28d average)
+  acwrEwma: number; // EWMA-smoothed ACWR
+  loadFocus: string; // "aerobic" | "anaerobic" | "mixed" | "recovery"
+  rampRate: number; // % week-over-week change in load
 }
 ```
 
 **Example**
+
 ```ts
 const loads = await trpc.analytics.getTrainingLoads.query();
 // { ctl: 42.1, atl: 48.3, tsb: -6.2, acwr: 1.15, acwrEwma: 1.18,
@@ -346,35 +359,43 @@ const loads = await trpc.analytics.getTrainingLoads.query();
 **Input** – none
 
 **Output** – training status classification:
+
 ```ts
 {
-  status: "productive" | "maintaining" | "detraining" | "overreaching" | "peaking" | "recovery"
-  confidence: number
-  reason: string
+  status: "productive" |
+    "maintaining" |
+    "detraining" |
+    "overreaching" |
+    "peaking" |
+    "recovery";
+  confidence: number;
+  reason: string;
 }
 ```
 
 #### `analytics.getVO2maxHistory`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–730, default 365
 ```
 
 **Output**
+
 ```ts
 {
   estimates: Array<{
-    id: string
-    date: string          // "YYYY-MM-DD"
-    value: number         // mL/kg/min
-    source: string        // "uth_method" | "running_pace_hr" | etc.
-    sport: string
-  }>
+    id: string;
+    date: string; // "YYYY-MM-DD"
+    value: number; // mL/kg/min
+    source: string; // "uth_method" | "running_pace_hr" | etc.
+    sport: string;
+  }>;
   trend: {
-    slope: number         // mL/kg/min per week
-    direction: "improving" | "stable" | "declining"
-    r2: number
+    slope: number; // mL/kg/min per week
+    direction: "improving" | "stable" | "declining";
+    r2: number;
   }
 }
 ```
@@ -384,6 +405,7 @@ const loads = await trpc.analytics.getTrainingLoads.query();
 **Input** – none
 
 **Output** – race time predictions from latest running VO2max (`null` if no data):
+
 ```ts
 {
   fiveK:       { seconds: number; formatted: string }
@@ -396,30 +418,34 @@ const loads = await trpc.analytics.getTrainingLoads.query();
 #### `analytics.getCorrelations`
 
 **Input**
+
 ```ts
 { period?: "30d" | "90d" | "180d" }  // default "90d"
 ```
 
 **Output** – array of Pearson correlation pairs:
+
 ```ts
 Array<{
-  metricA: string
-  metricB: string
-  r: number           // –1 to 1
-  pValue: number
-  n: number
-  interpretation: string
-}>
+  metricA: string;
+  metricB: string;
+  r: number; // –1 to 1
+  pValue: number;
+  n: number;
+  interpretation: string;
+}>;
 ```
 
 #### `analytics.getRunningForm`
 
 **Input**
+
 ```ts
 { activityId?: string }  // omit for latest running activity
 ```
 
 **Output** – running form analysis object (or `null`):
+
 ```ts
 {
   score: number
@@ -437,6 +463,7 @@ Array<{
 **Input** – none
 
 **Output**
+
 ```ts
 {
   hoursUntilRecovered: number
@@ -449,34 +476,37 @@ Array<{
 
 ### `chat` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `chat.getHistory` | query | Fetch recent chat messages |
-| `chat.sendMessage` | mutation | Send a message to the AI coaching agent |
-| `chat.clearHistory` | mutation | Delete all chat messages for the user |
+| Procedure           | Type     | Description                             |
+| ------------------- | -------- | --------------------------------------- |
+| `chat.getHistory`   | query    | Fetch recent chat messages              |
+| `chat.sendMessage`  | mutation | Send a message to the AI coaching agent |
+| `chat.clearHistory` | mutation | Delete all chat messages for the user   |
 
 #### `chat.getHistory`
 
 **Input**
+
 ```ts
 { limit?: number }  // 1–200, default 50
 ```
 
 **Output** – chronological array of chat messages:
+
 ```ts
 Array<{
-  id: string
-  userId: string
-  role: "user" | "assistant"
-  content: string
-  context: { agent: string; agentLabel?: string }
-  createdAt: Date
-}>
+  id: string;
+  userId: string;
+  role: "user" | "assistant";
+  content: string;
+  context: { agent: string; agentLabel?: string };
+  createdAt: Date;
+}>;
 ```
 
 #### `chat.sendMessage`
 
 **Input**
+
 ```ts
 {
   content: string   // 1–2000 characters
@@ -486,23 +516,28 @@ Array<{
 ```
 
 **Output** – the saved assistant message:
+
 ```ts
 {
-  id: string
-  userId: string
-  role: "assistant"
-  content: string   // AI response + medical disclaimer
-  context: { agent: string; agentLabel: string }
-  createdAt: Date
-  agent: string
+  id: string;
+  userId: string;
+  role: "assistant";
+  content: string; // AI response + medical disclaimer
+  context: {
+    agent: string;
+    agentLabel: string;
+  }
+  createdAt: Date;
+  agent: string;
 }
 ```
 
 **Example**
+
 ```ts
 const reply = await trpc.chat.sendMessage.mutate({
   content: "Should I run a hard interval session today?",
-  agent: "sport-scientist"
+  agent: "sport-scientist",
 });
 // reply.content → "Given your HRV of 52ms (below your 68ms baseline) ..."
 ```
@@ -512,28 +547,32 @@ const reply = await trpc.chat.sendMessage.mutate({
 **Input** – none
 
 **Output**
+
 ```ts
-{ success: true }
+{
+  success: true;
+}
 ```
 
 ---
 
 ### `journal` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `journal.list` | query | List journal entries between two dates |
-| `journal.getByDate` | query | Get a single journal entry by date |
-| `journal.upsert` | mutation | Create or update a journal entry |
-| `journal.delete` | mutation | Delete a journal entry by date |
+| Procedure           | Type     | Description                            |
+| ------------------- | -------- | -------------------------------------- |
+| `journal.list`      | query    | List journal entries between two dates |
+| `journal.getByDate` | query    | Get a single journal entry by date     |
+| `journal.upsert`    | mutation | Create or update a journal entry       |
+| `journal.delete`    | mutation | Delete a journal entry by date         |
 
 #### `journal.list`
 
 **Input**
+
 ```ts
 {
-  startDate: string  // "YYYY-MM-DD"
-  endDate:   string  // "YYYY-MM-DD"
+  startDate: string; // "YYYY-MM-DD"
+  endDate: string; // "YYYY-MM-DD"
 }
 ```
 
@@ -542,8 +581,11 @@ const reply = await trpc.chat.sendMessage.mutate({
 #### `journal.getByDate`
 
 **Input**
+
 ```ts
-{ date: string }  // "YYYY-MM-DD"
+{
+  date: string;
+} // "YYYY-MM-DD"
 ```
 
 **Output** – single `JournalEntry` or `null`.
@@ -551,6 +593,7 @@ const reply = await trpc.chat.sendMessage.mutate({
 #### `journal.upsert`
 
 **Input**
+
 ```ts
 {
   date:             string
@@ -571,39 +614,46 @@ const reply = await trpc.chat.sendMessage.mutate({
 **Output** – the upserted `JournalEntry` row.
 
 **Example**
+
 ```ts
 await trpc.journal.upsert.mutate({
   date: "2025-03-20",
   tags: { highStress: true, alcohol: false },
   moodScore: 7,
   sorenessScore: 4,
-  sorenessRegions: ["quads", "calves"]
+  sorenessRegions: ["quads", "calves"],
 });
 ```
 
 #### `journal.delete`
 
 **Input**
+
 ```ts
-{ date: string }  // "YYYY-MM-DD"
+{
+  date: string;
+} // "YYYY-MM-DD"
 ```
 
 **Output**
+
 ```ts
-{ success: true }
+{
+  success: true;
+}
 ```
 
 ---
 
 ### `profile` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `profile.get` | query | Get the current user's profile |
-| `profile.upsert` | mutation | Create or update the full profile |
-| `profile.updateSportsAndGoals` | mutation | Update primary sports and goal list |
-| `profile.updateAvailability` | mutation | Update training availability |
-| `profile.updateHealth` | mutation | Update health conditions and injuries |
+| Procedure                      | Type     | Description                           |
+| ------------------------------ | -------- | ------------------------------------- |
+| `profile.get`                  | query    | Get the current user's profile        |
+| `profile.upsert`               | mutation | Create or update the full profile     |
+| `profile.updateSportsAndGoals` | mutation | Update primary sports and goal list   |
+| `profile.updateAvailability`   | mutation | Update training availability          |
+| `profile.updateHealth`         | mutation | Update health conditions and injuries |
 
 #### `profile.get`
 
@@ -614,6 +664,7 @@ await trpc.journal.upsert.mutate({
 #### `profile.upsert`
 
 **Input** – `CreateProfileSchema` (Zod):
+
 ```ts
 {
   name?:              string
@@ -638,6 +689,7 @@ await trpc.journal.upsert.mutate({
 #### `profile.updateSportsAndGoals`
 
 **Input**
+
 ```ts
 {
   primarySports: string[]
@@ -654,6 +706,7 @@ await trpc.journal.upsert.mutate({
 #### `profile.updateAvailability`
 
 **Input**
+
 ```ts
 {
   weeklyDays:     string[]   // e.g. ["Mon","Tue","Thu","Sat"]
@@ -666,6 +719,7 @@ await trpc.journal.upsert.mutate({
 #### `profile.updateHealth`
 
 **Input**
+
 ```ts
 {
   healthConditions?: string[]
@@ -686,18 +740,19 @@ await trpc.journal.upsert.mutate({
 
 ### `readiness` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `readiness.getToday` | query | Compute (or fetch cached) today's readiness score |
-| `readiness.getHistory` | query | Historical readiness scores with confidence |
-| `readiness.getComponents` | query | Score components for a specific date |
-| `readiness.getAnomalies` | query | Detected anomalies from last 7 days |
+| Procedure                 | Type  | Description                                       |
+| ------------------------- | ----- | ------------------------------------------------- |
+| `readiness.getToday`      | query | Compute (or fetch cached) today's readiness score |
+| `readiness.getHistory`    | query | Historical readiness scores with confidence       |
+| `readiness.getComponents` | query | Score components for a specific date              |
+| `readiness.getAnomalies`  | query | Detected anomalies from last 7 days               |
 
 #### `readiness.getToday`
 
 **Input** – none
 
 **Output**
+
 ```ts
 {
   score:             number          // 0–100
@@ -725,6 +780,7 @@ await trpc.journal.upsert.mutate({
 ```
 
 **Example**
+
 ```ts
 const r = await trpc.readiness.getToday.query();
 // { score: 74, zone: "moderate", explanation: "HRV slightly below baseline...",
@@ -734,6 +790,7 @@ const r = await trpc.readiness.getToday.query();
 #### `readiness.getHistory`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–90, default 28
 ```
@@ -743,8 +800,11 @@ const r = await trpc.readiness.getToday.query();
 #### `readiness.getComponents`
 
 **Input**
+
 ```ts
-{ date: string }  // "YYYY-MM-DD"
+{
+  date: string;
+} // "YYYY-MM-DD"
 ```
 
 **Output** – single `ReadinessScore` row or `undefined`.
@@ -754,30 +814,32 @@ const r = await trpc.readiness.getToday.query();
 **Input** – none
 
 **Output** – anomaly detection results:
+
 ```ts
 Array<{
-  type: "hrv_crash" | "sleep_deficiency" | "overtraining" | string
-  severity: "low" | "medium" | "high"
-  message: string
-  date: string
-}>
+  type: "hrv_crash" | "sleep_deficiency" | "overtraining" | string;
+  severity: "low" | "medium" | "high";
+  message: string;
+  date: string;
+}>;
 ```
 
 ---
 
 ### `sleep` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `sleep.getCoach` | query | Personalized sleep coach recommendations |
-| `sleep.getHistory` | query | Sleep history for the past N days |
-| `sleep.getStages` | query | Nightly stage breakdown for the past N days |
+| Procedure          | Type  | Description                                 |
+| ------------------ | ----- | ------------------------------------------- |
+| `sleep.getCoach`   | query | Personalized sleep coach recommendations    |
+| `sleep.getHistory` | query | Sleep history for the past N days           |
+| `sleep.getStages`  | query | Nightly stage breakdown for the past N days |
 
 #### `sleep.getCoach`
 
 **Input** – none
 
 **Output** – sleep coach result:
+
 ```ts
 {
   recommendation:      string
@@ -793,58 +855,62 @@ Array<{
 #### `sleep.getHistory`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–90, default 28
 ```
 
 **Output**
+
 ```ts
 Array<{
-  date:               string
-  totalSleepMinutes:  number | null
-  deepSleepMinutes:   number | null
-  remSleepMinutes:    number | null
-  lightSleepMinutes:  number | null
-  awakeMinutes:       number | null
-  sleepScore:         number | null
-  sleepStartTime:     number | null
-  sleepEndTime:       number | null
-  sleepNeedMinutes:   number | null
-  sleepDebt:          number | null
-}>
+  date: string;
+  totalSleepMinutes: number | null;
+  deepSleepMinutes: number | null;
+  remSleepMinutes: number | null;
+  lightSleepMinutes: number | null;
+  awakeMinutes: number | null;
+  sleepScore: number | null;
+  sleepStartTime: number | null;
+  sleepEndTime: number | null;
+  sleepNeedMinutes: number | null;
+  sleepDebt: number | null;
+}>;
 ```
 
 #### `sleep.getStages`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–90, default 7
 ```
 
 **Output**
+
 ```ts
 Array<{
-  date:             string
-  deepMinutes:      number | null
-  remMinutes:       number | null
-  lightMinutes:     number | null
-  awakeMinutes:     number | null
-  sleepNeedMinutes: number | null
-}>
+  date: string;
+  deepMinutes: number | null;
+  remMinutes: number | null;
+  lightMinutes: number | null;
+  awakeMinutes: number | null;
+  sleepNeedMinutes: number | null;
+}>;
 ```
 
 ---
 
 ### `trends` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `trends.getSummary` | query | Avg readiness, sleep, HRV over 7d or 28d |
-| `trends.getChart` | query | Time-series data for a single metric |
-| `trends.getLongTermTrend` | query | Statistical trend analysis (slope, direction) |
-| `trends.getRollingAverages` | query | Rolling-window averages |
-| `trends.getNotableChanges` | query | Significant inflection points |
-| `trends.getMultiMetricChart` | query | Multi-metric time series in one call |
+| Procedure                    | Type  | Description                                   |
+| ---------------------------- | ----- | --------------------------------------------- |
+| `trends.getSummary`          | query | Avg readiness, sleep, HRV over 7d or 28d      |
+| `trends.getChart`            | query | Time-series data for a single metric          |
+| `trends.getLongTermTrend`    | query | Statistical trend analysis (slope, direction) |
+| `trends.getRollingAverages`  | query | Rolling-window averages                       |
+| `trends.getNotableChanges`   | query | Significant inflection points                 |
+| `trends.getMultiMetricChart` | query | Multi-metric time series in one call          |
 
 Metric enum used by several procedures:
 `"readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress"`
@@ -852,25 +918,28 @@ Metric enum used by several procedures:
 #### `trends.getSummary`
 
 **Input**
+
 ```ts
 { period?: "7d" | "28d" }  // default "7d"
 ```
 
 **Output**
+
 ```ts
 {
-  period:            string
-  avgReadiness:      number | null
-  avgSleepMinutes:   number | null
-  avgHrv:            number | null
-  totalDays:         number
-  readinessScores:   number
+  period: string;
+  avgReadiness: number | null;
+  avgSleepMinutes: number | null;
+  avgHrv: number | null;
+  totalDays: number;
+  readinessScores: number;
 }
 ```
 
 #### `trends.getChart`
 
 **Input**
+
 ```ts
 {
   metric: "readiness" | "sleep" | "hrv" | "strain" | "stress"
@@ -879,21 +948,24 @@ Metric enum used by several procedures:
 ```
 
 **Output**
+
 ```ts
-Array<{ date: string; value: number | null }>
+Array<{ date: string; value: number | null }>;
 ```
 
 #### `trends.getLongTermTrend`
 
 **Input**
+
 ```ts
 {
-  metric: "readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress"
-  period: "30d" | "90d" | "180d" | "365d"
+  metric: "readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress";
+  period: "30d" | "90d" | "180d" | "365d";
 }
 ```
 
 **Output** – trend analysis object (or `null`):
+
 ```ts
 {
   values:    Array<{ date: string; value: number }>
@@ -908,6 +980,7 @@ Array<{ date: string; value: number | null }>
 #### `trends.getRollingAverages`
 
 **Input**
+
 ```ts
 {
   metric: string   // see metric enum above
@@ -917,13 +990,15 @@ Array<{ date: string; value: number | null }>
 ```
 
 **Output**
+
 ```ts
-Array<{ date: string; value: number }>
+Array<{ date: string; value: number }>;
 ```
 
 #### `trends.getNotableChanges`
 
 **Input**
+
 ```ts
 {
   metric:     string   // metric enum
@@ -933,28 +1008,33 @@ Array<{ date: string; value: number }>
 ```
 
 **Output**
+
 ```ts
 Array<{
-  date:         string
-  value:        number
-  changePercent: number
-  direction:    "up" | "down"
-}>
+  date: string;
+  value: number;
+  changePercent: number;
+  direction: "up" | "down";
+}>;
 ```
 
 #### `trends.getMultiMetricChart`
 
 **Input**
+
 ```ts
 {
-  metrics: Array<"readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress">
-  days:    number  // 1–365
+  metrics: Array<
+    "readiness" | "sleep" | "hrv" | "restingHr" | "strain" | "stress"
+  >;
+  days: number; // 1–365
 }
 ```
 
 **Output**
+
 ```ts
-Record<string, Array<{ date: string; value: number }>>
+Record<string, Array<{ date: string; value: number }>>;
 // keys are the requested metric names
 ```
 
@@ -962,18 +1042,19 @@ Record<string, Array<{ date: string; value: number }>>
 
 ### `workout` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `workout.getToday` | query | Generate (or fetch cached) today's AI-recommended workout |
-| `workout.getWeekPlan` | query | All workouts for the current week |
-| `workout.getDetail` | query | Get one workout by ID |
-| `workout.adjustDifficulty` | mutation | Bump today's workout harder or easier |
+| Procedure                  | Type     | Description                                               |
+| -------------------------- | -------- | --------------------------------------------------------- |
+| `workout.getToday`         | query    | Generate (or fetch cached) today's AI-recommended workout |
+| `workout.getWeekPlan`      | query    | All workouts for the current week                         |
+| `workout.getDetail`        | query    | Get one workout by ID                                     |
+| `workout.adjustDifficulty` | mutation | Bump today's workout harder or easier                     |
 
 #### `workout.getToday`
 
 **Input** – none
 
 **Output** – `DailyWorkout` row or `null`:
+
 ```ts
 {
   id:                string
@@ -1003,8 +1084,11 @@ Record<string, Array<{ date: string; value: number }>>
 #### `workout.getDetail`
 
 **Input**
+
 ```ts
-{ id: string }
+{
+  id: string;
+}
 ```
 
 **Output** – single `DailyWorkout` row.
@@ -1012,15 +1096,21 @@ Record<string, Array<{ date: string; value: number }>>
 #### `workout.adjustDifficulty`
 
 **Input**
+
 ```ts
-{ direction: "harder" | "easier" }
+{
+  direction: "harder" | "easier";
+}
 ```
 
 **Output** – the updated workout recommendation object (or `null`).
 
 **Example**
+
 ```ts
-const adjusted = await trpc.workout.adjustDifficulty.mutate({ direction: "easier" });
+const adjusted = await trpc.workout.adjustDifficulty.mutate({
+  direction: "easier",
+});
 // adjusted.workoutType → "recovery_run"
 // adjusted.targetDurationMin → 25
 ```
@@ -1029,12 +1119,12 @@ const adjusted = await trpc.workout.adjustDifficulty.mutate({ direction: "easier
 
 ### `intervention` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `intervention.list` | query | List recovery interventions |
-| `intervention.create` | mutation | Log a new intervention |
+| Procedure             | Type     | Description                          |
+| --------------------- | -------- | ------------------------------------ |
+| `intervention.list`   | query    | List recovery interventions          |
+| `intervention.create` | mutation | Log a new intervention               |
 | `intervention.update` | mutation | Update outcome notes / effectiveness |
-| `intervention.delete` | mutation | Delete an intervention by ID |
+| `intervention.delete` | mutation | Delete an intervention by ID         |
 
 Allowed `type` values:
 `"reduced_load" | "extra_sleep" | "physio" | "nutrition_change" |
@@ -1044,6 +1134,7 @@ Allowed `type` values:
 #### `intervention.list`
 
 **Input**
+
 ```ts
 {
   startDate?: string  // "YYYY-MM-DD", optional filter
@@ -1056,6 +1147,7 @@ Allowed `type` values:
 #### `intervention.create`
 
 **Input**
+
 ```ts
 {
   date:                string
@@ -1072,6 +1164,7 @@ Allowed `type` values:
 #### `intervention.update`
 
 **Input**
+
 ```ts
 {
   id:                  string
@@ -1085,27 +1178,34 @@ Allowed `type` values:
 #### `intervention.delete`
 
 **Input**
+
 ```ts
-{ id: string }
+{
+  id: string;
+}
 ```
 
 **Output**
+
 ```ts
-{ success: true }
+{
+  success: true;
+}
 ```
 
 ---
 
 ### `advancedMetrics` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `advancedMetrics.list` | query | List advanced load metrics over a date range |
-| `advancedMetrics.getLatest` | query | Get the most recent advanced metrics row |
+| Procedure                   | Type  | Description                                  |
+| --------------------------- | ----- | -------------------------------------------- |
+| `advancedMetrics.list`      | query | List advanced load metrics over a date range |
+| `advancedMetrics.getLatest` | query | Get the most recent advanced metrics row     |
 
 #### `advancedMetrics.list`
 
 **Input**
+
 ```ts
 {
   startDate?: string  // "YYYY-MM-DD"
@@ -1115,19 +1215,20 @@ Allowed `type` values:
 ```
 
 **Output** – array of `AdvancedMetric` rows (up to 365), oldest first:
+
 ```ts
 Array<{
-  id: string
-  date: string
-  ctl: number | null
-  atl: number | null
-  tsb: number | null
-  acwr: number | null
-  rampRate: number | null
-  monotony: number | null
-  strain: number | null  // weekly strain sum
+  id: string;
+  date: string;
+  ctl: number | null;
+  atl: number | null;
+  tsb: number | null;
+  acwr: number | null;
+  rampRate: number | null;
+  monotony: number | null;
+  strain: number | null; // weekly strain sum
   /* … other computed columns */
-}>
+}>;
 ```
 
 #### `advancedMetrics.getLatest`
@@ -1140,19 +1241,20 @@ Array<{
 
 ### `zones` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `zones.getWeeklyZoneDistribution` | query | HR zone minutes aggregated by ISO week |
-| `zones.getPolarizationIndex` | query | Seiler polarization index per week |
-| `zones.getZoneTrends` | query | Zone percentage breakdown by calendar month |
-| `zones.getEfficiencyTrend` | query | Efficiency index (speed / HR) over time |
-| `zones.getActivityCalendar` | query | Activity heatmap data by day |
-| `zones.getVolumeByWeek` | query | Training volume (minutes) by sport per week |
-| `zones.getPeakPerformances` | query | Monthly personal bests for a given metric |
+| Procedure                         | Type  | Description                                 |
+| --------------------------------- | ----- | ------------------------------------------- |
+| `zones.getWeeklyZoneDistribution` | query | HR zone minutes aggregated by ISO week      |
+| `zones.getPolarizationIndex`      | query | Seiler polarization index per week          |
+| `zones.getZoneTrends`             | query | Zone percentage breakdown by calendar month |
+| `zones.getEfficiencyTrend`        | query | Efficiency index (speed / HR) over time     |
+| `zones.getActivityCalendar`       | query | Activity heatmap data by day                |
+| `zones.getVolumeByWeek`           | query | Training volume (minutes) by sport per week |
+| `zones.getPeakPerformances`       | query | Monthly personal bests for a given metric   |
 
 #### `zones.getWeeklyZoneDistribution`
 
 **Input**
+
 ```ts
 {
   sportType?: string   // optional filter
@@ -1161,36 +1263,44 @@ Array<{
 ```
 
 **Output**
+
 ```ts
 Array<{
-  week:       string   // "YYYY-MM-DD" (Monday)
-  z1: number; z2: number; z3: number; z4: number; z5: number  // minutes
-  total:      number
-  activities: number
-}>
+  week: string; // "YYYY-MM-DD" (Monday)
+  z1: number;
+  z2: number;
+  z3: number;
+  z4: number;
+  z5: number; // minutes
+  total: number;
+  activities: number;
+}>;
 ```
 
 #### `zones.getPolarizationIndex`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–730, default 90
 ```
 
 **Output**
+
 ```ts
 Array<{
-  week:               string
-  easyPct:            number   // % in Z1+Z2
-  moderatePct:        number   // % in Z3
-  hardPct:            number   // % in Z4+Z5
-  polarizationIndex:  number   // Seiler's PI = ln(1/Σpi²)
-}>
+  week: string;
+  easyPct: number; // % in Z1+Z2
+  moderatePct: number; // % in Z3
+  hardPct: number; // % in Z4+Z5
+  polarizationIndex: number; // Seiler's PI = ln(1/Σpi²)
+}>;
 ```
 
 #### `zones.getZoneTrends`
 
 **Input**
+
 ```ts
 {
   sportType?: string
@@ -1199,16 +1309,22 @@ Array<{
 ```
 
 **Output**
+
 ```ts
 Array<{
-  month: string   // "YYYY-MM"
-  z1Pct: number; z2Pct: number; z3Pct: number; z4Pct: number; z5Pct: number
-}>
+  month: string; // "YYYY-MM"
+  z1Pct: number;
+  z2Pct: number;
+  z3Pct: number;
+  z4Pct: number;
+  z5Pct: number;
+}>;
 ```
 
 #### `zones.getEfficiencyTrend`
 
 **Input**
+
 ```ts
 {
   sportType?: string  // default "running"
@@ -1217,57 +1333,63 @@ Array<{
 ```
 
 **Output**
+
 ```ts
 Array<{
-  date:             string
-  avgHr:            number
-  paceSecPerKm:     number
-  efficiencyIndex:  number   // (speed m/s / HR) × 1000
-}>
+  date: string;
+  avgHr: number;
+  paceSecPerKm: number;
+  efficiencyIndex: number; // (speed m/s / HR) × 1000
+}>;
 ```
 
 #### `zones.getActivityCalendar`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–730, default 365
 ```
 
 **Output**
+
 ```ts
 Array<{
-  date:          string
-  totalMinutes:  number
-  activities:    number
-  primarySport:  string
-  maxStrain:     number
-}>
+  date: string;
+  totalMinutes: number;
+  activities: number;
+  primarySport: string;
+  maxStrain: number;
+}>;
 ```
 
 #### `zones.getVolumeByWeek`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–730, default 365
 ```
 
 **Output**
+
 ```ts
 Array<{
-  week:     string
-  running:  number   // minutes
-  walking:  number
-  strength: number
-  yoga:     number
-  tennis:   number
-  other:    number
-  total:    number
-}>
+  week: string;
+  running: number; // minutes
+  walking: number;
+  strength: number;
+  yoga: number;
+  tennis: number;
+  other: number;
+  total: number;
+}>;
 ```
 
 #### `zones.getPeakPerformances`
 
 **Input**
+
 ```ts
 {
   sportType?: string  // default "running"
@@ -1276,21 +1398,22 @@ Array<{
 ```
 
 **Output**
+
 ```ts
 Array<{
-  month:        string   // "YYYY-MM"
-  bestValue:    number
-  activityDate: string
-}>
+  month: string; // "YYYY-MM"
+  bestValue: number;
+  activityDate: string;
+}>;
 ```
 
 ---
 
 ### `baselines` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `baselines.get` | query | Get stored baseline values for the user |
+| Procedure           | Type     | Description                                   |
+| ------------------- | -------- | --------------------------------------------- |
+| `baselines.get`     | query    | Get stored baseline values for the user       |
 | `baselines.compute` | mutation | Recompute baselines from last 90 days of data |
 
 #### `baselines.get`
@@ -1298,16 +1421,17 @@ Array<{
 **Input** – none
 
 **Output** – array of `AthleteBaseline` rows:
+
 ```ts
 Array<{
-  id: string
-  metricName: "hrv" | "restingHr" | "sleep"
-  baselineValue: number
-  baselineSD: number | null
-  zScoreLatest: number | null
-  daysOfData: number
-  computedAt: Date
-}>
+  id: string;
+  metricName: "hrv" | "restingHr" | "sleep";
+  baselineValue: number;
+  baselineSD: number | null;
+  zScoreLatest: number | null;
+  daysOfData: number;
+  computedAt: Date;
+}>;
 ```
 
 #### `baselines.compute`
@@ -1317,6 +1441,7 @@ Array<{
 **Output** – array of upserted `AthleteBaseline` rows (hrv, restingHr, sleep).
 
 **Example**
+
 ```ts
 const baselines = await trpc.baselines.compute.mutate();
 // [ { metricName: "hrv", baselineValue: 68.2, baselineSD: 7.1, zScoreLatest: -1.2 }, … ]
@@ -1326,23 +1451,24 @@ const baselines = await trpc.baselines.compute.mutate();
 
 ### `garmin` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `garmin.getConnectionStatus` | query | Check whether a Garmin account is linked |
-| `garmin.initiateOAuth` | mutation | Start the Garmin OAuth 1.0a flow |
-| `garmin.handleCallback` | mutation | Exchange OAuth verifier for access tokens |
-| `garmin.triggerBackfill` | mutation | Backfill N days of Garmin data |
+| Procedure                    | Type     | Description                               |
+| ---------------------------- | -------- | ----------------------------------------- |
+| `garmin.getConnectionStatus` | query    | Check whether a Garmin account is linked  |
+| `garmin.initiateOAuth`       | mutation | Start the Garmin OAuth 1.0a flow          |
+| `garmin.handleCallback`      | mutation | Exchange OAuth verifier for access tokens |
+| `garmin.triggerBackfill`     | mutation | Backfill N days of Garmin data            |
 
 #### `garmin.getConnectionStatus`
 
 **Input** – none
 
 **Output**
+
 ```ts
 {
-  connected:     boolean
-  garminUserId:  string | null
-  lastSyncedAt:  string | null
+  connected: boolean;
+  garminUserId: string | null;
+  lastSyncedAt: string | null;
 }
 ```
 
@@ -1351,51 +1477,67 @@ const baselines = await trpc.baselines.compute.mutate();
 **Input** – none
 
 **Output**
+
 ```ts
-{ authUrl: string }  // redirect the user to this URL
+{
+  authUrl: string;
+} // redirect the user to this URL
 ```
 
 #### `garmin.handleCallback`
 
 **Input**
+
 ```ts
 {
-  oauthToken:    string
-  oauthVerifier: string
+  oauthToken: string;
+  oauthVerifier: string;
 }
 ```
 
 **Output**
+
 ```ts
-{ success: boolean; garminUserId: string }
+{
+  success: boolean;
+  garminUserId: string;
+}
 ```
 
 #### `garmin.triggerBackfill`
 
 **Input**
+
 ```ts
 { days?: number }  // 1–90, default 30
 ```
 
 **Output**
+
 ```ts
-{ metricsInserted: number; activitiesInserted: number }
+{
+  metricsInserted: number;
+  activitiesInserted: number;
+}
 ```
 
 ---
 
 ### `sessionReport` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `sessionReport.getByActivity` | query | Fetch the session report for an activity |
-| `sessionReport.upsert` | mutation | Create or update a session report (RPE log) |
+| Procedure                     | Type     | Description                                 |
+| ----------------------------- | -------- | ------------------------------------------- |
+| `sessionReport.getByActivity` | query    | Fetch the session report for an activity    |
+| `sessionReport.upsert`        | mutation | Create or update a session report (RPE log) |
 
 #### `sessionReport.getByActivity`
 
 **Input**
+
 ```ts
-{ activityId: string }
+{
+  activityId: string;
+}
 ```
 
 **Output** – `SessionReport` row or `null`.
@@ -1403,6 +1545,7 @@ const baselines = await trpc.baselines.compute.mutate();
 #### `sessionReport.upsert`
 
 **Input**
+
 ```ts
 {
   activityId:       string
@@ -1420,17 +1563,18 @@ const baselines = await trpc.baselines.compute.mutate();
 
 ### `proactive` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
+| Procedure                    | Type     | Description                                   |
+| ---------------------------- | -------- | --------------------------------------------- |
 | `proactive.generateInsights` | mutation | Run 6-rule insight engine and persist results |
-| `proactive.listInsights` | query | List AI insights from the last 7 days |
-| `proactive.markRead` | mutation | Mark an insight as read |
+| `proactive.listInsights`     | query    | List AI insights from the last 7 days         |
+| `proactive.markRead`         | mutation | Mark an insight as read                       |
 
 #### `proactive.generateInsights`
 
 **Input** – none
 
 **Output**
+
 ```ts
 { generated: number; saved: number; insights: AiInsight[] }
 ```
@@ -1443,28 +1587,32 @@ Insight types generated: `injury_risk`, `overreaching`, `recovery_needed`,
 **Input** – none
 
 **Output** – array of `AiInsight` rows (up to 20, last 7 days):
+
 ```ts
 Array<{
-  id: string
-  date: string
-  insightType: string
-  severity: "info" | "warn" | "critical"
-  title: string
-  body: string
-  metrics: object
-  confidence: number
-  actionSuggestion: string
-  isRead: boolean
-  generatedBy: "rules" | "llm"
-  createdAt: Date
-}>
+  id: string;
+  date: string;
+  insightType: string;
+  severity: "info" | "warn" | "critical";
+  title: string;
+  body: string;
+  metrics: object;
+  confidence: number;
+  actionSuggestion: string;
+  isRead: boolean;
+  generatedBy: "rules" | "llm";
+  createdAt: Date;
+}>;
 ```
 
 #### `proactive.markRead`
 
 **Input**
+
 ```ts
-{ id: string }  // UUID of the insight
+{
+  id: string;
+} // UUID of the insight
 ```
 
 **Output** – updated `AiInsight` row with `isRead: true`.
@@ -1473,11 +1621,11 @@ Array<{
 
 ### `reference` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `reference.list` | query | List all reference measurements for the user |
-| `reference.create` | mutation | Add a new reference measurement |
-| `reference.delete` | mutation | Delete a reference measurement by ID |
+| Procedure          | Type     | Description                                  |
+| ------------------ | -------- | -------------------------------------------- |
+| `reference.list`   | query    | List all reference measurements for the user |
+| `reference.create` | mutation | Add a new reference measurement              |
+| `reference.delete` | mutation | Delete a reference measurement by ID         |
 
 #### `reference.list`
 
@@ -1488,6 +1636,7 @@ Array<{
 #### `reference.create`
 
 **Input** – `CreateReferenceMeasurementSchema`:
+
 ```ts
 {
   date:                   string
@@ -1505,8 +1654,11 @@ Array<{
 #### `reference.delete`
 
 **Input**
+
 ```ts
-{ id: string }  // UUID
+{
+  id: string;
+} // UUID
 ```
 
 **Output** – the deleted row or `null`.
@@ -1515,11 +1667,11 @@ Array<{
 
 ### `dataQuality` router
 
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `dataQuality.list` | query | List data-quality log entries (last 30 days) |
-| `dataQuality.getSummary` | query | Aggregate counts and quality score |
-| `dataQuality.resolve` | mutation | Mark a log entry as resolved |
+| Procedure                | Type     | Description                                  |
+| ------------------------ | -------- | -------------------------------------------- |
+| `dataQuality.list`       | query    | List data-quality log entries (last 30 days) |
+| `dataQuality.getSummary` | query    | Aggregate counts and quality score           |
+| `dataQuality.resolve`    | mutation | Mark a log entry as resolved                 |
 
 #### `dataQuality.list`
 
@@ -1532,22 +1684,26 @@ Array<{
 **Input** – none
 
 **Output**
+
 ```ts
 {
-  errors:   number
-  warnings: number
-  infos:    number
-  total:    number
-  score:    number  // 0–100 (100 - errors×10 - warnings×3)
-  byDate:   Record<string, { errors: number; warnings: number; infos: number }>
+  errors: number;
+  warnings: number;
+  infos: number;
+  total: number;
+  score: number; // 0–100 (100 - errors×10 - warnings×3)
+  byDate: Record<string, { errors: number; warnings: number; infos: number }>;
 }
 ```
 
 #### `dataQuality.resolve`
 
 **Input**
+
 ```ts
-{ id: string }  // UUID
+{
+  id: string;
+} // UUID
 ```
 
 **Output** – updated `DataQualityLog` row with `resolvedAt` set, or `null`.
@@ -1556,10 +1712,10 @@ Array<{
 
 ### `auth` router
 
-| Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
-| `auth.getSession` | query | public | Get the current session (or `null`) |
-| `auth.getSecretMessage` | query | protected | Connectivity test endpoint |
+| Procedure               | Type  | Auth      | Description                         |
+| ----------------------- | ----- | --------- | ----------------------------------- |
+| `auth.getSession`       | query | public    | Get the current session (or `null`) |
+| `auth.getSecretMessage` | query | protected | Connectivity test endpoint          |
 
 #### `auth.getSession`
 
@@ -1573,12 +1729,12 @@ Array<{
 
 > Internal demo router kept for framework reference.
 
-| Procedure | Type | Auth | Description |
-|-----------|------|------|-------------|
-| `post.all` | query | public | List last 10 posts |
-| `post.byId` | query | public | Get a post by ID |
-| `post.create` | mutation | protected | Create a post |
-| `post.delete` | mutation | protected | Delete a post |
+| Procedure     | Type     | Auth      | Description        |
+| ------------- | -------- | --------- | ------------------ |
+| `post.all`    | query    | public    | List last 10 posts |
+| `post.byId`   | query    | public    | Get a post by ID   |
+| `post.create` | mutation | protected | Create a post      |
+| `post.delete` | mutation | protected | Delete a post      |
 
 #### `post.all`
 
@@ -1589,8 +1745,11 @@ Array<{
 #### `post.byId`
 
 **Input**
+
 ```ts
-{ id: string }
+{
+  id: string;
+}
 ```
 
 **Output** – `Post` row or `undefined`.
@@ -1598,8 +1757,12 @@ Array<{
 #### `post.create`
 
 **Input** – `CreatePostSchema`:
+
 ```ts
-{ title: string; content: string }
+{
+  title: string;
+  content: string;
+}
 ```
 
 **Output** – insert result.
@@ -1607,8 +1770,9 @@ Array<{
 #### `post.delete`
 
 **Input**
+
 ```ts
-string  // post ID
+string; // post ID
 ```
 
 **Output** – delete result.

@@ -2,35 +2,80 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTRPC } from "~/trpc/react";
 import { useMutation } from "@tanstack/react-query";
 
+import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 
-import { cn } from "@acme/ui";
+import { useTRPC } from "~/trpc/react";
 
 const HEALTH_CONDITIONS = [
   { id: "asthma", label: "🫁 Asthma", desc: "Exercise-induced or chronic" },
-  { id: "hypertension", label: "❤️‍🩹 High Blood Pressure", desc: "Managed or unmanaged" },
+  {
+    id: "hypertension",
+    label: "❤️‍🩹 High Blood Pressure",
+    desc: "Managed or unmanaged",
+  },
   { id: "diabetes_t1", label: "💉 Type 1 Diabetes", desc: "Insulin-dependent" },
-  { id: "diabetes_t2", label: "🩺 Type 2 Diabetes", desc: "Diet/medication managed" },
-  { id: "heart_condition", label: "🫀 Heart Condition", desc: "Arrhythmia, murmur, etc." },
-  { id: "joint_issues", label: "🦴 Joint Problems", desc: "Arthritis, chronic pain" },
-  { id: "back_issues", label: "🔙 Back Problems", desc: "Herniation, chronic pain" },
-  { id: "respiratory", label: "😮‍💨 Respiratory Issues", desc: "COPD, sleep apnea" },
+  {
+    id: "diabetes_t2",
+    label: "🩺 Type 2 Diabetes",
+    desc: "Diet/medication managed",
+  },
+  {
+    id: "heart_condition",
+    label: "🫀 Heart Condition",
+    desc: "Arrhythmia, murmur, etc.",
+  },
+  {
+    id: "joint_issues",
+    label: "🦴 Joint Problems",
+    desc: "Arthritis, chronic pain",
+  },
+  {
+    id: "back_issues",
+    label: "🔙 Back Problems",
+    desc: "Herniation, chronic pain",
+  },
+  {
+    id: "respiratory",
+    label: "😮‍💨 Respiratory Issues",
+    desc: "COPD, sleep apnea",
+  },
   { id: "thyroid", label: "🦋 Thyroid Disorder", desc: "Hypo/hyperthyroidism" },
-  { id: "anxiety_depression", label: "🧠 Anxiety/Depression", desc: "Affects training motivation" },
+  {
+    id: "anxiety_depression",
+    label: "🧠 Anxiety/Depression",
+    desc: "Affects training motivation",
+  },
 ];
 
 const BODY_PARTS = [
-  "knee", "ankle", "hip", "shoulder", "lower_back", "upper_back",
-  "wrist", "elbow", "neck", "foot", "shin", "hamstring", "calf", "quad",
+  "knee",
+  "ankle",
+  "hip",
+  "shoulder",
+  "lower_back",
+  "upper_back",
+  "wrist",
+  "elbow",
+  "neck",
+  "foot",
+  "shin",
+  "hamstring",
+  "calf",
+  "quad",
 ];
 
 const SPORTS = ["running", "cycling", "strength", "swimming", "team_sport"];
-const GOALS = ["maintain", "performance", "body_composition", "return_from_injury"];
+const GOALS = [
+  "maintain",
+  "performance",
+  "body_composition",
+  "return_from_injury",
+];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const GOAL_LABELS: Record<string, string> = {
   maintain: "🏃 Maintain Fitness",
@@ -51,10 +96,22 @@ export default function OnboardingPage() {
   const [heightCm, setHeightCm] = useState("");
   const [selectedSports, setSelectedSports] = useState<string[]>([]);
   const [goals, setGoals] = useState<{ sport: string; goalType: string }[]>([]);
-  const [weeklyDays, setWeeklyDays] = useState<string[]>(["mon", "wed", "fri", "sat"]);
+  const [weeklyDays, setWeeklyDays] = useState<string[]>([
+    "mon",
+    "wed",
+    "fri",
+    "sat",
+  ]);
   const [minutesPerDay, setMinutesPerDay] = useState(45);
   const [healthConditions, setHealthConditions] = useState<string[]>([]);
-  const [injuries, setInjuries] = useState<{ bodyPart: string; severity: "mild" | "moderate" | "severe"; since?: string; notes?: string }[]>([]);
+  const [injuries, setInjuries] = useState<
+    {
+      bodyPart: string;
+      severity: "mild" | "moderate" | "severe";
+      since?: string;
+      notes?: string;
+    }[]
+  >([]);
   const [medications, setMedications] = useState("");
   const [allergies, setAllergies] = useState("");
 
@@ -218,9 +275,7 @@ export default function OnboardingPage() {
     // Step 2: Availability
     <div key="availability" className="space-y-4">
       <h2 className="text-xl font-bold">Weekly Schedule</h2>
-      <p className="text-muted-foreground text-sm">
-        Which days can you train?
-      </p>
+      <p className="text-muted-foreground text-sm">Which days can you train?</p>
       <div className="flex gap-2">
         {DAYS.map((d) => (
           <button
@@ -283,9 +338,13 @@ export default function OnboardingPage() {
                   : "hover:border-foreground/20",
               )}
             >
-              <span className="text-lg leading-none">{c.label.split(" ")[0]}</span>
+              <span className="text-lg leading-none">
+                {c.label.split(" ")[0]}
+              </span>
               <div className="min-w-0">
-                <p className="text-sm font-medium">{c.label.split(" ").slice(1).join(" ")}</p>
+                <p className="text-sm font-medium">
+                  {c.label.split(" ").slice(1).join(" ")}
+                </p>
                 <p className="text-muted-foreground text-xs">{c.desc}</p>
               </div>
             </button>
@@ -306,13 +365,16 @@ export default function OnboardingPage() {
                   setInjuries((prev) =>
                     existing
                       ? prev.filter((i) => i.bodyPart !== part)
-                      : [...prev, { bodyPart: part, severity: "mild" as const }],
+                      : [
+                          ...prev,
+                          { bodyPart: part, severity: "mild" as const },
+                        ],
                   )
                 }
                 className={cn(
                   "rounded-full border px-3 py-1.5 text-xs capitalize transition-colors",
                   existing
-                    ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium"
+                    ? "border-amber-500 bg-amber-500/10 font-medium text-amber-700 dark:text-amber-400"
                     : "text-muted-foreground hover:border-foreground/30",
                 )}
               >
@@ -324,8 +386,11 @@ export default function OnboardingPage() {
         {injuries.length > 0 && (
           <div className="mt-2 space-y-2">
             {injuries.map((injury) => (
-              <div key={injury.bodyPart} className="flex items-center gap-2 text-sm">
-                <span className="capitalize font-medium min-w-[80px]">
+              <div
+                key={injury.bodyPart}
+                className="flex items-center gap-2 text-sm"
+              >
+                <span className="min-w-[80px] font-medium capitalize">
                   {injury.bodyPart.replace("_", " ")}:
                 </span>
                 {(["mild", "moderate", "severe"] as const).map((sev) => (
@@ -381,17 +446,17 @@ export default function OnboardingPage() {
       </div>
 
       <p className="text-muted-foreground text-xs italic">
-        💡 All health information is optional and stored locally. It helps our AI
-        avoid unsafe recommendations.
+        💡 All health information is optional and stored locally. It helps our
+        AI avoid unsafe recommendations.
       </p>
       <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
         <p className="text-xs text-amber-700 dark:text-amber-400">
           <strong>⚠️ Medical Disclaimer:</strong> PulseCoach is not a substitute
-          for professional medical advice, diagnosis, or treatment. Recommendations
-          are generated by AI and may not account for all individual factors.
-          Always consult a qualified healthcare professional before starting or
-          modifying any exercise program, especially if you have pre-existing
-          health conditions. Individual results may vary.
+          for professional medical advice, diagnosis, or treatment.
+          Recommendations are generated by AI and may not account for all
+          individual factors. Always consult a qualified healthcare professional
+          before starting or modifying any exercise program, especially if you
+          have pre-existing health conditions. Individual results may vary.
         </p>
       </div>
     </div>,

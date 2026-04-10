@@ -1,19 +1,22 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
+import type { Baselines, DailyMetricInput } from "../types";
 import {
   calculateReadiness,
-  scoreSleepQuantity,
-  scoreSleepQuality,
-  scoreHRV,
-  scoreRestingHR,
-  scoreTrainingLoad,
-  scoreStressAndBattery,
   getReadinessZone,
   getZoneColor,
+  scoreHRV,
+  scoreRestingHR,
+  scoreSleepQuality,
+  scoreSleepQuantity,
+  scoreStressAndBattery,
+  scoreTrainingLoad,
 } from "../readiness";
-import type { DailyMetricInput, Baselines } from "../types";
 
 // Helper to create a metric with defaults
-function makeMetric(overrides: Partial<DailyMetricInput> = {}): DailyMetricInput {
+function makeMetric(
+  overrides: Partial<DailyMetricInput> = {},
+): DailyMetricInput {
   return {
     date: "2026-03-15",
     sleepScore: null,
@@ -178,7 +181,10 @@ describe("scoreTrainingLoad", () => {
 
   it("penalizes high ACWR (>1.3)", () => {
     // Need 28 values: high recent, low chronic
-    const strains = [18, 18, 18, 18, 18, 18, 18, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+    const strains = [
+      18, 18, 18, 18, 18, 18, 18, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+      5, 5, 5, 5, 5, 5,
+    ];
     const score = scoreTrainingLoad(strains);
     expect(score).toBeLessThan(70);
   });

@@ -12,15 +12,16 @@
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import pg from "pg";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq, and } from "drizzle-orm";
+import pg from "pg";
+
 import {
-  Profile,
-  DailyMetric,
   Activity,
-  VO2maxEstimate,
+  DailyMetric,
+  Profile,
   RacePrediction,
+  VO2maxEstimate,
 } from "../packages/db/src/schema";
 
 // ---------------------------------------------------------------------------
@@ -107,14 +108,19 @@ async function importDailyStats() {
   for (const r of rows) {
     const date = r.time.split("T")[0];
     // Compute avg stress score from durations (weighted average of stress levels)
-    const totalStress = (r.highStressDuration ?? 0) + (r.mediumStressDuration ?? 0) + (r.lowStressDuration ?? 0);
-    const stressScore = totalStress > 0
-      ? Math.round(
-          ((r.highStressPercentage ?? 0) * 80 +
-            (r.mediumStressPercentage ?? 0) * 50 +
-            (r.lowStressPercentage ?? 0) * 25) / 100
-        )
-      : null;
+    const totalStress =
+      (r.highStressDuration ?? 0) +
+      (r.mediumStressDuration ?? 0) +
+      (r.lowStressDuration ?? 0);
+    const stressScore =
+      totalStress > 0
+        ? Math.round(
+            ((r.highStressPercentage ?? 0) * 80 +
+              (r.mediumStressPercentage ?? 0) * 50 +
+              (r.lowStressPercentage ?? 0) * 25) /
+              100,
+          )
+        : null;
 
     const intensityMin =
       (r.moderateIntensityMinutes ?? 0) + (r.vigorousIntensityMinutes ?? 0);
@@ -133,14 +139,14 @@ async function importDailyStats() {
           bodyBatteryLow: r.bodyBatteryLowestValue ?? null,
           steps: r.totalSteps ?? null,
           calories: Math.round(
-            (r.activeKilocalories ?? 0) + (r.bmrKilocalories ?? 0)
+            (r.activeKilocalories ?? 0) + (r.bmrKilocalories ?? 0),
           ),
           spo2: r.averageSpo2 ?? null,
           floorsClimbed: r.floorsAscended ? Math.round(r.floorsAscended) : null,
           intensityMinutes: intensityMin > 0 ? intensityMin : null,
         })
         .where(
-          and(eq(DailyMetric.userId, USER_ID), eq(DailyMetric.date, date))
+          and(eq(DailyMetric.userId, USER_ID), eq(DailyMetric.date, date)),
         );
 
       if (updated.rowCount === 0) {
@@ -159,10 +165,12 @@ async function importDailyStats() {
             bodyBatteryLow: r.bodyBatteryLowestValue ?? null,
             steps: r.totalSteps ?? null,
             calories: Math.round(
-              (r.activeKilocalories ?? 0) + (r.bmrKilocalories ?? 0)
+              (r.activeKilocalories ?? 0) + (r.bmrKilocalories ?? 0),
             ),
             spo2: r.averageSpo2 ?? null,
-            floorsClimbed: r.floorsAscended ? Math.round(r.floorsAscended) : null,
+            floorsClimbed: r.floorsAscended
+              ? Math.round(r.floorsAscended)
+              : null,
             intensityMinutes: intensityMin > 0 ? intensityMin : null,
           })
           .onConflictDoNothing();
@@ -217,7 +225,7 @@ async function importSleepSummary() {
             : null,
         })
         .where(
-          and(eq(DailyMetric.userId, USER_ID), eq(DailyMetric.date, date))
+          and(eq(DailyMetric.userId, USER_ID), eq(DailyMetric.date, date)),
         );
 
       // If no row existed, insert a new one
@@ -288,7 +296,7 @@ async function importActivities() {
     const distanceM = r.distance ?? null;
     const avgPace =
       distanceM && distanceM > 0 && durationSec > 0
-        ? Math.round((durationSec / (distanceM / 1000)))
+        ? Math.round(durationSec / (distanceM / 1000))
         : null;
 
     // Simple TRIMP estimate: duration(min) × HR_ratio × gender_factor
@@ -302,9 +310,10 @@ async function importActivities() {
       const estimatedMax = maxHr ?? 188;
       const deltaRatio = (avgHr - restHr) / (estimatedMax - restHr);
       if (deltaRatio > 0) {
-        trimpScore = Math.round(
-          durationMin * deltaRatio * 0.64 * Math.exp(1.92 * deltaRatio) * 10
-        ) / 10;
+        trimpScore =
+          Math.round(
+            durationMin * deltaRatio * 0.64 * Math.exp(1.92 * deltaRatio) * 10,
+          ) / 10;
       }
     }
 
@@ -328,21 +337,11 @@ async function importActivities() {
             ? Math.round(Math.min(21, trimpScore / 10) * 10) / 10
             : null,
           hrZoneMinutes: {
-            zone1: r.hrTimeInZone_1
-              ? Math.round(r.hrTimeInZone_1 / 60)
-              : 0,
-            zone2: r.hrTimeInZone_2
-              ? Math.round(r.hrTimeInZone_2 / 60)
-              : 0,
-            zone3: r.hrTimeInZone_3
-              ? Math.round(r.hrTimeInZone_3 / 60)
-              : 0,
-            zone4: r.hrTimeInZone_4
-              ? Math.round(r.hrTimeInZone_4 / 60)
-              : 0,
-            zone5: r.hrTimeInZone_5
-              ? Math.round(r.hrTimeInZone_5 / 60)
-              : 0,
+            zone1: r.hrTimeInZone_1 ? Math.round(r.hrTimeInZone_1 / 60) : 0,
+            zone2: r.hrTimeInZone_2 ? Math.round(r.hrTimeInZone_2 / 60) : 0,
+            zone3: r.hrTimeInZone_3 ? Math.round(r.hrTimeInZone_3 / 60) : 0,
+            zone4: r.hrTimeInZone_4 ? Math.round(r.hrTimeInZone_4 / 60) : 0,
+            zone5: r.hrTimeInZone_5 ? Math.round(r.hrTimeInZone_5 / 60) : 0,
           },
         })
         .onConflictDoNothing();
@@ -350,7 +349,7 @@ async function importActivities() {
     } catch (e: any) {
       if (!e.message?.includes("duplicate")) {
         console.warn(
-          `   ⚠ Activity ${r.activityName} at ${r.time}: ${e.message}`
+          `   ⚠ Activity ${r.activityName} at ${r.time}: ${e.message}`,
         );
       }
     }
@@ -450,13 +449,20 @@ async function updateProfile() {
   const weightGrams = bodyComp[0]?.weight;
   const massKg = weightGrams ? Math.round(weightGrams / 1000) : null;
   const age = fitnessAge[0]?.chronologicalAge ?? null;
-  const vo2maxVal = vo2max.length > 0 ? vo2max[vo2max.length - 1]?.VO2_max_value : null;
-  const restHr = daily.length > 0 ? daily[daily.length - 1]?.restingHeartRate : null;
+  const vo2maxVal =
+    vo2max.length > 0 ? vo2max[vo2max.length - 1]?.VO2_max_value : null;
+  const restHr =
+    daily.length > 0 ? daily[daily.length - 1]?.restingHeartRate : null;
 
   // Compute avg HRV from sleep data
   const sleepData = readInfluxJSON("sleep_summary.json");
-  const hrvValues = sleepData.filter((s: any) => s.avgOvernightHrv).map((s: any) => s.avgOvernightHrv);
-  const avgHrv = hrvValues.length > 0 ? hrvValues.reduce((a: number, b: number) => a + b, 0) / hrvValues.length : null;
+  const hrvValues = sleepData
+    .filter((s: any) => s.avgOvernightHrv)
+    .map((s: any) => s.avgOvernightHrv);
+  const avgHrv =
+    hrvValues.length > 0
+      ? hrvValues.reduce((a: number, b: number) => a + b, 0) / hrvValues.length
+      : null;
 
   try {
     await db
@@ -470,7 +476,7 @@ async function updateProfile() {
       })
       .where(eq(Profile.userId, USER_ID));
     console.log(
-      `   ✅ Profile updated: age=${age}, mass=${massKg}kg, RHR=${restHr}, HRV=${avgHrv ? Math.round(avgHrv) : "?"}, VO2max=${vo2maxVal}`
+      `   ✅ Profile updated: age=${age}, mass=${massKg}kg, RHR=${restHr}, HRV=${avgHrv ? Math.round(avgHrv) : "?"}, VO2max=${vo2maxVal}`,
     );
   } catch (e: any) {
     console.warn(`   ⚠ Profile update: ${e.message}`);
@@ -483,20 +489,22 @@ async function updateProfile() {
 async function main() {
   console.log("🔄 PulseCoach ETL: InfluxDB JSON → PostgreSQL");
   console.log(`   Data dir: ${DATA_DIR}`);
-  console.log(`   Postgres: ${POSTGRES_URL.replace(/:[^:@]+@/, ':***@')}`);
+  console.log(`   Postgres: ${POSTGRES_URL.replace(/:[^:@]+@/, ":***@")}`);
   console.log(`   User: ${USER_ID}`);
   console.log("");
 
   await updateProfile();
-  await importLegacyDaily();  // 2020-2025 (basic: steps, calories, distance)
-  await importDailyStats();   // Sep 2025+ (detailed: HR, stress, body battery, etc.)
+  await importLegacyDaily(); // 2020-2025 (basic: steps, calories, distance)
+  await importDailyStats(); // Sep 2025+ (detailed: HR, stress, body battery, etc.)
   await importSleepSummary(); // Recent sleep data — merges into DailyMetric
   await importActivities();
   await importVO2max();
   await importRacePredictions();
 
   console.log("\n🎉 ETL complete! Your real Garmin data is now in the app.");
-  console.log("   Start the app: cd ~/git/garmin-coach && pnpm --filter @acme/nextjs dev");
+  console.log(
+    "   Start the app: cd ~/git/garmin-coach && pnpm --filter @acme/nextjs dev",
+  );
   await pool.end();
 }
 

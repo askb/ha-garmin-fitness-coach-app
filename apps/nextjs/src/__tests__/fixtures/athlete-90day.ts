@@ -147,8 +147,7 @@ export const athleteBData: DailyMetricInput[] = Array.from(
   (_, i) => {
     const load = athleteBLoad(i);
     // Build phase (0-59): HRV dips; taper (60-74): HRV recovers; race (75+): low
-    const buildPhase =
-      i < 60 ? i / 60 : i < 75 ? (75 - i) / 15 : 0;
+    const buildPhase = i < 60 ? i / 60 : i < 75 ? (75 - i) / 15 : 0;
     const hrv = 72 - buildPhase * 8 + Math.sin(i * 0.35) * 2;
     const restingHr = 48 + Math.round(buildPhase * 5);
     return makeDay(
@@ -206,9 +205,7 @@ export const athleteAExpected = {
     athleteAData.slice(0, 42).map((d) => d.garminTrainingLoad ?? 0),
   ),
   /** CTL/ATL after full 90-day block */
-  day90: simulateCTLATL(
-    athleteAData.map((d) => d.garminTrainingLoad ?? 0),
-  ),
+  day90: simulateCTLATL(athleteAData.map((d) => d.garminTrainingLoad ?? 0)),
   /** Known HRV distribution parameters */
   hrvMean: 65,
   hrvSD: 4,
@@ -223,9 +220,7 @@ export const athleteBExpected = {
   day75: simulateCTLATL(
     athleteBData.slice(0, 75).map((d) => d.garminTrainingLoad ?? 0),
   ),
-  day90: simulateCTLATL(
-    athleteBData.map((d) => d.garminTrainingLoad ?? 0),
-  ),
+  day90: simulateCTLATL(athleteBData.map((d) => d.garminTrainingLoad ?? 0)),
 };
 
 export const athleteCExpected = {

@@ -29,9 +29,11 @@ export interface InterventionPatternResult {
  * Rule 1: ACWR Injury Risk
  * > 1.5 → HIGH, > 1.3 → MEDIUM, otherwise not triggered.
  */
-export function checkAcwrRisk(
-  latestAcwr: number,
-): { triggered: boolean; severity: Severity | null; confidence: number } {
+export function checkAcwrRisk(latestAcwr: number): {
+  triggered: boolean;
+  severity: Severity | null;
+  confidence: number;
+} {
   if (latestAcwr > 1.5) {
     return { triggered: true, severity: "HIGH", confidence: 0.85 };
   }
@@ -45,9 +47,11 @@ export function checkAcwrRisk(
  * Rule 2: TSB Overreaching
  * < -20 → HIGH, < -10 → MEDIUM, otherwise not triggered.
  */
-export function checkTsbOverreaching(
-  latestTsb: number,
-): { triggered: boolean; severity: Severity | null; confidence: number } {
+export function checkTsbOverreaching(latestTsb: number): {
+  triggered: boolean;
+  severity: Severity | null;
+  confidence: number;
+} {
   if (latestTsb < -20) {
     return { triggered: true, severity: "HIGH", confidence: 0.8 };
   }
@@ -79,9 +83,10 @@ export function checkHrvDeviation(
  * Rule 4: Sleep Debt
  * avgSleepMinutes < 360 (6h) → HIGH, < 420 (7h) → LOW.
  */
-export function checkSleepDebt(
-  avgSleepMinutes: number,
-): { triggered: boolean; severity: Severity | null } {
+export function checkSleepDebt(avgSleepMinutes: number): {
+  triggered: boolean;
+  severity: Severity | null;
+} {
   if (avgSleepMinutes < 360) {
     return { triggered: true, severity: "HIGH" };
   }

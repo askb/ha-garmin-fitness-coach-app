@@ -23,9 +23,7 @@ export const activityRouter = {
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      const since = new Date(
-        Date.now() - input.days * 24 * 60 * 60 * 1000,
-      );
+      const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000);
 
       const conditions = [
         eq(Activity.userId, userId),
@@ -66,10 +64,7 @@ export const activityRouter = {
       const userId = ctx.session.user.id;
 
       const activity = await ctx.db.query.Activity.findFirst({
-        where: and(
-          eq(Activity.id, input.id),
-          eq(Activity.userId, userId),
-        ),
+        where: and(eq(Activity.id, input.id), eq(Activity.userId, userId)),
       });
 
       if (!activity) {

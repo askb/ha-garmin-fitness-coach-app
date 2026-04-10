@@ -82,87 +82,97 @@ export async function buildDataContext(
   userId: string,
 ): Promise<string> {
   // Parallel queries -------------------------------------------------------
-  const [metrics14, activities10, profile, latestReadiness, latestVo2, metrics30, journal7, interventions10, advancedMetrics42, baselines] =
-    await Promise.all([
-      // Last 14 days of daily metrics
-      db.query.DailyMetric.findMany({
-        where: and(
-          eq(DailyMetric.userId, userId),
-          gte(DailyMetric.date, dateNDaysAgo(14)),
-        ),
-        orderBy: desc(DailyMetric.date),
-        limit: 14,
-      }) as Promise<(typeof DailyMetric.$inferSelect)[]>,
+  const [
+    metrics14,
+    activities10,
+    profile,
+    latestReadiness,
+    latestVo2,
+    metrics30,
+    journal7,
+    interventions10,
+    advancedMetrics42,
+    baselines,
+  ] = await Promise.all([
+    // Last 14 days of daily metrics
+    db.query.DailyMetric.findMany({
+      where: and(
+        eq(DailyMetric.userId, userId),
+        gte(DailyMetric.date, dateNDaysAgo(14)),
+      ),
+      orderBy: desc(DailyMetric.date),
+      limit: 14,
+    }) as Promise<(typeof DailyMetric.$inferSelect)[]>,
 
-      // Last 10 activities
-      db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, new Date(Date.now() - 14 * 86_400_000)),
-        ),
-        orderBy: desc(Activity.startedAt),
-        limit: 10,
-      }) as Promise<(typeof Activity.$inferSelect)[]>,
+    // Last 10 activities
+    db.query.Activity.findMany({
+      where: and(
+        eq(Activity.userId, userId),
+        gte(Activity.startedAt, new Date(Date.now() - 14 * 86_400_000)),
+      ),
+      orderBy: desc(Activity.startedAt),
+      limit: 10,
+    }) as Promise<(typeof Activity.$inferSelect)[]>,
 
-      // Profile
-      db.query.Profile.findFirst({
-        where: eq(Profile.userId, userId),
-      }) as Promise<typeof Profile.$inferSelect | undefined>,
+    // Profile
+    db.query.Profile.findFirst({
+      where: eq(Profile.userId, userId),
+    }) as Promise<typeof Profile.$inferSelect | undefined>,
 
-      // Latest readiness score
-      db.query.ReadinessScore.findFirst({
-        where: eq(ReadinessScore.userId, userId),
-        orderBy: desc(ReadinessScore.date),
-      }) as Promise<typeof ReadinessScore.$inferSelect | undefined>,
+    // Latest readiness score
+    db.query.ReadinessScore.findFirst({
+      where: eq(ReadinessScore.userId, userId),
+      orderBy: desc(ReadinessScore.date),
+    }) as Promise<typeof ReadinessScore.$inferSelect | undefined>,
 
-      // Latest VO2max estimate
-      db.query.VO2maxEstimate.findFirst({
-        where: eq(VO2maxEstimate.userId, userId),
-        orderBy: desc(VO2maxEstimate.date),
-      }) as Promise<typeof VO2maxEstimate.$inferSelect | undefined>,
+    // Latest VO2max estimate
+    db.query.VO2maxEstimate.findFirst({
+      where: eq(VO2maxEstimate.userId, userId),
+      orderBy: desc(VO2maxEstimate.date),
+    }) as Promise<typeof VO2maxEstimate.$inferSelect | undefined>,
 
-      // 30-day activities for zone distribution
-      db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, new Date(Date.now() - 30 * 86_400_000)),
-        ),
-        orderBy: desc(Activity.startedAt),
-        limit: 30,
-      }) as Promise<(typeof Activity.$inferSelect)[]>,
+    // 30-day activities for zone distribution
+    db.query.Activity.findMany({
+      where: and(
+        eq(Activity.userId, userId),
+        gte(Activity.startedAt, new Date(Date.now() - 30 * 86_400_000)),
+      ),
+      orderBy: desc(Activity.startedAt),
+      limit: 30,
+    }) as Promise<(typeof Activity.$inferSelect)[]>,
 
-      // 7 days of journal entries
-      db.query.JournalEntry.findMany({
-        where: and(
-          eq(JournalEntry.userId, userId),
-          gte(JournalEntry.date, dateNDaysAgo(7)),
-        ),
-        orderBy: desc(JournalEntry.date),
-        limit: 7,
-      }) as Promise<(typeof JournalEntry.$inferSelect)[]>,
+    // 7 days of journal entries
+    db.query.JournalEntry.findMany({
+      where: and(
+        eq(JournalEntry.userId, userId),
+        gte(JournalEntry.date, dateNDaysAgo(7)),
+      ),
+      orderBy: desc(JournalEntry.date),
+      limit: 7,
+    }) as Promise<(typeof JournalEntry.$inferSelect)[]>,
 
-      // Last 10 interventions
-      db.query.Intervention.findMany({
-        where: eq(Intervention.userId, userId),
-        orderBy: desc(Intervention.date),
-        limit: 10,
-      }) as Promise<(typeof Intervention.$inferSelect)[]>,
+    // Last 10 interventions
+    db.query.Intervention.findMany({
+      where: eq(Intervention.userId, userId),
+      orderBy: desc(Intervention.date),
+      limit: 10,
+    }) as Promise<(typeof Intervention.$inferSelect)[]>,
 
-      // Latest advanced metrics (last 42 days for CTL/ATL/TSB history)
-      db.query.AdvancedMetric.findMany({
-        where: and(
-          eq(AdvancedMetric.userId, userId),
-          gte(AdvancedMetric.date, dateNDaysAgo(42)),
-        ),
-        orderBy: desc(AdvancedMetric.date),
-        limit: 42,
-      }) as Promise<(typeof AdvancedMetric.$inferSelect)[]>,
+    // Latest advanced metrics (last 42 days for CTL/ATL/TSB history)
+    db.query.AdvancedMetric.findMany({
+      where: and(
+        eq(AdvancedMetric.userId, userId),
+        gte(AdvancedMetric.date, dateNDaysAgo(42)),
+      ),
+      orderBy: desc(AdvancedMetric.date),
+      limit: 42,
+    }) as Promise<(typeof AdvancedMetric.$inferSelect)[]>,
 
-      // Athlete baselines
-      db.query.AthleteBaseline.findMany({
-        where: eq(AthleteBaseline.userId, userId),
-      }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
-    ]);
+    // Athlete baselines
+    db.query.AthleteBaseline.findMany({
+      where: eq(AthleteBaseline.userId, userId),
+    }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
+  ]);
 
   // Early exit if no data at all
   if (!profile && metrics14.length === 0 && activities10.length === 0) {
@@ -180,10 +190,16 @@ export async function buildDataContext(
       if (profile.sex) lines.push(`- Sex: ${profile.sex}`);
       if (profile.maxHr) lines.push(`- Max HR: ${profile.maxHr} bpm`);
       if (profile.restingHrBaseline)
-        lines.push(`- Resting HR baseline: ${Math.round(profile.restingHrBaseline)} bpm`);
+        lines.push(
+          `- Resting HR baseline: ${Math.round(profile.restingHrBaseline)} bpm`,
+        );
       if (profile.experienceLevel)
         lines.push(`- Experience: ${profile.experienceLevel}`);
-      if (profile.goals && Array.isArray(profile.goals) && profile.goals.length > 0)
+      if (
+        profile.goals &&
+        Array.isArray(profile.goals) &&
+        profile.goals.length > 0
+      )
         lines.push(
           `- Goals: ${profile.goals.map((g) => `${g.sport} ${g.goalType}${g.target ? ` (${g.target})` : ""}`).join("; ")}`,
         );
@@ -217,13 +233,22 @@ export async function buildDataContext(
       if (profile.hrvBaseline)
         lines.push(`- HRV baseline: ${Math.round(profile.hrvBaseline)} ms`);
       if (profile.sleepBaseline)
-        lines.push(`- Sleep baseline: ${Math.round(profile.sleepBaseline)} min`);
+        lines.push(
+          `- Sleep baseline: ${Math.round(profile.sleepBaseline)} min`,
+        );
 
-      const conditions = profile.healthConditions as string[] | null;
+      const conditions = profile.healthConditions;
       if (conditions && conditions.length > 0)
         lines.push(`- Health conditions: ${conditions.join(", ")}`);
 
-      const injuries = profile.currentInjuries as { bodyPart: string; severity: string; since?: string; notes?: string }[] | null;
+      const injuries = profile.currentInjuries as
+        | {
+            bodyPart: string;
+            severity: string;
+            since?: string;
+            notes?: string;
+          }[]
+        | null;
       if (injuries && injuries.length > 0)
         lines.push(
           `- Current injuries: ${injuries.map((i) => `${i.bodyPart} (${i.severity}${i.since ? `, since ${i.since}` : ""}${i.notes ? ` — ${i.notes}` : ""})`).join("; ")}`,
@@ -263,9 +288,7 @@ export async function buildDataContext(
       const dur = Math.round(a.durationMinutes);
       const hr = a.avgHr ? `HR ${a.avgHr}` : "no HR";
       const strain =
-        a.strainScore != null
-          ? `strain ${a.strainScore.toFixed(1)}`
-          : "";
+        a.strainScore != null ? `strain ${a.strainScore.toFixed(1)}` : "";
       const dist =
         a.distanceMeters != null
           ? `${(a.distanceMeters / 1000).toFixed(1)}km`
@@ -287,7 +310,13 @@ export async function buildDataContext(
     let hasZoneData = false;
     for (const a of metrics30) {
       const zones = a.hrZoneMinutes as
-        | { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number }
+        | {
+            zone1: number;
+            zone2: number;
+            zone3: number;
+            zone4: number;
+            zone5: number;
+          }
         | null
         | undefined;
       if (zones) {
@@ -314,7 +343,9 @@ export async function buildDataContext(
 
   // 5. Sleep (last 7 days) -------------------------------------------------
   {
-    const sleepDays = metrics14.slice(0, 7).filter((m) => m.totalSleepMinutes != null);
+    const sleepDays = metrics14
+      .slice(0, 7)
+      .filter((m) => m.totalSleepMinutes != null);
     if (sleepDays.length > 0) {
       const lines: string[] = ["## Sleep (Last 7 Days)"];
       for (const d of sleepDays) {
@@ -326,8 +357,13 @@ export async function buildDataContext(
       }
       // Sleep debt
       const latestDebt = sleepDays.find((d) => d.sleepDebtMinutes != null);
-      if (latestDebt?.sleepDebtMinutes != null && latestDebt.sleepDebtMinutes > 0) {
-        lines.push(`- Current sleep debt: ${fmtMin(latestDebt.sleepDebtMinutes)}`);
+      if (
+        latestDebt?.sleepDebtMinutes != null &&
+        latestDebt.sleepDebtMinutes > 0
+      ) {
+        lines.push(
+          `- Current sleep debt: ${fmtMin(latestDebt.sleepDebtMinutes)}`,
+        );
       }
       sections.push(lines.join("\n"));
     }
@@ -374,7 +410,9 @@ export async function buildDataContext(
         parts.push(`caffeine=${j.caffeineAmountMg}mg`);
       // Top tags from JSONB
       if (j.tags && typeof j.tags === "object") {
-        const tagEntries = Object.entries(j.tags as Record<string, unknown>).slice(0, 3);
+        const tagEntries = Object.entries(
+          j.tags as Record<string, unknown>,
+        ).slice(0, 3);
         for (const [k, v] of tagEntries) parts.push(`${k}=${String(v)}`);
       }
       const tagStr = parts.length > 0 ? parts.join(", ") : "";
@@ -391,8 +429,13 @@ export async function buildDataContext(
     if (recent.length > 0) {
       const lines: string[] = ["## Recent Interventions (Last 30 Days)"];
       for (const i of recent) {
-        const eff = i.effectivenessRating != null ? ` — effectiveness: ${i.effectivenessRating}/5` : "";
-        const outcome = i.outcomeNotes ? ` — outcome: ${i.outcomeNotes.slice(0, 60)}` : "";
+        const eff =
+          i.effectivenessRating != null
+            ? ` — effectiveness: ${i.effectivenessRating}/5`
+            : "";
+        const outcome = i.outcomeNotes
+          ? ` — outcome: ${i.outcomeNotes.slice(0, 60)}`
+          : "";
         const desc = i.description ? ` — ${i.description.slice(0, 60)}` : "";
         lines.push(`- ${i.date}: [${i.type}]${desc}${eff}${outcome}`);
       }
@@ -405,14 +448,22 @@ export async function buildDataContext(
   if (latestAdv) {
     const lines: string[] = ["## Advanced Load Metrics (Latest)"];
     if (latestAdv.ctl != null && latestAdv.atl != null && latestAdv.tsb != null)
-      lines.push(`- CTL (Fitness): ${latestAdv.ctl.toFixed(1)} | ATL (Fatigue): ${latestAdv.atl.toFixed(1)} | TSB (Form): ${latestAdv.tsb.toFixed(1)}`);
+      lines.push(
+        `- CTL (Fitness): ${latestAdv.ctl.toFixed(1)} | ATL (Fatigue): ${latestAdv.atl.toFixed(1)} | TSB (Form): ${latestAdv.tsb.toFixed(1)}`,
+      );
     if (latestAdv.acwr != null)
-      lines.push(`- ACWR: ${latestAdv.acwr.toFixed(2)} (${acwrStatus(latestAdv.acwr)})`);
+      lines.push(
+        `- ACWR: ${latestAdv.acwr.toFixed(2)} (${acwrStatus(latestAdv.acwr)})`,
+      );
     if (latestAdv.rampRate != null)
-      lines.push(`- Ramp Rate: ${latestAdv.rampRate > 0 ? "+" : ""}${latestAdv.rampRate.toFixed(1)}%`);
+      lines.push(
+        `- Ramp Rate: ${latestAdv.rampRate > 0 ? "+" : ""}${latestAdv.rampRate.toFixed(1)}%`,
+      );
     if (latestAdv.cp != null) lines.push(`- CP: ${Math.round(latestAdv.cp)}w`);
-    if (latestAdv.wPrime != null) lines.push(`- W': ${Math.round(latestAdv.wPrime)}J`);
-    if (latestAdv.mftp != null) lines.push(`- mFTP: ${Math.round(latestAdv.mftp)}w`);
+    if (latestAdv.wPrime != null)
+      lines.push(`- W': ${Math.round(latestAdv.wPrime)}J`);
+    if (latestAdv.mftp != null)
+      lines.push(`- mFTP: ${Math.round(latestAdv.mftp)}w`);
     if (latestAdv.effectiveVo2max != null)
       lines.push(`- Effective VO2max: ${latestAdv.effectiveVo2max.toFixed(1)}`);
     if (lines.length > 1) sections.push(lines.join("\n"));
@@ -423,21 +474,39 @@ export async function buildDataContext(
     const lines: string[] = ["## Personal Baselines (90-day)"];
     const today = metrics14[0];
     for (const b of baselines) {
-      const sd = b.baselineSD != null ? ` (SD: ${b.baselineSD.toFixed(1)})` : "";
+      const sd =
+        b.baselineSD != null ? ` (SD: ${b.baselineSD.toFixed(1)})` : "";
       let todayStr = "";
       if (b.zScoreLatest != null) {
         const z = b.zScoreLatest;
-        const zLabel = z < -1.5 ? "well below baseline" : z < -0.5 ? "below baseline" : z > 1.5 ? "well above baseline" : z > 0.5 ? "above baseline" : "within normal range";
+        const zLabel =
+          z < -1.5
+            ? "well below baseline"
+            : z < -0.5
+              ? "below baseline"
+              : z > 1.5
+                ? "well above baseline"
+                : z > 0.5
+                  ? "above baseline"
+                  : "within normal range";
         todayStr = ` — today's z-score: ${z.toFixed(1)} (${zLabel})`;
       }
       if (b.metricName === "hrv") {
-        const val = today?.hrv != null ? `, today: ${Math.round(today.hrv)} ms` : "";
-        lines.push(`- HRV baseline: ${b.baselineValue.toFixed(1)} ms${sd}${todayStr}${val}`);
+        const val =
+          today?.hrv != null ? `, today: ${Math.round(today.hrv)} ms` : "";
+        lines.push(
+          `- HRV baseline: ${b.baselineValue.toFixed(1)} ms${sd}${todayStr}${val}`,
+        );
       } else if (b.metricName === "restingHr") {
-        const val = today?.restingHr != null ? `, today: ${today.restingHr} bpm` : "";
-        lines.push(`- Resting HR baseline: ${Math.round(b.baselineValue)} bpm${sd}${todayStr}${val}`);
+        const val =
+          today?.restingHr != null ? `, today: ${today.restingHr} bpm` : "";
+        lines.push(
+          `- Resting HR baseline: ${Math.round(b.baselineValue)} bpm${sd}${todayStr}${val}`,
+        );
       } else if (b.metricName === "sleep") {
-        lines.push(`- Sleep baseline: ${fmtMin(b.baselineValue)}${sd}${todayStr}`);
+        lines.push(
+          `- Sleep baseline: ${fmtMin(b.baselineValue)}${sd}${todayStr}`,
+        );
       }
     }
     if (lines.length > 1) sections.push(lines.join("\n"));
@@ -482,12 +551,21 @@ export async function buildDataContext(
       const now = latestAdvMetric.ctl;
       if (ctl7 != null) {
         const pct = ctl7 !== 0 ? ((now - ctl7) / Math.abs(ctl7)) * 100 : 0;
-        const label = pct > 2 ? "improving fitness" : pct < -2 ? "declining fitness" : "stable fitness";
-        lines.push(`- CTL: ${ctl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`);
+        const label =
+          pct > 2
+            ? "improving fitness"
+            : pct < -2
+              ? "declining fitness"
+              : "stable fitness";
+        lines.push(
+          `- CTL: ${ctl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`,
+        );
       }
       if (ctl30 != null) {
         const pct = ctl30 !== 0 ? ((now - ctl30) / Math.abs(ctl30)) * 100 : 0;
-        lines.push(`- CTL 30-day: ${ctl30.toFixed(1)} → ${now.toFixed(1)} (${trendEmoji(pct)} ${fmtPct(pct)})`);
+        lines.push(
+          `- CTL 30-day: ${ctl30.toFixed(1)} → ${now.toFixed(1)} (${trendEmoji(pct)} ${fmtPct(pct)})`,
+        );
       }
     }
 
@@ -497,8 +575,15 @@ export async function buildDataContext(
       const now = latestAdvMetric.atl;
       if (atl7 != null) {
         const pct = atl7 !== 0 ? ((now - atl7) / Math.abs(atl7)) * 100 : 0;
-        const label = pct > 2 ? "increasing fatigue" : pct < -2 ? "decreasing fatigue" : "stable fatigue";
-        lines.push(`- ATL: ${atl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`);
+        const label =
+          pct > 2
+            ? "increasing fatigue"
+            : pct < -2
+              ? "decreasing fatigue"
+              : "stable fatigue";
+        lines.push(
+          `- ATL: ${atl7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}, ${label})`,
+        );
       }
     }
 
@@ -508,8 +593,17 @@ export async function buildDataContext(
       const now = latestAdvMetric.tsb;
       if (tsb7 != null) {
         const pct = tsb7 !== 0 ? ((now - tsb7) / Math.abs(tsb7)) * 100 : 0;
-        const label = now < -20 ? "overreaching risk" : pct < -2 ? "declining form — may need deload" : pct > 2 ? "improving form" : "stable form";
-        lines.push(`- TSB: ${tsb7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${label})`);
+        const label =
+          now < -20
+            ? "overreaching risk"
+            : pct < -2
+              ? "declining form — may need deload"
+              : pct > 2
+                ? "improving form"
+                : "stable form";
+        lines.push(
+          `- TSB: ${tsb7.toFixed(1)} → ${now.toFixed(1)} over 7 days (${trendEmoji(pct)} ${label})`,
+        );
       }
     }
 
@@ -519,8 +613,15 @@ export async function buildDataContext(
       const now = latestAdvMetric.acwr;
       if (acwr7 != null) {
         const pct = acwr7 !== 0 ? ((now - acwr7) / Math.abs(acwr7)) * 100 : 0;
-        const rangeLabel = now >= 0.8 && now <= 1.3 ? "within safe range" : now > 1.3 ? "elevated — injury risk" : "under-training zone";
-        lines.push(`- ACWR: ${acwr7.toFixed(2)} → ${now.toFixed(2)} over 7 days (${trendEmoji(pct)} ${rangeLabel})`);
+        const rangeLabel =
+          now >= 0.8 && now <= 1.3
+            ? "within safe range"
+            : now > 1.3
+              ? "elevated — injury risk"
+              : "under-training zone";
+        lines.push(
+          `- ACWR: ${acwr7.toFixed(2)} → ${now.toFixed(2)} over 7 days (${trendEmoji(pct)} ${rangeLabel})`,
+        );
       }
     }
 
@@ -535,9 +636,12 @@ export async function buildDataContext(
       let zContext = "";
       if (hrBaseline?.zScoreLatest != null) {
         const z = hrBaseline.zScoreLatest;
-        zContext = z > 1.0 ? " — above baseline" : z < -1.0 ? " — below baseline" : "";
+        zContext =
+          z > 1.0 ? " — above baseline" : z < -1.0 ? " — below baseline" : "";
       }
-      lines.push(`- Resting HR: ${prev} → ${now} bpm over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`);
+      lines.push(
+        `- Resting HR: ${prev} → ${now} bpm over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`,
+      );
     }
 
     // HRV trend (from metrics14)
@@ -549,9 +653,12 @@ export async function buildDataContext(
       let zContext = "";
       if (hrvBaseline?.zScoreLatest != null) {
         const z = hrvBaseline.zScoreLatest;
-        zContext = z < -1.5 ? " — recovery concern" : z < -0.5 ? " — monitor" : "";
+        zContext =
+          z < -1.5 ? " — recovery concern" : z < -0.5 ? " — monitor" : "";
       }
-      lines.push(`- HRV: ${Math.round(prev)} → ${Math.round(now)} ms over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`);
+      lines.push(
+        `- HRV: ${Math.round(prev)} → ${Math.round(now)} ms over 7 days (${trendEmoji(pct)} ${fmtPct(pct)}${zContext})`,
+      );
     }
 
     // Sleep score trend (7-day avg vs prior 7-day avg from metrics14)
@@ -559,24 +666,50 @@ export async function buildDataContext(
       const recent7 = metrics14.slice(0, 7).filter((m) => m.sleepScore != null);
       const prior7 = metrics14.slice(7, 14).filter((m) => m.sleepScore != null);
       if (recent7.length >= 3 && prior7.length >= 3) {
-        const recentAvg = recent7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / recent7.length;
-        const priorAvg = prior7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / prior7.length;
-        const pct = priorAvg !== 0 ? ((recentAvg - priorAvg) / Math.abs(priorAvg)) * 100 : 0;
-        const label = pct < -2 ? "declining — prioritize sleep" : pct > 2 ? "improving" : "stable";
-        lines.push(`- Sleep Score: ${Math.round(priorAvg)} → ${Math.round(recentAvg)} avg over 7 days (${trendEmoji(pct)} ${label})`);
+        const recentAvg =
+          recent7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / recent7.length;
+        const priorAvg =
+          prior7.reduce((s, m) => s + (m.sleepScore ?? 0), 0) / prior7.length;
+        const pct =
+          priorAvg !== 0
+            ? ((recentAvg - priorAvg) / Math.abs(priorAvg)) * 100
+            : 0;
+        const label =
+          pct < -2
+            ? "declining — prioritize sleep"
+            : pct > 2
+              ? "improving"
+              : "stable";
+        lines.push(
+          `- Sleep Score: ${Math.round(priorAvg)} → ${Math.round(recentAvg)} avg over 7 days (${trendEmoji(pct)} ${label})`,
+        );
       }
     }
 
     // VO2max trend (30-day)
     if (latestVo2) {
-      const vo2_30 = findValueNDaysAgo(advancedMetrics42, 30, (m) => m.effectiveVo2max);
+      const vo2_30 = findValueNDaysAgo(
+        advancedMetrics42,
+        30,
+        (m) => m.effectiveVo2max,
+      );
       if (vo2_30 != null) {
         const now = latestVo2.value;
-        const pct = vo2_30 !== 0 ? ((now - vo2_30) / Math.abs(vo2_30)) * 100 : 0;
-        const label = Math.abs(pct) <= 2 ? "stable, no significant change in 30 days" : pct > 0 ? "improving" : "declining";
-        lines.push(`- VO2max: ${vo2_30.toFixed(1)} → ${now.toFixed(1)} over 30 days (${trendEmoji(pct)} ${label})`);
+        const pct =
+          vo2_30 !== 0 ? ((now - vo2_30) / Math.abs(vo2_30)) * 100 : 0;
+        const label =
+          Math.abs(pct) <= 2
+            ? "stable, no significant change in 30 days"
+            : pct > 0
+              ? "improving"
+              : "declining";
+        lines.push(
+          `- VO2max: ${vo2_30.toFixed(1)} → ${now.toFixed(1)} over 30 days (${trendEmoji(pct)} ${label})`,
+        );
       } else {
-        lines.push(`- VO2max: ${latestVo2.value.toFixed(1)} (insufficient history for trend)`);
+        lines.push(
+          `- VO2max: ${latestVo2.value.toFixed(1)} (insufficient history for trend)`,
+        );
       }
     }
 
@@ -589,31 +722,49 @@ export async function buildDataContext(
     const latestAdvMetric = advancedMetrics42[0];
 
     // PMC Chart interpretation
-    if (latestAdvMetric?.ctl != null && latestAdvMetric.atl != null && latestAdvMetric.tsb != null) {
+    if (
+      latestAdvMetric?.ctl != null &&
+      latestAdvMetric.atl != null &&
+      latestAdvMetric.tsb != null
+    ) {
       const ctl7 = advancedMetrics42.find((m) => m.date <= dateNDaysAgo(7));
       let rampNote = "";
       if (ctl7?.ctl != null && latestAdvMetric.rampRate != null) {
-        rampNote = Math.abs(latestAdvMetric.rampRate) > 8
-          ? ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}% exceeds safe limit (5-8%). Reduce volume.`
-          : ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}%/week (safe <5-8 pts).`;
+        rampNote =
+          Math.abs(latestAdvMetric.rampRate) > 8
+            ? ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}% exceeds safe limit (5-8%). Reduce volume.`
+            : ` Ramp rate ${latestAdvMetric.rampRate.toFixed(1)}%/week (safe <5-8 pts).`;
       }
-      const tsbNote = latestAdvMetric.tsb < -20
-        ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests overreaching — consider a 5-7 day deload.`
-        : latestAdvMetric.tsb < -10
-          ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests moderate fatigue. Consider a 3-5 day taper if racing soon.`
-          : latestAdvMetric.tsb > 5
-            ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — well rested, ready for quality sessions or racing.`
-            : ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — balanced training/recovery.`;
-      lines.push(`- **PMC Chart (Training)**: CTL ${latestAdvMetric.ctl.toFixed(1)}, ATL ${latestAdvMetric.atl.toFixed(1)}.${rampNote}${tsbNote}`);
+      const tsbNote =
+        latestAdvMetric.tsb < -20
+          ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests overreaching — consider a 5-7 day deload.`
+          : latestAdvMetric.tsb < -10
+            ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} suggests moderate fatigue. Consider a 3-5 day taper if racing soon.`
+            : latestAdvMetric.tsb > 5
+              ? ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — well rested, ready for quality sessions or racing.`
+              : ` TSB at ${latestAdvMetric.tsb.toFixed(1)} — balanced training/recovery.`;
+      lines.push(
+        `- **PMC Chart (Training)**: CTL ${latestAdvMetric.ctl.toFixed(1)}, ATL ${latestAdvMetric.atl.toFixed(1)}.${rampNote}${tsbNote}`,
+      );
     }
 
     // Zone Distribution interpretation
     {
-      let totalZ1 = 0, totalZ2 = 0, totalZ3 = 0, totalZ4 = 0, totalZ5 = 0;
+      let totalZ1 = 0,
+        totalZ2 = 0,
+        totalZ3 = 0,
+        totalZ4 = 0,
+        totalZ5 = 0;
       let hasZoneData = false;
       for (const a of metrics30) {
         const zones = a.hrZoneMinutes as
-          | { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number }
+          | {
+              zone1: number;
+              zone2: number;
+              zone3: number;
+              zone4: number;
+              zone5: number;
+            }
           | null
           | undefined;
         if (zones) {
@@ -639,56 +790,73 @@ export async function buildDataContext(
         } else {
           advice = ` Distribution looks reasonable for polarized training.`;
         }
-        lines.push(`- **Zone Distribution (Zones)**: Current split ${pct(totalZ1)}/${pct(totalZ2)}/${pct(totalZ3)}/${pct(totalZ4)}/${pct(totalZ5)}% (Z1-Z5).${advice}`);
+        lines.push(
+          `- **Zone Distribution (Zones)**: Current split ${pct(totalZ1)}/${pct(totalZ2)}/${pct(totalZ3)}/${pct(totalZ4)}/${pct(totalZ5)}% (Z1-Z5).${advice}`,
+        );
       }
     }
 
     // Sleep interpretation
     {
-      const sleepDays = metrics14.slice(0, 7).filter((m) => m.totalSleepMinutes != null);
+      const sleepDays = metrics14
+        .slice(0, 7)
+        .filter((m) => m.totalSleepMinutes != null);
       if (sleepDays.length > 0) {
-        const avgMinutes = sleepDays.reduce((s, m) => s + (m.totalSleepMinutes ?? 0), 0) / sleepDays.length;
+        const avgMinutes =
+          sleepDays.reduce((s, m) => s + (m.totalSleepMinutes ?? 0), 0) /
+          sleepDays.length;
         const avgHours = avgMinutes / 60;
-        const advice = avgHours < 7
-          ? ` Below 7h threshold. 1-month target: 7+ hours avg.`
-          : avgHours < 8
-            ? ` Adequate but could benefit from targeting 8h for performance gains (Mah et al.).`
-            : ` Excellent sleep duration supporting recovery.`;
-        lines.push(`- **Sleep (Sleep)**: Average ${avgHours.toFixed(1)}h this week.${advice}`);
+        const advice =
+          avgHours < 7
+            ? ` Below 7h threshold. 1-month target: 7+ hours avg.`
+            : avgHours < 8
+              ? ` Adequate but could benefit from targeting 8h for performance gains (Mah et al.).`
+              : ` Excellent sleep duration supporting recovery.`;
+        lines.push(
+          `- **Sleep (Sleep)**: Average ${avgHours.toFixed(1)}h this week.${advice}`,
+        );
       }
     }
 
     // Readiness interpretation
     if (latestReadiness) {
       const score = latestReadiness.score;
-      const advice = score < 40
-        ? ` Below 40 threshold — deload recommended. Reduce training intensity and volume.`
-        : score < 60
-          ? ` Moderate readiness. Avoid high-intensity work; prioritize easy sessions and recovery.`
-          : score < 80
-            ? ` Good readiness. Proceed with planned training, monitor how you feel.`
-            : ` Excellent readiness. Ideal day for quality/hard sessions.`;
-      lines.push(`- **Readiness (Dashboard)**: Score ${score}/100 — ${latestReadiness.zone}.${advice}`);
+      const advice =
+        score < 40
+          ? ` Below 40 threshold — deload recommended. Reduce training intensity and volume.`
+          : score < 60
+            ? ` Moderate readiness. Avoid high-intensity work; prioritize easy sessions and recovery.`
+            : score < 80
+              ? ` Good readiness. Proceed with planned training, monitor how you feel.`
+              : ` Excellent readiness. Ideal day for quality/hard sessions.`;
+      lines.push(
+        `- **Readiness (Dashboard)**: Score ${score}/100 — ${latestReadiness.zone}.${advice}`,
+      );
     }
 
     // ACWR interpretation
     if (latestAdvMetric?.acwr != null) {
       const acwr = latestAdvMetric.acwr;
-      const advice = acwr > 1.5
-        ? ` HIGH injury risk. Immediately reduce acute load. Skip planned intensity.`
-        : acwr > 1.3
-          ? ` CAUTION zone. Reduce intensity this week. Avoid adding new stressors.`
-          : acwr < 0.8
-            ? ` Under-training. Gradually increase training stimulus to avoid detraining.`
-            : ` No action needed — maintain current training approach.`;
-      lines.push(`- **ACWR Gauge (Training)**: ${acwr.toFixed(2)} — ${acwrStatus(acwr)}.${advice}`);
+      const advice =
+        acwr > 1.5
+          ? ` HIGH injury risk. Immediately reduce acute load. Skip planned intensity.`
+          : acwr > 1.3
+            ? ` CAUTION zone. Reduce intensity this week. Avoid adding new stressors.`
+            : acwr < 0.8
+              ? ` Under-training. Gradually increase training stimulus to avoid detraining.`
+              : ` No action needed — maintain current training approach.`;
+      lines.push(
+        `- **ACWR Gauge (Training)**: ${acwr.toFixed(2)} — ${acwrStatus(acwr)}.${advice}`,
+      );
     }
 
     // Resting HR autonomic stress check
     {
       const hrBaseline = baselines.find((b) => b.metricName === "restingHr");
       if (hrBaseline?.zScoreLatest != null && hrBaseline.zScoreLatest < -1.5) {
-        lines.push(`- **Autonomic Stress Alert**: Resting HR z-score ${hrBaseline.zScoreLatest.toFixed(1)} indicates significant autonomic stress. Prioritize recovery and consider skipping high-intensity sessions.`);
+        lines.push(
+          `- **Autonomic Stress Alert**: Resting HR z-score ${hrBaseline.zScoreLatest.toFixed(1)} indicates significant autonomic stress. Prioritize recovery and consider skipping high-intensity sessions.`,
+        );
       }
     }
 

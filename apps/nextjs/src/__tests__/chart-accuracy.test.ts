@@ -10,19 +10,20 @@
  *   Hulin BT et al. Br J Sports Med. 2016;50(4):231-236 — ACWR thresholds
  *   Gabbett TJ. Br J Sports Med. 2016;50(5):273-280 — injury risk zones
  */
-import { describe, it, expect } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
+
 import {
-  computeTrainingLoads,
-  computeACWR,
   calculateReadiness,
+  computeACWR,
   computeBaselines,
-  scoreSleepQuantity,
-  scoreSleepQuality,
+  computeTrainingLoads,
+  getReadinessZone,
   scoreHRV,
   scoreRestingHR,
-  scoreTrainingLoad,
+  scoreSleepQuality,
+  scoreSleepQuantity,
   scoreStressAndBattery,
-  getReadinessZone,
+  scoreTrainingLoad,
 } from "@acme/engine";
 
 import {
@@ -103,12 +104,15 @@ interface ZoneMinutes {
   zone5: number;
 }
 
-function computeZonePct(
-  zones: ZoneMinutes,
-): { zone1: number; zone2: number; zone3: number; zone4: number; zone5: number } {
+function computeZonePct(zones: ZoneMinutes): {
+  zone1: number;
+  zone2: number;
+  zone3: number;
+  zone4: number;
+  zone5: number;
+} {
   const total = Object.values(zones).reduce((a, b) => a + b, 0);
-  if (total === 0)
-    return { zone1: 0, zone2: 0, zone3: 0, zone4: 0, zone5: 0 };
+  if (total === 0) return { zone1: 0, zone2: 0, zone3: 0, zone4: 0, zone5: 0 };
   return {
     zone1: (zones.zone1 / total) * 100,
     zone2: (zones.zone2 / total) * 100,
@@ -317,9 +321,9 @@ describe("Readiness Score Validation", () => {
       medium: false,
       high: false,
     };
-    expect(confidenceMap["low"]).toBe(true);
-    expect(confidenceMap["medium"]).toBe(false);
-    expect(confidenceMap["high"]).toBe(false);
+    expect(confidenceMap.low).toBe(true);
+    expect(confidenceMap.medium).toBe(false);
+    expect(confidenceMap.high).toBe(false);
 
     // Also verify the engine returns 'low' when data is insufficient
     const dayMissing3 = {
@@ -370,8 +374,7 @@ describe("Zone Distribution", () => {
 
     for (const zones of testCases) {
       const pct = computeZonePct(zones);
-      const total =
-        pct.zone1 + pct.zone2 + pct.zone3 + pct.zone4 + pct.zone5;
+      const total = pct.zone1 + pct.zone2 + pct.zone3 + pct.zone4 + pct.zone5;
       expect(Math.abs(total - 100)).toBeLessThan(0.1);
     }
   });
