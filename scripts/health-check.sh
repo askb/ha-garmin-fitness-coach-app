@@ -11,7 +11,7 @@ GRN='\033[0;32m'
 CYN='\033[0;36m'
 RST='\033[0m'
 
-LOG_DIR="${HOME}/.local/share/garmin-coach"
+LOG_DIR="${HOME}/.local/share/pulsecoach"
 CRASH_LOG="${LOG_DIR}/crash-history.csv"
 mkdir -p "${LOG_DIR}"
 
@@ -60,13 +60,13 @@ echo ""
 echo "  Memory usage:"
 docker stats --no-stream --format "  {{.Name}}: {{.MemUsage}} ({{.MemPerc}})" 2>/dev/null | sort
 
-# 5. garmin-coach specific checks
+# 5. PulseCoach specific checks
 echo ""
 echo -e "${CYN}▸ PulseCoach Services${RST}"
 
 # Postgres
-if docker exec garmin-coach-postgres-1 pg_isready -U dev -d pulsecoach &>/dev/null; then
-    row_count=$(docker exec garmin-coach-postgres-1 psql -U dev -d pulsecoach -tAc \
+if docker compose exec -T postgres pg_isready -U dev -d pulsecoach &>/dev/null; then
+    row_count=$(docker compose exec -T postgres psql -U dev -d pulsecoach -tAc \
         "SELECT json_build_object(
             'daily_metrics', (SELECT count(*) FROM daily_metric),
             'activities', (SELECT count(*) FROM activity),
@@ -78,8 +78,8 @@ else
 fi
 
 # Redis
-if docker exec garmin-coach-redis-1 redis-cli ping &>/dev/null; then
-    redis_mem=$(docker exec garmin-coach-redis-1 redis-cli info memory 2>/dev/null | grep "used_memory_human" | tr -d '\r')
+if docker compose exec -T redis redis-cli ping &>/dev/null; then
+    redis_mem=$(docker compose exec -T redis redis-cli info memory 2>/dev/null | grep "used_memory_human" | tr -d '\r')
     echo -e "  Redis:      ${GRN}healthy${RST} — ${redis_mem}"
 else
     echo -e "  Redis:      ${RED}DOWN${RST}"

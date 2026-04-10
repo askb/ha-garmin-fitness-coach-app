@@ -7,7 +7,7 @@ set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NEXT_DIR="${APP_DIR}/apps/nextjs"
-PORT="${GARMINCOACH_PORT:-3000}"
+PORT="${PORT:-${PULSECOACH_PORT:-${GARMINCOACH_PORT:-3000}}}"
 PID_FILE="${APP_DIR}/logs/pulsecoach.pid"
 LOG_FILE="${APP_DIR}/logs/pulsecoach.log"
 
@@ -44,7 +44,7 @@ docker compose up -d
 # Wait for Postgres
 echo "Waiting for PostgreSQL..."
 for i in $(seq 1 30); do
-  if docker exec garmin-coach-postgres-1 pg_isready -U dev -d pulsecoach -q 2>/dev/null; then
+  if docker compose exec -T postgres pg_isready -U dev -d pulsecoach -q 2>/dev/null; then
     echo "PostgreSQL ready."
     break
   fi
