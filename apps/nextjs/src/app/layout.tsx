@@ -15,14 +15,14 @@ import "~/app/styles.css";
 export const metadata: Metadata = {
   metadataBase: new URL(
     env.VERCEL_ENV === "production"
-      ? "https://garmincoach.app"
+      ? "https://pulsecoach.app"
       : "http://localhost:3000",
   ),
-  title: "GarminCoach — Your Personal Training Coach",
+  title: "PulseCoach — Your Personal Training Coach",
   description:
     "WHOOP-like coaching app powered by your Garmin data. Daily readiness scores, personalized workouts, and smart training guidance.",
   openGraph: {
-    title: "GarminCoach",
+    title: "PulseCoach",
     description: "Daily readiness + personalized workouts from your Garmin data",
   },
 };

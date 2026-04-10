@@ -176,7 +176,7 @@ export default function TeamPage() {
           </h2>
           {athletes.length === 0 ? (
             <p className="text-muted-foreground py-4 text-center text-sm">
-              No athletes added yet. Add a GarminCoach instance below.
+              No athletes added yet. Add a PulseCoach instance below.
             </p>
           ) : (
             <div className="space-y-2">
@@ -238,7 +238,7 @@ export default function TeamPage() {
           />
           <input
             type="url"
-            placeholder="GarminCoach instance URL"
+            placeholder="PulseCoach instance URL"
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addAthlete()}
@@ -256,7 +256,7 @@ export default function TeamPage() {
           ℹ️ About Team Mode
         </h2>
         <p className="text-muted-foreground text-sm leading-relaxed">
-          Team mode connects multiple GarminCoach instances. Each athlete runs
+          Team mode connects multiple PulseCoach instances. Each athlete runs
           their own addon — add their ingress URL here to quickly switch between
           dashboards. Athlete data is stored locally in your browser.
         </p>

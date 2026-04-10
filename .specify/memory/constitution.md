@@ -11,13 +11,13 @@ Current version  : 1.0.0
 Bump type        : MAJOR — initial ratification of project constitution
 Reason           : First formal constitution establishing governance,
                    code quality standards, licensing requirements, and
-                   development practices for the GarminCoach sport
+                   development practices for the PulseCoach sport
                    scientist application.
 -->
 
-# GarminCoach App — Project Constitution
+# PulseCoach App — Project Constitution
 
-> **Canonical governance document** for the GarminCoach sport scientist
+> **Canonical governance document** for the PulseCoach sport scientist
 > application. All contributors — human and AI — are bound by these
 > principles.
 
@@ -246,7 +246,7 @@ Reason           : First formal constitution establishing governance,
 ### Constitutional Authority
 
 This constitution is the **supreme governance document** for the
-GarminCoach project. All contributors, tools, and AI agents must comply
+PulseCoach project. All contributors, tools, and AI agents must comply
 with these principles.
 
 In case of conflict between this constitution and any other project

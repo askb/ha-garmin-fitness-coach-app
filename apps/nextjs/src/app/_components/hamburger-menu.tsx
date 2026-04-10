@@ -112,7 +112,7 @@ export function HamburgerMenu() {
         {/* Header */}
         <div className="border-border flex items-center justify-between border-b px-4 py-3">
           <span className="text-foreground text-sm font-semibold">
-            GarminCoach
+            PulseCoach
           </span>
           <button
             type="button"

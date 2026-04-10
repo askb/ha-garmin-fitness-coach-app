@@ -11,7 +11,7 @@ there is any conflict between the two documents.
 
 ## Project Overview
 
-GarminCoach is an AI-powered sport scientist app that ingests real Garmin
+PulseCoach is an AI-powered sport scientist app that ingests real Garmin
 health/activity data to provide evidence-based coaching, training analysis,
 and recovery optimization.
 

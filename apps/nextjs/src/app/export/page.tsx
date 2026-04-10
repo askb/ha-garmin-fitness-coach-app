@@ -89,7 +89,7 @@ export default function ExportPage() {
     if (!activities.data) return toast.error("Activities data not loaded");
     exportToCSV(
       activities.data as Record<string, unknown>[],
-      `garmincoach-activities-${formatDateForFilename()}.csv`,
+      `pulsecoach-activities-${formatDateForFilename()}.csv`,
     );
   }
 
@@ -97,14 +97,14 @@ export default function ExportPage() {
     const summary = trendsSummary.data;
     if (!summary) return toast.error("Metrics data not loaded");
     const rows = [summary as Record<string, unknown>];
-    exportToCSV(rows, `garmincoach-metrics-${formatDateForFilename()}.csv`);
+    exportToCSV(rows, `pulsecoach-metrics-${formatDateForFilename()}.csv`);
   }
 
   function handleExportJournal() {
     if (!journalQuery.data) return toast.error("Journal data not loaded");
     exportToCSV(
       journalQuery.data as Record<string, unknown>[],
-      `garmincoach-journal-${formatDateForFilename()}.csv`,
+      `pulsecoach-journal-${formatDateForFilename()}.csv`,
     );
   }
 
@@ -116,7 +116,7 @@ export default function ExportPage() {
       metrics: trendsSummary.data ?? {},
       journal: journalQuery.data ?? [],
     };
-    exportToJSON(payload, `garmincoach-backup-${formatDateForFilename()}.json`);
+    exportToJSON(payload, `pulsecoach-backup-${formatDateForFilename()}.json`);
   }
 
   return (

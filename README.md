@@ -1,4 +1,4 @@
-# GarminCoach — AI Fitness Coaching App
+# PulseCoach — AI Fitness Coaching App
 
 AI-powered sport scientist that turns Garmin data into actionable coaching,
 training analysis, and recovery optimization.
@@ -7,7 +7,7 @@ training analysis, and recovery optimization.
 
 ```mermaid
 graph TD
-    subgraph "GarminCoach App (Next.js Monorepo)"
+    subgraph "PulseCoach App (Next.js Monorepo)"
         User([User / Browser])
         NextJS["Next.js 16<br/>Turbopack"]
         tRPC["tRPC API<br/>20 routers · ~150 endpoints"]
@@ -17,7 +17,7 @@ graph TD
         LLM["Ollama / OpenAI"]
     end
 
-    subgraph "GarminCoach Addon (HA)"
+    subgraph "PulseCoach Addon (HA)"
         Sync["garmin-sync.py"]
         Compute["metrics-compute.py"]
         Notify["ha-notify.py"]

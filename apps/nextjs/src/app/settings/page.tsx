@@ -768,7 +768,7 @@ export default function SettingsPage() {
         </p>
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
           <p className="text-xs text-amber-700 dark:text-amber-400">
-            <strong>⚠️ Medical Disclaimer:</strong> GarminCoach provides
+            <strong>⚠️ Medical Disclaimer:</strong> PulseCoach provides
             AI-generated fitness guidance and is not a substitute for professional
             medical advice, diagnosis, or treatment. Always consult a qualified
             healthcare professional before starting or modifying any exercise

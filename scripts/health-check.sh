@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# GarminCoach health check & crash tracker
+# PulseCoach health check & crash tracker
 # Usage: ./scripts/health-check.sh [--full]
 
 set -euo pipefail
@@ -20,7 +20,7 @@ if [ ! -f "${CRASH_LOG}" ]; then
     echo "timestamp,boot_id,classification,uptime_hours,last_log" > "${CRASH_LOG}"
 fi
 
-echo -e "${CYN}═══ GarminCoach System Health Check ═══${RST}"
+echo -e "${CYN}═══ PulseCoach System Health Check ═══${RST}"
 echo ""
 
 # 1. System overview
@@ -62,11 +62,11 @@ docker stats --no-stream --format "  {{.Name}}: {{.MemUsage}} ({{.MemPerc}})" 2>
 
 # 5. garmin-coach specific checks
 echo ""
-echo -e "${CYN}▸ GarminCoach Services${RST}"
+echo -e "${CYN}▸ PulseCoach Services${RST}"
 
 # Postgres
-if docker exec garmin-coach-postgres-1 pg_isready -U dev -d garmincoach &>/dev/null; then
-    row_count=$(docker exec garmin-coach-postgres-1 psql -U dev -d garmincoach -tAc \
+if docker exec garmin-coach-postgres-1 pg_isready -U dev -d pulsecoach &>/dev/null; then
+    row_count=$(docker exec garmin-coach-postgres-1 psql -U dev -d pulsecoach -tAc \
         "SELECT json_build_object(
             'daily_metrics', (SELECT count(*) FROM daily_metric),
             'activities', (SELECT count(*) FROM activity),

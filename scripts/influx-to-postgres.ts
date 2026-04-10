@@ -1,5 +1,5 @@
 /**
- * ETL: InfluxDB JSON exports (Garmin data from HAOS) → PostgreSQL (GarminCoach app)
+ * ETL: InfluxDB JSON exports (Garmin data from HAOS) → PostgreSQL (PulseCoach app)
  *
  * Imports real Garmin data from two sources:
  *   - legacy_daily.json (HA addon InfluxDB:8086): 2,200+ days since Jan 2020
@@ -7,7 +7,7 @@
  *
  * Data was exported via SSH from HAOS InfluxDB instances.
  *
- * Usage: POSTGRES_URL="postgresql://dev:dev@localhost:5432/garmincoach" pnpm dlx tsx scripts/influx-to-postgres.ts
+ * Usage: POSTGRES_URL="postgresql://dev:dev@localhost:5432/pulsecoach" pnpm dlx tsx scripts/influx-to-postgres.ts
  */
 
 import { readFileSync } from "fs";
@@ -30,7 +30,7 @@ const DATA_DIR = join(import.meta.dirname ?? __dirname, "data");
 const POSTGRES_URL =
   process.env.POSTGRES_URL ??
   process.env.DATABASE_URL ??
-  "postgresql://dev:dev@localhost:5432/garmincoach";
+  "postgresql://dev:dev@localhost:5432/pulsecoach";
 const USER_ID = process.env.USER_ID ?? "seed-user-001";
 
 const pool = new pg.Pool({ connectionString: POSTGRES_URL });
@@ -481,7 +481,7 @@ async function updateProfile() {
 // Main
 // ---------------------------------------------------------------------------
 async function main() {
-  console.log("🔄 GarminCoach ETL: InfluxDB JSON → PostgreSQL");
+  console.log("🔄 PulseCoach ETL: InfluxDB JSON → PostgreSQL");
   console.log(`   Data dir: ${DATA_DIR}`);
   console.log(`   Postgres: ${POSTGRES_URL.replace(/:[^:@]+@/, ':***@')}`);
   console.log(`   User: ${USER_ID}`);
