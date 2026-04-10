@@ -1,8 +1,8 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, asc, desc, eq, gte } from "@acme/db";
 import type { db as _dependencies_db } from "@acme/db/client";
+import { and, asc, desc, eq, gte } from "@acme/db";
 import { Activity, DailyMetric, ReadinessScore } from "@acme/db/schema";
 import {
   analyzeTrend,

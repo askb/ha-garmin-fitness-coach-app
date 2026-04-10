@@ -70,11 +70,11 @@ export const workoutRouter = {
     const recentStrains = recentActivities.map((a) => a.strainScore ?? 0);
     const consecutiveHard = countConsecutiveHardDays(recentStrains);
 
-    const sport = (profile.primarySports)?.[0] ?? "running";
+    const sport = profile.primarySports?.[0] ?? "running";
     const goal =
       (profile.goals as { sport: string; goalType: string }[])?.[0]?.goalType ??
       "maintain";
-    const availableDays = (profile.weeklyDays)?.length ?? 3;
+    const availableDays = profile.weeklyDays?.length ?? 3;
 
     // Only fetch recovery context when the engine actually uses it (poor/low zones)
     let recovery: RecoveryContext | undefined;
@@ -185,7 +185,7 @@ export const workoutRouter = {
         where: eq(Profile.userId, userId),
       });
 
-      const sport = (profile?.primarySports!)?.[0] ?? "running";
+      const sport = (profile?.primarySports)!?.[0] ?? "running";
 
       const currentRecommendation = {
         sportType: existing.sportType,

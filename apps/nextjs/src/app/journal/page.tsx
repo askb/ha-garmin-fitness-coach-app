@@ -209,16 +209,16 @@ export default function JournalPage() {
   const [syncedDate, setSyncedDate] = useState<string | null>(null);
   if (loadedDate && loadedDate !== syncedDate) {
     const entry = entryQuery.data;
-    setTags((entry?.tags!) ?? {});
-    setNotes((entry?.notes!) ?? "");
-    setSorenessScore((entry?.sorenessScore!) ?? null);
-    setSorenessRegions((entry?.sorenessRegions!) ?? []);
-    setMoodScore((entry?.moodScore!) ?? null);
-    setCaffeineAmountMg((entry?.caffeineAmountMg!) ?? null);
-    setCaffeineTime((entry?.caffeineTime!) ?? "");
-    setAlcoholDrinks((entry?.alcoholDrinks!) ?? null);
-    setNapMinutes((entry?.napMinutes!) ?? null);
-    setMedicationsText(((entry?.medications!) ?? []).join(", "));
+    setTags(entry?.tags! ?? {});
+    setNotes(entry?.notes! ?? "");
+    setSorenessScore(entry?.sorenessScore! ?? null);
+    setSorenessRegions(entry?.sorenessRegions! ?? []);
+    setMoodScore(entry?.moodScore! ?? null);
+    setCaffeineAmountMg(entry?.caffeineAmountMg! ?? null);
+    setCaffeineTime(entry?.caffeineTime! ?? "");
+    setAlcoholDrinks(entry?.alcoholDrinks! ?? null);
+    setNapMinutes(entry?.napMinutes! ?? null);
+    setMedicationsText((entry?.medications! ?? []).join(", "));
     const phase = entry?.menstrualPhase as MenstrualPhase | undefined;
     setMenstrualPhase(phase ?? null);
     if (phase) setShowCycle(true);
@@ -673,7 +673,7 @@ export default function JournalPage() {
         ) : (
           <div className="space-y-2">
             {historyQuery.data.map((entry) => {
-              const entryTags = (entry.tags ?? {});
+              const entryTags = entry.tags ?? {};
               const activeTagKeys = Object.keys(entryTags);
               const isActive = entry.date === selectedDate;
 

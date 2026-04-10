@@ -129,7 +129,7 @@ function toMetricInput(row: typeof DailyMetric.$inferSelect): DailyMetricInput {
     floorsClimbed: row.floorsClimbed ?? null,
     bodyBatteryHigh: row.bodyBatteryHigh ?? null,
     bodyBatteryLow: row.bodyBatteryLow ?? null,
-    hrvOvernight: (row.hrvOvernight) ?? null,
+    hrvOvernight: row.hrvOvernight ?? null,
     sleepStartTime: row.sleepStartTime ?? null,
     sleepEndTime: row.sleepEndTime ?? null,
     sleepNeedMinutes: row.sleepNeedMinutes ?? null,

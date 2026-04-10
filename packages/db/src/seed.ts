@@ -273,7 +273,7 @@ async function seed() {
         calories = rng.int(700, 950);
         avgPower = rng.float(195, 240, 0);
         normalizedPower = parseFloat(
-          ((avgPower) * rng.float(1.02, 1.08, 3)).toFixed(0),
+          (avgPower * rng.float(1.02, 1.08, 3)).toFixed(0),
         );
         elevationGain = rng.float(300, 900, 0);
         avgCadence = rng.float(84, 94, 0);
@@ -307,9 +307,7 @@ async function seed() {
       ...(avgPaceSecPerKm
         ? { avgPace: avgPaceSecPerKm + rng.int(-5, 10) }
         : {}),
-      ...(avgPower
-        ? { avgPower: (avgPower) + rng.int(-10, 10) }
-        : {}),
+      ...(avgPower ? { avgPower: avgPower + rng.int(-10, 10) } : {}),
     }));
 
     const [inserted] = await db
