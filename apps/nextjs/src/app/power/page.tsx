@@ -1,20 +1,20 @@
 "use client";
 
 // Power Curves & Critical Power Analytics
-
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
 } from "recharts";
-import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
+
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -29,8 +29,13 @@ function fmtDuration(min: number) {
 }
 
 /** W' depletion remaining (kJ) at time t (seconds) above CP */
-function wPrimeRemaining(wPrimeKj: number, cp: number, power: number, t: number): number {
-  return Math.max(0, wPrimeKj - (power - cp) * t / 1000);
+function wPrimeRemaining(
+  wPrimeKj: number,
+  cp: number,
+  power: number,
+  t: number,
+): number {
+  return Math.max(0, wPrimeKj - ((power - cp) * t) / 1000);
 }
 
 /* ─────────────── types ─────────────── */
@@ -90,11 +95,14 @@ export default function PowerPage() {
     const steps = 20;
     return fractions.map((frac, i) => {
       const power = cp * frac;
-      const limitSec = wPrime * 1000 / (power - cp);
+      const limitSec = (wPrime * 1000) / (power - cp);
       const end = Math.min(limitSec, maxTime);
       const points = Array.from({ length: steps + 1 }, (_, k) => {
         const t = (end * k) / steps;
-        return { t: Math.round(t), remaining: wPrimeRemaining(wPrime, cp, power, t) };
+        return {
+          t: Math.round(t),
+          remaining: wPrimeRemaining(wPrime, cp, power, t),
+        };
       });
       return {
         key: `${Math.round(frac * 100)}%`,
@@ -114,7 +122,7 @@ export default function PowerPage() {
   const hasCpData = cp != null && wPrime != null;
 
   return (
-    <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Power &amp; CP Analytics</h1>
@@ -139,16 +147,24 @@ export default function PowerPage() {
         ) : hasCpData ? (
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-blue-400">{Math.round(cp)}W</p>
-              <p className="text-muted-foreground mt-0.5 text-xs">Critical Power</p>
+              <p className="text-xl font-bold text-blue-400">
+                {Math.round(cp)}W
+              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs">
+                Critical Power
+              </p>
             </div>
             <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-purple-400">{wPrime.toFixed(1)}kJ</p>
+              <p className="text-xl font-bold text-purple-400">
+                {wPrime.toFixed(1)}kJ
+              </p>
               <p className="text-muted-foreground mt-0.5 text-xs">W&apos;</p>
             </div>
             <div className="bg-secondary/40 rounded-xl p-3 text-center">
               <p className="text-xl font-bold text-green-400">
-                {mFtp != null ? `${Math.round(mFtp)}W` : `${Math.round(cp * 0.95)}W`}
+                {mFtp != null
+                  ? `${Math.round(mFtp)}W`
+                  : `${Math.round(cp * 0.95)}W`}
               </p>
               <p className="text-muted-foreground mt-0.5 text-xs">mFTP</p>
             </div>
@@ -171,12 +187,24 @@ export default function PowerPage() {
           <div className="bg-muted h-48 animate-pulse rounded-lg" />
         ) : pdCurveData.some((d) => d.power != null) ? (
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={pdCurveData} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+            <LineChart
+              data={pdCurveData}
+              margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis dataKey="label" tick={{ fill: "#888", fontSize: 10 }} />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={40} unit="W" />
+              <YAxis
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={40}
+                unit="W"
+              />
               <Tooltip
-                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
                 formatter={(v: unknown) => `${Math.round(Number(v))} W`}
               />
               <Line
@@ -227,9 +255,18 @@ export default function PowerPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 allowDuplicatedCategory={false}
               />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={36} unit="kJ" />
+              <YAxis
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={36}
+                unit="kJ"
+              />
               <Tooltip
-                contentStyle={{ backgroundColor: "#18181b", border: "1px solid #333", borderRadius: 8, fontSize: 12 }}
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
                 formatter={(v: unknown) => `${Number(v).toFixed(1)} kJ`}
                 labelFormatter={(label) => `Time: ${label}s`}
               />
@@ -250,7 +287,10 @@ export default function PowerPage() {
           <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
             {wPrimeData.map((s) => (
               <span key={s.key} className="flex items-center gap-1">
-                <span className="inline-block h-0.5 w-5 rounded" style={{ background: s.color }} />
+                <span
+                  className="inline-block h-0.5 w-5 rounded"
+                  style={{ background: s.color }}
+                />
                 <span className="text-muted-foreground">{s.label}</span>
               </span>
             ))}
@@ -279,7 +319,10 @@ export default function PowerPage() {
               const IF = ftp && ftp > 0 ? np / ftp : null;
               const tssEst =
                 ftp && IF != null && act.durationMinutes
-                  ? Math.round((act.durationMinutes * 60 * np * IF) / (ftp * 3600) * 100)
+                  ? Math.round(
+                      ((act.durationMinutes * 60 * np * IF) / (ftp * 3600)) *
+                        100,
+                    )
                   : null;
               const intensity =
                 IF == null
@@ -295,7 +338,7 @@ export default function PowerPage() {
               return (
                 <div
                   key={act.id}
-                  className="flex items-center justify-between rounded-xl bg-secondary/40 px-3 py-2.5"
+                  className="bg-secondary/40 flex items-center justify-between rounded-xl px-3 py-2.5"
                 >
                   <div>
                     <p className="text-sm font-medium capitalize">

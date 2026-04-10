@@ -64,14 +64,11 @@ function rValueColor(r: number): string {
 function rValueBorder(r: number): string {
   const abs = Math.abs(r);
   if (abs >= 0.7) return r > 0 ? "border-green-500/60" : "border-red-500/60";
-  if (abs >= 0.4)
-    return r > 0 ? "border-green-500/30" : "border-red-500/30";
+  if (abs >= 0.4) return r > 0 ? "border-green-500/30" : "border-red-500/30";
   return "border-zinc-700/50";
 }
 
-function strengthBadge(
-  strength: string,
-): { bg: string; text: string } {
+function strengthBadge(strength: string): { bg: string; text: string } {
   if (strength === "strong")
     return { bg: "bg-green-500/20", text: "text-green-400" };
   if (strength === "moderate")
@@ -100,10 +97,7 @@ function insightSentiment(
     return "beneficial";
   }
   if (direction === "negative") {
-    if (
-      (aIsRecovery && bIsStress) ||
-      (aIsStress && bIsRecovery)
-    )
+    if ((aIsRecovery && bIsStress) || (aIsStress && bIsRecovery))
       return "beneficial";
     if (aIsRecovery && bIsRecovery) return "detrimental";
     return "neutral";
@@ -143,7 +137,7 @@ export default function CorrelationsPage() {
   }, [pairs]);
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
       {/* ---- Header ---- */}
       <div>
         <h1 className="text-xl font-bold">Correlation Insights</h1>
@@ -326,10 +320,12 @@ export default function CorrelationsPage() {
 
                   <div className="mt-2 flex items-center gap-3 text-xs">
                     <span className="text-muted-foreground">
-                      r = <span className="font-mono">{c.rValue.toFixed(3)}</span>
+                      r ={" "}
+                      <span className="font-mono">{c.rValue.toFixed(3)}</span>
                     </span>
                     <span className="text-muted-foreground">
-                      p = <span className="font-mono">{c.pValue.toFixed(4)}</span>
+                      p ={" "}
+                      <span className="font-mono">{c.pValue.toFixed(4)}</span>
                     </span>
                     <span className="text-muted-foreground">
                       n = {c.sampleSize}
@@ -384,7 +380,7 @@ export default function CorrelationsPage() {
         </button>
 
         {guideOpen && (
-          <div className="space-y-3 border-t px-4 pb-4 pt-3 text-xs leading-relaxed">
+          <div className="space-y-3 border-t px-4 pt-3 pb-4 text-xs leading-relaxed">
             <div>
               <h3 className="mb-1 font-semibold">
                 Correlation Coefficient (r)

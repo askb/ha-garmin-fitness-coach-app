@@ -5,23 +5,23 @@ import { and, asc, desc, eq, gte, lte } from "@acme/db";
 import {
   Activity,
   DailyMetric,
-  ReadinessScore,
   Profile,
-  VO2maxEstimate,
+  ReadinessScore,
   TrainingStatus,
+  VO2maxEstimate,
 } from "@acme/db/schema";
 import {
-  computeStrainScore,
-  computeTrainingLoads,
+  analyzeRunningForm,
+  classifyLoadFocus,
+  classifyTrainingStatus,
   computeACWR,
   computeACWR_EWMA,
-  classifyTrainingStatus,
-  computeVO2maxTrend,
-  predictRaceTimesFromVO2max,
   computeStandardCorrelations,
-  analyzeRunningForm,
+  computeStrainScore,
+  computeTrainingLoads,
+  computeVO2maxTrend,
   estimateRecoveryTime,
-  classifyLoadFocus,
+  predictRaceTimesFromVO2max,
 } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
@@ -130,18 +130,20 @@ export const analyticsRouter = {
         uth_method: 3,
         uth_ratio: 3,
       };
-      const bestByDate = new Map<string, typeof allEstimates[number]>();
+      const bestByDate = new Map<string, (typeof allEstimates)[number]>();
       for (const e of allEstimates) {
         const existing = bestByDate.get(e.date);
         const ePriority = SOURCE_PRIORITY[e.source] ?? 2;
-        const existingPriority = existing ? (SOURCE_PRIORITY[existing.source] ?? 2) : Infinity;
+        const existingPriority = existing
+          ? (SOURCE_PRIORITY[existing.source] ?? 2)
+          : Infinity;
         if (ePriority < existingPriority) {
           bestByDate.set(e.date, e);
         }
       }
       // Return in descending date order
-      const estimates = [...bestByDate.values()].sort(
-        (a, b) => b.date.localeCompare(a.date),
+      const estimates = [...bestByDate.values()].sort((a, b) =>
+        b.date.localeCompare(a.date),
       );
 
       const trend = computeVO2maxTrend(estimates);
@@ -171,18 +173,17 @@ export const analyticsRouter = {
       uth_ratio: 4,
     };
 
-    const best = recentEstimates.reduce<typeof recentEstimates[number] | null>(
-      (acc, e) => {
-        if (!acc) return e;
-        const aPriority = RACE_SOURCE_PRIORITY[acc.source] ?? 3;
-        const ePriority = RACE_SOURCE_PRIORITY[e.source] ?? 3;
-        if (ePriority < aPriority) return e;
-        // Same priority: prefer more recent
-        if (ePriority === aPriority && e.date > acc.date) return e;
-        return acc;
-      },
-      null,
-    );
+    const best = recentEstimates.reduce<
+      (typeof recentEstimates)[number] | null
+    >((acc, e) => {
+      if (!acc) return e;
+      const aPriority = RACE_SOURCE_PRIORITY[acc.source] ?? 3;
+      const ePriority = RACE_SOURCE_PRIORITY[e.source] ?? 3;
+      if (ePriority < aPriority) return e;
+      // Same priority: prefer more recent
+      if (ePriority === aPriority && e.date > acc.date) return e;
+      return acc;
+    }, null);
 
     if (!best) return null;
 

@@ -12,13 +12,13 @@ SPDX-License-Identifier: Apache-2.0
      Remove instructional HTML comments from the final plan.
 -->
 
-| Field    | Value |
-| -------- | ----- |
-| Summary  | [One-sentence description of the implementation approach] |
-| Branch   | `feature/###-short-name` |
-| Date     | YYYY-MM-DD |
-| Spec     | `specs/###-feature/spec.md` |
-| Status   | Draft &#124; In Progress &#124; Complete |
+| Field   | Value                                                     |
+| ------- | --------------------------------------------------------- |
+| Summary | [One-sentence description of the implementation approach] |
+| Branch  | `feature/###-short-name`                                  |
+| Date    | YYYY-MM-DD                                                |
+| Spec    | `specs/###-feature/spec.md`                               |
+| Status  | Draft &#124; In Progress &#124; Complete                  |
 
 ---
 
@@ -27,14 +27,14 @@ SPDX-License-Identifier: Apache-2.0
 <!-- SPECKIT: These values are fixed for this monorepo. Only update
      if the project's stack genuinely changes. -->
 
-| Aspect              | Value |
-| ------------------- | ----- |
-| Language            | TypeScript |
+| Aspect               | Value                         |
+| -------------------- | ----------------------------- |
+| Language             | TypeScript                    |
 | Primary Dependencies | Next.js 16, tRPC, Drizzle ORM |
-| Storage             | PostgreSQL |
-| Testing             | Vitest |
-| Package Manager     | pnpm |
-| Monorepo Tool       | Turborepo |
+| Storage              | PostgreSQL                    |
+| Testing              | Vitest                        |
+| Package Manager      | pnpm                          |
+| Monorepo Tool        | Turborepo                     |
 
 ---
 
@@ -44,11 +44,11 @@ SPDX-License-Identifier: Apache-2.0
      Mark PASS/FAIL. Any FAIL must be tracked in the Complexity
      Tracking table (Section 5) and resolved before implementation. -->
 
-| # | Gate | Status |
-| - | ---- | ------ |
-| 1 | [Constitution gate 1] | ✅ PASS / ❌ FAIL |
-| 2 | [Constitution gate 2] | ✅ PASS / ❌ FAIL |
-| 3 | [Constitution gate 3] | ✅ PASS / ❌ FAIL |
+| #   | Gate                  | Status            |
+| --- | --------------------- | ----------------- |
+| 1   | [Constitution gate 1] | ✅ PASS / ❌ FAIL |
+| 2   | [Constitution gate 2] | ✅ PASS / ❌ FAIL |
+| 3   | [Constitution gate 3] | ✅ PASS / ❌ FAIL |
 
 ---
 
@@ -161,9 +161,9 @@ specs/[###-feature]/
 <!-- SPECKIT: Track any constitution violations or scope concerns.
      Each row must have a resolution before proceeding to Phase 1. -->
 
-| # | Violation / Concern | Severity | Resolution |
-| - | ------------------- | -------- | ---------- |
-| 1 | [Description] | Low &#124; Medium &#124; High | [How it will be addressed] |
+| #   | Violation / Concern | Severity                      | Resolution                 |
+| --- | ------------------- | ----------------------------- | -------------------------- |
+| 1   | [Description]       | Low &#124; Medium &#124; High | [How it will be addressed] |
 
 ---
 

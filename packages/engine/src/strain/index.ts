@@ -24,7 +24,11 @@ import type { ActivityInput } from "../types";
  * Ref: Banister EW. (1991) — original TRIMP formula
  */
 export function computeTRIMP(
-  activity: { durationMinutes: number; avgHr: number | null; maxHr: number | null },
+  activity: {
+    durationMinutes: number;
+    avgHr: number | null;
+    maxHr: number | null;
+  },
   restingHr: number,
   userMaxHr: number,
   sex: string | null,
@@ -34,7 +38,10 @@ export function computeTRIMP(
   const hrReserve = userMaxHr - restingHr;
   if (hrReserve <= 0) return 0;
 
-  const deltaHrRatio = Math.max(0, Math.min(1, (activity.avgHr - restingHr) / hrReserve));
+  const deltaHrRatio = Math.max(
+    0,
+    Math.min(1, (activity.avgHr - restingHr) / hrReserve),
+  );
   const k = sex === "female" ? 1.67 : 1.92; // Banister (1991)
 
   return activity.durationMinutes * deltaHrRatio * Math.exp(k * deltaHrRatio);
@@ -136,7 +143,8 @@ export function computeACWR_EWMA(
 
   for (let i = 1; i < dailyLoads.length; i++) {
     ewmaAcute = alphaAcute * dailyLoads[i]! + (1 - alphaAcute) * ewmaAcute;
-    ewmaChronic = alphaChronic * dailyLoads[i]! + (1 - alphaChronic) * ewmaChronic;
+    ewmaChronic =
+      alphaChronic * dailyLoads[i]! + (1 - alphaChronic) * ewmaChronic;
   }
 
   if (ewmaChronic === 0) return ewmaAcute > 0 ? 2.0 : 1.0;
@@ -162,10 +170,11 @@ export function computeACWR_EWMA(
 export function computeTrainingLoads(
   dailyStressScores: number[], // oldest first (chronological order)
 ): { ctl: number; atl: number; tsb: number; rampRate: number } {
-  if (dailyStressScores.length === 0) return { ctl: 0, atl: 0, tsb: 0, rampRate: 0 };
+  if (dailyStressScores.length === 0)
+    return { ctl: 0, atl: 0, tsb: 0, rampRate: 0 };
 
   const alphaCTL = 2 / (42 + 1); // ~0.0465
-  const alphaATL = 2 / (7 + 1);  // 0.25
+  const alphaATL = 2 / (7 + 1); // 0.25
 
   let ctl = dailyStressScores[0]!;
   let atl = dailyStressScores[0]!;
@@ -204,7 +213,10 @@ export function computeTrainingLoads(
  *      with heart rate and speed data. Firstbeat white paper. 2014.
  */
 export function classifyLoadFocus(
-  recentActivities: Array<{ aerobicTE: number | null; anaerobicTE: number | null }>,
+  recentActivities: Array<{
+    aerobicTE: number | null;
+    anaerobicTE: number | null;
+  }>,
 ): "aerobic" | "anaerobic" | "mixed" {
   let totalAerobic = 0;
   let totalAnaerobic = 0;

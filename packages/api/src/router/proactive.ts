@@ -11,13 +11,13 @@ import {
   Intervention,
 } from "@acme/db/schema";
 
-import { protectedProcedure } from "../trpc";
 import {
   checkAcwrRisk,
-  checkTsbOverreaching,
   checkHrvDeviation,
   checkInterventionPattern,
+  checkTsbOverreaching,
 } from "../lib/insight-rules";
+import { protectedProcedure } from "../trpc";
 
 function dateNDaysAgo(n: number): string {
   const d = new Date();
@@ -229,9 +229,12 @@ export const proactiveRouter = {
         severity: "info",
         title: `✅ Effective Recovery Patterns Identified`,
         body: `Based on your intervention logs, ${types} has been rated highly effective (${effectiveInterventions.length} entries, avg ${(effectiveInterventions.reduce((s, i) => s + (i.effectivenessRating ?? 0), 0) / effectiveInterventions.length).toFixed(1)}/5). Consider prioritizing these when recovery is needed.`,
-        metrics: { count: effectiveInterventions.length, patternTag: patternResult.tag },
+        metrics: {
+          count: effectiveInterventions.length,
+          patternTag: patternResult.tag,
+        },
         confidence: 0.7,
-        actionSuggestion: `Incorporate ${(effectiveInterventions[0]?.type ?? "your top-rated recovery methods")} proactively, not just reactively.`,
+        actionSuggestion: `Incorporate ${effectiveInterventions[0]?.type ?? "your top-rated recovery methods"} proactively, not just reactively.`,
         generatedBy: "rules",
       });
     }

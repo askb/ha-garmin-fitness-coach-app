@@ -15,7 +15,7 @@ describe("PMC Chart Data Logic", () => {
 
   const mockPmcData: PMCDataPoint[] = [
     { date: "2024-01-01", ctl: 30, atl: 25, tsb: 5, acwr: 0.83 },
-    { date: "2024-01-08", ctl: 35, atl: 42, tsb: -7, acwr: 1.20 },
+    { date: "2024-01-08", ctl: 35, atl: 42, tsb: -7, acwr: 1.2 },
     { date: "2024-01-15", ctl: 38, atl: 55, tsb: -17, acwr: 1.45 },
     { date: "2024-01-22", ctl: 40, atl: 62, tsb: -22, acwr: 1.55 },
   ];
@@ -46,20 +46,20 @@ describe("PMC Chart Data Logic", () => {
     };
 
     expect(getRiskZone(0.83)).toBe("optimal");
-    expect(getRiskZone(1.20)).toBe("optimal");
+    expect(getRiskZone(1.2)).toBe("optimal");
     expect(getRiskZone(1.45)).toBe("caution");
     expect(getRiskZone(1.55)).toBe("high-risk");
     expect(getRiskZone(0.7)).toBe("under-training");
   });
 
   it("identifies overreaching when TSB < -20", () => {
-    const overreached = mockPmcData.filter(d => (d.tsb ?? 0) < -20);
+    const overreached = mockPmcData.filter((d) => (d.tsb ?? 0) < -20);
     expect(overreached.length).toBe(1);
     expect(overreached[0]?.date).toBe("2024-01-22");
   });
 
   it("CTL should generally trend upward with sustained training", () => {
-    const ctlValues = mockPmcData.map(d => d.ctl ?? 0);
+    const ctlValues = mockPmcData.map((d) => d.ctl ?? 0);
     const first = ctlValues[0]!;
     const last = ctlValues[ctlValues.length - 1]!;
     expect(last).toBeGreaterThan(first);

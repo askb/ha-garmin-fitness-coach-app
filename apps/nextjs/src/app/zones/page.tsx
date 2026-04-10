@@ -79,7 +79,20 @@ const TOOLTIP_STYLE = {
 
 /* ─────────────── helpers ─────────────── */
 
-const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function formatWeek(iso: string): string {
   const [, m, d] = iso.split("-");
@@ -118,10 +131,8 @@ function heatColor(minutes: number): string {
 }
 
 function piLabel(pi: number): { text: string; color: string } {
-  if (pi >= 2.0)
-    return { text: "Well Polarized ✓", color: "text-green-400" };
-  if (pi >= 1.5)
-    return { text: "Pyramidal — OK", color: "text-yellow-400" };
+  if (pi >= 2.0) return { text: "Well Polarized ✓", color: "text-green-400" };
+  if (pi >= 1.5) return { text: "Pyramidal — OK", color: "text-yellow-400" };
   return { text: "Threshold-Heavy — Add Easy Days", color: "text-red-400" };
 }
 
@@ -175,9 +186,7 @@ export default function ZoneAnalysisPage() {
   const calendar = useQuery(
     trpc.zones.getActivityCalendar.queryOptions({ days }),
   );
-  const volume = useQuery(
-    trpc.zones.getVolumeByWeek.queryOptions({ days }),
-  );
+  const volume = useQuery(trpc.zones.getVolumeByWeek.queryOptions({ days }));
 
   /* ── derived insights ── */
   const insights = useMemo(() => {
@@ -261,7 +270,10 @@ export default function ZoneAnalysisPage() {
       }
       let best = { count: 0, minutes: 0, weekLabel: "" };
       for (const w of byWeek.values()) {
-        if (w.count > best.count || (w.count === best.count && w.minutes > best.minutes)) {
+        if (
+          w.count > best.count ||
+          (w.count === best.count && w.minutes > best.minutes)
+        ) {
           best = w;
         }
       }
@@ -312,7 +324,7 @@ export default function ZoneAnalysisPage() {
     (!zoneTrends.data || zoneTrends.data.length === 0);
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 px-4 pb-24 pt-6">
+    <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Zone Analysis</h1>
@@ -506,7 +518,9 @@ export default function ZoneAnalysisPage() {
                 }
                 formatter={(value: unknown, name: unknown) => {
                   const v =
-                    typeof value === "number" ? value.toFixed(1) : String(value);
+                    typeof value === "number"
+                      ? value.toFixed(1)
+                      : String(value);
                   const n = String(name);
                   if (n === "polarizationIndex") return [`${v}`, "PI"];
                   return [`${v}%`, n];
@@ -640,22 +654,22 @@ export default function ZoneAnalysisPage() {
                 }}
                 wrapperStyle={{ fontSize: 11 }}
               />
-              {(
-                ["z1Pct", "z2Pct", "z3Pct", "z4Pct", "z5Pct"] as const
-              ).map((key) => {
-                const z = key.replace("Pct", "");
-                return (
-                  <Area
-                    key={key}
-                    type="monotone"
-                    dataKey={key}
-                    stackId="zones"
-                    stroke={ZONE_COLORS[z]}
-                    fill={`url(#zt-${z})`}
-                    name={key}
-                  />
-                );
-              })}
+              {(["z1Pct", "z2Pct", "z3Pct", "z4Pct", "z5Pct"] as const).map(
+                (key) => {
+                  const z = key.replace("Pct", "");
+                  return (
+                    <Area
+                      key={key}
+                      type="monotone"
+                      dataKey={key}
+                      stackId="zones"
+                      stroke={ZONE_COLORS[z]}
+                      fill={`url(#zt-${z})`}
+                      name={key}
+                    />
+                  );
+                },
+              )}
             </AreaChart>
           </ResponsiveContainer>
         ) : (
@@ -716,53 +730,49 @@ export default function ZoneAnalysisPage() {
                   String(name),
                 ]}
                 labelFormatter={(label: unknown) =>
-                  typeof label === "string"
-                    ? formatWeek(label)
-                    : String(label)
+                  typeof label === "string" ? formatWeek(label) : String(label)
                 }
               />
-              <Scatter
-                data={efficiency.data}
-                name="Efficiency"
-              >
+              <Scatter data={efficiency.data} name="Efficiency">
                 {efficiency.data.map((entry, i) => {
                   const hr = entry.avgHr;
                   const t = Math.min(1, Math.max(0, (hr - 100) / 80));
                   const r = Math.round(59 + t * 180);
                   const g = Math.round(130 - t * 80);
                   const b = Math.round(246 - t * 180);
-                  return (
-                    <Cell
-                      key={i}
-                      fill={`rgb(${r},${g},${b})`}
-                    />
-                  );
+                  return <Cell key={i} fill={`rgb(${r},${g},${b})`} />;
                 })}
               </Scatter>
               {/* Trend line rendered as two extra scatter points connected */}
-              {efficiencyTrendLine && efficiency.data.length >= 2 && (() => {
-                const firstEntry = efficiency.data[0];
-                const lastEntry = efficiency.data[efficiency.data.length - 1];
-                if (!firstEntry || !lastEntry) return null;
-                return (
-                  <Scatter
-                    data={[
-                      {
-                        date: firstEntry.date,
-                        efficiencyIndex: efficiencyTrendLine.first.y,
-                      },
-                      {
-                        date: lastEntry.date,
-                        efficiencyIndex: efficiencyTrendLine.last.y,
-                      },
-                    ]}
-                    line={{ stroke: "#ffffff", strokeWidth: 2, strokeDasharray: "6 3" }}
-                    shape={() => <></>}
-                    name="Trend"
-                    legendType="line"
-                  />
-                );
-              })()}
+              {efficiencyTrendLine &&
+                efficiency.data.length >= 2 &&
+                (() => {
+                  const firstEntry = efficiency.data[0];
+                  const lastEntry = efficiency.data[efficiency.data.length - 1];
+                  if (!firstEntry || !lastEntry) return null;
+                  return (
+                    <Scatter
+                      data={[
+                        {
+                          date: firstEntry.date,
+                          efficiencyIndex: efficiencyTrendLine.first.y,
+                        },
+                        {
+                          date: lastEntry.date,
+                          efficiencyIndex: efficiencyTrendLine.last.y,
+                        },
+                      ]}
+                      line={{
+                        stroke: "#ffffff",
+                        strokeWidth: 2,
+                        strokeDasharray: "6 3",
+                      }}
+                      shape={() => <></>}
+                      name="Trend"
+                      legendType="line"
+                    />
+                  );
+                })()}
             </ScatterChart>
           </ResponsiveContainer>
         ) : (
@@ -864,13 +874,7 @@ export default function ZoneAnalysisPage() {
           />
           <div className="grid gap-3 sm:grid-cols-2">
             {insights.map((item, i) => (
-              <div
-                key={i}
-                className={cn(
-                  "rounded-xl border p-4",
-                  item.color,
-                )}
-              >
+              <div key={i} className={cn("rounded-xl border p-4", item.color)}>
                 <span className="mr-2 text-lg">{item.icon}</span>
                 <span className="text-sm leading-relaxed text-zinc-200">
                   {item.text}
@@ -1008,12 +1012,7 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
               {Array.from({ length: 7 }, (_, dIdx) => {
                 const dateStr = week[dIdx];
                 if (!dateStr) {
-                  return (
-                    <div
-                      key={dIdx}
-                      className="h-[12px] w-[12px]"
-                    />
-                  );
+                  return <div key={dIdx} className="h-[12px] w-[12px]" />;
                 }
                 const day = dayMap.get(dateStr);
                 const mins = day?.totalMinutes ?? 0;
@@ -1070,7 +1069,9 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
             <>
               <p className="text-zinc-400">
                 {tooltip.day.totalMinutes.toFixed(0)} min
-                {tooltip.day.primarySport ? ` · ${tooltip.day.primarySport}` : ""}
+                {tooltip.day.primarySport
+                  ? ` · ${tooltip.day.primarySport}`
+                  : ""}
               </p>
               {tooltip.day.maxStrain > 0 && (
                 <p className="text-zinc-400">

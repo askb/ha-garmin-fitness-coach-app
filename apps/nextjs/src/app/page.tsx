@@ -10,7 +10,7 @@ export default function HomePage() {
 
   return (
     <HydrateClient>
-      <main className="mx-auto max-w-lg px-4 pb-24 pt-6">
+      <main className="mx-auto max-w-lg px-4 pt-6 pb-24">
         <Suspense
           fallback={
             <div className="space-y-4">

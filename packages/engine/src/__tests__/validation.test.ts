@@ -4,42 +4,42 @@
  * Every assertion is anchored to a published reference so regressions can be
  * traced back to the underlying physiology / math, not just "expected X".
  */
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {
-  computeTRIMP,
-  computeStrainScore,
-  computeACWR,
-  computeTrainingLoads,
-} from "../strain";
 import {
   computeEMA,
   computeSD,
   computeZScore,
-  zScoreToScore,
   getPopulationDefaults,
+  zScoreToScore,
 } from "../baselines";
+import { computePearsonR } from "../correlations";
 import {
+  calculateReadiness,
+  getReadinessZone,
   scoreHRV,
   scoreRestingHR,
   scoreSleepQuantity,
-  getReadinessZone,
-  calculateReadiness,
 } from "../readiness";
+import { analyzeRunningForm } from "../running-form";
+import { calculateSleepNeed } from "../sleep-coach";
 import {
-  estimateVO2maxFromRunning,
-  estimateVO2maxUth,
-  estimateVO2maxCooper,
-  predictRaceTimes,
-} from "../vo2max";
+  computeACWR,
+  computeStrainScore,
+  computeTrainingLoads,
+  computeTRIMP,
+} from "../strain";
 import {
   classifyTrainingStatus,
   estimateRecoveryTime,
 } from "../training-status";
-import { calculateSleepNeed } from "../sleep-coach";
-import { computePearsonR } from "../correlations";
-import { analyzeRunningForm } from "../running-form";
 import { analyzeTrend } from "../trends";
+import {
+  estimateVO2maxCooper,
+  estimateVO2maxFromRunning,
+  estimateVO2maxUth,
+  predictRaceTimes,
+} from "../vo2max";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -92,7 +92,9 @@ describe("TRIMP validation (Banister 1991)", () => {
   it("60 min at 75 % HRR (male) yields TRIMP ≈ 190", () => {
     const trimp = computeTRIMP(
       { durationMinutes: 60, avgHr: 165, maxHr: 200 },
-      60, 200, "male",
+      60,
+      200,
+      "male",
     );
     expect(trimp).toBeGreaterThan(180);
     expect(trimp).toBeLessThan(200);
@@ -102,7 +104,9 @@ describe("TRIMP validation (Banister 1991)", () => {
   it("60 min at 75 % HRR (female) yields TRIMP ≈ 157", () => {
     const trimp = computeTRIMP(
       { durationMinutes: 60, avgHr: 165, maxHr: 200 },
-      60, 200, "female",
+      60,
+      200,
+      "female",
     );
     expect(trimp).toBeGreaterThan(150);
     expect(trimp).toBeLessThan(165);
@@ -111,7 +115,9 @@ describe("TRIMP validation (Banister 1991)", () => {
   it("0 % HRR (resting) yields TRIMP = 0", () => {
     const trimp = computeTRIMP(
       { durationMinutes: 60, avgHr: 60, maxHr: 200 },
-      60, 200, "male",
+      60,
+      200,
+      "male",
     );
     expect(trimp).toBe(0);
   });
@@ -246,7 +252,7 @@ describe("Race prediction validation (Riegel 1981)", () => {
     const tenK = preds.find((p) => p.distance === "10K");
     expect(tenK).toBeDefined();
     expect(tenK!.predictedSeconds).toBeGreaterThan(2400); // > 40:00
-    expect(tenK!.predictedSeconds).toBeLessThan(2600);    // < 43:20
+    expect(tenK!.predictedSeconds).toBeLessThan(2600); // < 43:20
   });
 
   it("20:00 5K predicts reasonable half marathon", () => {
@@ -254,7 +260,7 @@ describe("Race prediction validation (Riegel 1981)", () => {
     const hm = preds.find((p) => p.distance === "half_marathon");
     expect(hm).toBeDefined();
     expect(hm!.predictedSeconds).toBeGreaterThan(5400); // > 1:30
-    expect(hm!.predictedSeconds).toBeLessThan(6300);    // < 1:45
+    expect(hm!.predictedSeconds).toBeLessThan(6300); // < 1:45
   });
 });
 
@@ -266,14 +272,24 @@ describe("Race prediction validation (Riegel 1981)", () => {
 describe("Training status classification (Meeusen et al. 2013)", () => {
   it("productive: improving VO2max + optimal load", () => {
     const r = classifyTrainingStatus(1.0, {
-      ctl: 50, atl: 55, tsb: -5, acwr: 1.1, loadFocus: "aerobic", rampRate: 3,
+      ctl: 50,
+      atl: 55,
+      tsb: -5,
+      acwr: 1.1,
+      loadFocus: "aerobic",
+      rampRate: 3,
     });
     expect(r.status).toBe("productive");
   });
 
   it("overreaching: high load + declining VO2max", () => {
     const r = classifyTrainingStatus(-1.0, {
-      ctl: 60, atl: 80, tsb: -20, acwr: 1.6, loadFocus: "mixed", rampRate: 10,
+      ctl: 60,
+      atl: 80,
+      tsb: -20,
+      acwr: 1.6,
+      loadFocus: "mixed",
+      rampRate: 10,
     });
     expect(r.status).toBe("overreaching");
   });
@@ -281,14 +297,24 @@ describe("Training status classification (Meeusen et al. 2013)", () => {
   it("detraining: low load + declining VO2max", () => {
     // loadCategory = "low" requires acwr < 0.6 and NOT tapering
     const r = classifyTrainingStatus(-1.0, {
-      ctl: 20, atl: 10, tsb: 5, acwr: 0.4, loadFocus: "aerobic", rampRate: -1,
+      ctl: 20,
+      atl: 10,
+      tsb: 5,
+      acwr: 0.4,
+      loadFocus: "aerobic",
+      rampRate: -1,
     });
     expect(r.status).toBe("detraining");
   });
 
   it("peaking: tapering + maintaining fitness", () => {
     const r = classifyTrainingStatus(0.2, {
-      ctl: 70, atl: 40, tsb: 30, acwr: 0.7, loadFocus: "aerobic", rampRate: -5,
+      ctl: 70,
+      atl: 40,
+      tsb: 30,
+      acwr: 0.7,
+      loadFocus: "aerobic",
+      rampRate: -5,
     });
     expect(r.status).toBe("peaking");
   });
@@ -410,13 +436,19 @@ describe("Pearson correlation validation", () => {
   const seq14 = Array.from({ length: 14 }, (_, i) => i + 1);
 
   it("perfect positive correlation r = 1", () => {
-    const r = computePearsonR(seq14, seq14.map((v) => v * 2));
+    const r = computePearsonR(
+      seq14,
+      seq14.map((v) => v * 2),
+    );
     expect(r).not.toBeNull();
     expect(r!.r).toBeCloseTo(1.0, 3);
   });
 
   it("perfect negative correlation r = −1", () => {
-    const r = computePearsonR(seq14, seq14.map((v) => 30 - v * 2));
+    const r = computePearsonR(
+      seq14,
+      seq14.map((v) => 30 - v * 2),
+    );
     expect(r).not.toBeNull();
     expect(r!.r).toBeCloseTo(-1.0, 3);
   });

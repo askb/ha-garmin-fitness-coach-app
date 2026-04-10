@@ -13,12 +13,12 @@ SPDX-License-Identifier: Apache-2.0
      from the final spec.
 -->
 
-| Field   | Value |
-| ------- | ----- |
-| Feature | [Feature Name] |
-| Branch  | `feature/###-short-name` |
-| Date    | YYYY-MM-DD |
-| Author  | [Author] |
+| Field   | Value                                  |
+| ------- | -------------------------------------- |
+| Feature | [Feature Name]                         |
+| Branch  | `feature/###-short-name`               |
+| Date    | YYYY-MM-DD                             |
+| Author  | [Author]                               |
 | Status  | Draft &#124; In Review &#124; Approved |
 
 ---
@@ -67,11 +67,11 @@ SPDX-License-Identifier: Apache-2.0
 <!-- SPECKIT: Each requirement must be testable and traceable to a
      user story. Use REQ-### IDs so tasks can reference them. -->
 
-| ID      | Requirement | User Story | Testable? |
-| ------- | ----------- | ---------- | --------- |
-| REQ-001 | [Description of a verifiable requirement] | US-001 | ✅ |
-| REQ-002 | [Description of a verifiable requirement] | US-001 | ✅ |
-| REQ-003 | [Description of a verifiable requirement] | US-002 | ✅ |
+| ID      | Requirement                               | User Story | Testable? |
+| ------- | ----------------------------------------- | ---------- | --------- |
+| REQ-001 | [Description of a verifiable requirement] | US-001     | ✅        |
+| REQ-002 | [Description of a verifiable requirement] | US-001     | ✅        |
+| REQ-003 | [Description of a verifiable requirement] | US-002     | ✅        |
 
 ---
 
@@ -81,8 +81,8 @@ SPDX-License-Identifier: Apache-2.0
      persisted or structured data. Describe entities at a conceptual
      level — schema details go in data-model.md during planning. -->
 
-| Entity | Description | Key Attributes |
-| ------ | ----------- | -------------- |
+| Entity       | Description          | Key Attributes        |
+| ------------ | -------------------- | --------------------- |
 | [EntityName] | [What it represents] | [attr1, attr2, attr3] |
 
 ---
@@ -103,11 +103,11 @@ SPDX-License-Identifier: Apache-2.0
 <!-- SPECKIT: Enumerate known edge cases and the expected behaviour.
      These feed directly into test case generation. -->
 
-| # | Scenario | Expected Behaviour |
-| - | -------- | ------------------ |
-| 1 | [Edge case description] | [What should happen] |
-| 2 | [Edge case description] | [What should happen] |
-| 3 | [Edge case description] | [What should happen] |
+| #   | Scenario                | Expected Behaviour   |
+| --- | ----------------------- | -------------------- |
+| 1   | [Edge case description] | [What should happen] |
+| 2   | [Edge case description] | [What should happen] |
+| 3   | [Edge case description] | [What should happen] |
 
 ---
 

@@ -4,13 +4,13 @@ import { z } from "zod/v4";
 import { desc, eq } from "@acme/db";
 import { ChatMessage } from "@acme/db/schema";
 
-import { protectedProcedure } from "../trpc";
-import { ollamaChat } from "../lib/ollama";
-import type { OllamaMessage } from "../lib/ollama";
-import { openclawChat } from "../lib/openclaw";
-import { getAgentPrompt } from "../lib/agent-prompts";
 import type { AgentType } from "../lib/agent-prompts";
+import type { OllamaMessage } from "../lib/ollama";
+import { getAgentPrompt } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
+import { ollamaChat } from "../lib/ollama";
+import { openclawChat } from "../lib/openclaw";
+import { protectedProcedure } from "../trpc";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -95,7 +95,8 @@ export const chatRouter = {
           id: "busy",
           userId,
           role: "assistant" as const,
-          content: "⏳ Still processing your previous question. Please wait a moment...",
+          content:
+            "⏳ Still processing your previous question. Please wait a moment...",
           context: { agent: input.agent },
           createdAt: new Date(),
         };
@@ -105,79 +106,88 @@ export const chatRouter = {
       _aiAbortController = new AbortController();
 
       try {
-      // 1. Save user message
-      await ctx.db.insert(ChatMessage).values({
-        userId,
-        role: "user",
-        content: input.content,
-        context: { agent: input.agent },
-      });
+        // 1. Save user message
+        await ctx.db.insert(ChatMessage).values({
+          userId,
+          role: "user",
+          content: input.content,
+          context: { agent: input.agent },
+        });
 
-      // 2. Build data context from real Garmin data
-      const dataContext = await buildDataContext(ctx.db, userId);
+        // 2. Build data context from real Garmin data
+        const dataContext = await buildDataContext(ctx.db, userId);
 
-      // 3. Get agent-specific system prompt (trimmed for low-memory devices)
-      const systemPrompt = getAgentPrompt(input.agent);
+        // 3. Get agent-specific system prompt (trimmed for low-memory devices)
+        const systemPrompt = getAgentPrompt(input.agent);
 
-      // 4. Get recent chat history (last 5 messages — reduced from 10 for memory)
-      const history = await ctx.db.query.ChatMessage.findMany({
-        where: eq(ChatMessage.userId, userId),
-        orderBy: desc(ChatMessage.createdAt),
-        limit: 5,
-      });
+        // 4. Get recent chat history (last 5 messages — reduced from 10 for memory)
+        const history = await ctx.db.query.ChatMessage.findMany({
+          where: eq(ChatMessage.userId, userId),
+          orderBy: desc(ChatMessage.createdAt),
+          limit: 5,
+        });
 
-      // 5. Call AI backend: OpenClaw (HA) → Ollama → fallback
-      let responseContent: string;
-      const fullPrompt = `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}\n\n## User Question\n${input.content}`;
+        // 5. Call AI backend: OpenClaw (HA) → Ollama → fallback
+        let responseContent: string;
+        const fullPrompt = `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}\n\n## User Question\n${input.content}`;
 
-      console.log(`[Chat] Prompt size: ${fullPrompt.length} chars, data context: ${dataContext.length} chars`);
+        console.log(
+          `[Chat] Prompt size: ${fullPrompt.length} chars, data context: ${dataContext.length} chars`,
+        );
 
-      try {
-        responseContent = await openclawChat(fullPrompt, { timeoutMs: AI_TIMEOUT_MS });
-      } catch (e) {
-        console.error(`[Chat] OpenClaw failed:`, e instanceof Error ? e.message : e);
         try {
-          const ollamaMessages: OllamaMessage[] = [
-            {
-              role: "system",
-              content: `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}`,
-            },
-            ...history.reverse().map((m) => ({
-              role: m.role as "user" | "assistant",
-              content: m.content,
-            })),
-          ];
-          responseContent = await ollamaChat(ollamaMessages, {
-            temperature: 0.7,
+          responseContent = await openclawChat(fullPrompt, {
             timeoutMs: AI_TIMEOUT_MS,
           });
-        } catch (e2) {
-          console.error(`[Chat] Ollama also failed:`, e2 instanceof Error ? e2.message : e2);
-          responseContent = `⚠️ AI service unavailable. Falling back to data summary:\n\n${generateFallbackResponse(input.content, dataContext)}`;
+        } catch (e) {
+          console.error(
+            `[Chat] OpenClaw failed:`,
+            e instanceof Error ? e.message : e,
+          );
+          try {
+            const ollamaMessages: OllamaMessage[] = [
+              {
+                role: "system",
+                content: `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}`,
+              },
+              ...history.reverse().map((m) => ({
+                role: m.role as "user" | "assistant",
+                content: m.content,
+              })),
+            ];
+            responseContent = await ollamaChat(ollamaMessages, {
+              temperature: 0.7,
+              timeoutMs: AI_TIMEOUT_MS,
+            });
+          } catch (e2) {
+            console.error(
+              `[Chat] Ollama also failed:`,
+              e2 instanceof Error ? e2.message : e2,
+            );
+            responseContent = `⚠️ AI service unavailable. Falling back to data summary:\n\n${generateFallbackResponse(input.content, dataContext)}`;
+          }
         }
-      }
 
-      // 6. Append medical disclaimer
-      const disclaimer =
-        "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
-        "Individual results may vary. Consult a qualified healthcare professional " +
-        "for personalized advice, especially if you have pre-existing health conditions.*";
-      responseContent += disclaimer;
+        // 6. Append medical disclaimer
+        const disclaimer =
+          "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
+          "Individual results may vary. Consult a qualified healthcare professional " +
+          "for personalized advice, especially if you have pre-existing health conditions.*";
+        responseContent += disclaimer;
 
-      // 7. Save assistant response
-      const agentLabel = AGENT_LABELS[input.agent];
-      const [assistantMsg] = await ctx.db
-        .insert(ChatMessage)
-        .values({
-          userId,
-          role: "assistant",
-          content: responseContent,
-          context: { agent: input.agent, agentLabel },
-        })
-        .returning();
+        // 7. Save assistant response
+        const agentLabel = AGENT_LABELS[input.agent];
+        const [assistantMsg] = await ctx.db
+          .insert(ChatMessage)
+          .values({
+            userId,
+            role: "assistant",
+            content: responseContent,
+            context: { agent: input.agent, agentLabel },
+          })
+          .returning();
 
-      return { ...assistantMsg!, agent: input.agent };
-
+        return { ...assistantMsg!, agent: input.agent };
       } finally {
         _aiInFlight = false;
         _aiAbortController = null;

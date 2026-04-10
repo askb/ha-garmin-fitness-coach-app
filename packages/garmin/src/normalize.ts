@@ -31,8 +31,12 @@
  *   vO2MaxValue                         → vo2maxEstimate
  */
 
-import type { GarminDailySummary, GarminActivity } from "./types";
-import type { NormalizedDailyMetric, NormalizedActivity } from "./types";
+import type {
+  GarminActivity,
+  GarminDailySummary,
+  NormalizedActivity,
+  NormalizedDailyMetric,
+} from "./types";
 
 /** Convert seconds to whole minutes */
 const secToMin = (sec: number): number => Math.round(sec / 60);

@@ -9,7 +9,7 @@
  *       and activities for the given date range.
  */
 
-import type { NormalizedDailyMetric, NormalizedActivity } from "./types";
+import type { NormalizedActivity, NormalizedDailyMetric } from "./types";
 
 // Deterministic pseudo-random for reproducible test data
 function seededRandom(seed: number) {
@@ -32,7 +32,10 @@ export interface BackfillResult {
  * @param days         - Number of days to backfill (counting back from today)
  * @returns Normalized arrays ready for DB insertion
  */
-export function backfillDays(_accessToken: string, days: number): BackfillResult {
+export function backfillDays(
+  _accessToken: string,
+  days: number,
+): BackfillResult {
   const rand = seededRandom(42);
   const randBetween = (min: number, max: number) =>
     Math.round(min + rand() * (max - min));
@@ -86,7 +89,11 @@ export function backfillDays(_accessToken: string, days: number): BackfillResult
       activities.push({
         garminActivityId: `mock-activity-${dateStr}`,
         sportType: isRunDay ? "running" : "strength",
-        subType: isRunDay ? (isHardDay ? "intervals" : "easy_run") : "full_body",
+        subType: isRunDay
+          ? isHardDay
+            ? "intervals"
+            : "easy_run"
+          : "full_body",
         startedAt: activityDate,
         endedAt: new Date(activityDate.getTime() + durationMin * 60_000),
         durationMinutes: durationMin,

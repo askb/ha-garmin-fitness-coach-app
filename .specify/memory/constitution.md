@@ -11,13 +11,13 @@ Current version  : 1.0.0
 Bump type        : MAJOR — initial ratification of project constitution
 Reason           : First formal constitution establishing governance,
                    code quality standards, licensing requirements, and
-                   development practices for the GarminCoach sport
+                   development practices for the PulseCoach sport
                    scientist application.
 -->
 
-# GarminCoach App — Project Constitution
+# PulseCoach App — Project Constitution
 
-> **Canonical governance document** for the GarminCoach sport scientist
+> **Canonical governance document** for the PulseCoach sport scientist
 > application. All contributors — human and AI — are bound by these
 > principles.
 
@@ -29,19 +29,19 @@ Reason           : First formal constitution establishing governance,
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Node.js 22, pnpm 10.x, Turborepo |
-| Framework | Next.js 16 (App Router, Turbopack) |
-| API | tRPC v11 + React Query |
-| Database | Drizzle ORM + PostgreSQL 16 |
-| Auth | Better-Auth |
-| Styling | Tailwind CSS v4 + shadcn/ui |
-| Charts | Recharts |
-| AI | Ollama (local), OpenAI (optional) |
-| Testing | Vitest (239 tests) |
-| Package Manager | pnpm 10.x |
-| Build Orchestration | Turborepo |
+| Layer               | Technology                         |
+| ------------------- | ---------------------------------- |
+| Runtime             | Node.js 22, pnpm 10.x, Turborepo   |
+| Framework           | Next.js 16 (App Router, Turbopack) |
+| API                 | tRPC v11 + React Query             |
+| Database            | Drizzle ORM + PostgreSQL 16        |
+| Auth                | Better-Auth                        |
+| Styling             | Tailwind CSS v4 + shadcn/ui        |
+| Charts              | Recharts                           |
+| AI                  | Ollama (local), OpenAI (optional)  |
+| Testing             | Vitest (239 tests)                 |
+| Package Manager     | pnpm 10.x                          |
+| Build Orchestration | Turborepo                          |
 
 ---
 
@@ -246,7 +246,7 @@ Reason           : First formal constitution establishing governance,
 ### Constitutional Authority
 
 This constitution is the **supreme governance document** for the
-GarminCoach project. All contributors, tools, and AI agents must comply
+PulseCoach project. All contributors, tools, and AI agents must comply
 with these principles.
 
 In case of conflict between this constitution and any other project
@@ -270,4 +270,4 @@ documentation, **this constitution takes precedence**.
 
 ---
 
-*End of Constitution v1.0.0*
+_End of Constitution v1.0.0_

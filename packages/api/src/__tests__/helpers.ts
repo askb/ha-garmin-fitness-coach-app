@@ -1,9 +1,12 @@
-import { appRouter } from "../root";
 import { db } from "@acme/db/client";
+
+import { appRouter } from "../root";
 
 export const TEST_USER_ID = "seed-user-001";
 
-export function createTestCaller(userId = TEST_USER_ID): ReturnType<typeof appRouter.createCaller> {
+export function createTestCaller(
+  userId = TEST_USER_ID,
+): ReturnType<typeof appRouter.createCaller> {
   const now = new Date();
   return appRouter.createCaller({
     authApi: null as never,

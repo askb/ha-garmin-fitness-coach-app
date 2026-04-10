@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MIT
-# GarminCoach production start script
+# PulseCoach production start script
 # Usage: ./scripts/start-prod.sh [--stop]
 
 set -euo pipefail
 
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NEXT_DIR="${APP_DIR}/apps/nextjs"
-PORT="${GARMINCOACH_PORT:-3000}"
-PID_FILE="${APP_DIR}/logs/garmincoach.pid"
-LOG_FILE="${APP_DIR}/logs/garmincoach.log"
+PORT="${PORT:-${PULSECOACH_PORT:-${GARMINCOACH_PORT:-3000}}}"
+PID_FILE="${APP_DIR}/logs/pulsecoach.pid"
+LOG_FILE="${APP_DIR}/logs/pulsecoach.log"
 
 mkdir -p "${APP_DIR}/logs"
 
@@ -17,7 +17,7 @@ stop_app() {
   if [ -f "$PID_FILE" ]; then
     pid=$(cat "$PID_FILE")
     if kill -0 "$pid" 2>/dev/null; then
-      echo "Stopping GarminCoach (PID $pid)..."
+      echo "Stopping PulseCoach (PID $pid)..."
       kill "$pid"
       rm -f "$PID_FILE"
       echo "Stopped."
@@ -44,7 +44,7 @@ docker compose up -d
 # Wait for Postgres
 echo "Waiting for PostgreSQL..."
 for i in $(seq 1 30); do
-  if docker exec garmin-coach-postgres-1 pg_isready -U dev -d garmincoach -q 2>/dev/null; then
+  if docker compose exec -T postgres pg_isready -U dev -d pulsecoach -q 2>/dev/null; then
     echo "PostgreSQL ready."
     break
   fi
@@ -55,7 +55,7 @@ done
 stop_app
 
 # Start Next.js in production mode
-echo "Starting GarminCoach on port ${PORT}..."
+echo "Starting PulseCoach on port ${PORT}..."
 cd "$NEXT_DIR"
 
 # Load env vars (dotenv-cli used in dev, source .env for prod)
@@ -69,7 +69,7 @@ PORT=$PORT nohup "${NEXT_DIR}/node_modules/.bin/next" start --hostname 0.0.0.0 -
 echo $! > "$PID_FILE"
 cd "$APP_DIR"
 
-echo "GarminCoach started (PID $(cat "$PID_FILE"))"
+echo "PulseCoach started (PID $(cat "$PID_FILE"))"
 echo "  Local:   http://localhost:${PORT}"
 echo "  LAN:     http://$(hostname -I | awk '{print $1}'):${PORT}"
 echo "  Logs:    ${LOG_FILE}"

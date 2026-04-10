@@ -1,9 +1,14 @@
-import { describe, it, expect } from "vitest";
-import { computeTRIMP, computeACWR } from "../strain";
-import { estimateVO2maxUth, estimateVO2maxCooper, predictRaceTimes } from "../vo2max";
-import { estimateRecoveryTime } from "../training-status";
-import { calculateSleepNeed } from "../sleep-coach";
+import { describe, expect, it } from "vitest";
+
 import { analyzeRunningForm } from "../running-form";
+import { calculateSleepNeed } from "../sleep-coach";
+import { computeACWR, computeTRIMP } from "../strain";
+import { estimateRecoveryTime } from "../training-status";
+import {
+  estimateVO2maxCooper,
+  estimateVO2maxUth,
+  predictRaceTimes,
+} from "../vo2max";
 
 /**
  * ACCURACY VERIFICATION TESTS — Published Reference Values
@@ -81,8 +86,18 @@ describe("TRIMP — Banister (1991) reference values", () => {
      * At identical inputs, the higher male exponent (1.92 vs 1.67)
      * produces a larger exponential weighting for high-intensity work.
      */
-    const male = computeTRIMP({ durationMinutes: 45, avgHr: 160, maxHr: 185 }, 60, 190, "male");
-    const female = computeTRIMP({ durationMinutes: 45, avgHr: 160, maxHr: 185 }, 60, 190, "female");
+    const male = computeTRIMP(
+      { durationMinutes: 45, avgHr: 160, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
+    const female = computeTRIMP(
+      { durationMinutes: 45, avgHr: 160, maxHr: 185 },
+      60,
+      190,
+      "female",
+    );
     expect(male).toBeGreaterThan(female);
   });
 });

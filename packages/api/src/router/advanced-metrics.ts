@@ -1,7 +1,9 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
+
 import { and, asc, desc, eq, gte, lte } from "@acme/db";
 import { AdvancedMetric } from "@acme/db/schema";
+
 import { protectedProcedure } from "../trpc";
 
 export const advancedMetricsRouter = {
@@ -16,12 +18,16 @@ export const advancedMetricsRouter = {
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       const conditions = [eq(AdvancedMetric.userId, userId)];
-      if (input.startDate) conditions.push(gte(AdvancedMetric.date, input.startDate));
-      if (input.endDate) conditions.push(lte(AdvancedMetric.date, input.endDate));
+      if (input.startDate)
+        conditions.push(gte(AdvancedMetric.date, input.startDate));
+      if (input.endDate)
+        conditions.push(lte(AdvancedMetric.date, input.endDate));
       if (!input.startDate) {
         const since = new Date();
         since.setDate(since.getDate() - input.days);
-        conditions.push(gte(AdvancedMetric.date, since.toISOString().split("T")[0]!));
+        conditions.push(
+          gte(AdvancedMetric.date, since.toISOString().split("T")[0]!),
+        );
       }
       return ctx.db.query.AdvancedMetric.findMany({
         where: and(...conditions),

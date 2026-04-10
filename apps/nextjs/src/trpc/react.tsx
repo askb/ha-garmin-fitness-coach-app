@@ -64,8 +64,8 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
-    const match = window.location.pathname.match(
-      /^(\/api\/hassio_ingress\/[^/]+)/,
+    const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(
+      window.location.pathname,
     );
     return window.location.origin + (match ? match[1] : "");
   }

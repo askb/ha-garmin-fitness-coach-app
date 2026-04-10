@@ -1,6 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { computeBaselines, computeEMA, getPopulationDefaults } from "../baselines";
+import { describe, expect, it } from "vitest";
+
 import type { DailyMetricInput } from "../types";
+import {
+  computeBaselines,
+  computeEMA,
+  getPopulationDefaults,
+} from "../baselines";
 
 describe("computeEMA", () => {
   it("returns single value for single element", () => {
@@ -50,7 +55,10 @@ describe("getPopulationDefaults", () => {
 });
 
 describe("computeBaselines", () => {
-  const makeMetrics = (count: number, overrides: Partial<DailyMetricInput> = {}): DailyMetricInput[] => {
+  const makeMetrics = (
+    count: number,
+    overrides: Partial<DailyMetricInput> = {},
+  ): DailyMetricInput[] => {
     return Array.from({ length: count }, (_, i) => ({
       date: `2026-03-${String(i + 1).padStart(2, "0")}`,
       sleepScore: null,

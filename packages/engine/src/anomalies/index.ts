@@ -1,5 +1,4 @@
-import type { DailyMetricInput, AnomalyAlert } from "../types";
-import type { Baselines } from "../types";
+import type { AnomalyAlert, Baselines, DailyMetricInput } from "../types";
 import { computeZScore } from "../baselines";
 
 /**
@@ -33,27 +32,30 @@ export function detectAnomalies(
   //
   // Using 1.5 SD (more conservative than Buchheit's 1 SD SWC)
   // to reduce false positives.
-  const hrvCrashDays = baselines.hrvSD > 0
-    ? countConsecutiveDaysBelowZScore(
-        recentMetrics.map((m) => m.hrv),
-        baselines.hrv,
-        baselines.hrvSD,
-        -1.5,
-      )
-    : countConsecutiveDaysBelow(
-        recentMetrics.map((m) => m.hrv),
-        baselines.hrv * 0.75,
-      );
+  const hrvCrashDays =
+    baselines.hrvSD > 0
+      ? countConsecutiveDaysBelowZScore(
+          recentMetrics.map((m) => m.hrv),
+          baselines.hrv,
+          baselines.hrvSD,
+          -1.5,
+        )
+      : countConsecutiveDaysBelow(
+          recentMetrics.map((m) => m.hrv),
+          baselines.hrv * 0.75,
+        );
 
   if (hrvCrashDays >= 2) {
     alerts.push({
       type: "hrv_crash",
       severity: hrvCrashDays >= 3 ? "critical" : "warning",
       message: `HRV has been significantly below your baseline for ${hrvCrashDays} consecutive days.`,
-      recommendation: hrvCrashDays >= 3
-        ? "Consider a deload week — reduce training volume by 40-50%. If persistent, consult a physician."
-        : "Reduce training intensity for the next 2-3 days. Prioritize sleep and recovery.",
-      citation: "Buchheit M. IJSPP. 2014;9:883-895. Plews DJ et al. IJSPP. 2013;8(6):688-694.",
+      recommendation:
+        hrvCrashDays >= 3
+          ? "Consider a deload week — reduce training volume by 40-50%. If persistent, consult a physician."
+          : "Reduce training intensity for the next 2-3 days. Prioritize sleep and recovery.",
+      citation:
+        "Buchheit M. IJSPP. 2014;9:883-895. Plews DJ et al. IJSPP. 2013;8(6):688-694.",
     });
   }
 
@@ -68,24 +70,26 @@ export function detectAnomalies(
   //   → Clinical significance typically at 5-10 bpm above baseline
   //
   // Using z-score when SD available, otherwise fallback to +5 bpm
-  const rhrSpikeDays = baselines.restingHrSD > 0
-    ? countConsecutiveDaysAboveZScore(
-        recentMetrics.map((m) => m.restingHr),
-        baselines.restingHr,
-        baselines.restingHrSD,
-        1.5,
-      )
-    : countConsecutiveDaysAbove(
-        recentMetrics.map((m) => m.restingHr),
-        baselines.restingHr + 5,
-      );
+  const rhrSpikeDays =
+    baselines.restingHrSD > 0
+      ? countConsecutiveDaysAboveZScore(
+          recentMetrics.map((m) => m.restingHr),
+          baselines.restingHr,
+          baselines.restingHrSD,
+          1.5,
+        )
+      : countConsecutiveDaysAbove(
+          recentMetrics.map((m) => m.restingHr),
+          baselines.restingHr + 5,
+        );
 
   if (rhrSpikeDays >= 2) {
     alerts.push({
       type: "rhr_spike",
       severity: rhrSpikeDays >= 3 ? "critical" : "warning",
       message: `Resting HR has been significantly above baseline for ${rhrSpikeDays} days.`,
-      recommendation: "Reduce planned intensity. This may indicate illness, stress, or overtraining. If accompanied by fatigue, consider medical evaluation.",
+      recommendation:
+        "Reduce planned intensity. This may indicate illness, stress, or overtraining. If accompanied by fatigue, consider medical evaluation.",
       citation: "Meeusen R et al. Eur J Sport Sci. 2013;13(1):1-24.",
     });
   }
@@ -108,8 +112,10 @@ export function detectAnomalies(
       type: "sleep_deficit",
       severity: "critical",
       message: `You've slept less than 6 hours for ${sleepDeficitDays} consecutive nights.`,
-      recommendation: "Force a rest day. Prioritize sleep — performance and recovery will not improve without adequate sleep (Hirshkowitz et al. 2015).",
-      citation: "Hirshkowitz M et al. Sleep Health. 2015;1(1):40-43. Mah CD et al. Sleep. 2011;34(7):943-950.",
+      recommendation:
+        "Force a rest day. Prioritize sleep — performance and recovery will not improve without adequate sleep (Hirshkowitz et al. 2015).",
+      citation:
+        "Hirshkowitz M et al. Sleep Health. 2015;1(1):40-43. Mah CD et al. Sleep. 2011;34(7):943-950.",
     });
   }
 
@@ -124,16 +130,22 @@ export function detectAnomalies(
   //      Br J Sports Med. 2016;50(5):273-280.
   if (recentStrainScores.length >= 7) {
     const acuteDays = Math.min(recentStrainScores.length, 7);
-    const acute = recentStrainScores.slice(0, acuteDays).reduce((a, b) => a + b, 0) / acuteDays;
+    const acute =
+      recentStrainScores.slice(0, acuteDays).reduce((a, b) => a + b, 0) /
+      acuteDays;
     const chronicDays = Math.min(recentStrainScores.length, 28);
-    const chronic = recentStrainScores.slice(0, chronicDays).reduce((a, b) => a + b, 0) / chronicDays;
+    const chronic =
+      recentStrainScores.slice(0, chronicDays).reduce((a, b) => a + b, 0) /
+      chronicDays;
     if (chronic > 0 && acute / chronic > 1.5) {
       alerts.push({
         type: "overreaching",
         severity: "critical",
         message: `Acute:Chronic workload ratio is ${(acute / chronic).toFixed(1)} — high injury risk zone.`,
-        recommendation: "Reduce training volume significantly for the next 3-5 days. Aim for ACWR < 1.3 before resuming normal training (Hulin et al. 2016).",
-        citation: "Hulin BT et al. Br J Sports Med. 2016;50(4):231-236. Gabbett TJ. Br J Sports Med. 2016;50(5):273-280.",
+        recommendation:
+          "Reduce training volume significantly for the next 3-5 days. Aim for ACWR < 1.3 before resuming normal training (Hulin et al. 2016).",
+        citation:
+          "Hulin BT et al. Br J Sports Med. 2016;50(4):231-236. Gabbett TJ. Br J Sports Med. 2016;50(5):273-280.",
       });
     }
   }

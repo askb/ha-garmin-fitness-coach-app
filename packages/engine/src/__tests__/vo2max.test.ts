@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
 import { computeVO2maxTrend } from "../vo2max";
 
 describe("computeVO2maxTrend", () => {

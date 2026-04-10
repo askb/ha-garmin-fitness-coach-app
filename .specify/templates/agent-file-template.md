@@ -25,16 +25,16 @@ SPDX-License-Identifier: Apache-2.0
 <!-- AUTO-GENERATED: Extracted from all specs/*/plan.md Technical Context
      sections. Only list technologies that are actually in use. -->
 
-| Technology | Version | Purpose |
-| ---------- | ------- | ------- |
-| TypeScript | 5.x     | Primary language |
-| Next.js    | 16      | Full-stack React framework |
-| tRPC       | 11.x    | Type-safe API layer |
-| Drizzle ORM | latest | Database toolkit & query builder |
-| PostgreSQL | 16      | Primary database |
-| Vitest     | latest  | Unit & integration testing |
-| pnpm       | 9.x     | Package manager |
-| Turborepo  | latest  | Monorepo build orchestration |
+| Technology  | Version | Purpose                          |
+| ----------- | ------- | -------------------------------- |
+| TypeScript  | 5.x     | Primary language                 |
+| Next.js     | 16      | Full-stack React framework       |
+| tRPC        | 11.x    | Type-safe API layer              |
+| Drizzle ORM | latest  | Database toolkit & query builder |
+| PostgreSQL  | 16      | Primary database                 |
+| Vitest      | latest  | Unit & integration testing       |
+| pnpm        | 9.x     | Package manager                  |
+| Turborepo   | latest  | Monorepo build orchestration     |
 
 ---
 
@@ -74,17 +74,17 @@ tooling/
 <!-- AUTO-GENERATED: Only commands relevant to active technologies.
      Scanned from package.json scripts and turbo.json pipelines. -->
 
-| Command | Description |
-| ------- | ----------- |
-| `pnpm install` | Install all dependencies |
-| `pnpm dev` | Start development server |
-| `pnpm build` | Build all packages & apps |
-| `pnpm test` | Run Vitest test suite |
-| `pnpm lint` | Lint all packages |
-| `pnpm typecheck` | TypeScript type checking |
-| `pnpm db:generate` | Generate Drizzle migration |
-| `pnpm db:migrate` | Apply database migrations |
-| `pnpm db:push` | Push schema directly (dev only) |
+| Command            | Description                     |
+| ------------------ | ------------------------------- |
+| `pnpm install`     | Install all dependencies        |
+| `pnpm dev`         | Start development server        |
+| `pnpm build`       | Build all packages & apps       |
+| `pnpm test`        | Run Vitest test suite           |
+| `pnpm lint`        | Lint all packages               |
+| `pnpm typecheck`   | TypeScript type checking        |
+| `pnpm db:generate` | Generate Drizzle migration      |
+| `pnpm db:migrate`  | Apply database migrations       |
+| `pnpm db:push`     | Push schema directly (dev only) |
 
 ---
 
@@ -121,11 +121,11 @@ tooling/
 <!-- AUTO-GENERATED: Last 3 features from specs/ directory,
      most recent first. -->
 
-| # | Feature | Spec | Status |
-| - | ------- | ---- | ------ |
-| 1 | [Feature name] | `specs/###-feature/spec.md` | [Status] |
-| 2 | [Feature name] | `specs/###-feature/spec.md` | [Status] |
-| 3 | [Feature name] | `specs/###-feature/spec.md` | [Status] |
+| #   | Feature        | Spec                        | Status   |
+| --- | -------------- | --------------------------- | -------- |
+| 1   | [Feature name] | `specs/###-feature/spec.md` | [Status] |
+| 2   | [Feature name] | `specs/###-feature/spec.md` | [Status] |
+| 3   | [Feature name] | `specs/###-feature/spec.md` | [Status] |
 
 ---
 

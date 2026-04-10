@@ -1,11 +1,11 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { DailyMetric, Activity } from "@acme/db/schema";
+import { Activity, DailyMetric } from "@acme/db/schema";
 import {
-  initiateOAuth,
-  handleCallback as garminHandleCallback,
   backfillDays,
+  handleCallback as garminHandleCallback,
+  initiateOAuth,
 } from "@acme/garmin";
 
 import { protectedProcedure } from "../trpc";
@@ -54,10 +54,7 @@ export const garminRouter = {
       // TODO: Retrieve stored Garmin access token for this user
       const mockAccessToken = "mock_garmin_access_token";
 
-      const { metrics, activities } = backfillDays(
-        mockAccessToken,
-        input.days,
-      );
+      const { metrics, activities } = backfillDays(mockAccessToken, input.days);
 
       // Insert metrics
       for (const metric of metrics) {

@@ -6,10 +6,10 @@
  */
 
 import type {
-  GarminWebhookPayload,
-  GarminDailySummary,
   GarminActivity,
+  GarminDailySummary,
   GarminSleepData,
+  GarminWebhookPayload,
 } from "./types";
 
 /**

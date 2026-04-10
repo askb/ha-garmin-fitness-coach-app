@@ -25,9 +25,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 2],
     strainRange: [4, 7],
     structure: [
-      { phase: "warmup", description: "Walk 2 min, then easy jog", durationMinutes: 5, hrZone: 1 },
-      { phase: "main", description: "Easy pace run", durationMinutes: 25, hrZone: 2 },
-      { phase: "cooldown", description: "Walk 3-5 min", durationMinutes: 5, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Walk 2 min, then easy jog",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
+      {
+        phase: "main",
+        description: "Easy pace run",
+        durationMinutes: 25,
+        hrZone: 2,
+      },
+      {
+        phase: "cooldown",
+        description: "Walk 3-5 min",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -41,9 +56,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [1, 2],
     strainRange: [2, 4],
     structure: [
-      { phase: "warmup", description: "Easy walk", durationMinutes: 3, hrZone: 1 },
-      { phase: "main", description: "Very easy jog", durationMinutes: 20, hrZone: 1 },
-      { phase: "cooldown", description: "Walk + stretch", durationMinutes: 5, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy walk",
+        durationMinutes: 3,
+        hrZone: 1,
+      },
+      {
+        phase: "main",
+        description: "Very easy jog",
+        durationMinutes: 20,
+        hrZone: 1,
+      },
+      {
+        phase: "cooldown",
+        description: "Walk + stretch",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -57,9 +87,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [3, 4],
     strainRange: [10, 14],
     structure: [
-      { phase: "warmup", description: "Easy jog with dynamic stretches", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "Tempo pace, comfortably hard", durationMinutes: 25, hrZone: 4 },
-      { phase: "cooldown", description: "Easy jog + walking", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy jog with dynamic stretches",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "Tempo pace, comfortably hard",
+        durationMinutes: 25,
+        hrZone: 4,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy jog + walking",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -73,9 +118,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [4, 5],
     strainRange: [14, 18],
     structure: [
-      { phase: "warmup", description: "Easy jog + strides", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "6x3 min hard with 2 min easy jog recovery", durationMinutes: 30, hrZone: 5 },
-      { phase: "cooldown", description: "Easy jog + walking", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy jog + strides",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "6x3 min hard with 2 min easy jog recovery",
+        durationMinutes: 30,
+        hrZone: 5,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy jog + walking",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -89,9 +149,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 2],
     strainRange: [10, 14],
     structure: [
-      { phase: "warmup", description: "Start very easy, build to pace", durationMinutes: 10, hrZone: 1 },
-      { phase: "main", description: "Steady easy pace", durationMinutes: 60, hrZone: 2 },
-      { phase: "cooldown", description: "Easy jog + walk", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Start very easy, build to pace",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
+      {
+        phase: "main",
+        description: "Steady easy pace",
+        durationMinutes: 60,
+        hrZone: 2,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy jog + walk",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -99,15 +174,31 @@ export const runningTemplates: WorkoutTemplate[] = [
     sport: "running",
     workoutType: "easy_with_strides",
     title: "Easy Run + Strides",
-    description: "Easy run with short speed bursts for neuromuscular activation",
+    description:
+      "Easy run with short speed bursts for neuromuscular activation",
     intensity: "easy",
     durationRange: [35, 45],
     hrZoneRange: [2, 5],
     strainRange: [5, 8],
     structure: [
-      { phase: "warmup", description: "Easy jog", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "Easy run, then 6x20s strides with full recovery", durationMinutes: 25, hrZone: 2 },
-      { phase: "cooldown", description: "Easy jog + walk", durationMinutes: 5, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy jog",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "Easy run, then 6x20s strides with full recovery",
+        durationMinutes: 25,
+        hrZone: 2,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy jog + walk",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -121,9 +212,24 @@ export const runningTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 4],
     strainRange: [8, 12],
     structure: [
-      { phase: "warmup", description: "Easy jog", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "Alternate 2-3 min moderate/hard with 2-3 min easy", durationMinutes: 25, hrZone: 3 },
-      { phase: "cooldown", description: "Easy jog", durationMinutes: 5, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy jog",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "Alternate 2-3 min moderate/hard with 2-3 min easy",
+        durationMinutes: 25,
+        hrZone: 3,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy jog",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
     ],
   },
 ];
@@ -140,9 +246,24 @@ export const cyclingTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 2],
     strainRange: [6, 10],
     structure: [
-      { phase: "warmup", description: "Easy spin, build cadence", durationMinutes: 10, hrZone: 1 },
-      { phase: "main", description: "Steady Zone 2 riding", durationMinutes: 60, hrZone: 2 },
-      { phase: "cooldown", description: "Easy spin", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy spin, build cadence",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
+      {
+        phase: "main",
+        description: "Steady Zone 2 riding",
+        durationMinutes: 60,
+        hrZone: 2,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy spin",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -156,9 +277,24 @@ export const cyclingTemplates: WorkoutTemplate[] = [
     hrZoneRange: [1, 1],
     strainRange: [2, 4],
     structure: [
-      { phase: "warmup", description: "Easy spin", durationMinutes: 5, hrZone: 1 },
-      { phase: "main", description: "Very easy spin, high cadence (90+)", durationMinutes: 25, hrZone: 1 },
-      { phase: "cooldown", description: "Easy spin", durationMinutes: 5, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Easy spin",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
+      {
+        phase: "main",
+        description: "Very easy spin, high cadence (90+)",
+        durationMinutes: 25,
+        hrZone: 1,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy spin",
+        durationMinutes: 5,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -172,9 +308,24 @@ export const cyclingTemplates: WorkoutTemplate[] = [
     hrZoneRange: [3, 4],
     strainRange: [10, 14],
     structure: [
-      { phase: "warmup", description: "Progressive spin", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "3x10 min at sweet spot with 5 min recovery", durationMinutes: 45, hrZone: 4 },
-      { phase: "cooldown", description: "Easy spin", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Progressive spin",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "3x10 min at sweet spot with 5 min recovery",
+        durationMinutes: 45,
+        hrZone: 4,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy spin",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
   {
@@ -188,9 +339,24 @@ export const cyclingTemplates: WorkoutTemplate[] = [
     hrZoneRange: [5, 5],
     strainRange: [14, 18],
     structure: [
-      { phase: "warmup", description: "Progressive build", durationMinutes: 10, hrZone: 2 },
-      { phase: "main", description: "5x4 min at VO2max with 4 min easy", durationMinutes: 40, hrZone: 5 },
-      { phase: "cooldown", description: "Easy spin", durationMinutes: 10, hrZone: 1 },
+      {
+        phase: "warmup",
+        description: "Progressive build",
+        durationMinutes: 10,
+        hrZone: 2,
+      },
+      {
+        phase: "main",
+        description: "5x4 min at VO2max with 4 min easy",
+        durationMinutes: 40,
+        hrZone: 5,
+      },
+      {
+        phase: "cooldown",
+        description: "Easy spin",
+        durationMinutes: 10,
+        hrZone: 1,
+      },
     ],
   },
 ];
@@ -207,8 +373,16 @@ export const strengthTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 3],
     strainRange: [8, 12],
     structure: [
-      { phase: "warmup", description: "5 min light cardio + band work", durationMinutes: 5 },
-      { phase: "main", description: "Bench 4x5, OHP 4x5, Row 4x5, then 3x10 accessories", durationMinutes: 45 },
+      {
+        phase: "warmup",
+        description: "5 min light cardio + band work",
+        durationMinutes: 5,
+      },
+      {
+        phase: "main",
+        description: "Bench 4x5, OHP 4x5, Row 4x5, then 3x10 accessories",
+        durationMinutes: 45,
+      },
       { phase: "cooldown", description: "Stretching", durationMinutes: 5 },
     ],
   },
@@ -223,9 +397,21 @@ export const strengthTemplates: WorkoutTemplate[] = [
     hrZoneRange: [2, 4],
     strainRange: [10, 14],
     structure: [
-      { phase: "warmup", description: "5 min bike + mobility", durationMinutes: 5 },
-      { phase: "main", description: "Squat 4x5, RDL 4x5, Lunges 3x8, then accessories", durationMinutes: 45 },
-      { phase: "cooldown", description: "Foam roll + stretch", durationMinutes: 5 },
+      {
+        phase: "warmup",
+        description: "5 min bike + mobility",
+        durationMinutes: 5,
+      },
+      {
+        phase: "main",
+        description: "Squat 4x5, RDL 4x5, Lunges 3x8, then accessories",
+        durationMinutes: 45,
+      },
+      {
+        phase: "cooldown",
+        description: "Foam roll + stretch",
+        durationMinutes: 5,
+      },
     ],
   },
   {
@@ -240,7 +426,12 @@ export const strengthTemplates: WorkoutTemplate[] = [
     strainRange: [7, 10],
     structure: [
       { phase: "warmup", description: "Dynamic warm-up", durationMinutes: 5 },
-      { phase: "main", description: "3x8 compound lifts (squat, bench, row, OHP) + 2x12 accessories", durationMinutes: 35 },
+      {
+        phase: "main",
+        description:
+          "3x8 compound lifts (squat, bench, row, OHP) + 2x12 accessories",
+        durationMinutes: 35,
+      },
       { phase: "cooldown", description: "Stretch", durationMinutes: 5 },
     ],
   },
@@ -256,7 +447,11 @@ export const strengthTemplates: WorkoutTemplate[] = [
     strainRange: [3, 5],
     structure: [
       { phase: "warmup", description: "Light cardio", durationMinutes: 5 },
-      { phase: "main", description: "3x5 at 60% normal load on main lifts", durationMinutes: 25 },
+      {
+        phase: "main",
+        description: "3x5 at 60% normal load on main lifts",
+        durationMinutes: 25,
+      },
       { phase: "cooldown", description: "Mobility work", durationMinutes: 10 },
     ],
   },

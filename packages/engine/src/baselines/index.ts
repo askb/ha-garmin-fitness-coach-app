@@ -1,4 +1,4 @@
-import type { DailyMetricInput, Baselines } from "../types";
+import type { Baselines, DailyMetricInput } from "../types";
 
 /**
  * Baseline calculations with standard deviation for z-score scoring.
@@ -41,9 +41,33 @@ const POPULATION_DEFAULTS: Record<string, PopulationDefaults> = {
   // HRV norms: lnRMSSD. Shaffer & Ginsberg 2017, Table 2.
   // RHR: American Heart Association. General ranges by sex.
   // Sleep: Hirshkowitz et al. 2015. Adults 18-64: 7-9h (420-540 min)
-  male: { hrv: 45, hrvSD: 12, restingHr: 62, restingHrSD: 5, sleep: 450, sleepSD: 45, dailyStrainCapacity: 12 },
-  female: { hrv: 50, hrvSD: 14, restingHr: 65, restingHrSD: 5, sleep: 450, sleepSD: 45, dailyStrainCapacity: 11 },
-  other: { hrv: 47, hrvSD: 13, restingHr: 63, restingHrSD: 5, sleep: 450, sleepSD: 45, dailyStrainCapacity: 11.5 },
+  male: {
+    hrv: 45,
+    hrvSD: 12,
+    restingHr: 62,
+    restingHrSD: 5,
+    sleep: 450,
+    sleepSD: 45,
+    dailyStrainCapacity: 12,
+  },
+  female: {
+    hrv: 50,
+    hrvSD: 14,
+    restingHr: 65,
+    restingHrSD: 5,
+    sleep: 450,
+    sleepSD: 45,
+    dailyStrainCapacity: 11,
+  },
+  other: {
+    hrv: 47,
+    hrvSD: 13,
+    restingHr: 63,
+    restingHrSD: 5,
+    sleep: 450,
+    sleepSD: 45,
+    dailyStrainCapacity: 11.5,
+  },
 };
 
 // Age adjustment factors for HRV (declines ~3-5% per decade after 20)
@@ -53,8 +77,8 @@ const AGE_HRV_FACTORS: Array<{ maxAge: number; factor: number }> = [
   { maxAge: 35, factor: 1.0 },
   { maxAge: 45, factor: 0.85 },
   { maxAge: 55, factor: 0.72 },
-  { maxAge: 65, factor: 0.60 },
-  { maxAge: 999, factor: 0.50 },
+  { maxAge: 65, factor: 0.6 },
+  { maxAge: 999, factor: 0.5 },
 ];
 
 function getAgeHrvFactor(age: number | null): number {
@@ -62,7 +86,7 @@ function getAgeHrvFactor(age: number | null): number {
   for (const band of AGE_HRV_FACTORS) {
     if (age <= band.maxAge) return band.factor;
   }
-  return 0.50;
+  return 0.5;
 }
 
 // Sleep need by age (Hirshkowitz et al. 2015)
@@ -78,10 +102,7 @@ function getSleepNeedMinutes(age: number | null, isAthlete: boolean): number {
  *
  * Standard smoothing technique in sports analytics.
  */
-export function computeEMA(
-  values: number[],
-  period = 30,
-): number {
+export function computeEMA(values: number[], period = 30): number {
   if (values.length === 0) return 0;
   const alpha = 2 / (period + 1);
   let ema = values[0]!;
@@ -99,7 +120,8 @@ export function computeSD(values: number[]): number {
   if (values.length < 2) return 0;
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
   const squaredDiffs = values.map((v) => (v - mean) ** 2);
-  const variance = squaredDiffs.reduce((a, b) => a + b, 0) / (values.length - 1);
+  const variance =
+    squaredDiffs.reduce((a, b) => a + b, 0) / (values.length - 1);
   return Math.sqrt(variance);
 }
 
@@ -116,11 +138,7 @@ export function computeSD(values: number[]): number {
  *   z < -1.0 → notably below baseline (bottom ~16%)
  *   z < -2.0 → critically below baseline (bottom ~2.5%)
  */
-export function computeZScore(
-  value: number,
-  mean: number,
-  sd: number,
-): number {
+export function computeZScore(value: number, mean: number, sd: number): number {
   if (sd <= 0) return 0;
   return (value - mean) / sd;
 }
@@ -156,7 +174,7 @@ export function getPopulationDefaults(
   sex: string | null,
   age?: number | null,
 ): Baselines {
-  const key = (sex === "male" || sex === "female") ? sex : "other";
+  const key = sex === "male" || sex === "female" ? sex : "other";
   const defaults = POPULATION_DEFAULTS[key]!;
   const ageFactor = getAgeHrvFactor(age ?? null);
 
@@ -208,7 +226,8 @@ export function computeBaselines(
   const personalRhr = rhrValues.length > 0 ? computeEMA(rhrValues) : null;
   const personalRhrSD = rhrValues.length >= 7 ? computeSD(rhrValues) : null;
   const personalSleep = sleepValues.length > 0 ? computeEMA(sleepValues) : null;
-  const personalSleepSD = sleepValues.length >= 7 ? computeSD(sleepValues) : null;
+  const personalSleepSD =
+    sleepValues.length >= 7 ? computeSD(sleepValues) : null;
 
   // Blend: weight personal data more as we accumulate data
   // Full trust at 30 days (1 menstrual/training cycle)
@@ -221,17 +240,22 @@ export function computeBaselines(
 
   return {
     hrv: blend(personalHrv, defaults.hrv),
-    hrvSD: personalHrvSD !== null && personalHrvSD > 0
-      ? personalWeight * personalHrvSD + (1 - personalWeight) * defaults.hrvSD
-      : defaults.hrvSD,
+    hrvSD:
+      personalHrvSD !== null && personalHrvSD > 0
+        ? personalWeight * personalHrvSD + (1 - personalWeight) * defaults.hrvSD
+        : defaults.hrvSD,
     restingHr: blend(personalRhr, defaults.restingHr),
-    restingHrSD: personalRhrSD !== null && personalRhrSD > 0
-      ? personalWeight * personalRhrSD + (1 - personalWeight) * defaults.restingHrSD
-      : defaults.restingHrSD,
+    restingHrSD:
+      personalRhrSD !== null && personalRhrSD > 0
+        ? personalWeight * personalRhrSD +
+          (1 - personalWeight) * defaults.restingHrSD
+        : defaults.restingHrSD,
     sleep: blend(personalSleep, defaults.sleep),
-    sleepSD: personalSleepSD !== null && personalSleepSD > 0
-      ? personalWeight * personalSleepSD + (1 - personalWeight) * defaults.sleepSD
-      : defaults.sleepSD,
+    sleepSD:
+      personalSleepSD !== null && personalSleepSD > 0
+        ? personalWeight * personalSleepSD +
+          (1 - personalWeight) * defaults.sleepSD
+        : defaults.sleepSD,
     dailyStrainCapacity: defaults.dailyStrainCapacity,
     daysOfData,
   };

@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
 import {
-  computeTRIMP,
-  computeStrainScore,
   computeACWR,
+  computeStrainScore,
+  computeTRIMP,
   countConsecutiveHardDays,
 } from "../strain";
 
@@ -20,7 +21,9 @@ describe("computeTRIMP", () => {
   it("returns 0 for null avgHr", () => {
     const trimp = computeTRIMP(
       { durationMinutes: 45, avgHr: null, maxHr: 185 },
-      60, 190, "male",
+      60,
+      190,
+      "male",
     );
     expect(trimp).toBe(0);
   });
@@ -36,20 +39,50 @@ describe("computeTRIMP", () => {
   });
 
   it("higher duration → higher TRIMP", () => {
-    const short = computeTRIMP({ durationMinutes: 20, avgHr: 155, maxHr: 185 }, 60, 190, "male");
-    const long = computeTRIMP({ durationMinutes: 60, avgHr: 155, maxHr: 185 }, 60, 190, "male");
+    const short = computeTRIMP(
+      { durationMinutes: 20, avgHr: 155, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
+    const long = computeTRIMP(
+      { durationMinutes: 60, avgHr: 155, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
     expect(long).toBeGreaterThan(short);
   });
 
   it("higher avgHr → higher TRIMP", () => {
-    const easy = computeTRIMP({ durationMinutes: 45, avgHr: 120, maxHr: 185 }, 60, 190, "male");
-    const hard = computeTRIMP({ durationMinutes: 45, avgHr: 170, maxHr: 185 }, 60, 190, "male");
+    const easy = computeTRIMP(
+      { durationMinutes: 45, avgHr: 120, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
+    const hard = computeTRIMP(
+      { durationMinutes: 45, avgHr: 170, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
     expect(hard).toBeGreaterThan(easy);
   });
 
   it("uses different k for female", () => {
-    const male = computeTRIMP({ durationMinutes: 45, avgHr: 155, maxHr: 185 }, 60, 190, "male");
-    const female = computeTRIMP({ durationMinutes: 45, avgHr: 155, maxHr: 185 }, 60, 190, "female");
+    const male = computeTRIMP(
+      { durationMinutes: 45, avgHr: 155, maxHr: 185 },
+      60,
+      190,
+      "male",
+    );
+    const female = computeTRIMP(
+      { durationMinutes: 45, avgHr: 155, maxHr: 185 },
+      60,
+      190,
+      "female",
+    );
     expect(male).not.toBe(female);
   });
 });
@@ -86,12 +119,18 @@ describe("computeACWR", () => {
 
   it("returns > 1 for high acute load", () => {
     // Need 28 values to distinguish acute (7d) from chronic (28d)
-    const strains = [18, 18, 18, 18, 18, 18, 18, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+    const strains = [
+      18, 18, 18, 18, 18, 18, 18, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+      5, 5, 5, 5, 5, 5,
+    ];
     expect(computeACWR(strains)).toBeGreaterThan(1);
   });
 
   it("returns < 1 for low acute load", () => {
-    const strains = [3, 3, 3, 3, 3, 3, 3, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15];
+    const strains = [
+      3, 3, 3, 3, 3, 3, 3, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15,
+      15, 15, 15, 15, 15, 15, 15, 15,
+    ];
     expect(computeACWR(strains)).toBeLessThan(1);
   });
 

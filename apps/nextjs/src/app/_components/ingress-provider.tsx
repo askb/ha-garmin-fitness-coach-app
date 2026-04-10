@@ -7,8 +7,8 @@ const IngressContext = createContext("");
 export function IngressProvider({ children }: { children: React.ReactNode }) {
   const basePath = useMemo(() => {
     if (typeof window === "undefined") return "";
-    const match = window.location.pathname.match(
-      /^(\/api\/hassio_ingress\/[^/]+)/,
+    const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(
+      window.location.pathname,
     );
     return match ? match[1] : "";
   }, []);
@@ -32,8 +32,8 @@ export function useIngressHref() {
 /** Non-hook helper for use in callbacks/event handlers */
 export function getIngressUrl(path: string): string {
   if (typeof window === "undefined") return path;
-  const match = window.location.pathname.match(
-    /^(\/api\/hassio_ingress\/[^/]+)/,
+  const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(
+    window.location.pathname,
   );
   return match ? match[1] + path : path;
 }

@@ -1,22 +1,22 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
+import type { ReadinessZone, RecoveryContext } from "@acme/engine";
 import { and, desc, eq, gte } from "@acme/db";
 import {
-  DailyWorkout,
-  WeeklyPlan,
-  ReadinessScore,
   Activity,
-  Profile,
-  DailyMetric,
   AdvancedMetric,
+  DailyMetric,
+  DailyWorkout,
+  Profile,
+  ReadinessScore,
+  WeeklyPlan,
 } from "@acme/db/schema";
 import {
-  generateDailyWorkout,
   adjustDifficulty,
   countConsecutiveHardDays,
+  generateDailyWorkout,
 } from "@acme/engine";
-import type { ReadinessZone, RecoveryContext } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
@@ -39,10 +39,7 @@ export const workoutRouter = {
 
     // Check if already generated
     const existing = await ctx.db.query.DailyWorkout.findFirst({
-      where: and(
-        eq(DailyWorkout.userId, userId),
-        eq(DailyWorkout.date, today),
-      ),
+      where: and(eq(DailyWorkout.userId, userId), eq(DailyWorkout.date, today)),
     });
     if (existing) return existing;
 
@@ -59,7 +56,8 @@ export const workoutRouter = {
       ),
     });
 
-    const zone: ReadinessZone = (readiness?.zone as ReadinessZone) ?? "moderate";
+    const zone: ReadinessZone =
+      (readiness?.zone as ReadinessZone) ?? "moderate";
 
     // Get recent strain for hard day stacking check
     const recentActivities = await ctx.db.query.Activity.findMany({
@@ -72,9 +70,11 @@ export const workoutRouter = {
     const recentStrains = recentActivities.map((a) => a.strainScore ?? 0);
     const consecutiveHard = countConsecutiveHardDays(recentStrains);
 
-    const sport = (profile.primarySports as string[])?.[0] ?? "running";
-    const goal = (profile.goals as { sport: string; goalType: string }[])?.[0]?.goalType ?? "maintain";
-    const availableDays = (profile.weeklyDays as string[])?.length ?? 3;
+    const sport = profile.primarySports?.[0] ?? "running";
+    const goal =
+      (profile.goals as { sport: string; goalType: string }[])?.[0]?.goalType ??
+      "maintain";
+    const availableDays = profile.weeklyDays?.length ?? 3;
 
     // Only fetch recovery context when the engine actually uses it (poor/low zones)
     let recovery: RecoveryContext | undefined;
@@ -185,7 +185,7 @@ export const workoutRouter = {
         where: eq(Profile.userId, userId),
       });
 
-      const sport = (profile?.primarySports as string[])?.[0] ?? "running";
+      const sport = (profile?.primarySports)!?.[0] ?? "running";
 
       const currentRecommendation = {
         sportType: existing.sportType,

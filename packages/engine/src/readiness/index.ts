@@ -5,8 +5,8 @@ import type {
   ReadinessResult,
   ReadinessZone,
 } from "../types";
-import { computeACWR, countConsecutiveHardDays } from "../strain";
 import { computeZScore, zScoreToScore } from "../baselines";
+import { computeACWR, countConsecutiveHardDays } from "../strain";
 
 /**
  * READINESS ENGINE — Evidence-Based Scoring
@@ -96,7 +96,8 @@ export function scoreSleepQuantity(
  */
 export function scoreSleepQuality(metric: DailyMetricInput): number {
   // Use Garmin sleep score if available (already validated 0-100 scale)
-  if (metric.sleepScore !== null) return Math.min(100, Math.max(0, metric.sleepScore));
+  if (metric.sleepScore !== null)
+    return Math.min(100, Math.max(0, metric.sleepScore));
 
   // Otherwise compute from sleep stages
   const total = metric.totalSleepMinutes;
@@ -117,7 +118,10 @@ export function scoreSleepQuality(metric: DailyMetricInput): number {
 
   // Weight: architecture 55%, efficiency 45%
   // Architecture matters more for recovery (Dattilo et al. 2011)
-  return Math.min(100, Math.max(0, architectureScore * 0.55 + efficiencyScore * 0.45));
+  return Math.min(
+    100,
+    Math.max(0, architectureScore * 0.55 + efficiencyScore * 0.45),
+  );
 }
 
 /**
@@ -273,7 +277,9 @@ export function scoreStressAndBattery(
   const stressNormalized =
     stressScore !== null ? 100 - Math.min(100, Math.max(0, stressScore)) : 50;
   const batteryScore =
-    bodyBatteryStart !== null ? Math.min(100, Math.max(0, bodyBatteryStart)) : 50;
+    bodyBatteryStart !== null
+      ? Math.min(100, Math.max(0, bodyBatteryStart))
+      : 50;
 
   return stressNormalized * 0.4 + batteryScore * 0.6;
 }
@@ -302,11 +308,16 @@ export function getReadinessZone(score: number): ReadinessZone {
 
 export function getZoneColor(zone: ReadinessZone): string {
   switch (zone) {
-    case "prime": return "#22c55e";    // green-500
-    case "high": return "#14b8a6";     // teal-500
-    case "moderate": return "#eab308"; // yellow-500
-    case "low": return "#f97316";      // orange-500
-    case "poor": return "#ef4444";     // red-500
+    case "prime":
+      return "#22c55e"; // green-500
+    case "high":
+      return "#14b8a6"; // teal-500
+    case "moderate":
+      return "#eab308"; // yellow-500
+    case "low":
+      return "#f97316"; // orange-500
+    case "poor":
+      return "#ef4444"; // red-500
   }
 }
 
@@ -323,57 +334,95 @@ function generateExplanation(
   if (metric.hrv !== null && baselines.hrvSD > 0) {
     const z = computeZScore(metric.hrv, baselines.hrv, baselines.hrvSD);
     if (z > 0.5) {
-      factors.push({ label: `HRV ${Math.round(z * 10) / 10} SD above baseline`, impact: components.hrv - 50 });
+      factors.push({
+        label: `HRV ${Math.round(z * 10) / 10} SD above baseline`,
+        impact: components.hrv - 50,
+      });
     } else if (z < -0.5) {
-      factors.push({ label: `HRV ${Math.round(Math.abs(z) * 10) / 10} SD below baseline`, impact: components.hrv - 50 });
+      factors.push({
+        label: `HRV ${Math.round(Math.abs(z) * 10) / 10} SD below baseline`,
+        impact: components.hrv - 50,
+      });
     }
   } else if (components.hrv > 80 && metric.hrv !== null) {
-    const pct = Math.round(((metric.hrv / baselines.hrv) - 1) * 100);
-    factors.push({ label: `HRV ${pct > 0 ? pct + "% above" : Math.abs(pct) + "% below"} baseline`, impact: components.hrv - 50 });
+    const pct = Math.round((metric.hrv / baselines.hrv - 1) * 100);
+    factors.push({
+      label: `HRV ${pct > 0 ? pct + "% above" : Math.abs(pct) + "% below"} baseline`,
+      impact: components.hrv - 50,
+    });
   } else if (components.hrv < 40 && metric.hrv !== null) {
-    const pct = Math.round((1 - (metric.hrv / baselines.hrv)) * 100);
-    factors.push({ label: `HRV ${pct}% below baseline`, impact: components.hrv - 50 });
+    const pct = Math.round((1 - metric.hrv / baselines.hrv) * 100);
+    factors.push({
+      label: `HRV ${pct}% below baseline`,
+      impact: components.hrv - 50,
+    });
   }
 
   if (components.sleepQuantity < 40 && metric.totalSleepMinutes !== null) {
     const hours = (metric.totalSleepMinutes / 60).toFixed(1);
-    factors.push({ label: `only ${hours}h sleep`, impact: components.sleepQuantity - 50 });
-  } else if (components.sleepQuantity > 80 && metric.totalSleepMinutes !== null) {
+    factors.push({
+      label: `only ${hours}h sleep`,
+      impact: components.sleepQuantity - 50,
+    });
+  } else if (
+    components.sleepQuantity > 80 &&
+    metric.totalSleepMinutes !== null
+  ) {
     const hours = (metric.totalSleepMinutes / 60).toFixed(1);
-    factors.push({ label: `${hours}h quality sleep`, impact: components.sleepQuantity - 50 });
+    factors.push({
+      label: `${hours}h quality sleep`,
+      impact: components.sleepQuantity - 50,
+    });
   }
 
   if (components.trainingLoad < 40) {
-    factors.push({ label: "high recent training load (elevated ACWR)", impact: components.trainingLoad - 50 });
+    factors.push({
+      label: "high recent training load (elevated ACWR)",
+      impact: components.trainingLoad - 50,
+    });
   }
 
   if (components.stress < 40) {
-    factors.push({ label: "elevated stress / low body battery", impact: components.stress - 50 });
+    factors.push({
+      label: "elevated stress / low body battery",
+      impact: components.stress - 50,
+    });
   }
 
   if (metric.restingHr !== null && baselines.restingHrSD > 0) {
-    const z = computeZScore(metric.restingHr, baselines.restingHr, baselines.restingHrSD);
+    const z = computeZScore(
+      metric.restingHr,
+      baselines.restingHr,
+      baselines.restingHrSD,
+    );
     if (z > 1.0) {
-      factors.push({ label: `resting HR elevated (${Math.round(z * 10) / 10} SD above baseline)`, impact: components.restingHr - 50 });
+      factors.push({
+        label: `resting HR elevated (${Math.round(z * 10) / 10} SD above baseline)`,
+        impact: components.restingHr - 50,
+      });
     }
   } else if (components.restingHr < 40) {
-    factors.push({ label: "resting HR above baseline", impact: components.restingHr - 50 });
+    factors.push({
+      label: "resting HR above baseline",
+      impact: components.restingHr - 50,
+    });
   }
 
   // Sort by absolute impact
   factors.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
 
   const top = factors.slice(0, 2);
-  if (top.length === 0) return "Metrics are close to your baseline — normal training day.";
+  if (top.length === 0)
+    return "Metrics are close to your baseline — normal training day.";
 
   const parts = top.map((f) => f.label);
   const zone = getReadinessZone(
     components.sleepQuantity * WEIGHTS.sleepQuantity +
-    components.sleepQuality * WEIGHTS.sleepQuality +
-    components.hrv * WEIGHTS.hrv +
-    components.restingHr * WEIGHTS.restingHr +
-    components.trainingLoad * WEIGHTS.trainingLoad +
-    components.stress * WEIGHTS.stress,
+      components.sleepQuality * WEIGHTS.sleepQuality +
+      components.hrv * WEIGHTS.hrv +
+      components.restingHr * WEIGHTS.restingHr +
+      components.trainingLoad * WEIGHTS.trainingLoad +
+      components.stress * WEIGHTS.stress,
   );
 
   const zoneAdvice: Record<ReadinessZone, string> = {
@@ -423,12 +472,23 @@ export function calculateReadiness(input: {
   const { todayMetrics, recentStrainScores, baselines } = input;
 
   const components: ReadinessComponents = {
-    sleepQuantity: scoreSleepQuantity(todayMetrics.totalSleepMinutes, baselines.sleep, baselines.sleepSD),
+    sleepQuantity: scoreSleepQuantity(
+      todayMetrics.totalSleepMinutes,
+      baselines.sleep,
+      baselines.sleepSD,
+    ),
     sleepQuality: scoreSleepQuality(todayMetrics),
     hrv: scoreHRV(todayMetrics.hrv, baselines.hrv, baselines.hrvSD),
-    restingHr: scoreRestingHR(todayMetrics.restingHr, baselines.restingHr, baselines.restingHrSD),
+    restingHr: scoreRestingHR(
+      todayMetrics.restingHr,
+      baselines.restingHr,
+      baselines.restingHrSD,
+    ),
     trainingLoad: scoreTrainingLoad(recentStrainScores),
-    stress: scoreStressAndBattery(todayMetrics.stressScore, todayMetrics.bodyBatteryStart),
+    stress: scoreStressAndBattery(
+      todayMetrics.stressScore,
+      todayMetrics.bodyBatteryStart,
+    ),
   };
 
   const rawScore =

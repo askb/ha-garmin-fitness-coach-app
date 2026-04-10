@@ -1,10 +1,10 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte } from "@acme/db";
-import { DailyMetric, Activity, Profile } from "@acme/db/schema";
-import { generateSleepCoachResult, computeStrainScore } from "@acme/engine";
 import type { DailyMetricInput } from "@acme/engine";
+import { and, desc, eq, gte } from "@acme/db";
+import { Activity, DailyMetric, Profile } from "@acme/db/schema";
+import { computeStrainScore, generateSleepCoachResult } from "@acme/engine";
 
 import { protectedProcedure } from "../trpc";
 
@@ -59,7 +59,8 @@ export const sleepRouter = {
     });
 
     const age = profile?.age ?? null;
-    const isAthlete = (profile?.experienceLevel ?? "intermediate") !== "beginner";
+    const isAthlete =
+      (profile?.experienceLevel ?? "intermediate") !== "beginner";
 
     // Fetch last 7 days of DailyMetric
     const recentMetrics = await ctx.db.query.DailyMetric.findMany({

@@ -2,17 +2,17 @@
  * Tests for proactive AI insight rule functions.
  * Each rule is tested in isolation using deterministic fixture data.
  */
-import { describe, it, expect, beforeEach } from "@jest/globals";
+import { beforeEach, describe, expect, it } from "@jest/globals";
 
 // Import pure rule functions from the helper module.
 // Jest config maps @acme/api → packages/api/src via moduleNameMapper (fallback: relative path).
 import {
   checkAcwrRisk,
-  checkTsbOverreaching,
   checkHrvDeviation,
-  checkSleepDebt,
-  checkRampRate,
   checkInterventionPattern,
+  checkRampRate,
+  checkSleepDebt,
+  checkTsbOverreaching,
 } from "../../../../packages/api/src/lib/insight-rules";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -86,7 +86,7 @@ describe("checkTsbOverreaching", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("checkHrvDeviation", () => {
   const mean = 60; // ms baseline
-  const sd = 8;   // ms standard deviation
+  const sd = 8; // ms standard deviation
 
   it("returns HIGH severity when HRV < mean - 2*SD", () => {
     // 60 - 2*8 = 44; fixture hrv = 60 - 2.5*8 = 40
@@ -188,7 +188,13 @@ describe("checkRampRate", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 describe("checkInterventionPattern", () => {
   it("detects pattern when same tag appears 3 times in 14d window", () => {
-    const tags = ["foam_rolling", "ice_bath", "foam_rolling", "stretching", "foam_rolling"];
+    const tags = [
+      "foam_rolling",
+      "ice_bath",
+      "foam_rolling",
+      "stretching",
+      "foam_rolling",
+    ];
     const result = checkInterventionPattern(tags);
     expect(result.triggered).toBe(true);
     expect(result.tag).toBe("foam_rolling");

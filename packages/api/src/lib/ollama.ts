@@ -52,9 +52,7 @@ export async function ollamaChat(
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      throw new Error(
-        `Ollama error ${response.status}: ${body.slice(0, 200)}`,
-      );
+      throw new Error(`Ollama error ${response.status}: ${body.slice(0, 200)}`);
     }
 
     const data = (await response.json()) as {

@@ -3,16 +3,21 @@
  */
 
 // Pure function to test — extracted from export page logic
-function exportToCSV(data: Record<string, unknown>[], filename: string): string {
+function exportToCSV(
+  data: Record<string, unknown>[],
+  filename: string,
+): string {
   if (data.length === 0) return "";
   const headers = Object.keys(data[0]!);
-  const rows = data.map(row =>
-    headers.map(h => {
-      const val = row[h];
-      if (val === null || val === undefined) return "";
-      if (typeof val === "string" && val.includes(",")) return `"${val}"`;
-      return String(val);
-    }).join(",")
+  const rows = data.map((row) =>
+    headers
+      .map((h) => {
+        const val = row[h];
+        if (val === null || val === undefined) return "";
+        if (typeof val === "string" && val.includes(",")) return `"${val}"`;
+        return String(val);
+      })
+      .join(","),
   );
   return [headers.join(","), ...rows].join("\n");
 }
