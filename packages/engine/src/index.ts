@@ -15,6 +15,7 @@ export type {
   UserProfile,
   WorkoutStructureBlock,
   WorkoutRecommendation,
+  RecoveryContext,
   AnomalyAlert,
   // New types
   TrainingLoadMetrics,

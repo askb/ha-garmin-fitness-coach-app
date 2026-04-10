@@ -230,6 +230,13 @@ export function predictRaceTimesFromVO2max(
 }
 
 /**
+ * Known low-confidence VO2max estimation sources excluded from trend analysis.
+ * The Uth method (15.3 × HRmax/HRrest) has ±5 ml/kg/min accuracy
+ * (Uth et al. 2004), which is too noisy for trend detection.
+ */
+const LOW_CONFIDENCE_SOURCES = new Set(["uth_method", "uth_ratio"]);
+
+/**
  * Detect VO2max trend over a period.
  *
  * Uses simple linear regression on recent VO2max estimates.
@@ -241,18 +248,31 @@ export function predictRaceTimesFromVO2max(
  * - Declining: slope < -0.5
  *
  * Note: At least 4 data points over 14+ days needed for meaningful trend.
+ *
+ * When source metadata is available, known low-confidence estimates
+ * ("uth_method"/"uth_ratio") are excluded to prevent ambient daily
+ * recalculations from skewing the trend. Other sources (including
+ * "garmin_official", "running_pace_hr", "cooper", and any future/unknown
+ * values) are retained.
+ *
+ * Ref: Uth N et al. (2004) — accuracy ±5 ml/kg/min (too noisy for trends).
  */
 export function computeVO2maxTrend(
-  estimates: Array<{ date: string; value: number }>,
+  estimates: Array<{ date: string; value: number; source?: string }>,
 ): {
   trend: "improving" | "stable" | "declining";
   slopePerWeek: number;
 } | null {
-  if (estimates.length < 4) return null;
+  const hasSourceData = estimates.some((e) => e.source != null);
+  const filtered = hasSourceData
+    ? estimates.filter((e) => !LOW_CONFIDENCE_SOURCES.has(e.source ?? ""))
+    : estimates;
+
+  if (filtered.length < 4) return null;
 
   // Simple linear regression (days as x, VO2max as y)
-  const startDate = new Date(estimates[0]!.date).getTime();
-  const points = estimates.map((e) => ({
+  const startDate = new Date(filtered[0]!.date).getTime();
+  const points = filtered.map((e) => ({
     x: (new Date(e.date).getTime() - startDate) / (1000 * 60 * 60 * 24), // days
     y: e.value,
   }));

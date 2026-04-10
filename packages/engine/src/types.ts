@@ -276,6 +276,18 @@ export interface UserProfile {
 }
 
 // ---------------------------------------------------------------------------
+// Recovery Context — optional signals for smarter workout modulation
+// Ref: Hulin 2016 (ACWR), Meeusen 2013 (TSB overreaching), Kellmann 2010
+// ---------------------------------------------------------------------------
+export interface RecoveryContext {
+  acwr: number | null; // Acute:Chronic Workload Ratio (sweet spot: 0.8-1.3)
+  tsb: number | null; // Training Stress Balance (CTL - ATL)
+  bodyBattery: number | null; // Garmin Body Battery (0-100)
+  sleepDebtMinutes: number | null; // accumulated sleep debt
+  stressScore: number | null; // Garmin daily stress (0-100)
+}
+
+// ---------------------------------------------------------------------------
 // Workout Types
 // ---------------------------------------------------------------------------
 export interface WorkoutStructureBlock {
