@@ -71,5 +71,5 @@ cd "$APP_DIR"
 
 echo "GarminCoach started (PID $(cat "$PID_FILE"))"
 echo "  Local:   http://localhost:${PORT}"
-echo "  LAN:     http://192.168.1.77:${PORT}"
+echo "  LAN:     http://$(hostname -I | awk '{print $1}'):${PORT}"
 echo "  Logs:    ${LOG_FILE}"

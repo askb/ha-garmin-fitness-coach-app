@@ -218,17 +218,17 @@ export async function buildDataContext(
         lines.push(`- HRV baseline: ${Math.round(profile.hrvBaseline)} ms`);
       if (profile.sleepBaseline)
         lines.push(`- Sleep baseline: ${Math.round(profile.sleepBaseline)} min`);
-      
+
       const conditions = profile.healthConditions as string[] | null;
       if (conditions && conditions.length > 0)
         lines.push(`- Health conditions: ${conditions.join(", ")}`);
-      
+
       const injuries = profile.currentInjuries as { bodyPart: string; severity: string; since?: string; notes?: string }[] | null;
       if (injuries && injuries.length > 0)
         lines.push(
           `- Current injuries: ${injuries.map((i) => `${i.bodyPart} (${i.severity}${i.since ? `, since ${i.since}` : ""}${i.notes ? ` — ${i.notes}` : ""})`).join("; ")}`,
         );
-      
+
       if (profile.medications)
         lines.push(`- Medications: ${profile.medications}`);
       if (profile.allergies)

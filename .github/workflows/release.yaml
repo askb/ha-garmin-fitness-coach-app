@@ -124,10 +124,12 @@ jobs:
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -n "$PREV_TAG" ]; then
-            echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
-            git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)" >> "$GITHUB_OUTPUT"
-            echo "" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            {
+              echo "changelog<<EOF"
+              git log "${PREV_TAG}..HEAD" --pretty=format:"- %s (%h)"
+              echo ""
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "changelog=Initial release" >> "$GITHUB_OUTPUT"
           fi

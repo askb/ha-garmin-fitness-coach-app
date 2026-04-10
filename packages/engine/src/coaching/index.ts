@@ -1,4 +1,4 @@
-import type { ReadinessZone, WorkoutRecommendation, UserProfile } from "../types";
+import type { ReadinessZone, RecoveryContext, WorkoutRecommendation, UserProfile } from "../types";
 import type { WorkoutTemplate } from "./templates";
 import { allTemplates, runningTemplates, cyclingTemplates, strengthTemplates } from "./templates";
 
@@ -102,9 +102,9 @@ function getEasyTemplate(sport: string): WorkoutTemplate {
 }
 
 /**
- * Get the rest/recovery recommendation.
+ * Get the rest recommendation (complete rest).
  */
-function getRestRecommendation(): WorkoutRecommendation {
+function getRestRecommendation(reason: string): WorkoutRecommendation {
   return {
     sportType: "rest",
     workoutType: "rest",
@@ -119,26 +119,126 @@ function getRestRecommendation(): WorkoutRecommendation {
     structure: [
       { phase: "main", description: "Light walk or complete rest", durationMinutes: 20, hrZone: 1 },
     ],
-    explanation: "Your readiness is very low. Rest today to recover.",
+    explanation: reason,
   };
 }
 
 /**
- * Modulate a workout template based on readiness zone.
+ * Get an active recovery recommendation (light movement, Zone 1).
+ *
+ * Active recovery promotes blood flow and adaptation without adding
+ * significant training stress. Preferred over complete rest when the
+ * athlete is fatigued but not critically depleted.
+ *
+ * Ref: Barnett A. Using recovery modalities between training sessions
+ *      in elite athletes. Sports Med. 2006;36(9):781-796.
+ */
+function getActiveRecoveryRecommendation(sport: string, reason: string): WorkoutRecommendation {
+  const descriptions: Record<string, string> = {
+    running: "Very easy jog or walk — conversational pace only",
+    cycling: "Easy spin — light resistance, high cadence",
+    strength: "Mobility work, foam rolling, and light stretching",
+  };
+  const desc = descriptions[sport] ?? "Light movement — keep it easy and short";
+
+  return {
+    sportType: sport,
+    workoutType: "active_recovery",
+    title: "Active Recovery",
+    description: desc,
+    targetDurationMin: 30,
+    targetDurationMax: 30,
+    targetHrZoneLow: 1,
+    targetHrZoneHigh: 1,
+    targetStrainLow: 0,
+    targetStrainHigh: 3,
+    structure: [
+      { phase: "warmup", description: "Gentle start", durationMinutes: 5, hrZone: 1 },
+      { phase: "main", description: desc, durationMinutes: 20, hrZone: 1 },
+      { phase: "cooldown", description: "Easy stretching", durationMinutes: 5, hrZone: 1 },
+    ],
+    explanation: reason,
+  };
+}
+
+/**
+ * Determine whether "poor" readiness truly requires complete rest, or
+ * whether active recovery is more appropriate.
+ *
+ * Complete rest is reserved for critical states:
+ * - ACWR > 1.5 (high injury risk zone, Hulin 2016)
+ * - TSB < -25 (functional overreaching, Meeusen 2013)
+ * - Body Battery < 20 (critically depleted energy reserves)
+ * - Sleep debt > 3 hours (Mah 2011: impairs reaction time and power)
+ *
+ * Otherwise, active recovery is preferred — it promotes adaptation
+ * without adding significant training stress (Barnett 2006).
+ */
+function recommendForPoorReadiness(
+  sport: string,
+  recovery: RecoveryContext | undefined,
+): WorkoutRecommendation {
+  // Without recovery context (or all-null fields), default to active recovery
+  // (conservative but not complete rest — promotes adaptation per Barnett 2006)
+  const hasAnySignal = recovery &&
+    (recovery.acwr !== null || recovery.tsb !== null ||
+     recovery.bodyBattery !== null || recovery.sleepDebtMinutes !== null);
+  if (!hasAnySignal) {
+    return getActiveRecoveryRecommendation(
+      sport,
+      "Readiness is poor — light active recovery to promote blood flow.",
+    );
+  }
+
+  // Critical rest triggers — any one is sufficient for complete rest
+  if (recovery.acwr !== null && recovery.acwr > 1.5) {
+    return getRestRecommendation(
+      `ACWR is ${recovery.acwr.toFixed(2)} — high injury risk zone (>1.5). Complete rest recommended.`,
+    );
+  }
+  if (recovery.tsb !== null && recovery.tsb < -25) {
+    return getRestRecommendation(
+      `TSB is ${recovery.tsb.toFixed(0)} — deep overreach zone. Rest to prevent overtraining.`,
+    );
+  }
+  if (recovery.bodyBattery !== null && recovery.bodyBattery < 20) {
+    return getRestRecommendation(
+      `Body Battery critically low (${recovery.bodyBattery}%). Rest today.`,
+    );
+  }
+  if (recovery.sleepDebtMinutes !== null && recovery.sleepDebtMinutes > 180) {
+    const hours = (recovery.sleepDebtMinutes / 60).toFixed(1);
+    return getRestRecommendation(
+      `Sleep debt is ${hours}h — prioritize rest and catch up on sleep.`,
+    );
+  }
+
+  // Poor readiness but no critical signals → active recovery
+  return getActiveRecoveryRecommendation(
+    sport,
+    "Readiness is poor but no critical risk signals — light active recovery to promote blood flow and adaptation.",
+  );
+}
+
+/**
+ * Modulate a workout template based on readiness zone and recovery signals.
  *
  * Prime   → promote hard session or intensify +5%
  * High    → execute as planned
  * Moderate→ reduce volume -10%
  * Low     → substitute easy/technique
- * Poor    → rest or 20min Zone 1 only
+ * Poor    → evidence-based: rest only if critical signals, else active recovery
+ *
+ * Ref: Hulin 2016 (ACWR), Meeusen 2013 (overreaching), Barnett 2006 (recovery)
  */
 export function modulateWorkout(
   template: WorkoutTemplate,
   readinessZone: ReadinessZone,
   sport: string,
+  recovery?: RecoveryContext,
 ): WorkoutRecommendation {
   if (readinessZone === "poor") {
-    return getRestRecommendation();
+    return recommendForPoorReadiness(sport, recovery);
   }
 
   if (readinessZone === "low" && (template.intensity === "hard" || template.intensity === "very_hard")) {
@@ -207,6 +307,11 @@ function getModulationExplanation(template: WorkoutTemplate, zone: ReadinessZone
 
 /**
  * Generate today's workout recommendation given the day's plan and readiness.
+ *
+ * When recovery context is provided, "poor" readiness uses evidence-based
+ * decision logic instead of unconditionally prescribing rest. This addresses
+ * the Garmin Coach "always rest day" sync bug by providing our own
+ * intelligent recommendations.
  */
 export function generateDailyWorkout(
   sport: string,
@@ -215,6 +320,7 @@ export function generateDailyWorkout(
   availableDays: number,
   readinessZone: ReadinessZone,
   recentHardDays: number, // consecutive hard days
+  recovery?: RecoveryContext,
 ): WorkoutRecommendation {
   // Force easy day after 2+ consecutive hard days
   if (recentHardDays >= 2 && readinessZone !== "prime") {
@@ -231,8 +337,8 @@ export function generateDailyWorkout(
   // Find today's slot
   const todaySlot = weekTemplate.find((s) => s.dayIndex === dayOfWeek);
   if (!todaySlot) {
-    // Rest day in the plan
-    return getRestRecommendation();
+    // Rest day in the weekly plan template
+    return getRestRecommendation("Scheduled rest day in your weekly plan.");
   }
 
   // Find the corresponding workout template
@@ -251,12 +357,12 @@ export function generateDailyWorkout(
     if (harderSlot) {
       const harderTemplate = findTemplate(sport, harderSlot.sessionType);
       if (harderTemplate) {
-        return modulateWorkout(harderTemplate, readinessZone, sport);
+        return modulateWorkout(harderTemplate, readinessZone, sport, recovery);
       }
     }
   }
 
-  return modulateWorkout(template, readinessZone, sport);
+  return modulateWorkout(template, readinessZone, sport, recovery);
 }
 
 /**

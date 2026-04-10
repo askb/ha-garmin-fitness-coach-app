@@ -13,9 +13,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
       - name: Install gh-aw extension
-        uses: github/gh-aw/actions/setup-cli@v0.63.0
+        uses: github/gh-aw/actions/setup-cli@13ac7dee59ec5127393ec22dc3f4d0f6987a3842  # v0.67.1
         with:
           version: v0.62.5
       - name: Install dependencies
@@ -24,4 +24,4 @@ jobs:
           pnpm install --frozen-lockfile
       - name: Setup database for tests
         run: |
-          echo "DATABASE_URL=postgresql://test@localhost:5432/garmincoach_test" >> $GITHUB_ENV
+          echo "DATABASE_URL=postgresql://test@localhost:5432/garmincoach_test" >> "$GITHUB_ENV"

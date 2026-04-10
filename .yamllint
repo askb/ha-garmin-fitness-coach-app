@@ -11,4 +11,13 @@ rules:
     min-spaces-from-content: 1
     level: error
   line-length:
-    max: 120
+    max: 200
+    level: warning
+  truthy:
+    allowed-values: ["true", "false", "on", "off", "yes", "no"]
+    check-keys: false
+  document-start: disable
+
+ignore: |
+  .github/workflows/*.lock.yml
+  pnpm-lock.yaml
