@@ -127,7 +127,7 @@ export function checkRampRate(ctlValues: number[]): RampRateResult {
  *
  * @param todayHrv   Today's HRV reading (ms). Null / undefined → not suppressed (data missing).
  * @param baselineValue  90-day rolling HRV mean.  Null / undefined → not suppressed (no baseline).
- * @param baselineSD     90-day rolling HRV standard deviation (default 0).
+ * @param baselineSD     90-day rolling HRV standard deviation (null/undefined treated as 0).
  */
 export function isHrvSuppressed(
   todayHrv: number | null | undefined,
