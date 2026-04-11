@@ -116,6 +116,30 @@ export function checkRampRate(ctlValues: number[]): RampRateResult {
 }
 
 /**
+ * Check whether today's HRV indicates suppressed recovery.
+ *
+ * Returns true when HRV is at least 1 standard deviation below baseline,
+ * which means the athlete should prioritise recovery over load-building.
+ *
+ * Used to cross-check load-related insights (e.g. ACWR "good time to build")
+ * against the athlete's current recovery state so that contradictory
+ * recommendations are not presented together.
+ *
+ * @param todayHrv   Today's HRV reading (ms). Null / undefined → not suppressed (data missing).
+ * @param baselineValue  90-day rolling HRV mean.  Null / undefined → not suppressed (no baseline).
+ * @param baselineSD     90-day rolling HRV standard deviation (null/undefined treated as 0).
+ */
+export function isHrvSuppressed(
+  todayHrv: number | null | undefined,
+  baselineValue: number | null | undefined,
+  baselineSD?: number | null,
+): boolean {
+  if (todayHrv == null || baselineValue == null) return false;
+  const sd = baselineSD ?? 0;
+  return todayHrv < baselineValue - sd;
+}
+
+/**
  * Rule 6: Intervention Pattern Detection
  * If any single tag appears 3+ times in the provided list → pattern detected.
  */
