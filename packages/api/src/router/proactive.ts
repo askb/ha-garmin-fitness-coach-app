@@ -16,6 +16,7 @@ import {
   checkHrvDeviation,
   checkInterventionPattern,
   checkTsbOverreaching,
+  isHrvSuppressed,
 } from "../lib/insight-rules";
 import { protectedProcedure } from "../trpc";
 
@@ -60,6 +61,7 @@ export const proactiveRouter = {
       ]);
 
     const today_metric = metrics14[0];
+    const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
 
     // ── Rule 1: ACWR Injury Risk ──
     if (latestAdvanced?.acwr != null) {
@@ -98,19 +100,48 @@ export const proactiveRouter = {
           generatedBy: "rules",
         });
       } else if (acwr < 0.8 && (latestAdvanced.ctl ?? 0) > 20) {
-        insights.push({
-          userId,
-          date: today,
-          insightType: "positive_trend",
-          severity: "info",
-          title: `📈 Training Load Below Chronic Base — Good Time to Build`,
-          body: `ACWR of ${acwr.toFixed(2)} indicates you are under-training relative to your fitness base (CTL ${latestAdvanced.ctl?.toFixed(1)}). This is a good window to safely increase training volume.`,
-          metrics: { acwr, ctl: latestAdvanced.ctl ?? 0 },
-          confidence: 0.7,
-          actionSuggestion:
-            "Consider adding one additional moderate session this week.",
-          generatedBy: "rules",
-        });
+        // Cross-check HRV before recommending load increase
+        const hrvLow = isHrvSuppressed(
+          today_metric?.hrv,
+          hrvBaseline?.baselineValue,
+          hrvBaseline?.baselineSD,
+        );
+
+        if (hrvLow) {
+          // HRV is below baseline — modify insight to acknowledge recovery state
+          insights.push({
+            userId,
+            date: today,
+            insightType: "positive_trend",
+            severity: "info",
+            title: `📈 Training Load Below Base — But Recovery First`,
+            body: `ACWR of ${acwr.toFixed(2)} suggests room to increase volume, but today's HRV indicates incomplete recovery. Wait for HRV to return to baseline before adding load.`,
+            metrics: {
+              acwr,
+              ctl: latestAdvanced.ctl ?? 0,
+              hrv: today_metric?.hrv ?? 0,
+              hrvBaseline: hrvBaseline?.baselineValue ?? 0,
+            },
+            confidence: 0.65,
+            actionSuggestion:
+              "Prioritize recovery today. Reassess in 1-2 days when HRV normalizes.",
+            generatedBy: "rules",
+          });
+        } else {
+          insights.push({
+            userId,
+            date: today,
+            insightType: "positive_trend",
+            severity: "info",
+            title: `📈 Training Load Below Chronic Base — Good Time to Build`,
+            body: `ACWR of ${acwr.toFixed(2)} indicates you are under-training relative to your fitness base (CTL ${latestAdvanced.ctl?.toFixed(1)}). This is a good window to safely increase training volume.`,
+            metrics: { acwr, ctl: latestAdvanced.ctl ?? 0 },
+            confidence: 0.7,
+            actionSuggestion:
+              "Consider adding one additional moderate session this week.",
+            generatedBy: "rules",
+          });
+        }
       }
     }
 
@@ -139,7 +170,6 @@ export const proactiveRouter = {
     }
 
     // ── Rule 3: HRV Baseline Deviation ──
-    const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
     if (hrvBaseline && today_metric?.hrv != null) {
       const sd = hrvBaseline.baselineSD ?? 0;
       const hrvResult = checkHrvDeviation(
