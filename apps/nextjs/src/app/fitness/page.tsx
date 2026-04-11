@@ -248,21 +248,11 @@ export default function FitnessPage() {
     [uthChartData],
   );
 
-  // Legacy trendline for combined chart (used when neither source-specific chart has data)
-  const trendlineData = useMemo(() => {
-    if (chartData.length < 4) return [];
-    const n = chartData.length;
-    const sumX = (n * (n - 1)) / 2;
-    const sumY = chartData.reduce((s, d) => s + d.value, 0);
-    const sumXY = chartData.reduce((s, d, i) => s + i * d.value, 0);
-    const sumXX = chartData.reduce((s, _, i) => s + i * i, 0);
-    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-    return chartData.map((d, i) => ({
-      ...d,
-      trendline: Number((intercept + slope * i).toFixed(1)),
-    }));
-  }, [chartData]);
+  // Fallback trendline for combined chart (used when neither source-specific chart has data)
+  const trendlineData = useMemo(
+    () => computeTrendline(chartData),
+    [chartData],
+  );
 
   const classification = latestVO2max
     ? classifyVO2max(latestVO2max.value)
@@ -429,7 +419,7 @@ export default function FitnessPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title={`Garmin VO2 Max — ${garminChartData.length} readings`}
-            info="Official VO2max from your Garmin device, calculated by Firstbeat Analytics using GPS pace and heart rate data during runs. This is the most accurate wearable-based estimate available. Values update after qualifying runs (12+ min, outdoor, with HR). Citation: Firstbeat Technologies (2014) — VO2max estimation from wrist-based heart rate and speed."
+            info="Official VO2max from your Garmin device, calculated by Firstbeat Analytics using GPS pace and heart rate data during runs. This is the most accurate wearable-based estimate available. Values update after qualifying runs (12+ min, outdoor, with HR). Citation: Firstbeat Technologies. (2014). VO2max Estimation from Wrist-Based Heart Rate and Speed. Firstbeat White Paper."
             className="mb-3"
           />
           <ResponsiveContainer width="100%" height={220}>
