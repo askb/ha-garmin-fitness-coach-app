@@ -148,7 +148,17 @@ export const analyticsRouter = {
 
       const trend = computeVO2maxTrend(estimates);
 
-      return { estimates, trend };
+      // Separate arrays by source for distinct chart rendering.
+      // Garmin official = Firstbeat-based VO2max synced from Garmin Connect.
+      // UTH estimates = formula-based 15.3 × (HRmax / HRrest) (Uth et al. 2004).
+      const garminEstimates = allEstimates
+        .filter((e) => e.source === "garmin_official")
+        .sort((a, b) => b.date.localeCompare(a.date));
+      const uthEstimates = allEstimates
+        .filter((e) => e.source === "uth_method" || e.source === "uth_ratio")
+        .sort((a, b) => b.date.localeCompare(a.date));
+
+      return { estimates, trend, garminEstimates, uthEstimates };
     }),
 
   getRacePredictions: protectedProcedure.query(async ({ ctx }) => {
