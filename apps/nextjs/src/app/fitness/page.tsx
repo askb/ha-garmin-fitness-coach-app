@@ -189,7 +189,7 @@ export default function FitnessPage() {
   const trend = vo2max.data?.trend;
   const trendInfo = trend ? TREND_BADGE[trend.trend] : null;
 
-  // Chart data (chronological order)
+  // Chart data (chronological order) — used for the combined "best" series
   const chartData = useMemo(() => {
     if (!vo2max.data?.estimates?.length) return [];
     return [...vo2max.data.estimates].reverse().map((e) => ({
@@ -201,7 +201,54 @@ export default function FitnessPage() {
     }));
   }, [vo2max.data]);
 
-  // Trendline data: simple linear regression overlay
+  // Garmin official VO2max data (Firstbeat-based)
+  const garminChartData = useMemo(() => {
+    if (!vo2max.data?.garminEstimates?.length) return [];
+    return [...vo2max.data.garminEstimates].reverse().map((e) => ({
+      date: fmtDateShort(e.date),
+      fullDate: e.date,
+      value: e.value,
+    }));
+  }, [vo2max.data]);
+
+  // UTH formula estimate data
+  const uthChartData = useMemo(() => {
+    if (!vo2max.data?.uthEstimates?.length) return [];
+    return [...vo2max.data.uthEstimates].reverse().map((e) => ({
+      date: fmtDateShort(e.date),
+      fullDate: e.date,
+      value: e.value,
+    }));
+  }, [vo2max.data]);
+
+  // Trendline helper: simple linear regression overlay
+  function computeTrendline(
+    data: { date: string; fullDate: string; value: number }[],
+  ) {
+    if (data.length < 4) return [];
+    const n = data.length;
+    const sumX = (n * (n - 1)) / 2;
+    const sumY = data.reduce((s, d) => s + d.value, 0);
+    const sumXY = data.reduce((s, d, i) => s + i * d.value, 0);
+    const sumXX = data.reduce((s, _, i) => s + i * i, 0);
+    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+    return data.map((d, i) => ({
+      ...d,
+      trendline: Number((intercept + slope * i).toFixed(1)),
+    }));
+  }
+
+  const garminTrendlineData = useMemo(
+    () => computeTrendline(garminChartData),
+    [garminChartData],
+  );
+  const uthTrendlineData = useMemo(
+    () => computeTrendline(uthChartData),
+    [uthChartData],
+  );
+
+  // Legacy trendline for combined chart (used when neither source-specific chart has data)
   const trendlineData = useMemo(() => {
     if (chartData.length < 4) return [];
     const n = chartData.length;
@@ -377,21 +424,25 @@ export default function FitnessPage() {
         </div>
       )}
 
-      {/* ── VO2max Trend Chart ── */}
-      {chartData.length > 0 && (
+      {/* ── Garmin VO2 Max Chart ── */}
+      {garminChartData.length > 0 && (
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
-            title={`VO2max Trend — ${chartData.length} estimates`}
-            info="VO2max = maximum oxygen uptake, gold standard of cardiorespiratory fitness (mL/kg/min). Estimation methods: (1) Running: VO2 = 3.5 + 0.2×speed, VO2max = VO2/%HRR. (2) Uth ratio: 15.3 × maxHR/RHR. Trend uses linear regression. A 3.5 mL/kg/min gain reduces mortality risk ~15%. Citation: ACSM (2021), Uth et al. (2004)."
+            title={`Garmin VO2 Max — ${garminChartData.length} readings`}
+            info="Official VO2max from your Garmin device, calculated by Firstbeat Analytics using GPS pace and heart rate data during runs. This is the most accurate wearable-based estimate available. Values update after qualifying runs (12+ min, outdoor, with HR). Citation: Firstbeat Technologies (2014) — VO2max estimation from wrist-based heart rate and speed."
             className="mb-3"
           />
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart
-              data={trendlineData.length > 0 ? trendlineData : chartData}
+              data={
+                garminTrendlineData.length > 0
+                  ? garminTrendlineData
+                  : garminChartData
+              }
               margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
             >
               <defs>
-                <linearGradient id="vo2Fill" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="garminFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
@@ -414,25 +465,17 @@ export default function FitnessPage() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                labelFormatter={(_label, payload) => {
-                  if (payload?.[0]?.payload) {
-                    const p = payload[0].payload as Record<string, unknown>;
-                    const source = p.source ? ` (${p.source as string})` : "";
-                    return `${p.date as string}${source}`;
-                  }
-                  return String(_label ?? "");
-                }}
               />
               <Area
                 type="monotone"
                 dataKey="value"
                 stroke="#3b82f6"
-                fill="url(#vo2Fill)"
+                fill="url(#garminFill)"
                 strokeWidth={2}
-                name="VO2max"
+                name="Garmin VO2max"
                 dot={{ fill: "#3b82f6", r: 3 }}
               />
-              {trendlineData.length > 0 && (
+              {garminTrendlineData.length > 0 && (
                 <Line
                   type="monotone"
                   dataKey="trendline"
@@ -447,6 +490,146 @@ export default function FitnessPage() {
           </ResponsiveContainer>
         </div>
       )}
+
+      {/* ── Estimated VO2 Max (UTH Formula) Chart ── */}
+      {uthChartData.length > 0 && (
+        <div className="bg-card rounded-2xl border p-4">
+          <SectionHeader
+            title={`Estimated VO2 Max (UTH Formula) — ${uthChartData.length} estimates`}
+            info="VO2max estimated using the Uth method: VO2max = 15.3 × (HRmax / HRrest). This formula uses only resting and max heart rate, so it can vary significantly day-to-day with resting HR fluctuations. Accuracy is ±5 mL/kg/min — useful as a rough baseline but not as reliable as Garmin's Firstbeat-based value. Citation: Uth N et al. (2004) Eur J Appl Physiol 91:111-115."
+            className="mb-3"
+          />
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart
+              data={
+                uthTrendlineData.length > 0 ? uthTrendlineData : uthChartData
+              }
+              margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="uthFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: "#888", fontSize: 10 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tick={{ fill: "#888", fontSize: 10 }}
+                width={36}
+                domain={["dataMin - 2", "dataMax + 2"]}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #333",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="value"
+                stroke="#f59e0b"
+                fill="url(#uthFill)"
+                strokeWidth={2}
+                name="UTH Estimate"
+                dot={{ fill: "#f59e0b", r: 3 }}
+              />
+              {uthTrendlineData.length > 0 && (
+                <Line
+                  type="monotone"
+                  dataKey="trendline"
+                  stroke="#94a3b8"
+                  strokeWidth={1.5}
+                  strokeDasharray="6 3"
+                  dot={false}
+                  name="Trend"
+                />
+              )}
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* ── Combined VO2max Trend (fallback when no source-specific data) ── */}
+      {garminChartData.length === 0 &&
+        uthChartData.length === 0 &&
+        chartData.length > 0 && (
+          <div className="bg-card rounded-2xl border p-4">
+            <SectionHeader
+              title={`VO2max Trend — ${chartData.length} estimates`}
+              info="VO2max = maximum oxygen uptake, gold standard of cardiorespiratory fitness (mL/kg/min). Estimation methods: (1) Running: VO2 = 3.5 + 0.2×speed, VO2max = VO2/%HRR. (2) Uth ratio: 15.3 × maxHR/RHR. Trend uses linear regression. A 3.5 mL/kg/min gain reduces mortality risk ~15%. Citation: ACSM (2021), Uth et al. (2004)."
+              className="mb-3"
+            />
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart
+                data={trendlineData.length > 0 ? trendlineData : chartData}
+                margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="vo2Fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fill: "#888", fontSize: 10 }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  tick={{ fill: "#888", fontSize: 10 }}
+                  width={36}
+                  domain={["dataMin - 2", "dataMax + 2"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#18181b",
+                    border: "1px solid #333",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  labelFormatter={(_label, payload) => {
+                    if (payload?.[0]?.payload) {
+                      const p = payload[0].payload as Record<string, unknown>;
+                      const source = p.source
+                        ? ` (${p.source as string})`
+                        : "";
+                      return `${p.date as string}${source}`;
+                    }
+                    return String(_label ?? "");
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#3b82f6"
+                  fill="url(#vo2Fill)"
+                  strokeWidth={2}
+                  name="VO2max"
+                  dot={{ fill: "#3b82f6", r: 3 }}
+                />
+                {trendlineData.length > 0 && (
+                  <Line
+                    type="monotone"
+                    dataKey="trendline"
+                    stroke="#94a3b8"
+                    strokeWidth={1.5}
+                    strokeDasharray="6 3"
+                    dot={false}
+                    name="Trend"
+                  />
+                )}
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        )}
 
       {/* ── Percentile Card ── */}
       {latestVO2max && topPercent !== null && (

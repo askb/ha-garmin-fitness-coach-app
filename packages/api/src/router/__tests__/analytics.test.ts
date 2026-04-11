@@ -187,6 +187,91 @@ describe("analytics router", () => {
 
       expect(result.estimates).toHaveLength(0);
     });
+
+    it("returns separate garminEstimates and uthEstimates arrays", async () => {
+      const records = [
+        {
+          id: "v1",
+          userId: TEST_USER_ID,
+          date: dateString(3),
+          source: "garmin_official",
+          value: 50,
+          sport: "running",
+        },
+        {
+          id: "v2",
+          userId: TEST_USER_ID,
+          date: dateString(5),
+          source: "uth_ratio",
+          value: 48,
+          sport: "running",
+        },
+        {
+          id: "v3",
+          userId: TEST_USER_ID,
+          date: dateString(7),
+          source: "garmin_official",
+          value: 49,
+          sport: "running",
+        },
+        {
+          id: "v4",
+          userId: TEST_USER_ID,
+          date: dateString(7),
+          source: "uth_ratio",
+          value: 53,
+          sport: "running",
+        },
+        {
+          id: "v5",
+          userId: TEST_USER_ID,
+          date: dateString(10),
+          source: "running_pace_hr",
+          value: 47,
+          sport: "running",
+        },
+      ];
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue(records);
+
+      const result = await caller.analytics.getVO2maxHistory({ days: 30 });
+
+      // garminEstimates should only contain garmin_official source
+      expect(result.garminEstimates).toHaveLength(2);
+      expect(result.garminEstimates.every((e) => e.source === "garmin_official")).toBe(true);
+      // Sorted descending by date
+      expect(result.garminEstimates[0]!.date).toBe(dateString(3));
+      expect(result.garminEstimates[1]!.date).toBe(dateString(7));
+
+      // uthEstimates should only contain uth_ratio / uth_method
+      expect(result.uthEstimates).toHaveLength(2);
+      expect(result.uthEstimates.every((e) => e.source === "uth_ratio" || e.source === "uth_method")).toBe(true);
+      expect(result.uthEstimates[0]!.date).toBe(dateString(5));
+      expect(result.uthEstimates[1]!.date).toBe(dateString(7));
+
+      // running_pace_hr should not appear in either filtered array
+      expect(result.garminEstimates.some((e) => e.source === "running_pace_hr")).toBe(false);
+      expect(result.uthEstimates.some((e) => e.source === "running_pace_hr")).toBe(false);
+    });
+
+    it("returns empty garminEstimates and uthEstimates when no matching sources", async () => {
+      const records = [
+        {
+          id: "v1",
+          userId: TEST_USER_ID,
+          date: dateString(3),
+          source: "running_pace_hr",
+          value: 50,
+          sport: "running",
+        },
+      ];
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue(records);
+
+      const result = await caller.analytics.getVO2maxHistory({ days: 30 });
+
+      expect(result.garminEstimates).toHaveLength(0);
+      expect(result.uthEstimates).toHaveLength(0);
+      expect(result.estimates).toHaveLength(1);
+    });
   });
 
   // -------------------------------------------------------------------------
