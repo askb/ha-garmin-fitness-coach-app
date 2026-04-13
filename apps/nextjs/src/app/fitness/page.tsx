@@ -555,7 +555,11 @@ export default function FitnessPage() {
             />
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart
-                data={trendlineData.length > 0 ? trendlineData : chartData}
+                data={
+                  (trendlineData.length > 0
+                    ? trendlineData
+                    : chartData) as Record<string, unknown>[]
+                }
                 margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
               >
                 <defs>

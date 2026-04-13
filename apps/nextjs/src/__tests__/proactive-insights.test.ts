@@ -2,7 +2,6 @@
  * Tests for proactive AI insight rule functions.
  * Each rule is tested in isolation using deterministic fixture data.
  */
-import { beforeEach, describe, expect, it } from "@jest/globals";
 
 // Import pure rule functions from the helper module.
 // Jest config maps @acme/api → packages/api/src via moduleNameMapper (fallback: relative path).

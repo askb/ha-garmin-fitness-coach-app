@@ -10,7 +10,7 @@ export function IngressProvider({ children }: { children: React.ReactNode }) {
     const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(
       window.location.pathname,
     );
-    return match ? match[1] : "";
+    return match?.[1] ?? "";
   }, []);
 
   return (
