@@ -15,9 +15,16 @@ interface StatItem {
   zoneLabel?: string;
 }
 
-const ZONE_COLORS: Record<MetricZone, { text: string; bg: string; bar: string }> = {
+const ZONE_COLORS: Record<
+  MetricZone,
+  { text: string; bg: string; bar: string }
+> = {
   good: { text: "text-green-400", bg: "bg-green-500/10", bar: "bg-green-500" },
-  caution: { text: "text-yellow-400", bg: "bg-yellow-500/10", bar: "bg-yellow-500" },
+  caution: {
+    text: "text-yellow-400",
+    bg: "bg-yellow-500/10",
+    bar: "bg-yellow-500",
+  },
   concern: { text: "text-red-400", bg: "bg-red-500/10", bar: "bg-red-500" },
 };
 
@@ -33,7 +40,9 @@ export function QuickStats({ stats }: { stats: StatItem[] }) {
             className={`rounded-xl border px-4 py-3 text-center ${stat.zone ? colors.bg : "bg-card"}`}
           >
             <span className="text-lg">{stat.icon}</span>
-            <p className={`mt-1 text-lg font-semibold ${stat.zone ? colors.text : "text-foreground"}`}>
+            <p
+              className={`mt-1 text-lg font-semibold ${stat.zone ? colors.text : "text-foreground"}`}
+            >
               {stat.value ?? "—"}
               {stat.unit && (
                 <span className="text-muted-foreground ml-0.5 text-xs">
@@ -46,7 +55,9 @@ export function QuickStats({ stats }: { stats: StatItem[] }) {
               <div className="mx-auto mt-1.5 h-1 w-full max-w-[80px] overflow-hidden rounded-full bg-zinc-700">
                 <div
                   className={`h-full rounded-full transition-all ${colors.bar}`}
-                  style={{ width: `${Math.min(100, Math.max(0, stat.scale))}%` }}
+                  style={{
+                    width: `${Math.min(100, Math.max(0, stat.scale))}%`,
+                  }}
                 />
               </div>
             )}

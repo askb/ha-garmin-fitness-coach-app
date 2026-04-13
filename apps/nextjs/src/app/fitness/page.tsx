@@ -249,10 +249,7 @@ export default function FitnessPage() {
   );
 
   // Fallback trendline for combined chart (used when neither source-specific chart has data)
-  const trendlineData = useMemo(
-    () => computeTrendline(chartData),
-    [chartData],
-  );
+  const trendlineData = useMemo(() => computeTrendline(chartData), [chartData]);
 
   const classification = latestVO2max
     ? classifyVO2max(latestVO2max.value)
@@ -588,9 +585,7 @@ export default function FitnessPage() {
                   labelFormatter={(_label, payload) => {
                     if (payload?.[0]?.payload) {
                       const p = payload[0].payload as Record<string, unknown>;
-                      const source = p.source
-                        ? ` (${p.source as string})`
-                        : "";
+                      const source = p.source ? ` (${p.source as string})` : "";
                       return `${p.date as string}${source}`;
                     }
                     return String(_label ?? "");

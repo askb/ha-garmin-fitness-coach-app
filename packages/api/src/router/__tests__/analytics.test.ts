@@ -237,20 +237,30 @@ describe("analytics router", () => {
 
       // garminEstimates should only contain garmin_official source
       expect(result.garminEstimates).toHaveLength(2);
-      expect(result.garminEstimates.every((e) => e.source === "garmin_official")).toBe(true);
+      expect(
+        result.garminEstimates.every((e) => e.source === "garmin_official"),
+      ).toBe(true);
       // Sorted descending by date
       expect(result.garminEstimates[0]!.date).toBe(dateString(3));
       expect(result.garminEstimates[1]!.date).toBe(dateString(7));
 
       // uthEstimates should only contain uth_ratio / uth_method
       expect(result.uthEstimates).toHaveLength(2);
-      expect(result.uthEstimates.every((e) => e.source === "uth_ratio" || e.source === "uth_method")).toBe(true);
+      expect(
+        result.uthEstimates.every(
+          (e) => e.source === "uth_ratio" || e.source === "uth_method",
+        ),
+      ).toBe(true);
       expect(result.uthEstimates[0]!.date).toBe(dateString(5));
       expect(result.uthEstimates[1]!.date).toBe(dateString(7));
 
       // running_pace_hr should not appear in either filtered array
-      expect(result.garminEstimates.some((e) => e.source === "running_pace_hr")).toBe(false);
-      expect(result.uthEstimates.some((e) => e.source === "running_pace_hr")).toBe(false);
+      expect(
+        result.garminEstimates.some((e) => e.source === "running_pace_hr"),
+      ).toBe(false);
+      expect(
+        result.uthEstimates.some((e) => e.source === "running_pace_hr"),
+      ).toBe(false);
     });
 
     it("returns empty garminEstimates and uthEstimates when no matching sources", async () => {
