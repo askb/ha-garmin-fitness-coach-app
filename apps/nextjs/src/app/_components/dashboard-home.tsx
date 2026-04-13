@@ -30,32 +30,108 @@ export function DashboardHome() {
   const r = readiness.data as Record<string, unknown> | null | undefined;
   const w = workout.data as Record<string, unknown> | null | undefined;
 
+  // Extract readiness component (0-100 scale each).
+  // Cached DB rows use top-level fields (e.g. hrvComponent);
+  // freshly computed results nest under components.xxx.
+  function getComponent(
+    data: Record<string, unknown> | null | undefined,
+    topKey: string,
+    nestedKey: string,
+  ): number | null {
+    const top = data?.[topKey];
+    if (typeof top === "number") return top;
+    const comps = data?.components;
+    if (comps && typeof comps === "object") {
+      const nested = (comps as Record<string, unknown>)[nestedKey];
+      if (typeof nested === "number") return nested;
+    }
+    return null;
+  }
+
+  const sleepRaw = getComponent(r, "sleepQuantityComponent", "sleepQuantity");
+  const hrvRaw = getComponent(r, "hrvComponent", "hrv");
+  const loadRaw = getComponent(r, "trainingLoadComponent", "trainingLoad");
+  const stressRaw = getComponent(r, "stressComponent", "stress");
+
+  const sleepVal = sleepRaw != null ? Math.round(sleepRaw) : null;
+  const hrvVal = hrvRaw != null ? Math.round(hrvRaw) : null;
+  const loadVal = loadRaw != null ? Math.round(loadRaw) : null;
+  const stressVal = stressRaw != null ? Math.round(stressRaw) : null;
+
+  // All components are 0-100. Thresholds based on readiness engine z-score mapping:
+  // 70+ = good recovery, 40-69 = moderate, <40 = concern
+  type ZoneInfo = {
+    zone: "good" | "caution" | "concern";
+    label: string;
+    scale: number;
+  };
+
+  function classifySleep(v: number): ZoneInfo {
+    if (v >= 70) return { zone: "good", label: "Good", scale: v };
+    if (v >= 40) return { zone: "caution", label: "Fair", scale: v };
+    return { zone: "concern", label: "Poor", scale: v };
+  }
+
+  function classifyHrv(v: number): ZoneInfo {
+    if (v >= 65) return { zone: "good", label: "Optimal", scale: v };
+    if (v >= 35) return { zone: "caution", label: "Moderate", scale: v };
+    return { zone: "concern", label: "Low", scale: v };
+  }
+
+  function classifyLoad(v: number): ZoneInfo {
+    if (v >= 60) return { zone: "good", label: "Balanced", scale: v };
+    if (v >= 30) return { zone: "caution", label: "Building", scale: v };
+    return { zone: "concern", label: "High Load", scale: v };
+  }
+
+  function classifyStress(v: number): ZoneInfo {
+    // Higher score = less stress = better
+    if (v >= 60) return { zone: "good", label: "Low", scale: v };
+    if (v >= 30) return { zone: "caution", label: "Moderate", scale: v };
+    return { zone: "concern", label: "High", scale: v };
+  }
+
+  const sleepCtx = sleepVal != null ? classifySleep(sleepVal) : null;
+  const hrvCtx = hrvVal != null ? classifyHrv(hrvVal) : null;
+  const loadCtx = loadVal != null ? classifyLoad(loadVal) : null;
+  const stressCtx = stressVal != null ? classifyStress(stressVal) : null;
+
   const stats = [
     {
       label: "Sleep",
-      value: r?.sleepQuantityComponent
-        ? `${Math.round(r.sleepQuantityComponent as number)}`
-        : null,
+      value: sleepVal != null ? `${sleepVal}` : null,
+      unit: "/100",
       icon: "😴",
+      scale: sleepCtx?.scale,
+      zone: sleepCtx?.zone,
+      zoneLabel: sleepCtx?.label,
     },
     {
       label: "HRV",
-      value: r?.hrvComponent ? `${Math.round(r.hrvComponent as number)}` : null,
+      value: hrvVal != null ? `${hrvVal}` : null,
+      unit: "/100",
       icon: "💓",
+      scale: hrvCtx?.scale,
+      zone: hrvCtx?.zone,
+      zoneLabel: hrvCtx?.label,
     },
     {
       label: "Load",
-      value: r?.trainingLoadComponent
-        ? `${Math.round(r.trainingLoadComponent as number)}`
-        : null,
+      value: loadVal != null ? `${loadVal}` : null,
+      unit: "/100",
       icon: "🔥",
+      scale: loadCtx?.scale,
+      zone: loadCtx?.zone,
+      zoneLabel: loadCtx?.label,
     },
     {
       label: "Stress",
-      value: r?.stressComponent
-        ? `${Math.round(r.stressComponent as number)}`
-        : null,
+      value: stressVal != null ? `${stressVal}` : null,
+      unit: "/100",
       icon: "🧘",
+      scale: stressCtx?.scale,
+      zone: stressCtx?.zone,
+      zoneLabel: stressCtx?.label,
     },
   ];
 
