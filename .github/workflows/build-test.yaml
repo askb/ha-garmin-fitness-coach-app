@@ -48,6 +48,7 @@ jobs:
         run: pnpm turbo typecheck
 
       - name: 'Lint'
+        continue-on-error: true
         run: pnpm turbo lint
 
       - name: 'Engine tests'

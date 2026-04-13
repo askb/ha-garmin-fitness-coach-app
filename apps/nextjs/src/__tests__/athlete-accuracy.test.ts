@@ -15,7 +15,6 @@
  *   Hulin BT et al. Br J Sports Med. 2016;50(4):231-236.    (ACWR)
  *   Buchheit M. IJSPP. 2014;9:883-895.                      (HRV z-scores)
  */
-import { describe, expect, it } from "@jest/globals";
 
 import {
   calculateSleepDebt,

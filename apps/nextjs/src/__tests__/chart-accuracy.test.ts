@@ -10,7 +10,6 @@
  *   Hulin BT et al. Br J Sports Med. 2016;50(4):231-236 — ACWR thresholds
  *   Gabbett TJ. Br J Sports Med. 2016;50(5):273-280 — injury risk zones
  */
-import { describe, expect, it } from "@jest/globals";
 
 import {
   calculateReadiness,
