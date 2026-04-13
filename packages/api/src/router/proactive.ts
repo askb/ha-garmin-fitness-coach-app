@@ -261,7 +261,7 @@ export const proactiveRouter = {
         body: `Based on your intervention logs, ${types} has been rated highly effective (${effectiveInterventions.length} entries, avg ${(effectiveInterventions.reduce((s, i) => s + (i.effectivenessRating ?? 0), 0) / effectiveInterventions.length).toFixed(1)}/5). Consider prioritizing these when recovery is needed.`,
         metrics: {
           count: effectiveInterventions.length,
-          patternTag: patternResult.tag,
+          patternTag: patternResult.tag ?? "",
         },
         confidence: 0.7,
         actionSuggestion: `Incorporate ${effectiveInterventions[0]?.type ?? "your top-rated recovery methods"} proactively, not just reactively.`,
