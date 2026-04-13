@@ -387,8 +387,30 @@ export async function buildDataContext(
         lines.push(`- Today's HRV: ${Math.round(today.hrv)} ms`);
       if (today.restingHr != null)
         lines.push(`- Resting HR: ${today.restingHr} bpm`);
+      if (today.spo2 != null)
+        lines.push(`- SpO2 (blood oxygen): ${Math.round(today.spo2)}% (normal: 95-100%)`);
+      if (today.respirationRate != null)
+        lines.push(`- Respiration Rate: ${today.respirationRate.toFixed(1)} breaths/min (normal: 12-20)`);
     }
     if (lines.length > 1) sections.push(lines.join("\n"));
+  }
+
+  // 6b. SpO2 Trends (last 7 days) -----------------------------------------
+  {
+    const spo2Days = metrics14
+      .slice(0, 7)
+      .filter((m) => m.spo2 != null);
+    if (spo2Days.length > 0) {
+      const lines: string[] = ["## Blood Oxygen (SpO2) — Last 7 Days"];
+      for (const d of spo2Days) {
+        const spo2Rounded = Math.round(d.spo2!);
+        const status = spo2Rounded < 90 ? "⚠️ LOW" : spo2Rounded < 95 ? "borderline" : "normal";
+        lines.push(`- ${d.date}: ${spo2Rounded}% (${status})`);
+      }
+      const avg = spo2Days.reduce((s, d) => s + d.spo2!, 0) / spo2Days.length;
+      lines.push(`- 7-day average: ${avg.toFixed(1)}%`);
+      sections.push(lines.join("\n"));
+    }
   }
 
   // 7. Journal (last 7 days) -----------------------------------------------

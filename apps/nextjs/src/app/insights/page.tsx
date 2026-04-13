@@ -482,7 +482,8 @@ export default function InsightsPage() {
     | undefined;
 
   return (
-    <main className="min-h-screen bg-black mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
+    <div className="min-h-screen bg-black">
+      <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
         <h1 className="text-2xl font-bold">Insights</h1>
@@ -639,6 +640,7 @@ export default function InsightsPage() {
       )}
 
       <BottomNav />
-    </main>
+      </main>
+    </div>
   );
 }
