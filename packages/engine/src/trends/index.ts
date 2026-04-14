@@ -124,7 +124,7 @@ export function findNotableChanges(
   metric: string,
   thresholdPercent: number = 10,
 ): Array<{ date: string; change: number; description: string }> {
-  if (values.length < 14) return [];
+  if (values.length < 7) return [];
 
   const changes: Array<{
     date: string;
@@ -132,14 +132,36 @@ export function findNotableChanges(
     description: string;
   }> = [];
 
-  // Compare 7-day moving averages at different points
+  // For short series (7-13 days), compare first half vs second half
+  if (values.length < 14) {
+    const mid = Math.floor(values.length / 2);
+    const firstAvg =
+      values.slice(0, mid).reduce((s, v) => s + v.value, 0) / mid;
+    const secondAvg =
+      values.slice(mid).reduce((s, v) => s + v.value, 0) /
+      (values.length - mid);
+    if (firstAvg !== 0) {
+      const pctChange = ((secondAvg - firstAvg) / firstAvg) * 100;
+      if (Math.abs(pctChange) >= thresholdPercent) {
+        const direction = pctChange > 0 ? "increased" : "decreased";
+        changes.push({
+          date: values[values.length - 1]!.date,
+          change: Math.round(pctChange * 10) / 10,
+          description: `${metric} ${direction} ${Math.abs(Math.round(pctChange))}% recently`,
+        });
+      }
+    }
+    return changes;
+  }
+
+  // For longer series, compare 7-day moving averages
   const getAvg = (start: number, count: number) => {
     const slice = values.slice(start, start + count);
     return slice.reduce((s, v) => s + v.value, 0) / slice.length;
   };
 
-  // Check weekly changes
-  for (let i = 7; i < values.length; i += 7) {
+  // Check at each day (not just every 7th) for more granular detection
+  for (let i = 7; i < values.length; i++) {
     const prevAvg = getAvg(Math.max(0, i - 14), 7);
     const currAvg = getAvg(Math.max(0, i - 7), 7);
 
@@ -153,6 +175,8 @@ export function findNotableChanges(
         change: Math.round(pctChange * 10) / 10,
         description: `${metric} ${direction} ${Math.abs(Math.round(pctChange))}% over the past week`,
       });
+      // Skip ahead 7 days to avoid duplicate detections for the same shift
+      i += 6;
     }
   }
 
