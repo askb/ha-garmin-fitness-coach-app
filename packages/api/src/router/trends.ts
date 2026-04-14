@@ -264,7 +264,7 @@ export const trendsRouter = {
       z.object({
         metric: trendMetricEnum,
         days: z.number().min(1).max(365),
-        threshold: z.number().min(0).default(10),
+        threshold: z.number().min(0).default(5),
       }),
     )
     .query(async ({ ctx, input }) => {
