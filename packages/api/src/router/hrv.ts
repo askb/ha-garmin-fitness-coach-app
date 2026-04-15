@@ -58,7 +58,7 @@ export const hrvRouter = {
       const std7 = Math.sqrt(
         last7.reduce((s, d) => s + (d.value - mean7) ** 2, 0) / last7.length,
       );
-      const cv = Math.round((std7 / mean7) * 1000) / 10; // one decimal
+      const cv = mean7 > 0 ? Math.round((std7 / mean7) * 1000) / 10 : 0; // one decimal
 
       // Recovery status
       const latestHrv = hrvData[hrvData.length - 1]!.value;
@@ -109,7 +109,7 @@ function determineRecoveryStatus(
   baseline: number | null,
   cv: number,
 ): "recovered" | "recovering" | "strained" | "insufficient_data" {
-  if (!baseline) return "insufficient_data";
+  if (baseline == null) return "insufficient_data";
   const deviation = ((current - baseline) / baseline) * 100;
   if (cv > 15) return "strained"; // high variability = stressed
   if (deviation >= 5) return "recovered"; // above baseline

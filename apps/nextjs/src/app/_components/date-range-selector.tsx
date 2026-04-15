@@ -28,6 +28,7 @@ export function DateRangeSelector({
     <div className={cn("flex flex-wrap gap-1.5", className)}>
       {presets.map((p) => (
         <button
+          type="button"
           key={p.days}
           onClick={() => onChange(p.days)}
           className={cn(
