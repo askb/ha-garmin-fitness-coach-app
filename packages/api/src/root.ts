@@ -6,6 +6,7 @@ import { baselinesRouter } from "./router/baselines";
 import { chatRouter } from "./router/chat";
 import { dataQualityRouter } from "./router/data-quality";
 import { garminRouter } from "./router/garmin";
+import { hrvRouter } from "./router/hrv";
 import { interventionRouter } from "./router/intervention";
 import { journalRouter } from "./router/journal";
 import { postRouter } from "./router/post";
@@ -29,6 +30,7 @@ export const appRouter = createTRPCRouter({
   chat: chatRouter,
   dataQuality: dataQualityRouter,
   garmin: garminRouter,
+  hrv: hrvRouter,
   intervention: interventionRouter,
   journal: journalRouter,
   post: postRouter,

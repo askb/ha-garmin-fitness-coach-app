@@ -556,6 +556,28 @@ function GarminConnection() {
     }
   };
 
+  const [recomputing, setRecomputing] = useState(false);
+
+  const handleRecompute = async () => {
+    setRecomputing(true);
+    try {
+      const res = await fetch(apiUrl("/api/garmin/recompute"), {
+        method: "POST",
+      });
+      const data = (await res.json()) as {
+        success: boolean;
+        message?: string;
+      };
+      if (!data.success) {
+        setError(data.message ?? "Failed to start recompute");
+      }
+    } catch {
+      setError("Failed to trigger recompute");
+    } finally {
+      setRecomputing(false);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -711,6 +733,15 @@ function GarminConnection() {
             {triggeringSyncState ? "Starting..." : "🔄 Sync Now"}
           </Button>
         )}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRecompute}
+          disabled={recomputing || !status?.connected}
+          className="border-purple-600 bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
+        >
+          {recomputing ? "Computing..." : "🔄 Recompute Metrics"}
+        </Button>
         {error && <p className="text-xs text-red-500">{error}</p>}
         <Button
           variant="outline"

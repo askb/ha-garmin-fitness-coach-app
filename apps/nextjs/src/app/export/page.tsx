@@ -68,10 +68,18 @@ export default function ExportPage() {
       endDate: new Date().toISOString().slice(0, 10),
     }),
   );
+  const advancedMetrics = useQuery(
+    trpc.advancedMetrics.list.queryOptions({ days: 365 }),
+  );
+  const hrvData = useQuery(trpc.hrv.getAnalysis.queryOptions({ days: 365 }));
 
   /* ── Data summary counts ── */
   const activityCount = activities.data?.length ?? 0;
   const journalCount = journalQuery.data?.length ?? 0;
+  const advMetricCount = Array.isArray(advancedMetrics.data)
+    ? advancedMetrics.data.length
+    : 0;
+  const hrvDayCount = hrvData.data?.daily?.length ?? 0;
 
   const earliestDate = activities.data?.length
     ? [...(activities.data as { startedAt?: Date | string | null }[])]
@@ -107,12 +115,46 @@ export default function ExportPage() {
     );
   }
 
+  function handleExportAdvancedMetrics() {
+    if (!advancedMetrics.data || !Array.isArray(advancedMetrics.data))
+      return toast.error("Advanced metrics not loaded");
+    exportToCSV(
+      advancedMetrics.data as Record<string, unknown>[],
+      `pulsecoach-advanced-metrics-${formatDateForFilename()}.csv`,
+    );
+  }
+
+  function handleExportHrv() {
+    const d = hrvData.data;
+    if (!d?.daily?.length) return toast.error("HRV data not loaded");
+
+    const rolling7dByDate = new Map(d.rolling7d.map((r) => [r.date, r.value]));
+    const rolling14dByDate = new Map(
+      d.rolling14d.map((r) => [r.date, r.value]),
+    );
+
+    const rows = d.daily.map((pt, i) => ({
+      date: pt.date,
+      hrv_ms: pt.value,
+      rolling_7d: rolling7dByDate.get(pt.date) ?? "",
+      rolling_14d: rolling14dByDate.get(pt.date) ?? "",
+      baseline: i === d.daily.length - 1 ? d.baseline : "",
+      cv_pct: i === d.daily.length - 1 ? d.cv : "",
+    }));
+    exportToCSV(
+      rows as unknown as Record<string, unknown>[],
+      `pulsecoach-hrv-${formatDateForFilename()}.csv`,
+    );
+  }
+
   function handleFullExport() {
     const payload = {
-      schemaVersion: "1.0",
+      schemaVersion: "1.1",
       exportedAt: new Date().toISOString(),
       activities: activities.data ?? [],
       metrics: trendsSummary.data ?? {},
+      advancedMetrics: advancedMetrics.data ?? [],
+      hrv: hrvData.data ?? {},
       journal: journalQuery.data ?? [],
     };
     exportToJSON(payload, `pulsecoach-backup-${formatDateForFilename()}.json`);
@@ -212,6 +254,42 @@ export default function ExportPage() {
             className="w-full"
             disabled={journalQuery.isLoading}
             onClick={handleExportJournal}
+          >
+            Download CSV
+          </Button>
+        </div>
+
+        <div className="bg-card space-y-3 rounded-2xl border p-4">
+          <div>
+            <p className="font-semibold">Advanced Metrics</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {advMetricCount} days · CTL/ATL/TSB/ACWR · CSV
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            disabled={advancedMetrics.isLoading}
+            onClick={handleExportAdvancedMetrics}
+          >
+            Download CSV
+          </Button>
+        </div>
+
+        <div className="bg-card space-y-3 rounded-2xl border p-4">
+          <div>
+            <p className="font-semibold">HRV Analysis</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {hrvDayCount} days · Rolling avg + CV% · CSV
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            disabled={hrvData.isLoading}
+            onClick={handleExportHrv}
           >
             Download CSV
           </Button>

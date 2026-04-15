@@ -24,6 +24,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
@@ -57,7 +58,7 @@ function acwrStatus(value: number): { label: string; color: string } {
 
 export default function TrainingLoadPage() {
   const trpc = useTRPC();
-  const [pmcDays, setPmcDays] = useState<42 | 90 | 180>(90);
+  const [pmcDays, setPmcDays] = useState(90);
 
   const loads = useQuery(trpc.analytics.getTrainingLoads.queryOptions());
   const status = useQuery(trpc.analytics.getTrainingStatus.queryOptions());
@@ -138,22 +139,15 @@ export default function TrainingLoadPage() {
             title="Performance Management Chart"
             info="CTL (Chronic Training Load) = fitness built over 42 days. ATL (Acute Training Load) = fatigue over 7 days. TSB (Training Stress Balance) = CTL - ATL = form. ACWR (Acute:Chronic Workload Ratio) = optimal 0.8–1.3. Citation: Banister (1991), Hulin et al. (2016)."
           />
-          <div className="flex gap-1">
-            {([42, 90, 180] as const).map((d) => (
-              <button
-                key={d}
-                onClick={() => setPmcDays(d)}
-                className={cn(
-                  "rounded-lg px-2 py-1 text-[10px] font-semibold transition-all",
-                  pmcDays === d
-                    ? "bg-primary/20 text-primary"
-                    : "text-muted-foreground hover:bg-secondary/50",
-                )}
-              >
-                {d}d
-              </button>
-            ))}
-          </div>
+          <DateRangeSelector
+            value={pmcDays}
+            onChange={setPmcDays}
+            presets={[
+              { label: "42d", days: 42 },
+              { label: "90d", days: 90 },
+              { label: "180d", days: 180 },
+            ]}
+          />
         </div>
 
         {pmcData.isLoading ? (
