@@ -398,9 +398,7 @@ export default function HrvPage() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                formatter={(value: unknown) =>
-                  `${Number(value).toFixed(1)}%`
-                }
+                formatter={(value: unknown) => `${Number(value).toFixed(1)}%`}
               />
               <ReferenceLine
                 y={10}
