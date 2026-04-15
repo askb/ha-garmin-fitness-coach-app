@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Bar,
@@ -21,6 +21,7 @@ import { cn } from "@acme/ui";
 import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
 // ---------------------------------------------------------------------------
@@ -94,13 +95,14 @@ function debtTextColor(debt: number): string {
 
 export default function SleepDashboard() {
   const trpc = useTRPC();
+  const [sleepDays, setSleepDays] = useState(28);
 
   // ---- Data queries ----
   const coach = useQuery(trpc.sleep.getCoach.queryOptions());
 
-  const stages = useQuery(trpc.sleep.getStages.queryOptions({ days: 14 }));
+  const stages = useQuery(trpc.sleep.getStages.queryOptions({ days: sleepDays }));
 
-  const history = useQuery(trpc.sleep.getHistory.queryOptions({ days: 28 }));
+  const history = useQuery(trpc.sleep.getHistory.queryOptions({ days: sleepDays }));
 
   // ---- Derived: Key stats ----
   const stats = useMemo(() => {
@@ -290,6 +292,9 @@ export default function SleepDashboard() {
           Your sleep insights &amp; coaching
         </p>
       </div>
+
+      {/* ── Date Range ── */}
+      <DateRangeSelector value={sleepDays} onChange={setSleepDays} />
 
       {coach.isLoading ? (
         <div className="bg-card animate-pulse rounded-2xl border p-6">

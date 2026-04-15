@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Area,
@@ -17,6 +17,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
@@ -163,9 +164,10 @@ function vdotPace(vo2max: number, fraction: number): string {
 
 export default function FitnessPage() {
   const trpc = useTRPC();
+  const [chartDays, setChartDays] = useState(90);
 
   const vo2max = useQuery(
-    trpc.analytics.getVO2maxHistory.queryOptions({ days: 365 }),
+    trpc.analytics.getVO2maxHistory.queryOptions({ days: chartDays }),
   );
   const racePredictions = useQuery(
     trpc.analytics.getRacePredictions.queryOptions(),
@@ -174,7 +176,7 @@ export default function FitnessPage() {
     trpc.analytics.getTrainingStatus.queryOptions(),
   );
   const recentActivities = useQuery(
-    trpc.activity.list.queryOptions({ days: 90, sportType: "running" }),
+    trpc.activity.list.queryOptions({ days: chartDays, sportType: "running" }),
   );
   const trainingLoads = useQuery(
     trpc.analytics.getTrainingLoads.queryOptions(),
@@ -366,6 +368,9 @@ export default function FitnessPage() {
           </span>
         )}
       </div>
+
+      {/* ── Date Range ── */}
+      <DateRangeSelector value={chartDays} onChange={setChartDays} />
 
       {/* ── Current VO2max Hero ── */}
       {vo2max.isLoading ? (
