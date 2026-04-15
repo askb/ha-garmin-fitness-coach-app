@@ -32,6 +32,7 @@ const menuSections: NavSection[] = [
     title: "Training",
     items: [
       { href: "/training", label: "Training Load", icon: "💪" },
+      { href: "/hrv", label: "HRV Analysis", icon: "💓" },
       { href: "/zones", label: "HR Zones", icon: "📶" },
       { href: "/activities", label: "Activities", icon: "🏃" },
       { href: "/power", label: "Power", icon: "⚡" },
