@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte } from "@acme/db";
+import { and, desc, eq, gte, sql } from "@acme/db";
 import {
   Activity,
   AdvancedMetric,
@@ -269,13 +269,25 @@ export const proactiveRouter = {
       });
     }
 
-    // ── Persist insights (skip duplicates for same-day same-type) ──
+    // ── Persist insights (upsert same-day same-type to refresh content) ──
     const saved = [];
     for (const insight of insights) {
       const [row] = await ctx.db
         .insert(AiInsight)
         .values(insight)
-        .onConflictDoNothing()
+        .onConflictDoUpdate({
+          target: [AiInsight.userId, AiInsight.date, AiInsight.insightType],
+          set: {
+            severity: sql`excluded.severity`,
+            title: sql`excluded.title`,
+            body: sql`excluded.body`,
+            metrics: sql`excluded.metrics`,
+            confidence: sql`excluded.confidence`,
+            actionSuggestion: sql`excluded.action_suggestion`,
+            isRead: sql`false`,
+            updatedAt: sql`now()`,
+          },
+        })
         .returning();
       if (row) saved.push(row);
     }
