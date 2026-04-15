@@ -14,14 +14,14 @@ const PRESETS = [
 interface DateRangeSelectorProps {
   value: number;
   onChange: (days: number) => void;
-  presets?: { label: string; days: number }[];
+  presets?: readonly { readonly label: string; readonly days: number }[];
   className?: string;
 }
 
 export function DateRangeSelector({
   value,
   onChange,
-  presets = PRESETS as unknown as { label: string; days: number }[],
+  presets = PRESETS,
   className,
 }: DateRangeSelectorProps) {
   return (

@@ -127,11 +127,17 @@ export default function ExportPage() {
   function handleExportHrv() {
     const d = hrvData.data;
     if (!d?.daily?.length) return toast.error("HRV data not loaded");
+
+    const rolling7dByDate = new Map(d.rolling7d.map((r) => [r.date, r.value]));
+    const rolling14dByDate = new Map(
+      d.rolling14d.map((r) => [r.date, r.value]),
+    );
+
     const rows = d.daily.map((pt, i) => ({
       date: pt.date,
       hrv_ms: pt.value,
-      rolling_7d: d.rolling7d.find((r) => r.date === pt.date)?.value ?? "",
-      rolling_14d: d.rolling14d.find((r) => r.date === pt.date)?.value ?? "",
+      rolling_7d: rolling7dByDate.get(pt.date) ?? "",
+      rolling_14d: rolling14dByDate.get(pt.date) ?? "",
       baseline: i === d.daily.length - 1 ? d.baseline : "",
       cv_pct: i === d.daily.length - 1 ? d.cv : "",
     }));

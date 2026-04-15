@@ -18,6 +18,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
@@ -53,7 +54,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const RANGE_OPTIONS = [
+const HRV_PRESETS = [
   { label: "30d", days: 30 },
   { label: "60d", days: 60 },
   { label: "90d", days: 90 },
@@ -269,22 +270,12 @@ export default function HrvPage() {
       )}
 
       {/* ── Date Range Selector ── */}
-      <div className="flex justify-center gap-2">
-        {RANGE_OPTIONS.map((opt) => (
-          <button
-            key={opt.days}
-            onClick={() => setDays(opt.days)}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              days === opt.days
-                ? "bg-blue-500 text-white"
-                : "bg-card text-muted-foreground hover:text-foreground border",
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
+      <DateRangeSelector
+        value={days}
+        onChange={setDays}
+        presets={HRV_PRESETS}
+        className="justify-center"
+      />
 
       {/* ── Main HRV Chart ── */}
       {isLoading ? (
@@ -407,7 +398,9 @@ export default function HrvPage() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
-                formatter={(value: number) => [`${value.toFixed(1)}%`, "CV%"]}
+                formatter={(value: unknown) =>
+                  `${Number(value).toFixed(1)}%`
+                }
               />
               <ReferenceLine
                 y={10}

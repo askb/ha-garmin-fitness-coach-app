@@ -298,7 +298,16 @@ export default function SleepDashboard() {
       </div>
 
       {/* ── Date Range ── */}
-      <DateRangeSelector value={sleepDays} onChange={setSleepDays} />
+      <DateRangeSelector
+        value={sleepDays}
+        onChange={setSleepDays}
+        presets={[
+          { label: "7d", days: 7 },
+          { label: "14d", days: 14 },
+          { label: "28d", days: 28 },
+          { label: "90d", days: 90 },
+        ]}
+      />
 
       {coach.isLoading ? (
         <div className="bg-card animate-pulse rounded-2xl border p-6">
