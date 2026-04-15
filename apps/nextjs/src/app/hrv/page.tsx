@@ -86,7 +86,13 @@ export default function HrvPage() {
 
     const map = new Map<
       string,
-      { date: string; label: string; daily?: number; rolling7d?: number; rolling14d?: number }
+      {
+        date: string;
+        label: string;
+        daily?: number;
+        rolling7d?: number;
+        rolling14d?: number;
+      }
     >();
 
     for (const d of data.daily) {
@@ -116,8 +122,7 @@ export default function HrvPage() {
     const result: { date: string; label: string; cv: number }[] = [];
     for (let i = 6; i < data.daily.length; i++) {
       const window = data.daily.slice(i - 6, i + 1);
-      const mean =
-        window.reduce((s, d) => s + d.value, 0) / window.length;
+      const mean = window.reduce((s, d) => s + d.value, 0) / window.length;
       const std = Math.sqrt(
         window.reduce((s, d) => s + (d.value - mean) ** 2, 0) / window.length,
       );
@@ -132,7 +137,7 @@ export default function HrvPage() {
   }, [data]);
 
   return (
-    <main className="mx-auto flex max-w-lg flex-col gap-4 px-4 pb-24 pt-6">
+    <main className="mx-auto flex max-w-lg flex-col gap-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
@@ -273,7 +278,7 @@ export default function HrvPage() {
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
               days === opt.days
                 ? "bg-blue-500 text-white"
-                : "bg-card text-muted-foreground border hover:text-foreground",
+                : "bg-card text-muted-foreground hover:text-foreground border",
             )}
           >
             {opt.label}

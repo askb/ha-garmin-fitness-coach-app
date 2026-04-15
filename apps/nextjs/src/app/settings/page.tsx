@@ -738,7 +738,7 @@ function GarminConnection() {
           size="sm"
           onClick={handleRecompute}
           disabled={recomputing || !status?.connected}
-          className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 border-purple-600 text-white"
+          className="border-purple-600 bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50"
         >
           {recomputing ? "Computing..." : "🔄 Recompute Metrics"}
         </Button>

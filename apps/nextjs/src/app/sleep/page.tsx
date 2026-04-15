@@ -100,9 +100,13 @@ export default function SleepDashboard() {
   // ---- Data queries ----
   const coach = useQuery(trpc.sleep.getCoach.queryOptions());
 
-  const stages = useQuery(trpc.sleep.getStages.queryOptions({ days: sleepDays }));
+  const stages = useQuery(
+    trpc.sleep.getStages.queryOptions({ days: sleepDays }),
+  );
 
-  const history = useQuery(trpc.sleep.getHistory.queryOptions({ days: sleepDays }));
+  const history = useQuery(
+    trpc.sleep.getHistory.queryOptions({ days: sleepDays }),
+  );
 
   // ---- Derived: Key stats ----
   const stats = useMemo(() => {

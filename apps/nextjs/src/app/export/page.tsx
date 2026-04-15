@@ -76,7 +76,9 @@ export default function ExportPage() {
   /* ── Data summary counts ── */
   const activityCount = activities.data?.length ?? 0;
   const journalCount = journalQuery.data?.length ?? 0;
-  const advMetricCount = Array.isArray(advancedMetrics.data) ? advancedMetrics.data.length : 0;
+  const advMetricCount = Array.isArray(advancedMetrics.data)
+    ? advancedMetrics.data.length
+    : 0;
   const hrvDayCount = hrvData.data?.daily?.length ?? 0;
 
   const earliestDate = activities.data?.length

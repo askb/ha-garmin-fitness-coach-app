@@ -50,9 +50,7 @@ export const hrvRouter = {
 
       // Baseline = 14-day rolling average of the latest value
       const baseline =
-        rolling14d.length > 0
-          ? rolling14d[rolling14d.length - 1]!.value
-          : null;
+        rolling14d.length > 0 ? rolling14d[rolling14d.length - 1]!.value : null;
 
       // CV% over last 7 days (coefficient of variation = std/mean * 100)
       const last7 = hrvData.slice(-7);
@@ -100,8 +98,7 @@ function computeRolling(
   const result: { date: string; value: number }[] = [];
   for (let i = window - 1; i < data.length; i++) {
     const windowData = data.slice(i - window + 1, i + 1);
-    const avg =
-      windowData.reduce((s, d) => s + d.value, 0) / windowData.length;
+    const avg = windowData.reduce((s, d) => s + d.value, 0) / windowData.length;
     result.push({ date: data[i]!.date, value: Math.round(avg * 10) / 10 });
   }
   return result;
