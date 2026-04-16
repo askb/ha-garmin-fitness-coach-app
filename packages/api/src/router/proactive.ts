@@ -3,12 +3,12 @@ import { z } from "zod/v4";
 
 import { and, desc, eq, gte, sql } from "@acme/db";
 import {
-  Activity,
   AdvancedMetric,
   AiInsight,
   AthleteBaseline,
   DailyMetric,
   Intervention,
+  ReadinessScore,
 } from "@acme/db/schema";
 
 import {
@@ -26,6 +26,13 @@ function dateNDaysAgo(n: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+/** Compute mean of non-null numbers. Returns null if empty. */
+function mean(values: (number | null | undefined)[]): number | null {
+  const nums = values.filter((v): v is number => v != null);
+  if (nums.length === 0) return null;
+  return nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+
 export const proactiveRouter = {
   generateInsights: protectedProcedure.mutation(async ({ ctx }) => {
     const userId = ctx.session.user.id;
@@ -33,32 +40,41 @@ export const proactiveRouter = {
     const insights: (typeof AiInsight.$inferInsert)[] = [];
 
     // Parallel data fetch
-    const [metrics14, latestAdvanced, baselines, recentInterventions] =
-      await Promise.all([
-        ctx.db.query.DailyMetric.findMany({
-          where: and(
-            eq(DailyMetric.userId, userId),
-            gte(DailyMetric.date, dateNDaysAgo(14)),
-          ),
-          orderBy: desc(DailyMetric.date),
-          limit: 14,
-        }),
-        ctx.db.query.AdvancedMetric.findFirst({
-          where: eq(AdvancedMetric.userId, userId),
-          orderBy: desc(AdvancedMetric.date),
-        }),
-        ctx.db.query.AthleteBaseline.findMany({
-          where: eq(AthleteBaseline.userId, userId),
-        }),
-        ctx.db.query.Intervention.findMany({
-          where: and(
-            eq(Intervention.userId, userId),
-            gte(Intervention.date, dateNDaysAgo(30)),
-          ),
-          orderBy: desc(Intervention.date),
-          limit: 10,
-        }),
-      ]);
+    const [
+      metrics14,
+      latestAdvanced,
+      baselines,
+      recentInterventions,
+      latestReadiness,
+    ] = await Promise.all([
+      ctx.db.query.DailyMetric.findMany({
+        where: and(
+          eq(DailyMetric.userId, userId),
+          gte(DailyMetric.date, dateNDaysAgo(14)),
+        ),
+        orderBy: desc(DailyMetric.date),
+        limit: 14,
+      }),
+      ctx.db.query.AdvancedMetric.findFirst({
+        where: eq(AdvancedMetric.userId, userId),
+        orderBy: desc(AdvancedMetric.date),
+      }),
+      ctx.db.query.AthleteBaseline.findMany({
+        where: eq(AthleteBaseline.userId, userId),
+      }),
+      ctx.db.query.Intervention.findMany({
+        where: and(
+          eq(Intervention.userId, userId),
+          gte(Intervention.date, dateNDaysAgo(30)),
+        ),
+        orderBy: desc(Intervention.date),
+        limit: 10,
+      }),
+      ctx.db.query.ReadinessScore.findFirst({
+        where: eq(ReadinessScore.userId, userId),
+        orderBy: desc(ReadinessScore.date),
+      }),
+    ]);
 
     const today_metric = metrics14[0];
     const hrvBaseline = baselines.find((b) => b.metricName === "hrv");
@@ -265,6 +281,159 @@ export const proactiveRouter = {
         },
         confidence: 0.7,
         actionSuggestion: `Incorporate ${effectiveInterventions[0]?.type ?? "your top-rated recovery methods"} proactively, not just reactively.`,
+        generatedBy: "rules",
+      });
+    }
+
+    // ── Rule 7: Vitals — SpO2 Deviation ──
+    const spo2Values = metrics14
+      .map((m) => m.spo2)
+      .filter((v): v is number => v != null);
+    if (spo2Values.length >= 3) {
+      const latest = spo2Values[0]!;
+      const baseline = mean(spo2Values.slice(1));
+      if (baseline != null) {
+        if (latest < 92) {
+          insights.push({
+            userId,
+            date: today,
+            insightType: "spo2_alert",
+            severity: "critical",
+            title: `🫁 SpO2 Critically Low — ${latest}%`,
+            body: `Today's blood oxygen of ${latest}% is below the clinical concern threshold (92%). Baseline: ${baseline.toFixed(1)}%. Consider consulting a healthcare provider if this persists.`,
+            metrics: { spo2: latest, baseline },
+            confidence: 0.9,
+            actionSuggestion:
+              "Monitor SpO2 closely. Avoid intense exercise. Consult a physician if symptoms present.",
+            generatedBy: "rules",
+          });
+        } else if (latest < 95 && latest < baseline - 1.5) {
+          insights.push({
+            userId,
+            date: today,
+            insightType: "spo2_alert",
+            severity: "warn",
+            title: `🫁 SpO2 Below Baseline — ${latest}%`,
+            body: `Blood oxygen of ${latest}% is below your 14-day average of ${baseline.toFixed(1)}%. This can indicate illness onset, altitude effects, or recovery stress.`,
+            metrics: { spo2: latest, baseline },
+            confidence: 0.75,
+            actionSuggestion:
+              "Take it easy today. Monitor for respiratory symptoms.",
+            generatedBy: "rules",
+          });
+        }
+      }
+    }
+
+    // ── Rule 8: Vitals — Respiration Rate Deviation ──
+    const rrValues = metrics14
+      .map((m) => m.respirationRate)
+      .filter((v): v is number => v != null);
+    if (rrValues.length >= 3) {
+      const latest = rrValues[0]!;
+      const baseline = mean(rrValues.slice(1));
+      if (baseline != null && latest > baseline + 2) {
+        insights.push({
+          userId,
+          date: today,
+          insightType: "rr_alert",
+          severity: latest > baseline + 4 ? "warn" : "info",
+          title: `💨 Elevated Respiration Rate — ${latest.toFixed(1)} brpm`,
+          body: `Your respiration rate of ${latest.toFixed(1)} breaths/min is above your baseline of ${baseline.toFixed(1)}. Elevated RR often precedes illness or signals incomplete recovery (Buchheit 2014).`,
+          metrics: { rr: latest, baseline },
+          confidence: 0.7,
+          actionSuggestion:
+            "Monitor for illness symptoms. Prioritize recovery if feeling run down.",
+          generatedBy: "rules",
+        });
+      }
+    }
+
+    // ── Always-fire: Daily Status Snapshot ──
+    // Ensures the user always gets at least one insight on refresh
+    {
+      const parts: string[] = [];
+      const metricsObj: Record<string, number | string> = {};
+
+      if (latestReadiness) {
+        parts.push(
+          `Readiness: ${latestReadiness.score}/100 (${latestReadiness.zone})`,
+        );
+        metricsObj.readiness = latestReadiness.score;
+        metricsObj.zone = latestReadiness.zone;
+      }
+
+      if (latestAdvanced?.acwr != null) {
+        const acwr = latestAdvanced.acwr;
+        const label =
+          acwr > 1.3
+            ? "caution"
+            : acwr >= 0.8
+              ? "optimal"
+              : "under-training";
+        parts.push(`ACWR: ${acwr.toFixed(2)} (${label})`);
+        metricsObj.acwr = acwr;
+      }
+
+      if (latestAdvanced?.tsb != null) {
+        const tsb = latestAdvanced.tsb;
+        const label =
+          tsb < -20 ? "fatigued" : tsb > 15 ? "fresh" : "balanced";
+        parts.push(`Form: ${tsb.toFixed(1)} (${label})`);
+        metricsObj.tsb = tsb;
+      }
+
+      if (today_metric?.totalSleepMinutes != null) {
+        const hours = (today_metric.totalSleepMinutes / 60).toFixed(1);
+        parts.push(`Sleep: ${hours}h`);
+        metricsObj.sleepHours = Number(hours);
+      }
+
+      if (today_metric?.hrv != null) {
+        parts.push(`HRV: ${today_metric.hrv.toFixed(0)}ms`);
+        metricsObj.hrv = today_metric.hrv;
+      }
+
+      if (spo2Values.length > 0) {
+        parts.push(`SpO2: ${spo2Values[0]}%`);
+        metricsObj.spo2 = spo2Values[0]!;
+      }
+
+      // Determine overall tone
+      const score = latestReadiness?.score ?? 50;
+      const zone = latestReadiness?.zone ?? "moderate";
+      const icon = score >= 70 ? "🟢" : score >= 40 ? "🟡" : "🔴";
+      const statusWord = score >= 70 ? "Good" : score >= 40 ? "Fair" : "Low";
+
+      const warningCount = insights.filter(
+        (i) => i.severity === "warn" || i.severity === "critical",
+      ).length;
+
+      let summary: string;
+      if (parts.length === 0) {
+        summary =
+          "No recent metrics available. Make sure Garmin sync is running and data is flowing.";
+      } else if (warningCount > 0) {
+        summary = `${parts.join(" · ")}. ${warningCount} concern${warningCount > 1 ? "s" : ""} flagged above — review and adjust your training plan.`;
+      } else {
+        summary = `${parts.join(" · ")}. All metrics within normal ranges — you're on track.`;
+      }
+
+      insights.push({
+        userId,
+        date: today,
+        insightType: "daily_summary",
+        severity: "info",
+        title: `${icon} Daily Status — ${statusWord} (${score}/100)`,
+        body: summary,
+        metrics: metricsObj,
+        confidence: 0.9,
+        actionSuggestion:
+          warningCount > 0
+            ? "Address the flagged concerns before your next hard session."
+            : zone === "high"
+              ? "Great day for a quality session or race effort."
+              : "Continue your planned training. Monitor how you feel.",
         generatedBy: "rules",
       });
     }

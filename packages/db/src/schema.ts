@@ -647,7 +647,8 @@ export const AiInsight = pgTable(
     date: t.date().notNull(),
     insightType: t.varchar({ length: 50 }).notNull(),
     // "injury_risk"|"recovery_needed"|"positive_trend"|"load_spike"|
-    // "sleep_debt"|"overreaching"|"peaking"|"correlation_found"
+    // "sleep_debt"|"overreaching"|"peaking"|"correlation_found"|
+    // "daily_summary"|"spo2_alert"|"rr_alert"
     severity: t.varchar({ length: 10 }).notNull(), // "info"|"warn"|"critical"
     title: t.varchar({ length: 200 }).notNull(),
     body: t.text().notNull(),
