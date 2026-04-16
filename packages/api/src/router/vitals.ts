@@ -27,8 +27,14 @@ function computeRolling(
 
 /** Compute baseline deviation as a percentage. */
 function deviationPct(current: number, baseline: number): number | null {
-  if (!baseline) return null;
+  if (baseline == null || baseline === 0) return null;
   return Math.round(((current - baseline) / baseline) * 1000) / 10;
+}
+
+/** Compute absolute deviation (for skin temperature). */
+function deviationAbs(current: number, baseline: number): number | null {
+  if (baseline == null) return null;
+  return Math.round((current - baseline) * 10) / 10;
 }
 
 export const vitalsRouter = {
@@ -124,7 +130,7 @@ export const vitalsRouter = {
           latest: latestSpo2,
           status: spo2Status,
           deviation:
-            latestSpo2 && spo2Baseline
+            latestSpo2 != null && spo2Baseline != null
               ? deviationPct(latestSpo2, spo2Baseline)
               : null,
           daysWithData: spo2Data.length,
@@ -136,7 +142,9 @@ export const vitalsRouter = {
           latest: latestRR,
           status: rrStatus,
           deviation:
-            latestRR && rrBaseline ? deviationPct(latestRR, rrBaseline) : null,
+            latestRR != null && rrBaseline != null
+              ? deviationPct(latestRR, rrBaseline)
+              : null,
           daysWithData: rrData.length,
         },
         skinTemp: {
@@ -146,8 +154,8 @@ export const vitalsRouter = {
           latest: latestSkinTemp,
           status: skinTempStatus,
           deviation:
-            latestSkinTemp && skinTempBaseline
-              ? deviationPct(latestSkinTemp, skinTempBaseline)
+            latestSkinTemp != null && skinTempBaseline != null
+              ? deviationAbs(latestSkinTemp, skinTempBaseline)
               : null,
           daysWithData: skinTempData.length,
         },

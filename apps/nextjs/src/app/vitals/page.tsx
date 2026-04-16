@@ -377,7 +377,9 @@ export default function VitalsPage() {
                 <div className="grid grid-cols-3 gap-2">
                   <StatCard
                     label="Latest"
-                    value={rr.latest ? Math.round(rr.latest * 10) / 10 : null}
+                    value={
+                      rr.latest != null ? Math.round(rr.latest * 10) / 10 : null
+                    }
                     unit="brpm"
                   />
                   <StatCard label="Baseline" value={rr.baseline} unit="brpm" />
@@ -511,7 +513,7 @@ export default function VitalsPage() {
                   <StatCard
                     label="Latest"
                     value={
-                      skinTemp.latest
+                      skinTemp.latest != null
                         ? Math.round(skinTemp.latest * 10) / 10
                         : null
                     }
@@ -526,7 +528,7 @@ export default function VitalsPage() {
                     label="Deviation"
                     value={
                       skinTemp.deviation !== null
-                        ? `${skinTemp.deviation > 0 ? "+" : ""}${skinTemp.deviation}%`
+                        ? `${skinTemp.deviation > 0 ? "+" : ""}${skinTemp.deviation}°C`
                         : null
                     }
                   />
@@ -645,8 +647,9 @@ export default function VitalsPage() {
                   symptoms appear (Miller et al., 2018).
                 </p>
                 <p className="pt-1 italic opacity-70">
-                  All three vitals are now included in your readiness score
-                  calculation (SpO2: 8%, RR: 7%, Skin Temp: 7%).
+                  These vitals are integrated into your readiness score
+                  calculation when the addon&apos;s metrics-compute runs (SpO2:
+                  8%, RR: 7%, Skin Temp: 7%).
                 </p>
               </div>
             </section>
