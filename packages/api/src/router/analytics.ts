@@ -24,6 +24,7 @@ import {
   predictRaceTimesFromVO2max,
 } from "@acme/engine";
 
+import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
 import { protectedProcedure } from "../trpc";
 
 function getDateString(daysAgo: number): string {
@@ -56,20 +57,19 @@ function aggregateDailyLoads(
     trimpScore: number | null;
   }[],
   windowDays: number,
+  timezone?: string | null,
 ): { dailyLoadsChrono: number[]; dailyLoadsRecent: number[] } {
   const byDay = new Map<string, number>();
   for (const a of activities) {
-    const day = a.startedAt.toISOString().split("T")[0]!;
+    const day = dayInTimezone(a.startedAt, timezone);
     const s = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
     byDay.set(day, (byDay.get(day) ?? 0) + s);
   }
 
   const dailyLoadsRecent: number[] = [];
-  const today = new Date();
+  const todayStr = todayInTimezone(timezone);
   for (let i = 0; i < windowDays; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const key = d.toISOString().split("T")[0]!;
+    const key = shiftIsoDay(todayStr, -i);
     dailyLoadsRecent.push(byDay.get(key) ?? 0);
   }
   const dailyLoadsChrono = [...dailyLoadsRecent].reverse();
@@ -80,17 +80,24 @@ export const analyticsRouter = {
   getTrainingLoads: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const recentActivities = await ctx.db.query.Activity.findMany({
-      where: and(
-        eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-      ),
-      orderBy: desc(Activity.startedAt),
-    });
+    const [profile, recentActivities] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
+        ),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
 
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
       recentActivities,
       42,
+      profile?.timezone,
     );
 
     const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
@@ -106,6 +113,7 @@ export const analyticsRouter = {
       acwrEwma,
       loadFocus,
       rampRate: loadMetrics.rampRate,
+      timezone: profile?.timezone ?? "UTC",
       computedAt: new Date(),
     };
   }),
@@ -113,13 +121,26 @@ export const analyticsRouter = {
   getTrainingStatus: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const vo2maxRecords = await ctx.db.query.VO2maxEstimate.findMany({
-      where: and(
-        eq(VO2maxEstimate.userId, userId),
-        gte(VO2maxEstimate.date, getDateString(28)),
-      ),
-      orderBy: desc(VO2maxEstimate.date),
-    });
+    const [profile, vo2maxRecords, recentActivities] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.VO2maxEstimate.findMany({
+        where: and(
+          eq(VO2maxEstimate.userId, userId),
+          gte(VO2maxEstimate.date, getDateString(28)),
+        ),
+        orderBy: desc(VO2maxEstimate.date),
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
+        ),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
 
     let vo2maxTrend = 0;
     if (vo2maxRecords.length >= 2) {
@@ -128,17 +149,10 @@ export const analyticsRouter = {
       vo2maxTrend = last.value - first.value;
     }
 
-    const recentActivities = await ctx.db.query.Activity.findMany({
-      where: and(
-        eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-      ),
-      orderBy: desc(Activity.startedAt),
-    });
-
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
       recentActivities,
       42,
+      profile?.timezone,
     );
 
     const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
