@@ -32,6 +32,46 @@ function getDateString(daysAgo: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+/**
+ * Aggregate per-activity strain scores into a per-day chronological series.
+ *
+ * The engine helpers (`computeACWR`, `computeACWR_EWMA`, `computeTrainingLoads`)
+ * all expect a per-CALENDAR-DAY array. Feeding them a per-activity array — as
+ * we did previously — produces ratios over the wrong domain (e.g., "ratio of
+ * the last 7 activities to the last 28 activities" instead of "ratio of the
+ * last 7 days to the last 28 days"). For an athlete doing doubles or strength
+ * + run the same day, this materially over- or under-estimates ACWR/CTL/ATL.
+ *
+ * Output conventions:
+ *   - `dailyLoadsChrono`  — index 0 = oldest, length = windowDays (zero-padded
+ *     for rest days). Consumed by `computeTrainingLoads` and
+ *     `computeACWR_EWMA`.
+ *   - `dailyLoadsRecent`  — index 0 = today/most recent. Consumed by
+ *     `computeACWR`.
+ */
+function aggregateDailyLoads(
+  activities: { startedAt: Date; strainScore: number | null; trimpScore: number | null }[],
+  windowDays: number,
+): { dailyLoadsChrono: number[]; dailyLoadsRecent: number[] } {
+  const byDay = new Map<string, number>();
+  for (const a of activities) {
+    const day = a.startedAt.toISOString().split("T")[0]!;
+    const s = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
+    byDay.set(day, (byDay.get(day) ?? 0) + s);
+  }
+
+  const dailyLoadsRecent: number[] = [];
+  const today = new Date();
+  for (let i = 0; i < windowDays; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split("T")[0]!;
+    dailyLoadsRecent.push(byDay.get(key) ?? 0);
+  }
+  const dailyLoadsChrono = [...dailyLoadsRecent].reverse();
+  return { dailyLoadsChrono, dailyLoadsRecent };
+}
+
 export const analyticsRouter = {
   getTrainingLoads: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
@@ -44,13 +84,14 @@ export const analyticsRouter = {
       orderBy: desc(Activity.startedAt),
     });
 
-    const strainScores = recentActivities.map(
-      (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
+    const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
+      recentActivities,
+      42,
     );
 
-    const loadMetrics = computeTrainingLoads(strainScores);
-    const acwr = computeACWR(strainScores);
-    const acwrEwma = computeACWR_EWMA(strainScores);
+    const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
+    const acwr = computeACWR(dailyLoadsRecent);
+    const acwrEwma = computeACWR_EWMA(dailyLoadsChrono);
     const loadFocus = classifyLoadFocus(recentActivities);
 
     return {
@@ -90,12 +131,13 @@ export const analyticsRouter = {
       orderBy: desc(Activity.startedAt),
     });
 
-    const strainScores = recentActivities.map(
-      (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
+    const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
+      recentActivities,
+      42,
     );
 
-    const loadMetrics = computeTrainingLoads(strainScores);
-    const acwr = computeACWR(strainScores);
+    const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
+    const acwr = computeACWR(dailyLoadsRecent);
     const loadFocus = classifyLoadFocus(recentActivities);
 
     return classifyTrainingStatus(vo2maxTrend, {
