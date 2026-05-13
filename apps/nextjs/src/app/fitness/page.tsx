@@ -426,9 +426,9 @@ export default function FitnessPage() {
           />
           {garminChartData.length < 3 && (
             <p className="text-muted-foreground mb-3 text-xs">
-              ℹ️ Garmin only records VO2max after qualifying outdoor runs
-              (12+ min with heart rate). Sparse data is expected — keep running
-              to see more points.
+              ℹ️ Garmin only records VO2max after qualifying outdoor runs (12+
+              min with heart rate). Sparse data is expected — keep running to
+              see more points.
             </p>
           )}
           <ResponsiveContainer width="100%" height={220}>
@@ -497,8 +497,8 @@ export default function FitnessPage() {
           />
           <p className="text-muted-foreground text-sm">
             No Garmin VO2max readings in the last {chartDays} days. Garmin
-            updates this only after qualifying outdoor runs (12+ min with
-            heart rate). Try a longer window or complete a qualifying run.
+            updates this only after qualifying outdoor runs (12+ min with heart
+            rate). Try a longer window or complete a qualifying run.
           </p>
         </div>
       )}

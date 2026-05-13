@@ -24,8 +24,7 @@ function trendChip(trend: "rising" | "falling" | "stable" | null): {
   symbol: string;
   className: string;
 } {
-  if (trend === "rising")
-    return { symbol: "▲", className: "text-emerald-400" };
+  if (trend === "rising") return { symbol: "▲", className: "text-emerald-400" };
   if (trend === "falling") return { symbol: "▼", className: "text-red-400" };
   if (trend === "stable") return { symbol: "▶", className: "text-blue-400" };
   return { symbol: "—", className: "text-muted-foreground" };
@@ -60,7 +59,7 @@ export function GarminTrainingSummary() {
   return (
     <div className="bg-card space-y-3 rounded-2xl border p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide">
+        <h2 className="text-sm font-semibold tracking-wide uppercase">
           Garmin Training Summary
         </h2>
         <DataFreshness computedAt={summary.data?.computedAt} />
@@ -69,7 +68,7 @@ export function GarminTrainingSummary() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {/* Training Readiness */}
         <div className="bg-background/40 rounded-lg p-3">
-          <div className="text-muted-foreground text-[10px] uppercase tracking-wide">
+          <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             Readiness
           </div>
           <div className="mt-1 flex items-baseline gap-1">
@@ -87,7 +86,7 @@ export function GarminTrainingSummary() {
 
         {/* Recovery Time */}
         <div className="bg-background/40 rounded-lg p-3">
-          <div className="text-muted-foreground text-[10px] uppercase tracking-wide">
+          <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             Recovery
           </div>
           <div className="mt-1 flex items-baseline gap-1">
@@ -105,7 +104,7 @@ export function GarminTrainingSummary() {
 
         {/* Training Status */}
         <div className="bg-background/40 rounded-lg p-3">
-          <div className="text-muted-foreground text-[10px] uppercase tracking-wide">
+          <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             Status
           </div>
           <div className="mt-1 truncate text-lg font-semibold capitalize">
@@ -120,7 +119,7 @@ export function GarminTrainingSummary() {
 
         {/* HRV (weekly avg + trend) */}
         <div className="bg-background/40 rounded-lg p-3">
-          <div className="text-muted-foreground text-[10px] uppercase tracking-wide">
+          <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             HRV (7d)
           </div>
           <div className="mt-1 flex items-baseline gap-1">
@@ -132,8 +131,7 @@ export function GarminTrainingSummary() {
             )}
           </div>
           <div className={cn("mt-0.5 text-xs", trend.className)}>
-            {trend.symbol}{" "}
-            {summary.data?.hrvTrend ?? "no trend"}
+            {trend.symbol} {summary.data?.hrvTrend ?? "no trend"}
           </div>
         </div>
       </div>

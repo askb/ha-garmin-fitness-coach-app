@@ -10,7 +10,6 @@
  *
  * Re-computes every 60s while mounted.
  */
-
 import { useEffect, useState } from "react";
 
 function format(deltaMs: number): string {
