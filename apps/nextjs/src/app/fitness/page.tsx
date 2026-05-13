@@ -417,13 +417,20 @@ export default function FitnessPage() {
       )}
 
       {/* ── Garmin VO2 Max Chart ── */}
-      {garminChartData.length > 0 && (
+      {garminChartData.length > 0 ? (
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
-            title={`Garmin VO2 Max — ${garminChartData.length} readings`}
+            title={`Garmin VO2 Max — ${garminChartData.length} reading${garminChartData.length === 1 ? "" : "s"} in ${chartDays}d`}
             info="Official VO2max from your Garmin device, calculated by Firstbeat Analytics using GPS pace and heart rate data during runs. This is the most accurate wearable-based estimate available. Values update after qualifying runs (12+ min, outdoor, with HR). Citation: Firstbeat Technologies. (2014). VO2max Estimation from Wrist-Based Heart Rate and Speed. Firstbeat White Paper."
             className="mb-3"
           />
+          {garminChartData.length < 3 && (
+            <p className="text-muted-foreground mb-3 text-xs">
+              ℹ️ Garmin only records VO2max after qualifying outdoor runs
+              (12+ min with heart rate). Sparse data is expected — keep running
+              to see more points.
+            </p>
+          )}
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart
               data={
@@ -481,13 +488,26 @@ export default function FitnessPage() {
             </AreaChart>
           </ResponsiveContainer>
         </div>
+      ) : (
+        <div className="bg-card rounded-2xl border p-4">
+          <SectionHeader
+            title="Garmin VO2 Max"
+            info="Official VO2max from your Garmin device. Garmin only records VO2max after qualifying outdoor runs (12+ min with heart rate). No qualifying runs in the selected window."
+            className="mb-3"
+          />
+          <p className="text-muted-foreground text-sm">
+            No Garmin VO2max readings in the last {chartDays} days. Garmin
+            updates this only after qualifying outdoor runs (12+ min with
+            heart rate). Try a longer window or complete a qualifying run.
+          </p>
+        </div>
       )}
 
       {/* ── Estimated VO2 Max (UTH Formula) Chart ── */}
       {uthChartData.length > 0 && (
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
-            title={`Estimated VO2 Max (UTH Formula) — ${uthChartData.length} estimates`}
+            title={`Estimated VO2 Max (UTH Formula) — ${uthChartData.length} estimate${uthChartData.length === 1 ? "" : "s"} in ${chartDays}d`}
             info="VO2max estimated using the Uth method: VO2max = 15.3 × (HRmax / HRrest). This formula uses only resting and max heart rate, so it can vary significantly day-to-day with resting HR fluctuations. Accuracy is ±5 mL/kg/min — useful as a rough baseline but not as reliable as Garmin's Firstbeat-based value. Citation: Uth N et al. (2004) Eur J Appl Physiol 91:111-115."
             className="mb-3"
           />
@@ -554,7 +574,7 @@ export default function FitnessPage() {
         chartData.length > 0 && (
           <div className="bg-card rounded-2xl border p-4">
             <SectionHeader
-              title={`VO2max Trend — ${chartData.length} estimates`}
+              title={`VO2max Trend — ${chartData.length} estimate${chartData.length === 1 ? "" : "s"} in ${chartDays}d`}
               info="VO2max = maximum oxygen uptake, gold standard of cardiorespiratory fitness (mL/kg/min). Estimation methods: (1) Running: VO2 = 3.5 + 0.2×speed, VO2max = VO2/%HRR. (2) Uth ratio: 15.3 × maxHR/RHR. Trend uses linear regression. A 3.5 mL/kg/min gain reduces mortality risk ~15%. Citation: ACSM (2021), Uth et al. (2004)."
               className="mb-3"
             />
