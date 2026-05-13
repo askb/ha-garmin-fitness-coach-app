@@ -4,7 +4,7 @@ import { createTestCaller } from "./helpers";
 
 const caller = createTestCaller();
 
-describe("trends router", () => {
+describe.skipIf(!globalThis.__DB_AVAILABLE__)("trends router", () => {
   it("getSummary returns avgReadiness, avgSleepMinutes, avgHrv", async () => {
     const result = await caller.trends.getSummary({ period: "28d" });
     expect(result).toHaveProperty("avgReadiness");

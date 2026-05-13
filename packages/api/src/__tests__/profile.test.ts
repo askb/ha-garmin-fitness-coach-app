@@ -10,7 +10,7 @@ const caller = createTestCaller();
 const UPSERT_USER = "test-upsert-user";
 const upsertCaller = createTestCaller(UPSERT_USER);
 
-describe("profile router", () => {
+describe.skipIf(!globalThis.__DB_AVAILABLE__)("profile router", () => {
   afterAll(async () => {
     // Clean up the profile created by the upsert test
     await db.delete(Profile).where(eq(Profile.userId, UPSERT_USER));

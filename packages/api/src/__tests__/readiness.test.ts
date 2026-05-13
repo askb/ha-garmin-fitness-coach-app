@@ -9,7 +9,7 @@ const caller = createTestCaller();
 
 const today = new Date().toISOString().split("T")[0]!;
 
-describe("readiness router", () => {
+describe.skipIf(!globalThis.__DB_AVAILABLE__)("readiness router", () => {
   beforeAll(async () => {
     // Remove any existing readiness score for today so getToday computes fresh
     await db
