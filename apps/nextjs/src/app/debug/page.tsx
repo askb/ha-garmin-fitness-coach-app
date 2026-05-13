@@ -17,7 +17,6 @@
  * They can — and do — disagree. Anything > 0.05 absolute delta is
  * suspicious.
  */
-
 import { useQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "~/trpc/react";
@@ -110,7 +109,10 @@ export default function DebugPage() {
           Anything other than 🟢 means the dashboard cards may disagree.
         </p>
         <div className="mt-1">
-          <DataFreshness computedAt={loads.data?.computedAt} prefix="live values computed" />
+          <DataFreshness
+            computedAt={loads.data?.computedAt}
+            prefix="live values computed"
+          />
         </div>
       </div>
 

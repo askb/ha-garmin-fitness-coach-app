@@ -366,19 +366,14 @@ export const proactiveRouter = {
       if (latestAdvanced?.acwr != null) {
         const acwr = latestAdvanced.acwr;
         const label =
-          acwr > 1.3
-            ? "caution"
-            : acwr >= 0.8
-              ? "optimal"
-              : "under-training";
+          acwr > 1.3 ? "caution" : acwr >= 0.8 ? "optimal" : "under-training";
         parts.push(`ACWR: ${acwr.toFixed(2)} (${label})`);
         metricsObj.acwr = acwr;
       }
 
       if (latestAdvanced?.tsb != null) {
         const tsb = latestAdvanced.tsb;
-        const label =
-          tsb < -20 ? "fatigued" : tsb > 15 ? "fresh" : "balanced";
+        const label = tsb < -20 ? "fatigued" : tsb > 15 ? "fresh" : "balanced";
         parts.push(`Form: ${tsb.toFixed(1)} (${label})`);
         metricsObj.tsb = tsb;
       }

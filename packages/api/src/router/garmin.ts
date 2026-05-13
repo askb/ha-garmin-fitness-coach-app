@@ -1,6 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
+import { and, desc, eq, gte } from "@acme/db";
 import { Activity, DailyMetric } from "@acme/db/schema";
 import {
   backfillDays,
@@ -110,6 +111,68 @@ export const garminRouter = {
       return {
         metricsInserted: metrics.length,
         activitiesInserted: activities.length,
+      };
+    }),
+
+  getTrainingSummary: protectedProcedure
+    .input(z.object({ days: z.number().min(1).max(30).default(7) }).optional())
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const days = input?.days ?? 7;
+
+      // Use an exclusive lower bound so a `days=7` window returns 7 calendar
+      // days, not 8. `gte` against `since + 1` is equivalent to `gt(since)`.
+      const since = new Date();
+      since.setUTCDate(since.getUTCDate() - days + 1);
+      const sinceStr = since.toISOString().split("T")[0]!;
+
+      const rows = await ctx.db
+        .select({
+          date: DailyMetric.date,
+          hrv: DailyMetric.hrv,
+          garminTrainingReadiness: DailyMetric.garminTrainingReadiness,
+          garminTrainingReadinessLevel:
+            DailyMetric.garminTrainingReadinessLevel,
+          garminTrainingLoad: DailyMetric.garminTrainingLoad,
+          garminTrainingStatus: DailyMetric.garminTrainingStatus,
+          garminLoadFocus: DailyMetric.garminLoadFocus,
+          garminRecoveryHours: DailyMetric.garminRecoveryHours,
+        })
+        .from(DailyMetric)
+        .where(
+          and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, sinceStr)),
+        )
+        .orderBy(desc(DailyMetric.date));
+
+      const latest = rows[0] ?? null;
+      const hrvSeries = rows
+        .filter((r) => r.hrv != null)
+        .map((r) => ({ date: r.date, hrv: r.hrv! }))
+        .reverse();
+      const hrvAvg =
+        hrvSeries.length > 0
+          ? hrvSeries.reduce((s, r) => s + r.hrv, 0) / hrvSeries.length
+          : null;
+      // Use the most recent NON-NULL HRV reading rather than `latest.hrv` so
+      // the trend doesn't disappear on days that lack an HRV measurement.
+      const hrvLatest =
+        hrvSeries.length > 0 ? hrvSeries[hrvSeries.length - 1]!.hrv : null;
+      const hrvTrend =
+        hrvAvg != null && hrvLatest != null
+          ? hrvLatest > hrvAvg * 1.05
+            ? "rising"
+            : hrvLatest < hrvAvg * 0.95
+              ? "falling"
+              : "stable"
+          : null;
+
+      return {
+        days,
+        latest,
+        hrvSeries,
+        hrvAvg: hrvAvg != null ? Math.round(hrvAvg * 10) / 10 : null,
+        hrvTrend,
+        computedAt: new Date(),
       };
     }),
 } satisfies TRPCRouterRecord;

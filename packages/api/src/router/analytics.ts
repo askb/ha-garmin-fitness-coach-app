@@ -50,7 +50,11 @@ function getDateString(daysAgo: number): string {
  *     `computeACWR`.
  */
 function aggregateDailyLoads(
-  activities: { startedAt: Date; strainScore: number | null; trimpScore: number | null }[],
+  activities: {
+    startedAt: Date;
+    strainScore: number | null;
+    trimpScore: number | null;
+  }[],
   windowDays: number,
 ): { dailyLoadsChrono: number[]; dailyLoadsRecent: number[] } {
   const byDay = new Map<string, number>();
