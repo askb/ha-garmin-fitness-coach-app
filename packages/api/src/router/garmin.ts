@@ -120,8 +120,10 @@ export const garminRouter = {
       const userId = ctx.session.user.id;
       const days = input?.days ?? 7;
 
+      // Use an exclusive lower bound so a `days=7` window returns 7 calendar
+      // days, not 8. `gte` against `since + 1` is equivalent to `gt(since)`.
       const since = new Date();
-      since.setUTCDate(since.getUTCDate() - days);
+      since.setUTCDate(since.getUTCDate() - days + 1);
       const sinceStr = since.toISOString().split("T")[0]!;
 
       const rows = await ctx.db
@@ -151,7 +153,10 @@ export const garminRouter = {
         hrvSeries.length > 0
           ? hrvSeries.reduce((s, r) => s + r.hrv, 0) / hrvSeries.length
           : null;
-      const hrvLatest = latest?.hrv ?? null;
+      // Use the most recent NON-NULL HRV reading rather than `latest.hrv` so
+      // the trend doesn't disappear on days that lack an HRV measurement.
+      const hrvLatest =
+        hrvSeries.length > 0 ? hrvSeries[hrvSeries.length - 1]!.hrv : null;
       const hrvTrend =
         hrvAvg != null && hrvLatest != null
           ? hrvLatest > hrvAvg * 1.05
