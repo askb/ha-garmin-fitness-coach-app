@@ -464,17 +464,40 @@ export const proactiveRouter = {
     return { generated: insights.length, saved: saved.length, insights: saved };
   }),
 
-  listInsights: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
-    return ctx.db.query.AiInsight.findMany({
-      where: and(
+  listInsights: protectedProcedure
+    .input(
+      z
+        .object({
+          /**
+           * How many days back to include. Default is 1 (today only) so the
+           * card refreshes in place after each `generateInsights` rather than
+           * accumulating stale insights from previous days.
+           */
+          days: z.number().min(1).max(30).default(1),
+          /**
+           * When true, hide insights the user has already dismissed.
+           */
+          unreadOnly: z.boolean().default(true),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const days = input?.days ?? 1;
+      const unreadOnly = input?.unreadOnly ?? true;
+      const conditions = [
         eq(AiInsight.userId, userId),
-        gte(AiInsight.date, dateNDaysAgo(7)),
-      ),
-      orderBy: desc(AiInsight.createdAt),
-      limit: 20,
-    });
-  }),
+        gte(AiInsight.date, dateNDaysAgo(days)),
+      ];
+      if (unreadOnly) {
+        conditions.push(eq(AiInsight.isRead, false));
+      }
+      return ctx.db.query.AiInsight.findMany({
+        where: and(...conditions),
+        orderBy: desc(AiInsight.createdAt),
+        limit: 20,
+      });
+    }),
 
   markRead: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
