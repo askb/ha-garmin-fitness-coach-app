@@ -9,7 +9,7 @@ const caller = createTestCaller();
 
 const today = new Date().toISOString().split("T")[0]!;
 
-describe("workout router", () => {
+describe.skipIf(!globalThis.__DB_AVAILABLE__)("workout router", () => {
   beforeAll(async () => {
     // Remove any existing workout for today so getToday generates fresh
     await db

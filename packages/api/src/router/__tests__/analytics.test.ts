@@ -397,7 +397,7 @@ describe("analytics router", () => {
   // -------------------------------------------------------------------------
   describe("getRacePredictions", () => {
     it("returns null when no VO2max estimate exists", async () => {
-      mockDb.query.VO2maxEstimate.findFirst.mockResolvedValue(null);
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([]);
 
       const result = await caller.analytics.getRacePredictions();
 
@@ -405,14 +405,16 @@ describe("analytics router", () => {
     });
 
     it("returns four race predictions using the VDOT / Riegel formula", async () => {
-      mockDb.query.VO2maxEstimate.findFirst.mockResolvedValue({
-        id: "vo2-1",
-        userId: TEST_USER_ID,
-        date: dateString(1),
-        value: 50,
-        source: "running_pace_hr",
-        sport: "running",
-      });
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([
+        {
+          id: "vo2-1",
+          userId: TEST_USER_ID,
+          date: dateString(1),
+          value: 50,
+          source: "running_pace_hr",
+          sport: "running",
+        },
+      ]);
 
       const result = await caller.analytics.getRacePredictions();
 
@@ -436,14 +438,16 @@ describe("analytics router", () => {
     });
 
     it("predicts longer times for longer race distances (Riegel ordering)", async () => {
-      mockDb.query.VO2maxEstimate.findFirst.mockResolvedValue({
-        id: "vo2-1",
-        userId: TEST_USER_ID,
-        date: dateString(1),
-        value: 55,
-        source: "running_pace_hr",
-        sport: "running",
-      });
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([
+        {
+          id: "vo2-1",
+          userId: TEST_USER_ID,
+          date: dateString(1),
+          value: 55,
+          source: "running_pace_hr",
+          sport: "running",
+        },
+      ]);
 
       const result = await caller.analytics.getRacePredictions();
       const byDistance = (name: string) =>

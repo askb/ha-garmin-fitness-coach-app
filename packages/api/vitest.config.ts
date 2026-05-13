@@ -6,5 +6,6 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     testTimeout: 15000,
+    setupFiles: ["./src/__tests__/setup-db-probe.ts"],
   },
 });
