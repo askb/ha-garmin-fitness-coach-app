@@ -88,6 +88,7 @@ async function liveComputePMC(
   }
 
   const series = computeDailyPMCSeries(loads);
+  const computedAt = new Date();
 
   // Trim warmup, then map to AdvancedMetric row shape (null for fields we
   // don't compute here — cp/wPrime/etc. are pace-power features owned by
@@ -109,6 +110,7 @@ async function liveComputePMC(
       mftp: null,
       tte: null,
       effectiveVo2max: null,
+      computedAt,
     }));
 
   return out;

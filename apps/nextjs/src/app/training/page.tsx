@@ -24,6 +24,7 @@ import { cn } from "@acme/ui";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DataFreshness } from "../_components/data-freshness";
 import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
@@ -303,11 +304,13 @@ export default function TrainingLoadPage() {
 
       {/* ── ACWR Gauge (enhanced) ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <SectionHeader
-          title="ACWR Gauge"
-          info="Current Acute:Chronic Workload Ratio with risk zones. Sweet spot 0.8–1.3 = lowest injury risk. Source: Hulin BT et al. (2016)."
-          className="mb-3"
-        />
+        <div className="mb-3 flex items-baseline justify-between">
+          <SectionHeader
+            title="ACWR Gauge"
+            info="Current Acute:Chronic Workload Ratio with risk zones. Sweet spot 0.8–1.3 = lowest injury risk. Source: Hulin BT et al. (2016)."
+          />
+          <DataFreshness computedAt={loads.data?.computedAt} />
+        </div>
         {currentAcwr != null ? (
           <ACWRGaugeEnhanced value={currentAcwr} />
         ) : loads.isLoading ? (

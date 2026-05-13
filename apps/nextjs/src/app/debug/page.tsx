@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
+import { DataFreshness } from "../_components/data-freshness";
 
 interface PmcEntry {
   date: string;
@@ -108,6 +109,9 @@ export default function DebugPage() {
           Side-by-side comparison of the same metric from different sources.
           Anything other than 🟢 means the dashboard cards may disagree.
         </p>
+        <div className="mt-1">
+          <DataFreshness computedAt={loads.data?.computedAt} prefix="live values computed" />
+        </div>
       </div>
 
       {isLoading && (

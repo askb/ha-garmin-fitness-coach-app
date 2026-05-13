@@ -102,6 +102,7 @@ export const analyticsRouter = {
       acwrEwma,
       loadFocus,
       rampRate: loadMetrics.rampRate,
+      computedAt: new Date(),
     };
   }),
 
