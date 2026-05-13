@@ -25,13 +25,13 @@ afterEach(() => {
 function makeDb(opts: {
   matviewRows?: unknown[];
   metrics?: {
-    date: string;
+    date: string | Date;
     hrv: number | null;
     restingHr: number | null;
     totalSleepMinutes: number | null;
     stressScore: number | null;
   }[];
-  scores?: { date: string; score: number }[];
+  scores?: { date: string | Date; score: number }[];
 }) {
   const executeMock = vi.fn(async () => ({ rows: opts.matviewRows ?? [] }));
   const metricsMock = vi.fn(async () => opts.metrics ?? []);
@@ -222,7 +222,7 @@ describe("getDailySummaryRange", () => {
     const { db } = makeDb({
       metrics: [
         {
-          date: new Date("2026-03-15T12:00:00Z") as unknown as string,
+          date: new Date("2026-03-15T12:00:00Z"),
           hrv: 65,
           restingHr: 52,
           totalSleepMinutes: 420,
@@ -235,5 +235,42 @@ describe("getDailySummaryRange", () => {
     const out = await getDailySummaryRange(db, "user-1", "2026-03-15");
 
     expect(out[0]?.date).toBe("2026-03-15");
+  });
+
+  it("dedupes concurrent first-probes (Promise-memoized cache)", async () => {
+    _resetMatviewCacheForTests();
+    // The probe takes a measurable tick — simulate latency so the three
+    // concurrent calls below all hit `matviewProbe === null` simultaneously.
+    const executeMock = vi
+      .fn()
+      // First call: the to_regclass probe (slow, so concurrent callers
+      // queue up against the in-flight Promise).
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ rows: [{ exists: true }] }), 20),
+          ),
+      )
+      // All subsequent calls: matview data reads. Return empty rows so
+      // `isoDate` doesn't choke on an undefined `date` field.
+      .mockResolvedValue({ rows: [] });
+    const db = {
+      execute: executeMock,
+      query: {
+        DailyMetric: { findMany: vi.fn() },
+        ReadinessScore: { findMany: vi.fn() },
+      },
+    } as never;
+
+    // Fire three reads in parallel. Without Promise-memoization, all three
+    // would each issue their own to_regclass probe → 3 probes + 3 reads = 6.
+    // With memoization → 1 probe + 3 reads = 4.
+    await Promise.all([
+      getDailySummaryRange(db, "user-1", "2026-03-15"),
+      getDailySummaryRange(db, "user-1", "2026-03-16"),
+      getDailySummaryRange(db, "user-1", "2026-03-17"),
+    ]);
+
+    expect(executeMock).toHaveBeenCalledTimes(4);
   });
 });

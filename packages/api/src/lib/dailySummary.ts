@@ -28,35 +28,42 @@ export interface DailySummaryRow {
   readinessScore: number | null;
 }
 
-let matviewAvailable: boolean | null = null;
+let matviewProbe: Promise<boolean> | null = null;
 
 /**
  * Probe (once) whether `daily_athlete_summary` exists in the current DB.
  * Uses `to_regclass`, which returns NULL for missing relations without
  * raising — so this is safe even on a brand-new install.
+ *
+ * The probe is memoized as a **Promise**, not a resolved boolean, so that
+ * concurrent first-callers all `await` the same in-flight query instead
+ * of each racing their own `to_regclass` round-trip.
  */
 async function isMatviewAvailable(db: DB): Promise<boolean> {
-  if (matviewAvailable !== null) return matviewAvailable;
-  try {
-    const result = await db.execute<{ exists: boolean }>(
-      sql`SELECT to_regclass('public.daily_athlete_summary') IS NOT NULL AS exists`,
-    );
-    const row = (result as unknown as { rows: { exists: boolean }[] }).rows[0];
-    matviewAvailable = row?.exists === true;
-  } catch {
-    matviewAvailable = false;
-  }
-  return matviewAvailable;
+  if (matviewProbe !== null) return matviewProbe;
+  matviewProbe = (async () => {
+    try {
+      const result = await db.execute<{ exists: boolean }>(
+        sql`SELECT to_regclass('public.daily_athlete_summary') IS NOT NULL AS exists`,
+      );
+      const row = (result as unknown as { rows: { exists: boolean }[] })
+        .rows[0];
+      return row?.exists === true;
+    } catch {
+      return false;
+    }
+  })();
+  return matviewProbe;
 }
 
 /** Test-only: reset the cached detection so a unit test can flip availability. */
 export function _resetMatviewCacheForTests(): void {
-  matviewAvailable = null;
+  matviewProbe = null;
 }
 
 /** Test-only: explicitly seed the detection cache. */
 export function _setMatviewAvailableForTests(value: boolean): void {
-  matviewAvailable = value;
+  matviewProbe = Promise.resolve(value);
 }
 
 function isoDate(value: string | Date): string {
