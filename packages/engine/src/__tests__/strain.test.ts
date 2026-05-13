@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   computeACWR,
+  computeDailyPMCSeries,
   computeStrainScore,
   computeTRIMP,
   countConsecutiveHardDays,
@@ -155,5 +156,65 @@ describe("countConsecutiveHardDays", () => {
 
   it("returns 0 for empty array", () => {
     expect(countConsecutiveHardDays([])).toBe(0);
+  });
+});
+
+describe("computeDailyPMCSeries", () => {
+  it("returns empty for empty input", () => {
+    expect(computeDailyPMCSeries([])).toEqual([]);
+  });
+
+  it("emits one row per input day", () => {
+    const loads = new Array(30).fill(10) as number[];
+    const series = computeDailyPMCSeries(loads);
+    expect(series).toHaveLength(30);
+    for (const row of series) {
+      expect(row).toHaveProperty("ctl");
+      expect(row).toHaveProperty("atl");
+      expect(row).toHaveProperty("tsb");
+      expect(row).toHaveProperty("acwr");
+    }
+  });
+
+  it("converges CTL and ATL to the steady-state load", () => {
+    const loads = new Array(120).fill(10) as number[];
+    const series = computeDailyPMCSeries(loads);
+    const last = series[series.length - 1]!;
+    expect(last.ctl).toBeCloseTo(10, 0);
+    expect(last.atl).toBeCloseTo(10, 0);
+    expect(last.tsb).toBeCloseTo(0, 0);
+    expect(last.acwr).toBeCloseTo(1, 1);
+  });
+
+  it("ACWR spikes when acute load jumps above chronic baseline", () => {
+    const loads = [
+      ...new Array(28).fill(5),
+      ...new Array(7).fill(20),
+    ] as number[];
+    const series = computeDailyPMCSeries(loads);
+    const last = series[series.length - 1]!;
+    expect(last.acwr).toBeGreaterThan(1.5);
+  });
+
+  it("ACWR drops when athlete tapers", () => {
+    const loads = [
+      ...new Array(28).fill(20),
+      ...new Array(7).fill(5),
+    ] as number[];
+    const series = computeDailyPMCSeries(loads);
+    const last = series[series.length - 1]!;
+    expect(last.acwr).toBeLessThan(0.7);
+  });
+
+  it("latest ACWR matches the standalone computeACWR result", () => {
+    const loads = [
+      8, 12, 0, 15, 6, 0, 10, 14, 6, 0, 11, 16, 0, 12, 9, 0, 8, 13, 0, 15, 7, 0,
+      10, 14, 6, 0, 11, 16, 9, 12,
+    ];
+    const series = computeDailyPMCSeries(loads);
+    const latest = series[series.length - 1]!.acwr;
+    const reversed = [...loads].reverse();
+    const standalone = computeACWR(reversed);
+    expect(latest).toBeCloseTo(standalone, 1);
   });
 });

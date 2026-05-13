@@ -202,6 +202,62 @@ export function computeTrainingLoads(
 }
 
 /**
+ * Compute a daily Performance Management Chart (PMC) series.
+ *
+ * Returns one row per day with the rolling Banister CTL/ATL/TSB plus
+ * the standard 7d/28d ACWR. This is the canonical source for both the
+ * gauge (latest row) and the chart (the whole series), eliminating the
+ * "gauge vs chart drift" class of bugs.
+ *
+ * Input:
+ *   - `dailyStressScores` — oldest first, zero-padded for rest days.
+ *
+ * Output:
+ *   - Array of `{ ctl, atl, tsb, acwr }` aligned 1:1 with the input.
+ */
+export function computeDailyPMCSeries(
+  dailyStressScores: number[], // oldest first (chronological)
+): { ctl: number; atl: number; tsb: number; acwr: number }[] {
+  if (dailyStressScores.length === 0) return [];
+
+  const alphaCTL = 2 / (42 + 1);
+  const alphaATL = 2 / (7 + 1);
+
+  let ctl = dailyStressScores[0]!;
+  let atl = dailyStressScores[0]!;
+  const out: { ctl: number; atl: number; tsb: number; acwr: number }[] = [];
+
+  for (let i = 0; i < dailyStressScores.length; i++) {
+    if (i > 0) {
+      ctl = alphaCTL * dailyStressScores[i]! + (1 - alphaCTL) * ctl;
+      atl = alphaATL * dailyStressScores[i]! + (1 - alphaATL) * atl;
+    }
+    const tsb = ctl - atl;
+
+    const acuteStart = Math.max(0, i - 6);
+    const chronicStart = Math.max(0, i - 27);
+    const acuteWindow = dailyStressScores.slice(acuteStart, i + 1);
+    const chronicWindow = dailyStressScores.slice(chronicStart, i + 1);
+    const acute7 =
+      acuteWindow.reduce((s, v) => s + v, 0) / Math.max(1, acuteWindow.length);
+    const chronic28 =
+      chronicWindow.reduce((s, v) => s + v, 0) /
+      Math.max(1, chronicWindow.length);
+    const acwr =
+      chronic28 === 0 ? (acute7 > 0 ? 2.0 : 1.0) : acute7 / chronic28;
+
+    out.push({
+      ctl: Math.round(ctl * 100) / 100,
+      atl: Math.round(atl * 100) / 100,
+      tsb: Math.round(tsb * 100) / 100,
+      acwr: Math.round(acwr * 1000) / 1000,
+    });
+  }
+
+  return out;
+}
+
+/**
  * Determine training load focus from activity training effects.
  *
  * Uses Garmin's aerobic/anaerobic Training Effect (0-5 scale, Firstbeat).
