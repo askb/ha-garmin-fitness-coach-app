@@ -11,6 +11,7 @@ import {
   findNotableChanges,
 } from "@acme/engine";
 
+import { getDailySummaryRange } from "../lib/dailySummary";
 import { protectedProcedure } from "../trpc";
 
 type DB = typeof _dependencies_db;
@@ -62,41 +63,32 @@ async function fetchMetricData(
   metric: z.infer<typeof trendMetricEnum>,
   since: string,
 ): Promise<{ date: string; value: number }[]> {
-  if (metric === "readiness") {
-    const scores = await db.query.ReadinessScore.findMany({
-      where: and(
-        eq(ReadinessScore.userId, userId),
-        gte(ReadinessScore.date, since),
-      ),
-      orderBy: ReadinessScore.date,
-    });
-    return scores.map((s) => ({ date: s.date, value: s.score }));
-  }
-
-  // Strain = activity-based TRIMP load (0-21), NOT daily HRV stress
+  // Strain stays activity-derived — daily_athlete_summary doesn't capture
+  // per-activity TRIMP, so we still group from the Activity table.
   if (metric === "strain") {
     return fetchStrainByDate(db, userId, since);
   }
 
-  const metrics = await db.query.DailyMetric.findMany({
-    where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
-    orderBy: DailyMetric.date,
-  });
+  // Everything else lives on `daily_athlete_summary` (or its live-table
+  // fallback). Single read path means readiness/HRV/sleep/etc. all stay
+  // consistent with whatever the matview last refreshed to.
+  const summary = await getDailySummaryRange(db, userId, since);
 
   const fieldMap: Record<
-    Exclude<z.infer<typeof trendMetricEnum>, "readiness" | "strain">,
-    (m: (typeof metrics)[number]) => number | null
+    Exclude<z.infer<typeof trendMetricEnum>, "strain">,
+    (row: (typeof summary)[number]) => number | null
   > = {
-    sleep: (m) => m.totalSleepMinutes,
-    hrv: (m) => m.hrv,
-    restingHr: (m) => m.restingHr,
-    stress: (m) => m.stressScore,
+    readiness: (r) => r.readinessScore,
+    sleep: (r) => r.totalSleepMinutes,
+    hrv: (r) => r.hrv,
+    restingHr: (r) => r.restingHr,
+    stress: (r) => r.stressScore,
   };
 
   const extractor = fieldMap[metric];
-  return metrics
-    .filter((m) => extractor(m) !== null)
-    .map((m) => ({ date: m.date, value: extractor(m)! }));
+  return summary
+    .filter((r) => extractor(r) !== null)
+    .map((r) => ({ date: r.date, value: extractor(r)! }));
 }
 
 function getDateString(daysAgo: number): string {
