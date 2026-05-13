@@ -50,6 +50,7 @@ export {
   computeACWR,
   computeACWR_EWMA,
   computeTrainingLoads,
+  computeDailyPMCSeries,
   classifyLoadFocus,
   countConsecutiveHardDays,
 } from "./strain";
