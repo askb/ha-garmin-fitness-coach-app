@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dayInTimezone, shiftIsoDay } from "../router/analytics";
+import { dayInTimezone, shiftIsoDay } from "../lib/timezone";
 
 describe("dayInTimezone", () => {
   it("renders YYYY-MM-DD in UTC by default", () => {
