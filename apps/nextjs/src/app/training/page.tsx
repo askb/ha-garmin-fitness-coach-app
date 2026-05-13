@@ -26,6 +26,7 @@ import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DataFreshness } from "../_components/data-freshness";
 import { DateRangeSelector } from "../_components/date-range-selector";
+import { GarminTrainingSummary } from "../_components/garmin-training-summary";
 import { SectionHeader } from "../_components/info-button";
 
 /* ─────────────── constants ─────────────── */
@@ -132,6 +133,9 @@ export default function TrainingLoadPage() {
           {status.data.explanation}
         </p>
       )}
+
+      {/* ── Garmin Training Summary (native readings) ── */}
+      <GarminTrainingSummary />
 
       {/* ── PMC — Performance Management Chart ── */}
       <div className="bg-card rounded-2xl border p-4">
