@@ -33,6 +33,58 @@ function getDateString(daysAgo: number): string {
 }
 
 /**
+ * Project a `Date` onto a calendar day in a specific IANA timezone.
+ *
+ * Returns an ISO `YYYY-MM-DD` string. We resolve via `Intl.DateTimeFormat`
+ * (zero-dependency, ships with V8) so a workout finished at 23:30 UTC on
+ * day N appears on day N+1 for an athlete in Sydney and on day N for an
+ * athlete in San Francisco. Falls back to UTC if the zone is invalid.
+ *
+ * Exported for testability — internal callers go via `aggregateDailyLoads`.
+ */
+export function dayInTimezone(
+  date: Date,
+  tz: string | null | undefined,
+): string {
+  const zone = tz && tz.length > 0 ? tz : "UTC";
+  try {
+    const fmt = new Intl.DateTimeFormat("en-CA", {
+      timeZone: zone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    // en-CA renders as YYYY-MM-DD natively
+    return fmt.format(date);
+  } catch {
+    // Invalid TZ string — degrade to UTC rather than crashing the request.
+    return date.toISOString().split("T")[0]!;
+  }
+}
+
+/**
+ * Compute "today" in the athlete's timezone as a `YYYY-MM-DD` string.
+ * Used as the upper bound when zero-padding the daily-load series.
+ */
+function todayInTimezone(tz: string | null | undefined): string {
+  return dayInTimezone(new Date(), tz);
+}
+
+/**
+ * Step a `YYYY-MM-DD` string back by N days. Operates on the date string
+ * directly so it is timezone-stable (no DST spring-forward bug).
+ *
+ * Exported for testability.
+ */
+export function shiftIsoDay(isoDay: string, deltaDays: number): string {
+  // Anchor at noon UTC to dodge DST midnight ambiguities, then shift in
+  // milliseconds. Output is the bare YYYY-MM-DD prefix only.
+  const d = new Date(`${isoDay}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + deltaDays);
+  return d.toISOString().split("T")[0]!;
+}
+
+/**
  * Aggregate per-activity strain scores into a per-day chronological series.
  *
  * The engine helpers (`computeACWR`, `computeACWR_EWMA`, `computeTrainingLoads`)
@@ -56,20 +108,19 @@ function aggregateDailyLoads(
     trimpScore: number | null;
   }[],
   windowDays: number,
+  timezone?: string | null,
 ): { dailyLoadsChrono: number[]; dailyLoadsRecent: number[] } {
   const byDay = new Map<string, number>();
   for (const a of activities) {
-    const day = a.startedAt.toISOString().split("T")[0]!;
+    const day = dayInTimezone(a.startedAt, timezone);
     const s = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
     byDay.set(day, (byDay.get(day) ?? 0) + s);
   }
 
   const dailyLoadsRecent: number[] = [];
-  const today = new Date();
+  const todayStr = todayInTimezone(timezone);
   for (let i = 0; i < windowDays; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const key = d.toISOString().split("T")[0]!;
+    const key = shiftIsoDay(todayStr, -i);
     dailyLoadsRecent.push(byDay.get(key) ?? 0);
   }
   const dailyLoadsChrono = [...dailyLoadsRecent].reverse();
@@ -80,17 +131,24 @@ export const analyticsRouter = {
   getTrainingLoads: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const recentActivities = await ctx.db.query.Activity.findMany({
-      where: and(
-        eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-      ),
-      orderBy: desc(Activity.startedAt),
-    });
+    const [profile, recentActivities] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
+        ),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
 
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
       recentActivities,
       42,
+      profile?.timezone,
     );
 
     const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
@@ -106,6 +164,7 @@ export const analyticsRouter = {
       acwrEwma,
       loadFocus,
       rampRate: loadMetrics.rampRate,
+      timezone: profile?.timezone ?? "UTC",
       computedAt: new Date(),
     };
   }),
@@ -113,13 +172,26 @@ export const analyticsRouter = {
   getTrainingStatus: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const vo2maxRecords = await ctx.db.query.VO2maxEstimate.findMany({
-      where: and(
-        eq(VO2maxEstimate.userId, userId),
-        gte(VO2maxEstimate.date, getDateString(28)),
-      ),
-      orderBy: desc(VO2maxEstimate.date),
-    });
+    const [profile, vo2maxRecords, recentActivities] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.VO2maxEstimate.findMany({
+        where: and(
+          eq(VO2maxEstimate.userId, userId),
+          gte(VO2maxEstimate.date, getDateString(28)),
+        ),
+        orderBy: desc(VO2maxEstimate.date),
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
+        ),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
 
     let vo2maxTrend = 0;
     if (vo2maxRecords.length >= 2) {
@@ -128,17 +200,10 @@ export const analyticsRouter = {
       vo2maxTrend = last.value - first.value;
     }
 
-    const recentActivities = await ctx.db.query.Activity.findMany({
-      where: and(
-        eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-      ),
-      orderBy: desc(Activity.startedAt),
-    });
-
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
       recentActivities,
       42,
+      profile?.timezone,
     );
 
     const loadMetrics = computeTrainingLoads(dailyLoadsChrono);
