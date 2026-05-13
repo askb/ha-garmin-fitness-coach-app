@@ -76,8 +76,8 @@ jobs:
 
       - name: 'Generate CycloneDX SBOM'
         run: |
-          npx @cyclonedx/cyclonedx-npm --output-file sbom-cyclonedx.json --output-format json
-          npx @cyclonedx/cyclonedx-npm --output-file sbom-cyclonedx.xml --output-format xml
+          npx @cyclonedx/cyclonedx-npm --ignore-npm-errors --output-file sbom-cyclonedx.json --output-format json
+          npx @cyclonedx/cyclonedx-npm --ignore-npm-errors --output-file sbom-cyclonedx.xml --output-format xml
 
       - name: 'Upload SBOM artifacts'
         uses: actions/upload-artifact@v7
