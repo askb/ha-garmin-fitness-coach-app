@@ -25,6 +25,20 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DB = any;
 
+/**
+ * Render a Garmin sport-code (e.g. "Tennis_v2", "trail_running",
+ * "lap_swimming") as a human-readable label suitable for LLM prompts
+ * and user-facing strings.
+ */
+function prettySport(code: string | null | undefined): string {
+  if (!code) return "Activity";
+  return code
+    .replace(/_v\d+$/i, "") // drop "_v2" / "_v3" variant suffixes
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -321,7 +335,7 @@ export async function buildDataContext(
           ? `${(a.distanceMeters / 1000).toFixed(1)}km`
           : "";
       lines.push(
-        `- ${a.sportType}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
+        `- ${prettySport(a.sportType)}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
       );
     }
     sections.push(lines.join("\n"));

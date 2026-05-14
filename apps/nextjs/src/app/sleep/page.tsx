@@ -100,6 +100,17 @@ export default function SleepDashboard() {
   // ---- Data queries ----
   const coach = useQuery(trpc.sleep.getCoach.queryOptions());
 
+  // Surface coach data early so it can be referenced by derived data
+  // (e.g. debt chart fallback) declared further down.
+  const coachData = coach.data as
+    | {
+        recommendedDurationMinutes: number;
+        recommendedBedtime: string;
+        sleepDebtMinutes: number;
+        insight: string;
+      }
+    | undefined;
+
   const stages = useQuery(
     trpc.sleep.getStages.queryOptions({ days: sleepDays }),
   );
@@ -236,19 +247,38 @@ export default function SleepDashboard() {
   }, [history.data]);
 
   // ---- Derived: Sleep debt tracker (last 7 days) ----
+  // Daily debt = max(0, sleepNeed - actualSleep). The historic
+  // DailyMetric.sleepDebtMinutes and sleepNeedMinutes columns are
+  // not backfilled by the ETL, so we fall back to the coach's
+  // computed need (constant across the 7-day window) and compute
+  // each day's debt from totalSleepMinutes (which IS populated).
   const debtChartData = useMemo(() => {
     const raw = history.data as
-      | { date: string; sleepDebt: number | null }[]
+      | {
+          date: string;
+          sleepDebt: number | null;
+          sleepNeedMinutes: number | null;
+          totalSleepMinutes: number | null;
+        }[]
       | undefined;
     if (!raw) return [];
     const data = [...raw].reverse();
     const slice = data.slice(-7);
-    return slice.map((d) => ({
-      date: fmtDateShort(d.date, slice.length),
-      debt: d.sleepDebt ?? 0,
-      color: debtColor(d.sleepDebt ?? 0),
-    }));
-  }, [history.data]);
+    const fallbackNeed =
+      coachData?.recommendedDurationMinutes ?? 480; // 8h default
+    return slice.map((d) => {
+      const need = d.sleepNeedMinutes ?? fallbackNeed;
+      const actual = d.totalSleepMinutes;
+      const computed =
+        actual != null ? Math.max(0, need - actual) : 0;
+      const debt = d.sleepDebt ?? computed;
+      return {
+        date: fmtDateShort(d.date, slice.length),
+        debt,
+        color: debtColor(debt),
+      };
+    });
+  }, [history.data, coachData?.recommendedDurationMinutes]);
 
   // ---- Derived: Sleep timing range chart ----
   const timingChartData = useMemo(() => {
@@ -278,16 +308,6 @@ export default function SleepDashboard() {
       };
     });
   }, [history.data]);
-
-  // ---- Coach data ----
-  const coachData = coach.data as
-    | {
-        recommendedDurationMinutes: number;
-        recommendedBedtime: string;
-        sleepDebtMinutes: number;
-        insight: string;
-      }
-    | undefined;
 
   // ---------------------------------------------------------------------------
   return (

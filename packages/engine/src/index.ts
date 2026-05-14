@@ -74,6 +74,9 @@ export {
   adjustDifficulty,
 } from "./coaching";
 
+export { computeTargetStrain } from "./coaching/target-strain";
+export type { TargetStrainBand } from "./coaching/target-strain";
+
 // New modules
 export {
   estimateVO2maxFromRunning,
