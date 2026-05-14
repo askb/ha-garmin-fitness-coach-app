@@ -61,6 +61,15 @@ function aggregateDailyLoads(
 ): { dailyLoadsChrono: number[]; dailyLoadsRecent: number[] } {
   const byDay = new Map<string, number>();
   for (const a of activities) {
+    // Skip rows with a malformed `startedAt`. These exist in the wild for
+    // partial Garmin syncs and would otherwise propagate `RangeError:
+    // Invalid time value` out of the tRPC handler.
+    if (
+      !(a.startedAt instanceof Date) ||
+      Number.isNaN(a.startedAt.getTime())
+    ) {
+      continue;
+    }
     const day = dayInTimezone(a.startedAt, timezone);
     const s = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
     byDay.set(day, (byDay.get(day) ?? 0) + s);
@@ -304,6 +313,12 @@ export const analyticsRouter = {
       // Max strain per day from activities
       const strainMap = new Map<string, number>();
       for (const a of activities) {
+        if (
+          !(a.startedAt instanceof Date) ||
+          Number.isNaN(a.startedAt.getTime())
+        ) {
+          continue;
+        }
         const date = a.startedAt.toISOString().split("T")[0]!;
         const strain = a.strainScore ?? computeStrainScore(a.trimpScore ?? 0);
         const existing = strainMap.get(date) ?? 0;

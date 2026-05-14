@@ -37,6 +37,14 @@ export function dayInTimezone(
   date: Date,
   tz: string | null | undefined,
 ): string {
+  // Guard against invalid Dates (e.g., an Activity row with a malformed
+  // `startedAt`). `Intl.DateTimeFormat.format()` and `.toISOString()` both
+  // throw `RangeError: Invalid time value` for these, which would 500 the
+  // whole tRPC call. Sentinel epoch-day is sortable and obviously bogus,
+  // so downstream aggregations bucket bad rows together rather than crash.
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    return "1970-01-01";
+  }
   const zone = tz && tz.length > 0 ? tz : "UTC";
   try {
     // `en-CA` renders as YYYY-MM-DD natively, no parsing needed.
