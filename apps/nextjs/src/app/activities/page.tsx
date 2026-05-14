@@ -111,7 +111,7 @@ export default function ActivitiesPage() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Activities</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Activities</h1>
         <p className="text-muted-foreground text-sm">Your recent workouts</p>
       </div>
 
@@ -166,7 +166,7 @@ export default function ActivitiesPage() {
                   <span className="truncate font-medium">
                     {sportLabel(a.sportType)}
                   </span>
-                  {a.subType && (
+                  {a.subType && !/^\d+$/.test(a.subType) && (
                     <span className="text-muted-foreground truncate text-xs">
                       {sportLabel(a.subType)}
                     </span>

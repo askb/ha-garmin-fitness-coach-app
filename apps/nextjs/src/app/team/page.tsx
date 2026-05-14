@@ -103,7 +103,7 @@ export default function TeamPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold">Team</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Team</h1>
         <p className="text-muted-foreground text-sm">Multi-athlete dashboard</p>
       </div>
 

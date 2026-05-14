@@ -143,6 +143,36 @@ function getDateString(daysAgo: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+// Legacy debug-style explanations look like:
+//   "Buchheit composite: 67/100 (hrv=74, sleep=52, load=36, ...)"
+// Detect them so we can replace with a clean message at read-time.
+function isLegacyDebugExplanation(text: string): boolean {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return (
+    t.includes("composite:") ||
+    /hrv=\d/.test(t) ||
+    /(load|stress|rhr|spo2|rr)=\d/.test(t)
+  );
+}
+
+function defaultZoneExplanation(zone: string | null): string {
+  switch (zone) {
+    case "prime":
+      return "Prime readiness — great day for intensity.";
+    case "high":
+      return "High readiness — normal training day.";
+    case "moderate":
+      return "Moderate readiness — stick to planned training but listen to your body.";
+    case "low":
+      return "Low readiness — take it easy today.";
+    case "poor":
+      return "Poor readiness — rest or light recovery only.";
+    default:
+      return "Metrics are close to your baseline — normal training day.";
+  }
+}
+
 export const readinessRouter = {
   getToday: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
@@ -183,8 +213,19 @@ export const readinessRouter = {
         dq,
         todayDbMetric ?? null,
       );
+      // Sanitize stale debug-style explanations written by older builds of
+      // the engine, e.g.:
+      //   "Buchheit composite: 67/100 (hrv=74, sleep=52, load=36, ...)"
+      // The current generateExplanation() never emits this shape, but older
+      // rows persist in ReadinessScore. Replace with a generic zone-based
+      // message until the row is recomputed.
+      const explanation =
+        existing.explanation && isLegacyDebugExplanation(existing.explanation)
+          ? defaultZoneExplanation(existing.zone)
+          : existing.explanation;
       return {
         ...existing,
+        explanation,
         confidence,
         dataQuality: dq,
         actionSuggestion,

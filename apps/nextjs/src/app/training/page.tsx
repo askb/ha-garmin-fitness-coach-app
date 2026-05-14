@@ -123,7 +123,7 @@ export default function TrainingLoadPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Training Load</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Training Load</h1>
         {status.data ? (
           <span
             className={cn(
@@ -395,6 +395,7 @@ export default function TrainingLoadPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={32}
                 domain={[0, 21]}
+                ticks={[0, 5, 10, 15, 20]}
               />
               <Tooltip
                 contentStyle={{
@@ -635,6 +636,7 @@ export default function TrainingLoadPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={28}
                 domain={[0, 21]}
+                ticks={[0, 5, 10, 15, 20]}
                 tickFormatter={(v: number) => Math.round(v).toString()}
               />
               <Tooltip

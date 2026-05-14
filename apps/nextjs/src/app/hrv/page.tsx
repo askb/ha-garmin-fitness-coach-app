@@ -142,7 +142,7 @@ export default function HrvPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">HRV Analysis</h1>
+          <h1 className="text-2xl font-bold pl-12 sm:pl-0">HRV Analysis</h1>
           <p className="text-muted-foreground text-sm">
             Heart Rate Variability &amp; Recovery
           </p>

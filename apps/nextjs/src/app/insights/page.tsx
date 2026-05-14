@@ -49,6 +49,37 @@ interface ProactiveInsight {
   isRead: boolean | null;
 }
 
+/** Friendly labels for metric keys cited by AI insights. */
+const METRIC_LABELS: Record<string, string> = {
+  hrv: "HRV",
+  rhr: "Resting HR",
+  resting_hr: "Resting HR",
+  restingHr: "Resting HR",
+  acwr: "ACWR",
+  tsb: "Form (TSB)",
+  ctl: "Fitness (CTL)",
+  atl: "Fatigue (ATL)",
+  spo2: "SpO₂",
+  zone: "Zone",
+  readiness: "Readiness",
+  sleephours: "Sleep",
+  sleep_hours: "Sleep",
+  sleepHours: "Sleep",
+  sleep_duration: "Sleep Duration",
+  sleep_quality: "Sleep Quality",
+  next_day_hrv: "Next-day HRV",
+  stress: "Stress",
+  rr: "Resp. Rate",
+};
+
+function prettyMetricKey(k: string): string {
+  return k
+    .replace(/_/g, " ")
+    .replace(/([A-Z])/g, " $1")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function ProactiveInsightCard({
   insight,
   onMarkRead,
@@ -95,15 +126,28 @@ function ProactiveInsightCard({
 
       {/* Cited metrics */}
       {metricEntries.length > 0 && (
-        <p className="text-muted-foreground mt-2 font-mono text-[11px]">
-          {metricEntries
-            .map(([k, v]) => {
-              const num = typeof v === "number" ? v : parseFloat(String(v));
-              const display = isNaN(num) ? String(v) : num.toFixed(2);
-              return `${k.toUpperCase()}: ${display}`;
-            })
-            .join(" | ")}
-        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {metricEntries.map(([k, v]) => {
+            const num = typeof v === "number" ? v : parseFloat(String(v));
+            const display = isNaN(num)
+              ? String(v)
+              : Number.isInteger(num)
+                ? String(num)
+                : num.toFixed(1);
+            const label = METRIC_LABELS[k] ?? prettyMetricKey(k);
+            return (
+              <span
+                key={k}
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                  style.badge,
+                )}
+              >
+                {label}: {display}
+              </span>
+            );
+          })}
+        </div>
       )}
 
       {/* Action suggestion */}
@@ -457,12 +501,16 @@ export default function InsightsPage() {
     trpc.trends.getSummary.queryOptions({ period: "7d" }),
   );
 
+  // Show the skeleton only during the *initial* fetch of every query. Once
+  // any of them errors or returns, we drop out so the page is never stuck on
+  // a perpetual placeholder. Previously a single hanging query (e.g. when
+  // the analytics endpoint timed out) left four skeletons spinning forever.
   const isLoading =
-    readiness.isLoading ||
-    loads.isLoading ||
-    sleepCoach.isLoading ||
-    recovery.isLoading ||
-    trainingStatus.isLoading;
+    readiness.isPending &&
+    loads.isPending &&
+    sleepCoach.isPending &&
+    recovery.isPending &&
+    trainingStatus.isPending;
 
   const insights = useMemo(() => {
     return generateInsights({
@@ -502,7 +550,7 @@ export default function InsightsPage() {
       <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
         {/* ── Header ── */}
         <div>
-          <h1 className="text-2xl font-bold">Insights</h1>
+          <h1 className="text-2xl font-bold pl-12 sm:pl-0">Insights</h1>
           <p className="text-muted-foreground text-sm">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",

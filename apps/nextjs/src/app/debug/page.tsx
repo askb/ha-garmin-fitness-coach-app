@@ -103,7 +103,7 @@ export default function DebugPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-4 pt-6 pb-24">
       <div>
-        <h1 className="text-2xl font-bold">🔧 Debug — Data Consistency</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">🔧 Debug — Data Consistency</h1>
         <p className="mt-1 text-sm text-gray-500">
           Side-by-side comparison of the same metric from different sources.
           Anything other than 🟢 means the dashboard cards may disagree.

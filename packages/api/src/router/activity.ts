@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte } from "@acme/db";
+import { and, desc, eq, gte, lte } from "@acme/db";
 import { Activity, Profile } from "@acme/db/schema";
 import { analyzeRunningForm } from "@acme/engine";
 
@@ -28,6 +28,8 @@ export const activityRouter = {
       const conditions = [
         eq(Activity.userId, userId),
         gte(Activity.startedAt, since),
+        // Hide future-dated rows (clock skew / TZ artefacts).
+        lte(Activity.startedAt, new Date()),
       ];
 
       if (input.sportType) {
@@ -96,8 +98,15 @@ export const activityRouter = {
   getRecent: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
+    // Hide future-dated activities. Garmin sync or seed data occasionally
+    // produces records with startedAt past `now()` (clock skew, TZ ambiguity).
+    // The home page renders the most-recent row, so a future row would show
+    // a Friday activity even though today is Thursday.
     const activities = await ctx.db.query.Activity.findMany({
-      where: eq(Activity.userId, userId),
+      where: and(
+        eq(Activity.userId, userId),
+        lte(Activity.startedAt, new Date()),
+      ),
       orderBy: desc(Activity.startedAt),
       limit: 5,
       columns: {
