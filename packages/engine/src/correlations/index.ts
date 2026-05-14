@@ -138,6 +138,32 @@ export function analyzeCorrelation(
   };
 }
 
+function prettyMetric(key: string): string {
+  const LABELS: Record<string, string> = {
+    readiness: "readiness",
+    sleep: "sleep",
+    sleep_duration: "sleep duration",
+    sleep_quality: "sleep quality",
+    sleep_score: "sleep score",
+    hrv: "HRV",
+    next_day_hrv: "next-day HRV",
+    strain: "strain",
+    stress: "stress",
+    avg_stress: "average stress",
+    resting_hr: "resting HR",
+    restingHr: "resting HR",
+    steps: "steps",
+    body_battery: "body battery",
+    training_load: "training load",
+    tsb: "form (TSB)",
+    ctl: "fitness (CTL)",
+    atl: "fatigue (ATL)",
+    acwr: "ACWR",
+  };
+  if (LABELS[key]) return LABELS[key];
+  return key.replace(/[_-]+/g, " ");
+}
+
 function generateCorrelationInsight(
   metricA: string,
   metricB: string,
@@ -146,8 +172,10 @@ function generateCorrelationInsight(
   pValue: number,
   n: number,
 ): string {
+  const a = prettyMetric(metricA);
+  const b = prettyMetric(metricB);
   if (strength === "none") {
-    return `No meaningful correlation between ${metricA} and ${metricB} (r=${r.toFixed(2)}, n=${n}).`;
+    return `No meaningful correlation between ${a} and ${b} (r=${r.toFixed(2)}, n=${n}).`;
   }
 
   const direction = r > 0 ? "positively" : "negatively";
@@ -159,13 +187,13 @@ function generateCorrelationInsight(
   let actionable = "";
   if (strength === "strong" && pValue < 0.05) {
     if (r > 0) {
-      actionable = ` Higher ${metricA} is associated with higher ${metricB}.`;
+      actionable = ` Higher ${a} is associated with higher ${b}.`;
     } else {
-      actionable = ` Higher ${metricA} is associated with lower ${metricB}.`;
+      actionable = ` Higher ${a} is associated with lower ${b}.`;
     }
   }
 
-  return `${metricA} and ${metricB} are ${strength}ly ${direction} correlated (r=${r.toFixed(2)}, p=${pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}, n=${n}). This is ${significance}.${actionable}`;
+  return `${a} and ${b} are ${strength}ly ${direction} correlated (r=${r.toFixed(2)}, p=${pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}, n=${n}). This is ${significance}.${actionable}`;
 }
 
 /**

@@ -139,7 +139,7 @@ export function DashboardHome() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Good morning 👋</h1>
+        <h1 className="text-2xl font-bold pl-12">Good morning 👋</h1>
         <p className="text-muted-foreground text-sm">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",

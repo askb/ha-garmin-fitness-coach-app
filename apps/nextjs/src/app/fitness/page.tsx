@@ -365,7 +365,7 @@ export default function FitnessPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold pl-12 sm:pl-0">Fitness &amp; Performance</h1>
+          <h1 className="text-2xl font-bold pl-12">Fitness &amp; Performance</h1>
           <p className="text-muted-foreground text-sm">
             VO2max &amp; race predictions
           </p>

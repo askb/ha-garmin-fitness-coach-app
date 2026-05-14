@@ -296,7 +296,7 @@ export default function SleepDashboard() {
       {/* Header: Sleep Coach Recommendation                                 */}
       {/* ================================================================== */}
       <div>
-        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Sleep Dashboard</h1>
+        <h1 className="text-2xl font-bold pl-12">Sleep Dashboard</h1>
         <p className="text-muted-foreground text-sm">
           Your sleep insights &amp; coaching
         </p>
