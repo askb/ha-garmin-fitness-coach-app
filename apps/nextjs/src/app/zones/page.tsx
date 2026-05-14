@@ -327,7 +327,7 @@ export default function ZoneAnalysisPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold">Zone Analysis</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Zone Analysis</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           HR zone distribution, polarization tracking, and efficiency trends
         </p>
@@ -487,7 +487,7 @@ export default function ZoneAnalysisPage() {
               <YAxis
                 yAxisId="pct"
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={36}
+                width={48}
                 domain={[0, 100]}
                 label={{
                   value: "%",
@@ -628,7 +628,7 @@ export default function ZoneAnalysisPage() {
               />
               <YAxis
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={36}
+                width={48}
                 domain={[0, 100]}
                 label={{
                   value: "%",

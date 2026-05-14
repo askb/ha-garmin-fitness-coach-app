@@ -182,10 +182,23 @@ export default function FitnessPage() {
     trpc.analytics.getTrainingLoads.queryOptions(),
   );
 
-  // Latest VO2max value
+  // Latest VO2max value (prefer Garmin Firstbeat → running pace HR → Cooper → UTH)
   const latestVO2max = useMemo(() => {
     if (!vo2max.data?.estimates?.length) return null;
-    return vo2max.data.estimates[0]!;
+    const SOURCE_PRIORITY: Record<string, number> = {
+      garmin_official: 0,
+      running_pace_hr: 1,
+      cooper: 2,
+      uth_method: 4,
+      uth_ratio: 4,
+    };
+    return vo2max.data.estimates.reduce((best, e) => {
+      const bp = SOURCE_PRIORITY[best.source] ?? 3;
+      const ep = SOURCE_PRIORITY[e.source] ?? 3;
+      if (ep < bp) return e;
+      if (ep === bp && new Date(e.date) > new Date(best.date)) return e;
+      return best;
+    }, vo2max.data.estimates[0]!);
   }, [vo2max.data]);
 
   const trend = vo2max.data?.trend;
@@ -352,7 +365,7 @@ export default function FitnessPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Fitness &amp; Performance</h1>
+          <h1 className="text-2xl font-bold pl-12 sm:pl-0">Fitness &amp; Performance</h1>
           <p className="text-muted-foreground text-sm">
             VO2max &amp; race predictions
           </p>
@@ -387,6 +400,18 @@ export default function FitnessPage() {
             {latestVO2max.value.toFixed(1)}
           </p>
           <p className="text-muted-foreground mt-1 text-sm">ml/kg/min</p>
+          <p className="text-muted-foreground mt-1 text-[10px] tracking-wider uppercase">
+            via {latestVO2max.source === "garmin_official"
+              ? "Garmin Firstbeat"
+              : latestVO2max.source === "running_pace_hr"
+                ? "Pace+HR model"
+                : latestVO2max.source === "cooper"
+                  ? "Cooper test"
+                  : latestVO2max.source === "uth_method" ||
+                      latestVO2max.source === "uth_ratio"
+                    ? "UTH ratio"
+                    : latestVO2max.source}
+          </p>
           {classification && (
             <p className="mt-2 text-sm">
               <span

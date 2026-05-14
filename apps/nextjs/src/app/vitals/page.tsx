@@ -297,6 +297,7 @@ export default function VitalsPage() {
                             value: "baseline",
                             fill: "#666",
                             fontSize: 10,
+                            position: "insideTopRight",
                           }}
                         />
                       )}
@@ -441,6 +442,7 @@ export default function VitalsPage() {
                             value: "baseline",
                             fill: "#666",
                             fontSize: 10,
+                            position: "insideTopRight",
                           }}
                         />
                       )}
@@ -582,6 +584,7 @@ export default function VitalsPage() {
                             value: "baseline",
                             fill: "#666",
                             fontSize: 10,
+                            position: "insideTopRight",
                           }}
                         />
                       )}

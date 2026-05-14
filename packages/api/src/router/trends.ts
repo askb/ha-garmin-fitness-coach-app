@@ -150,11 +150,22 @@ export const trendsRouter = {
             ) / 10
           : null;
 
+      const stressVals = metrics
+        .map((m) => m.stressScore)
+        .filter((v): v is number => v !== null && v !== undefined);
+      const avgStress =
+        stressVals.length > 0
+          ? Math.round(
+              stressVals.reduce((sum, v) => sum + v, 0) / stressVals.length,
+            )
+          : null;
+
       return {
         period: input.period,
         avgReadiness,
         avgSleepMinutes: avgSleep,
         avgHrv,
+        avgStress,
         totalDays: metrics.length,
         readinessScores: readinessScores.length,
       };

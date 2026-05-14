@@ -845,7 +845,7 @@ function GarminConnection() {
 export default function SettingsPage() {
   return (
     <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <h1 className="text-2xl font-bold pl-12 sm:pl-0">Settings</h1>
 
       {/* Athlete Profile */}
       <ProfileEditor />

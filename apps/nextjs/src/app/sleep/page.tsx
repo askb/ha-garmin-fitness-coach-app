@@ -148,8 +148,8 @@ export default function SleepDashboard() {
       scores.length > 0
         ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
         : null;
-    const currentDebt =
-      debts.length > 0 ? (debts[debts.length - 1] ?? null) : null;
+    // `history.data` is ordered DESC (newest first), so [0] is the most recent
+    const currentDebt = debts.length > 0 ? (debts[0] ?? null) : null;
 
     // Efficiency: (total - awake) / total * 100
     let avgEfficiency: number | null = null;
@@ -166,7 +166,7 @@ export default function SleepDashboard() {
 
   // ---- Derived: Sleep stages chart data ----
   const stagesChartData = useMemo(() => {
-    const data = stages.data as
+    const raw = stages.data as
       | {
           date: string;
           deepMinutes: number;
@@ -176,7 +176,8 @@ export default function SleepDashboard() {
           sleepNeedMinutes?: number;
         }[]
       | undefined;
-    if (!data) return [];
+    if (!raw) return [];
+    const data = [...raw].reverse();
     return data.map((d) => ({
       date: fmtDateShort(d.date, data.length),
       deep: minToHours(d.deepMinutes),
@@ -200,10 +201,11 @@ export default function SleepDashboard() {
 
   // ---- Derived: Sleep score trend with moving average ----
   const scoreChartData = useMemo(() => {
-    const data = history.data as
+    const raw = history.data as
       | { date: string; sleepScore: number | null }[]
       | undefined;
-    if (!data) return [];
+    if (!raw) return [];
+    const data = [...raw].reverse();
     const scores = data.map((d) => d.sleepScore);
     const ma = data.length > 14 ? movingAvg(scores, 7) : null;
     return data.map((d, i) => ({
@@ -215,14 +217,15 @@ export default function SleepDashboard() {
 
   // ---- Derived: Sleep vs Need chart ----
   const vsNeedChartData = useMemo(() => {
-    const data = history.data as
+    const raw = history.data as
       | {
           date: string;
           totalSleepMinutes: number | null;
           sleepNeedMinutes: number | null;
         }[]
       | undefined;
-    if (!data) return [];
+    if (!raw) return [];
+    const data = [...raw].reverse();
     // Show last 14 days for readability
     const slice = data.slice(-14);
     return slice.map((d) => ({
@@ -234,10 +237,11 @@ export default function SleepDashboard() {
 
   // ---- Derived: Sleep debt tracker (last 7 days) ----
   const debtChartData = useMemo(() => {
-    const data = history.data as
+    const raw = history.data as
       | { date: string; sleepDebt: number | null }[]
       | undefined;
-    if (!data) return [];
+    if (!raw) return [];
+    const data = [...raw].reverse();
     const slice = data.slice(-7);
     return slice.map((d) => ({
       date: fmtDateShort(d.date, slice.length),
@@ -248,14 +252,15 @@ export default function SleepDashboard() {
 
   // ---- Derived: Sleep timing range chart ----
   const timingChartData = useMemo(() => {
-    const data = history.data as
+    const raw = history.data as
       | {
           date: string;
           sleepStartTime: number | null;
           sleepEndTime: number | null;
         }[]
       | undefined;
-    if (!data) return [];
+    if (!raw) return [];
+    const data = [...raw].reverse();
     const slice = data.slice(-14);
     return slice.map((d) => {
       // Normalize bedtime: if after noon treat as same day, otherwise add 24h
@@ -291,7 +296,7 @@ export default function SleepDashboard() {
       {/* Header: Sleep Coach Recommendation                                 */}
       {/* ================================================================== */}
       <div>
-        <h1 className="text-2xl font-bold">Sleep Dashboard</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Sleep Dashboard</h1>
         <p className="text-muted-foreground text-sm">
           Your sleep insights &amp; coaching
         </p>
@@ -384,12 +389,23 @@ export default function SleepDashboard() {
           />
           <StatCard
             label="Sleep Debt"
-            value={fmtDuration(stats.currentDebt)}
+            value={
+              // Prefer the live coach value (used for the "+14h 47m debt"
+              // badge); fall back to last entry in history. Previously the
+              // badge and stat card could disagree because the StatCard
+              // pulled only from history.sleepDebt, which is often null on
+              // today's row before Garmin syncs.
+              coachData != null
+                ? `${coachData.sleepDebtMinutes > 0 ? "+" : ""}${fmtDuration(coachData.sleepDebtMinutes)}`
+                : fmtDuration(stats.currentDebt)
+            }
             icon="📉"
             color={
-              stats.currentDebt != null
-                ? debtTextColor(stats.currentDebt)
-                : "text-zinc-400"
+              coachData != null
+                ? debtTextColor(coachData.sleepDebtMinutes)
+                : stats.currentDebt != null
+                  ? debtTextColor(stats.currentDebt)
+                  : "text-zinc-400"
             }
           />
           <StatCard
@@ -560,7 +576,7 @@ export default function SleepDashboard() {
                 tick={{ fill: "#a1a1aa", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                width={35}
+                width={40}
               />
               <Tooltip
                 contentStyle={{

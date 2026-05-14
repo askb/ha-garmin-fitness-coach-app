@@ -46,11 +46,32 @@ const METRIC_COLORS: Record<string, string> = {
 const METRIC_LABELS: Record<string, string> = {
   readiness: "Readiness",
   sleep: "Sleep",
+  sleep_duration: "Sleep Duration",
+  sleep_score: "Sleep Score",
   hrv: "HRV",
+  next_day_hrv: "Next-Day HRV",
   strain: "Strain",
   restingHr: "Resting HR",
+  resting_hr: "Resting HR",
   stress: "Stress",
+  avg_stress: "Avg Stress",
+  steps: "Steps",
+  body_battery: "Body Battery",
+  spo2: "SpO₂",
+  respiration_rate: "Respiration",
+  training_load: "Training Load",
+  tsb: "Form (TSB)",
+  ctl: "Fitness (CTL)",
+  atl: "Fatigue (ATL)",
+  acwr: "ACWR",
 };
+
+function prettyMetric(key: string): string {
+  if (METRIC_LABELS[key]) return METRIC_LABELS[key];
+  return key
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 type TrendMetric =
   | "readiness"
@@ -295,7 +316,7 @@ export default function TrendsPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold">Trends &amp; Analytics</h1>
+        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Trends &amp; Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {PERIODS.find((x) => x.value === period)?.label ?? period} overview
           {useSmoothed ? " · 7-day rolling avg" : ""}
@@ -356,7 +377,7 @@ export default function TrendsPage() {
           />
           <SummaryCard
             label="Avg Stress"
-            value="—"
+            value={s.avgStress != null ? String(s.avgStress) : "—"}
             trend={trendStrain.data}
             color={METRIC_COLORS.strain!}
           />
@@ -419,7 +440,7 @@ export default function TrendsPage() {
                 tick={{ fill: "#a1a1aa", fontSize: 11 }}
                 tickLine={false}
                 axisLine={false}
-                width={35}
+                width={40}
               />
               <YAxis
                 yAxisId="sleep"
@@ -658,8 +679,8 @@ export default function TrendsPage() {
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">
-                      {METRIC_LABELS[c.metricA] ?? c.metricA} →{" "}
-                      {METRIC_LABELS[c.metricB] ?? c.metricB}
+                      {prettyMetric(c.metricA)} →{" "}
+                      {prettyMetric(c.metricB)}
                     </p>
                     <span
                       className={cn(
