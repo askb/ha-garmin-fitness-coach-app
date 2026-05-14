@@ -489,6 +489,8 @@ export default function ZoneAnalysisPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
+                allowDataOverflow
                 tickFormatter={(v: number) => `${v}%`}
               />
               <YAxis
@@ -624,6 +626,8 @@ export default function ZoneAnalysisPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
+                allowDataOverflow
                 tickFormatter={(v: number) => `${v}%`}
               />
               <Tooltip

@@ -139,7 +139,7 @@ function ProactiveInsightCard({
               <span
                 key={k}
                 className={cn(
-                  "rounded-full px-2 py-0.5 text-[10px] font-medium",
+                  "rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums",
                   style.badge,
                 )}
               >
