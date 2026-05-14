@@ -316,7 +316,7 @@ export default function TrendsPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Trends &amp; Analytics</h1>
+        <h1 className="text-2xl font-bold pl-12">Trends &amp; Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {PERIODS.find((x) => x.value === period)?.label ?? period} overview
           {useSmoothed ? " · 7-day rolling avg" : ""}

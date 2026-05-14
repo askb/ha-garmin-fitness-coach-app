@@ -125,7 +125,7 @@ export default function PowerPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Power &amp; CP Analytics</h1>
+        <h1 className="text-2xl font-bold pl-12">Power &amp; CP Analytics</h1>
         <p className="text-muted-foreground text-sm">
           Critical Power · W&apos; · Power-Duration Curve
         </p>

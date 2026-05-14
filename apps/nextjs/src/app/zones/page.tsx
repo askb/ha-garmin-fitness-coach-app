@@ -327,7 +327,7 @@ export default function ZoneAnalysisPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold pl-12 sm:pl-0">Zone Analysis</h1>
+        <h1 className="text-2xl font-bold pl-12">Zone Analysis</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           HR zone distribution, polarization tracking, and efficiency trends
         </p>
@@ -489,13 +489,7 @@ export default function ZoneAnalysisPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
-                label={{
-                  value: "%",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "#666",
-                  fontSize: 10,
-                }}
+                tickFormatter={(v: number) => `${v}%`}
               />
               <YAxis
                 yAxisId="pi"
@@ -630,13 +624,7 @@ export default function ZoneAnalysisPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
-                label={{
-                  value: "%",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "#666",
-                  fontSize: 10,
-                }}
+                tickFormatter={(v: number) => `${v}%`}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}

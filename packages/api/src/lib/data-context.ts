@@ -87,7 +87,7 @@ export async function buildDataContext(
     activities10,
     profile,
     latestReadiness,
-    latestVo2,
+    vo2Estimates,
     metrics30,
     journal7,
     interventions10,
@@ -125,11 +125,12 @@ export async function buildDataContext(
       orderBy: desc(ReadinessScore.date),
     }) as Promise<typeof ReadinessScore.$inferSelect | undefined>,
 
-    // Latest VO2max estimate
-    db.query.VO2maxEstimate.findFirst({
+    // Recent VO2max estimates — we pick best by source priority below
+    db.query.VO2maxEstimate.findMany({
       where: eq(VO2maxEstimate.userId, userId),
       orderBy: desc(VO2maxEstimate.date),
-    }) as Promise<typeof VO2maxEstimate.$inferSelect | undefined>,
+      limit: 30,
+    }) as Promise<(typeof VO2maxEstimate.$inferSelect)[]>,
 
     // 30-day activities for zone distribution
     db.query.Activity.findMany({
@@ -173,6 +174,32 @@ export async function buildDataContext(
       where: eq(AthleteBaseline.userId, userId),
     }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
   ]);
+
+  // Pick the best VO2max estimate using the same source priority as the UI
+  // hero card (Garmin Firstbeat > pace+HR > Cooper > UTH). This keeps the AI
+  // agent narrative aligned with the dashboard's "Current VO2max" number.
+  const VO2_SOURCE_PRIORITY: Record<string, number> = {
+    garmin_official: 0,
+    running_pace_hr: 1,
+    cooper: 2,
+    uth_method: 4,
+    uth_ratio: 4,
+  };
+  const latestVo2 =
+    vo2Estimates.length === 0
+      ? undefined
+      : vo2Estimates.reduce((best, e) => {
+          const bp = VO2_SOURCE_PRIORITY[best.source] ?? 3;
+          const ep = VO2_SOURCE_PRIORITY[e.source] ?? 3;
+          if (ep < bp) return e;
+          if (
+            ep === bp &&
+            new Date(e.date).getTime() > new Date(best.date).getTime()
+          ) {
+            return e;
+          }
+          return best;
+        }, vo2Estimates[0]!);
 
   // Early exit if no data at all
   if (!profile && metrics14.length === 0 && activities10.length === 0) {
