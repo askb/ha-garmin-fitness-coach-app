@@ -216,15 +216,32 @@ export default function FitnessPage() {
     }));
   }, [vo2max.data]);
 
-  // Garmin official VO2max data (Firstbeat-based)
+  // Garmin official VO2max data (Firstbeat-based).
+  // Garmin Firstbeat only emits VO2max after qualifying outdoor runs
+  // (~once every 1-2 weeks), so the selected window (7d / 14d / 28d) is
+  // often empty. Fall back to the most recent readings unconditionally so
+  // the chart always has something to show when Garmin data exists at all.
   const garminChartData = useMemo(() => {
-    if (!vo2max.data?.garminEstimates?.length) return [];
-    return [...vo2max.data.garminEstimates].reverse().map((e) => ({
+    const inWindow = vo2max.data?.garminEstimates ?? [];
+    if (inWindow.length > 0) {
+      return [...inWindow].reverse().map((e) => ({
+        date: fmtDateShort(e.date),
+        fullDate: e.date,
+        value: e.value,
+      }));
+    }
+    const recent = vo2max.data?.garminEstimatesRecent ?? [];
+    if (recent.length === 0) return [];
+    return [...recent].reverse().map((e) => ({
       date: fmtDateShort(e.date),
       fullDate: e.date,
       value: e.value,
     }));
   }, [vo2max.data]);
+
+  const garminUsingFallback =
+    (vo2max.data?.garminEstimates?.length ?? 0) === 0 &&
+    (vo2max.data?.garminEstimatesRecent?.length ?? 0) > 0;
 
   // UTH formula estimate data
   const uthChartData = useMemo(() => {
@@ -445,11 +462,22 @@ export default function FitnessPage() {
       {garminChartData.length > 0 ? (
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
-            title={`Garmin VO2 Max — ${garminChartData.length} reading${garminChartData.length === 1 ? "" : "s"} in ${chartDays}d`}
+            title={
+              garminUsingFallback
+                ? `Garmin VO2 Max — last ${garminChartData.length} reading${garminChartData.length === 1 ? "" : "s"}`
+                : `Garmin VO2 Max — ${garminChartData.length} reading${garminChartData.length === 1 ? "" : "s"} in ${chartDays}d`
+            }
             info="Official VO2max from your Garmin device, calculated by Firstbeat Analytics using GPS pace and heart rate data during runs. This is the most accurate wearable-based estimate available. Values update after qualifying runs (12+ min, outdoor, with HR). Citation: Firstbeat Technologies. (2014). VO2max Estimation from Wrist-Based Heart Rate and Speed. Firstbeat White Paper."
             className="mb-3"
           />
-          {garminChartData.length < 3 && (
+          {garminUsingFallback && (
+            <p className="text-muted-foreground mb-3 text-xs">
+              ℹ️ No Garmin VO2max updates in the last {chartDays} days —
+              Garmin only records after qualifying outdoor runs (12+ min
+              with heart rate). Showing your most recent readings instead.
+            </p>
+          )}
+          {!garminUsingFallback && garminChartData.length < 3 && (
             <p className="text-muted-foreground mb-3 text-xs">
               ℹ️ Garmin only records VO2max after qualifying outdoor runs (12+
               min with heart rate). Sparse data is expected — keep running to
@@ -479,9 +507,12 @@ export default function FitnessPage() {
               />
               <YAxis
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={44}
-                domain={["dataMin - 2", "dataMax + 2"]}
-                tickFormatter={(v: number) => v.toFixed(1)}
+                width={36}
+                domain={[
+                  (dataMin: number) => Math.floor(dataMin - 1),
+                  (dataMax: number) => Math.ceil(dataMax + 1),
+                ]}
+                allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{
@@ -518,13 +549,13 @@ export default function FitnessPage() {
         <div className="bg-card rounded-2xl border p-4">
           <SectionHeader
             title="Garmin VO2 Max"
-            info="Official VO2max from your Garmin device. Garmin only records VO2max after qualifying outdoor runs (12+ min with heart rate). No qualifying runs in the selected window."
+            info="Official VO2max from your Garmin device. Garmin only records VO2max after qualifying outdoor runs (12+ min with heart rate)."
             className="mb-3"
           />
           <p className="text-muted-foreground text-sm">
-            No Garmin VO2max readings in the last {chartDays} days. Garmin
-            updates this only after qualifying outdoor runs (12+ min with heart
-            rate). Try a longer window or complete a qualifying run.
+            No Garmin VO2max readings yet. Garmin records this only after a
+            qualifying outdoor run (12+ minutes with heart rate). Once you
+            complete one, the value will sync from Garmin Connect.
           </p>
         </div>
       )}
@@ -558,9 +589,12 @@ export default function FitnessPage() {
               />
               <YAxis
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={44}
-                domain={["dataMin - 2", "dataMax + 2"]}
-                tickFormatter={(v: number) => v.toFixed(1)}
+                width={36}
+                domain={[
+                  (dataMin: number) => Math.floor(dataMin - 1),
+                  (dataMax: number) => Math.ceil(dataMax + 1),
+                ]}
+                allowDecimals={false}
               />
               <Tooltip
                 contentStyle={{

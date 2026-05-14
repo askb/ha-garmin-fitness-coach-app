@@ -228,7 +228,29 @@ export const analyticsRouter = {
         .filter((e) => e.source === "uth_method" || e.source === "uth_ratio")
         .sort((a, b) => b.date.localeCompare(a.date));
 
-      return { estimates, trend, garminEstimates, uthEstimates };
+      // Garmin Firstbeat only emits VO2max after qualifying outdoor runs
+      // (~once every 1-2 weeks), so a 7d/14d window is often empty even
+      // for active users. Fetch the last 60 Garmin readings unconditionally
+      // so the chart can fall back to "showing last N readings" when the
+      // selected window has no data.
+      const garminEstimatesRecent = await ctx.db.query.VO2maxEstimate.findMany(
+        {
+          where: and(
+            eq(VO2maxEstimate.userId, userId),
+            eq(VO2maxEstimate.source, "garmin_official"),
+          ),
+          orderBy: [desc(VO2maxEstimate.date)],
+          limit: 60,
+        },
+      );
+
+      return {
+        estimates,
+        trend,
+        garminEstimates,
+        uthEstimates,
+        garminEstimatesRecent,
+      };
     }),
 
   getRacePredictions: protectedProcedure.query(async ({ ctx }) => {
