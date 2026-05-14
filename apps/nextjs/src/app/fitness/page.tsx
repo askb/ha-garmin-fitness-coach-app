@@ -454,8 +454,9 @@ export default function FitnessPage() {
               />
               <YAxis
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={36}
+                width={44}
                 domain={["dataMin - 2", "dataMax + 2"]}
+                tickFormatter={(v: number) => v.toFixed(1)}
               />
               <Tooltip
                 contentStyle={{
@@ -532,8 +533,9 @@ export default function FitnessPage() {
               />
               <YAxis
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={36}
+                width={44}
                 domain={["dataMin - 2", "dataMax + 2"]}
+                tickFormatter={(v: number) => v.toFixed(1)}
               />
               <Tooltip
                 contentStyle={{
@@ -601,8 +603,9 @@ export default function FitnessPage() {
                 />
                 <YAxis
                   tick={{ fill: "#888", fontSize: 10 }}
-                  width={36}
+                  width={44}
                   domain={["dataMin - 2", "dataMax + 2"]}
+                  tickFormatter={(v: number) => v.toFixed(1)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -659,7 +662,15 @@ export default function FitnessPage() {
               {latestVO2max.value.toFixed(1)}
             </span>{" "}
             puts you in the{" "}
-            <span className="font-bold text-green-400">top {topPercent}%</span>{" "}
+            {topPercent <= 50 ? (
+              <span className="font-bold text-green-400">
+                top {topPercent}%
+              </span>
+            ) : (
+              <span className="font-bold text-amber-400">
+                bottom {100 - topPercent}%
+              </span>
+            )}{" "}
             for your age group.
           </p>
           {/* Reference scale */}
