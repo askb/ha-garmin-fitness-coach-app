@@ -60,10 +60,15 @@ export function GarminTrainingSummary() {
     <div className="bg-card space-y-3 rounded-2xl border p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold tracking-wide uppercase">
-          Garmin Training Summary
+          Garmin Native (Firstbeat)
         </h2>
         <DataFreshness computedAt={summary.data?.computedAt} />
       </div>
+      <p className="text-muted-foreground -mt-1 text-[11px]">
+        From your watch&apos;s Firstbeat algorithms. Requires Forerunner 245+,
+        Fenix 6+, or similar. See the home page for our computed Readiness
+        score, which uses HRV / RHR / sleep and works on any device.
+      </p>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {/* Training Readiness */}

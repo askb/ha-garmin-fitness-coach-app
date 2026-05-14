@@ -92,7 +92,11 @@ export default function TrainingLoadPage() {
   }
   const pmcChartData = ((pmcData.data ?? []) as PmcEntry[]).map(
     (d, idx, arr) => {
-      const showLabel = idx % 7 === 0;
+      // Show ~8 labels regardless of window size so 180-day views don't
+      // mash dates together. Recharts respects `interval={0}` so we control
+      // visibility by emitting empty strings on the off-ticks.
+      const step = Math.max(1, Math.ceil(arr.length / 8));
+      const showLabel = idx % step === 0 || idx === arr.length - 1;
       return {
         date: showLabel ? (d.date?.slice(5) ?? "") : "",
         fullDate: d.date ?? "",
@@ -106,7 +110,14 @@ export default function TrainingLoadPage() {
     },
   );
 
-  const currentAcwr = loads.data?.acwr;
+  // ACWR gauge: prefer the dedicated analytics endpoint, but fall back to
+  // the last point on the PMC chart series. This guarantees the gauge and
+  // the chart never disagree by definition. Previously, if
+  // `analytics.getTrainingLoads` returned null (the v0.16.6 invalid-date
+  // bug), the gauge said "No data yet" while the chart happily plotted
+  // ACWR — exact mismatch the screenshot review flagged.
+  const currentAcwr =
+    loads.data?.acwr ?? pmcChartData[pmcChartData.length - 1]?.acwr ?? null;
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
@@ -624,6 +635,7 @@ export default function TrainingLoadPage() {
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={28}
                 domain={[0, 21]}
+                tickFormatter={(v: number) => Math.round(v).toString()}
               />
               <Tooltip
                 contentStyle={{
