@@ -83,7 +83,7 @@ type TrendMetric =
 type TrendPeriod = "30d" | "90d" | "180d" | "365d";
 type CorrelationPeriod = "30d" | "90d" | "180d";
 
-const CHART_METRICS: TrendMetric[] = ["readiness", "sleep", "hrv"];
+const CHART_METRICS: TrendMetric[] = ["readiness", "sleep", "hrv", "stress"];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -462,6 +462,16 @@ export default function TrendsPage() {
                 width={0}
                 hide
               />
+              <YAxis
+                yAxisId="stress"
+                orientation="right"
+                domain={[0, 100]}
+                tick={false}
+                tickLine={false}
+                axisLine={false}
+                width={0}
+                hide
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#18181b",
@@ -479,6 +489,8 @@ export default function TrendsPage() {
                     return [`${Math.round(v)} ms`, "HRV"];
                   if (n === "readiness" && v != null)
                     return [`${Math.round(v)}`, "Readiness"];
+                  if (n === "stress" && v != null)
+                    return [`${Math.round(v)}`, "Stress"];
                   return [`${v}`, METRIC_LABELS[n] ?? n];
                 }}
               />
@@ -512,6 +524,16 @@ export default function TrendsPage() {
                 dataKey="hrv"
                 stroke={METRIC_COLORS.hrv}
                 fill={`url(#gradient-hrv)`}
+                strokeWidth={2}
+                dot={false}
+                connectNulls
+              />
+              <Area
+                yAxisId="stress"
+                type="monotone"
+                dataKey="stress"
+                stroke={METRIC_COLORS.stress}
+                fill={`url(#gradient-stress)`}
                 strokeWidth={2}
                 dot={false}
                 connectNulls

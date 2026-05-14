@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "./bottom-nav";
+import { DailyOutlookCard } from "./daily-outlook-card";
 import { IngressLink as Link } from "./ingress-link";
 import { QuickStats } from "./quick-stats";
 import { ReadinessCard } from "./readiness-card";
@@ -165,6 +166,14 @@ export function DashboardHome() {
         }
         actionSuggestion={(r?.actionSuggestion as string) ?? null}
         doNotOverinterpret={(r?.doNotOverinterpret as boolean) ?? null}
+        isLoading={readiness.isLoading}
+      />
+
+      {/* WHOOP-style Daily Outlook — target day-strain band */}
+      <DailyOutlookCard
+        targetStrain={
+          (r?.targetStrain as import("@acme/engine").TargetStrainBand) ?? null
+        }
         isLoading={readiness.isLoading}
       />
 

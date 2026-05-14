@@ -13,6 +13,7 @@ import {
   calculateReadiness,
   computeBaselines,
   computeStrainScore,
+  computeTargetStrain,
   computeTRIMP,
   detectAnomalies,
   getReadinessZone,
@@ -272,6 +273,14 @@ export const readinessRouter = {
       todayDbMetric ?? null,
     );
 
+    // Daily target-strain band (WHOOP-style coaching) — uses readiness
+    // zone for the default band and personalises toward the athlete's
+    // recent strain history when ≥7 sessions are available.
+    const targetStrain = computeTargetStrain(
+      result.score,
+      recentStrainScores.slice(0, 14),
+    );
+
     // Store the computed score
     await ctx.db.insert(ReadinessScore).values({
       userId,
@@ -298,6 +307,7 @@ export const readinessRouter = {
       dataQuality: dq,
       actionSuggestion,
       doNotOverinterpret,
+      targetStrain,
     };
   }),
 
