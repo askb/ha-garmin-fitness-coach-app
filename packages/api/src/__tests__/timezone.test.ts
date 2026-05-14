@@ -27,6 +27,16 @@ describe("dayInTimezone", () => {
     const d = new Date("2026-04-15T10:00:00Z");
     expect(dayInTimezone(d, "Mars/Olympus_Mons")).toBe("2026-04-15");
   });
+
+  it("returns sentinel epoch day for an invalid Date instead of throwing", () => {
+    // Guards against `RangeError: Invalid time value` propagating out of
+    // `analytics.getTrainingLoads` / `getTrainingStatus` when an Activity
+    // row has a malformed `startedAt` (seen in production logs).
+    expect(dayInTimezone(new Date("not-a-date"), "UTC")).toBe("1970-01-01");
+    expect(dayInTimezone(new Date(NaN), "Australia/Sydney")).toBe(
+      "1970-01-01",
+    );
+  });
 });
 
 describe("shiftIsoDay", () => {
