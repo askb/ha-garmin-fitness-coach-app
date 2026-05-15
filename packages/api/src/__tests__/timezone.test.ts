@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
 
@@ -106,19 +106,29 @@ describe("dayInTimezone", () => {
           resolvedOptions: () => real.resolvedOptions(),
         };
       }
-      vi.stubGlobal("Intl", { ...Intl, DateTimeFormat: FallbackDTF });
+      // Swap ONLY `Intl.DateTimeFormat` rather than the whole `Intl`
+      // namespace: most `Intl.*` properties are non-enumerable, so
+      // `{ ...Intl }` is `{}` and spreading would wipe `NumberFormat`,
+      // `Collator`, etc., for the rest of the suite. Restore in afterEach.
+      const originalDTF = Intl.DateTimeFormat;
+      (Intl as unknown as { DateTimeFormat: unknown }).DateTimeFormat =
+        FallbackDTF;
+      try {
+        const result = dayInTimezone(
+          new Date("2026-05-15T10:00:00Z"),
+          "Indian/Mauritius",
+        );
 
-      const result = dayInTimezone(
-        new Date("2026-05-15T10:00:00Z"),
-        "Indian/Mauritius",
-      );
-
-      expect(result).toMatch(ISO_DAY_RE);
-      expect(result).not.toMatch(/\d{2}\/\d{2}\/\d{4}/);
-      // And it must remain round-trippable through shiftIsoDay (the
-      // actual production throw site).
-      expect(() => shiftIsoDay(result, -1)).not.toThrow();
-      expect(shiftIsoDay(result, -1)).toMatch(ISO_DAY_RE);
+        expect(result).toMatch(ISO_DAY_RE);
+        expect(result).not.toMatch(/\d{2}\/\d{2}\/\d{4}/);
+        // And it must remain round-trippable through shiftIsoDay (the
+        // actual production throw site).
+        expect(() => shiftIsoDay(result, -1)).not.toThrow();
+        expect(shiftIsoDay(result, -1)).toMatch(ISO_DAY_RE);
+      } finally {
+        (Intl as unknown as { DateTimeFormat: unknown }).DateTimeFormat =
+          originalDTF;
+      }
     });
 
     it("dayInTimezone output is always accepted by shiftIsoDay (round-trip)", () => {
@@ -160,7 +170,8 @@ describe("dayInTimezone", () => {
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    // No-op: stub/restore is scoped to a try/finally inside each test
+    // that mocks `Intl.DateTimeFormat`. Kept here for future tests.
   });
 });
 

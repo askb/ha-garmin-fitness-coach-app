@@ -535,20 +535,20 @@ describe("analytics router", () => {
 
     it("never includes invalid `computedAt` in the response payload", async () => {
       // The superjson serializer threw on `new Date(NaN).toISOString()`
-      // when `computedAt` was a `Date` object. Router now returns ISO
-      // strings only — verify the contract holds.
+      // when `computedAt` was a `Date` object. Router now returns ISO-8601
+      // strings only — verify the contract holds (must contain `T`, end
+      // with `Z`, and be a finite Date).
       mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(7));
 
       const result = await caller.analytics.getTrainingLoads();
       const r = result as unknown as { computedAt?: unknown };
 
       if (r.computedAt !== undefined) {
-        // Must be a parseable ISO string (or a valid Date — but the fix
-        // emits strings).
         expect(typeof r.computedAt).toBe("string");
-        expect(Number.isFinite(new Date(r.computedAt as string).getTime())).toBe(
-          true,
-        );
+        const s = r.computedAt as string;
+        // Reject locale-formatted dates like `05/15/2026` — must be ISO-8601.
+        expect(s).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+        expect(Number.isFinite(new Date(s).getTime())).toBe(true);
       }
     });
 
