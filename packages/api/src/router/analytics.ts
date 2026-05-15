@@ -89,19 +89,30 @@ export const analyticsRouter = {
   getTrainingLoads: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [profile, recentActivities] = await Promise.all([
+    // Compute the 42-day window cutoff as a safe ISO timestamp. Guarding
+    // against an invalid `Date.now()` (which can never happen but keeps
+    // the boundary code uniformly defensive) before drizzle tries to
+    // `.toISOString()` it for the SQL parameter — which is the root cause
+    // of `RangeError: Invalid time value` observed in production.
+    const cutoffMs = Date.now() - 42 * 86400000;
+    const cutoff = Number.isFinite(cutoffMs) ? new Date(cutoffMs) : new Date(0);
+
+    const [profile, recentActivitiesRaw] = await Promise.all([
       ctx.db.query.Profile.findFirst({
         where: eq(Profile.userId, userId),
         columns: { timezone: true },
       }),
       ctx.db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-        ),
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
         orderBy: desc(Activity.startedAt),
       }),
     ]);
+
+    // Sanitize: drop any rows whose `startedAt` would later blow up a
+    // `.toISOString()` call inside drizzle / superjson / the engine.
+    const recentActivities = recentActivitiesRaw.filter(
+      (a) => a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+    );
 
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
       recentActivities,
@@ -114,6 +125,9 @@ export const analyticsRouter = {
     const acwrEwma = computeACWR_EWMA(dailyLoadsChrono);
     const loadFocus = classifyLoadFocus(recentActivities);
 
+    // Return primitives only — no `Date` in the response. The superjson
+    // transformer was previously crashing here with `Invalid time value`
+    // for one user, so we ship an ISO string and let the client parse.
     return {
       ctl: loadMetrics.ctl,
       atl: loadMetrics.atl,
@@ -123,14 +137,17 @@ export const analyticsRouter = {
       loadFocus,
       rampRate: loadMetrics.rampRate,
       timezone: profile?.timezone ?? "UTC",
-      computedAt: new Date(),
+      computedAt: new Date().toISOString(),
     };
   }),
 
   getTrainingStatus: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    const [profile, vo2maxRecords, recentActivities] = await Promise.all([
+    const cutoffMs = Date.now() - 42 * 86400000;
+    const cutoff = Number.isFinite(cutoffMs) ? new Date(cutoffMs) : new Date(0);
+
+    const [profile, vo2maxRecords, recentActivitiesRaw] = await Promise.all([
       ctx.db.query.Profile.findFirst({
         where: eq(Profile.userId, userId),
         columns: { timezone: true },
@@ -143,13 +160,14 @@ export const analyticsRouter = {
         orderBy: desc(VO2maxEstimate.date),
       }),
       ctx.db.query.Activity.findMany({
-        where: and(
-          eq(Activity.userId, userId),
-          gte(Activity.startedAt, new Date(Date.now() - 42 * 86400000)),
-        ),
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
         orderBy: desc(Activity.startedAt),
       }),
     ]);
+
+    const recentActivities = recentActivitiesRaw.filter(
+      (a) => a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+    );
 
     let vo2maxTrend = 0;
     if (vo2maxRecords.length >= 2) {
@@ -168,11 +186,20 @@ export const analyticsRouter = {
     const acwr = computeACWR(dailyLoadsRecent);
     const loadFocus = classifyLoadFocus(recentActivities);
 
-    return classifyTrainingStatus(vo2maxTrend, {
+    const result = classifyTrainingStatus(vo2maxTrend, {
       ...loadMetrics,
       acwr,
       loadFocus,
     });
+
+    // Spread into a fresh object to guarantee no stray Date sneaks in.
+    return {
+      status: result.status,
+      vo2maxTrend: result.vo2maxTrend,
+      explanation: result.explanation,
+      recommendation: result.recommendation,
+      computedAt: new Date().toISOString(),
+    };
   }),
 
   getVO2maxHistory: protectedProcedure
