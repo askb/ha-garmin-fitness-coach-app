@@ -500,6 +500,102 @@ describe("analytics router", () => {
       // loadFocus must be one of the valid classifications
       expect(["aerobic", "anaerobic", "mixed"]).toContain(result.loadFocus);
     });
+
+    // ---------------------------------------------------------------------
+    // Regression: production "Invalid time value" crash (v0.16.15 / v0.2.8)
+    // ---------------------------------------------------------------------
+    // `analytics.getTrainingLoads` and `getTrainingStatus` were returning
+    // HTTP 500 from a `RangeError: Invalid time value` thrown deep inside
+    // `aggregateDailyLoads` → `shiftIsoDay` → `new Date().toISOString()`.
+    // Root cause was the HA addon's Alpine `nodejs=~22` shipping a
+    // minimal ICU build, which made `Intl.DateTimeFormat('en-CA').format()`
+    // fall back to en-US `MM/DD/YYYY`. These integration tests pin every
+    // contributing failure mode end-to-end so neither endpoint can ever
+    // regress to throwing on the same inputs.
+
+    it("does not throw when an activity has an invalid startedAt", async () => {
+      const bad = [
+        ...makeActivities(3),
+        {
+          id: "act-bad",
+          userId: TEST_USER_ID,
+          startedAt: new Date("not-a-date"), // NaN time
+          strainScore: 10,
+          trimpScore: null,
+          aerobicTE: 3,
+          anaerobicTE: 1,
+          sportType: "running",
+        },
+      ];
+      mockDb.query.Activity.findMany.mockResolvedValue(bad);
+
+      // The whole point: this must NOT throw RangeError.
+      await expect(caller.analytics.getTrainingLoads()).resolves.toBeDefined();
+    });
+
+    it("never includes invalid `computedAt` in the response payload", async () => {
+      // The superjson serializer threw on `new Date(NaN).toISOString()`
+      // when `computedAt` was a `Date` object. Router now returns ISO-8601
+      // strings only — verify the contract holds (must contain `T`, end
+      // with `Z`, and be a finite Date).
+      mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(7));
+
+      const result = await caller.analytics.getTrainingLoads();
+      const r = result as unknown as { computedAt?: unknown };
+
+      if (r.computedAt !== undefined) {
+        expect(typeof r.computedAt).toBe("string");
+        const s = r.computedAt as string;
+        // Reject locale-formatted dates like `05/15/2026` — must be ISO-8601.
+        expect(s).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+        expect(Number.isFinite(new Date(s).getTime())).toBe(true);
+      }
+    });
+
+    it("returns a response containing only primitives + plain objects (superjson-safe)", async () => {
+      // The whole crash was triggered by superjson trying to serialize
+      // an invalid Date. Pin the shape: no Date instances at the boundary.
+      mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(7));
+
+      const result = await caller.analytics.getTrainingLoads();
+
+      // JSON-roundtrip must succeed without throwing.
+      expect(() => JSON.stringify(result)).not.toThrow();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Regression: getTrainingStatus production crash
+  // -------------------------------------------------------------------------
+  describe("getTrainingStatus regression coverage", () => {
+    it("does not throw when activities contain invalid startedAt", async () => {
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([]);
+      const bad = [
+        ...makeActivities(5),
+        {
+          id: "act-bad-1",
+          userId: TEST_USER_ID,
+          startedAt: new Date(NaN),
+          strainScore: 12,
+          trimpScore: null,
+          aerobicTE: 4,
+          anaerobicTE: 1,
+          sportType: "running",
+        },
+      ];
+      mockDb.query.Activity.findMany.mockResolvedValue(bad);
+
+      await expect(caller.analytics.getTrainingStatus()).resolves.toBeDefined();
+    });
+
+    it("returns a JSON-stringifiable response (no raw Date instances)", async () => {
+      mockDb.query.VO2maxEstimate.findMany.mockResolvedValue([]);
+      mockDb.query.Activity.findMany.mockResolvedValue(makeActivities(14));
+
+      const result = await caller.analytics.getTrainingStatus();
+
+      expect(() => JSON.stringify(result)).not.toThrow();
+    });
   });
 
   // -------------------------------------------------------------------------
