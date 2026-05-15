@@ -47,8 +47,23 @@ export function dayInTimezone(
   }
   const zone = tz && tz.length > 0 ? tz : "UTC";
   try {
-    // `en-CA` renders as YYYY-MM-DD natively, no parsing needed.
-    return getFormatter(zone).format(date);
+    // Extract Y/M/D via `formatToParts` rather than `format()` so the
+    // output is locale-independent. The Alpine `nodejs` package ships
+    // a minimal ICU build (system-icu) without the en-CA CLDR data,
+    // so `format()` silently falls back to en-US `MM/DD/YYYY` — which
+    // then breaks `shiftIsoDay`'s `new Date(\`${day}T12:00:00Z\`)` with
+    // `RangeError: Invalid time value`. Building the string from parts
+    // is immune to the locale fallback because we name each field.
+    const parts = getFormatter(zone).formatToParts(date);
+    const y = parts.find((p) => p.type === "year")?.value;
+    const m = parts.find((p) => p.type === "month")?.value;
+    const d = parts.find((p) => p.type === "day")?.value;
+    if (y && m && d) {
+      return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+    // Defensive — should be unreachable given the formatter options
+    // request all three fields.
+    return date.toISOString().split("T")[0]!;
   } catch {
     // Invalid TZ string — degrade to UTC rather than crashing the request.
     return date.toISOString().split("T")[0]!;
