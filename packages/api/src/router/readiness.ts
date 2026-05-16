@@ -98,6 +98,31 @@ function computeConfidence(dq: DataQuality): number {
   return Math.max(confidence, 0.3);
 }
 
+/**
+ * Resolve the HRV component score for a cached ReadinessScore row.
+ *
+ * Cached rows can have the dedicated `hrvComponent` column null while
+ * the same value is preserved inside the `factors` JSONB blob — this
+ * was the on-disk shape for Garmin-native rows written by v0.16.18 /
+ * v0.16.19 before the dedicated columns were added.
+ *
+ * Walk the same two layers `getReadinessComponent()` in the UI does
+ * (apps/nextjs/src/app/_components/readiness-helpers.ts), so the
+ * action-copy gate sees the same component score the user sees in
+ * the HRV tile.
+ */
+function pickHrvComponent(
+  topColumn: number | null,
+  factorsBlob: unknown,
+): number | null {
+  if (typeof topColumn === "number") return topColumn;
+  if (factorsBlob && typeof factorsBlob === "object") {
+    const candidate = (factorsBlob as Record<string, unknown>).hrv;
+    if (typeof candidate === "number") return candidate;
+  }
+  return null;
+}
+
 export function buildActionSuggestion(
   score: number,
   zone: ReadinessZone,
@@ -277,13 +302,22 @@ export const readinessRouter = {
         existing.zone === getReadinessZone(existing.score)
           ? (existing.zone as ReadinessZone)
           : getReadinessZone(existing.score);
+      // Cached rows can have `hrvComponent` null while the score is still
+      // present in the `factors` JSONB (Garmin-native rows from v0.16.18 /
+      // v0.16.19). Walk the same layered lookup the UI uses
+      // (apps/nextjs/.../readiness-helpers.ts) so the action-copy gate
+      // does not treat those rows as having no HRV component.
+      const cachedHrvComponent = pickHrvComponent(
+        existing.hrvComponent,
+        existing.factors,
+      );
       const actionSuggestion = buildActionSuggestion(
         existing.score,
         existingZone,
         dq,
         todayDbMetric ?? null,
         recentMetricsForDQ,
-        existing.hrvComponent ?? null,
+        cachedHrvComponent,
       );
       // Sanitize stale debug-style explanations written by older builds of
       // the engine, e.g.:

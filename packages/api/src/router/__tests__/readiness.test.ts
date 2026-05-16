@@ -287,5 +287,11 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       76, // hrvComponentScore — engine scored HRV in the optimal range
     );
     expect(action).not.toMatch(/HRV of \d+ms is below baseline/);
+    // Sleep debt is the actual driver in this fixture (90m short),
+    // so the action should route to the sleep-debt fallback. Without
+    // this stronger assertion the test would still pass if
+    // buildActionSuggestion fell through to an unrelated training-load
+    // message — leaving the intended behaviour uncovered.
+    expect(action).toMatch(/Prioritize.*1h 30m of sleep/);
   });
 });
