@@ -40,9 +40,17 @@ export function DashboardHome() {
   // Garmin-native rows preserve scores only in the factors JSONB.
   // See readiness-helpers.ts for the lookup priority.
 
-  const sleepRaw = getReadinessComponent(r, "sleepQuantityComponent", "sleepQuantity");
+  const sleepRaw = getReadinessComponent(
+    r,
+    "sleepQuantityComponent",
+    "sleepQuantity",
+  );
   const hrvRaw = getReadinessComponent(r, "hrvComponent", "hrv");
-  const loadRaw = getReadinessComponent(r, "trainingLoadComponent", "trainingLoad");
+  const loadRaw = getReadinessComponent(
+    r,
+    "trainingLoadComponent",
+    "trainingLoad",
+  );
   const stressRaw = getReadinessComponent(r, "stressComponent", "stress");
 
   const sleepVal = sleepRaw != null ? Math.round(sleepRaw) : null;
