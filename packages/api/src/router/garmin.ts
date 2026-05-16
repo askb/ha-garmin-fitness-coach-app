@@ -144,7 +144,36 @@ export const garminRouter = {
         )
         .orderBy(desc(DailyMetric.date));
 
-      const latest = rows[0] ?? null;
+      // Build a "latest non-null" view for each Garmin Firstbeat field.
+      // Watches only publish today's training-readiness / status / recovery
+      // after the next morning sync, so today's daily_metric row often has
+      // all of these as NULL even though yesterday's row is populated. The
+      // UI's "Garmin Native" card was rendering all em-dashes because it
+      // pulled `rows[0]` (today) verbatim. Fall back per-field to the most
+      // recent date in the window that actually has data.
+      function latestNonNull<K extends keyof (typeof rows)[number]>(
+        key: K,
+      ): (typeof rows)[number][K] | null {
+        for (const row of rows) {
+          const v = row[key];
+          if (v != null) return v;
+        }
+        return null;
+      }
+
+      const latest = rows[0]
+        ? {
+            ...rows[0],
+            garminTrainingReadiness: latestNonNull("garminTrainingReadiness"),
+            garminTrainingReadinessLevel: latestNonNull(
+              "garminTrainingReadinessLevel",
+            ),
+            garminTrainingLoad: latestNonNull("garminTrainingLoad"),
+            garminTrainingStatus: latestNonNull("garminTrainingStatus"),
+            garminLoadFocus: latestNonNull("garminLoadFocus"),
+            garminRecoveryHours: latestNonNull("garminRecoveryHours"),
+          }
+        : null;
       const hrvSeries = rows
         .filter((r) => r.hrv != null)
         .map((r) => ({ date: r.date, hrv: r.hrv! }))
