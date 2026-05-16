@@ -100,7 +100,7 @@ export function GarminTrainingSummary() {
         </h2>
         <DataFreshness computedAt={summary.data?.computedAt} />
       </div>
-      <p className="text-muted-foreground -mt-1 text-[11px]">
+      <p className="text-muted-foreground -mt-1 text-xs leading-relaxed">
         From your watch&apos;s Firstbeat algorithms. Requires Forerunner 245+,
         Fenix 6+, or similar. See the home page for our computed Readiness
         score, which uses HRV / RHR / sleep and works on any device.
@@ -153,7 +153,7 @@ export function GarminTrainingSummary() {
           <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             Status
           </div>
-          <div className="mt-1 truncate text-lg font-semibold capitalize">
+          <div className="mt-1 text-lg leading-snug font-semibold capitalize">
             {latest.garminTrainingStatus
               ? latest.garminTrainingStatus.toLowerCase().replace(/_/g, " ")
               : "—"}

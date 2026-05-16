@@ -386,7 +386,7 @@ export default function FitnessPage() {
             Fitness &amp; Performance
           </h1>
           <p className="text-muted-foreground text-sm">
-            VO2max &amp; race predictions
+            VO2max &amp; Race Predictions
           </p>
         </div>
         {trendInfo && (
@@ -844,6 +844,8 @@ export default function FitnessPage() {
                       "text-xs font-medium",
                       r.diff > 0 ? "text-red-400" : "text-green-400",
                     )}
+                    title="Difference between your actual finish time and the VO2max-based predicted time. Positive means slower than predicted; negative means faster."
+                    aria-label={`${r.diffFmt} versus predicted ${r.predicted}. Positive means slower than predicted; negative means faster.`}
                   >
                     {r.diffFmt} vs predicted {r.predicted}
                   </p>
