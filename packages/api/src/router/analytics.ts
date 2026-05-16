@@ -64,10 +64,7 @@ function aggregateDailyLoads(
     // Skip rows with a malformed `startedAt`. These exist in the wild for
     // partial Garmin syncs and would otherwise propagate `RangeError:
     // Invalid time value` out of the tRPC handler.
-    if (
-      !(a.startedAt instanceof Date) ||
-      Number.isNaN(a.startedAt.getTime())
-    ) {
+    if (!(a.startedAt instanceof Date) || Number.isNaN(a.startedAt.getTime())) {
       continue;
     }
     const day = dayInTimezone(a.startedAt, timezone);
@@ -103,7 +100,10 @@ export const analyticsRouter = {
         columns: { timezone: true },
       }),
       ctx.db.query.Activity.findMany({
-        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, cutoff),
+        ),
         orderBy: desc(Activity.startedAt),
       }),
     ]);
@@ -111,7 +111,8 @@ export const analyticsRouter = {
     // Sanitize: drop any rows whose `startedAt` would later blow up a
     // `.toISOString()` call inside drizzle / superjson / the engine.
     const recentActivities = recentActivitiesRaw.filter(
-      (a) => a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+      (a) =>
+        a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
     );
 
     const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
@@ -160,13 +161,17 @@ export const analyticsRouter = {
         orderBy: desc(VO2maxEstimate.date),
       }),
       ctx.db.query.Activity.findMany({
-        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, cutoff),
+        ),
         orderBy: desc(Activity.startedAt),
       }),
     ]);
 
     const recentActivities = recentActivitiesRaw.filter(
-      (a) => a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+      (a) =>
+        a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
     );
 
     let vo2maxTrend = 0;
@@ -260,16 +265,14 @@ export const analyticsRouter = {
       // for active users. Fetch the last 60 Garmin readings unconditionally
       // so the chart can fall back to "showing last N readings" when the
       // selected window has no data.
-      const garminEstimatesRecent = await ctx.db.query.VO2maxEstimate.findMany(
-        {
-          where: and(
-            eq(VO2maxEstimate.userId, userId),
-            eq(VO2maxEstimate.source, "garmin_official"),
-          ),
-          orderBy: [desc(VO2maxEstimate.date)],
-          limit: 60,
-        },
-      );
+      const garminEstimatesRecent = await ctx.db.query.VO2maxEstimate.findMany({
+        where: and(
+          eq(VO2maxEstimate.userId, userId),
+          eq(VO2maxEstimate.source, "garmin_official"),
+        ),
+        orderBy: [desc(VO2maxEstimate.date)],
+        limit: 60,
+      });
 
       return {
         estimates,

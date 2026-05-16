@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 function getAuthServerBase() {
+  // Server-side route in addon container; `~/env` shim isn't available.
+  // eslint-disable-next-line no-restricted-properties
   return process.env.GARMIN_AUTH_SERVER ?? "http://127.0.0.1:8099";
 }
 
