@@ -61,9 +61,8 @@ function makeDb() {
 }
 
 function extractAvailabilityJson(context: string) {
-  const match = context.match(
-    /## Metric Availability JSON[\s\S]*?```json\n([\s\S]*?)\n```/,
-  );
+  const match =
+    /## Metric Availability JSON[\s\S]*?```json\n([\s\S]*?)\n```/.exec(context);
   if (!match?.[1]) throw new Error("Metric availability JSON not found");
   return JSON.parse(match[1]) as Record<string, unknown>;
 }
