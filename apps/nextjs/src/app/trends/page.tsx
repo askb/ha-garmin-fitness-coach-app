@@ -16,6 +16,7 @@ import {
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -68,9 +69,7 @@ const METRIC_LABELS: Record<string, string> = {
 
 function prettyMetric(key: string): string {
   if (METRIC_LABELS[key]) return METRIC_LABELS[key];
-  return key
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 type TrendMetric =
@@ -110,9 +109,8 @@ function correlationPeriod(p: Period): CorrelationPeriod {
   return "30d";
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function formatDate(iso: string, timezone: string): string {
+  return formatDateInTz(iso, timezone, { month: "short", day: "numeric" });
 }
 
 function formatSleep(minutes: number | null | undefined): string {
@@ -148,6 +146,7 @@ export default function TrendsPage() {
   const [period, setPeriod] = useState<Period>("28d");
   const days = daysFor(period);
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const useSmoothed = days > 90;
 
   // ---- Summary stats ----
@@ -255,7 +254,7 @@ export default function TrendsPage() {
 
       return dates.map((date) => ({
         date,
-        label: formatDate(date),
+        label: formatDate(date, timezone),
         readiness: readMap.get(date) ?? null,
         sleep: sleepMap.get(date) ?? null,
         hrv: hrvMap.get(date) ?? null,
@@ -282,12 +281,13 @@ export default function TrendsPage() {
 
     return dates.map((date) => ({
       date,
-      label: formatDate(date),
+      label: formatDate(date, timezone),
       readiness: maps.readiness?.get(date) ?? null,
       sleep: maps.sleep?.get(date) ?? null,
       hrv: maps.hrv?.get(date) ?? null,
     }));
   }, [
+    timezone,
     useSmoothed,
     multiChart.data,
     rollingReadiness.data,
@@ -316,7 +316,7 @@ export default function TrendsPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Trends &amp; Analytics</h1>
+        <h1 className="pl-12 text-2xl font-bold">Trends &amp; Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {PERIODS.find((x) => x.value === period)?.label ?? period} overview
           {useSmoothed ? " · 7-day rolling avg" : ""}
@@ -646,7 +646,7 @@ export default function TrendsPage() {
                 className="bg-card flex items-start gap-3 rounded-xl border p-3"
               >
                 <div className="text-muted-foreground mt-0.5 shrink-0 text-xs font-medium">
-                  {formatDate(nc.date)}
+                  {formatDate(nc.date, timezone)}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm">{nc.description}</p>
@@ -701,8 +701,7 @@ export default function TrendsPage() {
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">
-                      {prettyMetric(c.metricA)} →{" "}
-                      {prettyMetric(c.metricB)}
+                      {prettyMetric(c.metricA)} → {prettyMetric(c.metricB)}
                     </p>
                     <span
                       className={cn(

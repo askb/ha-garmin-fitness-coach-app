@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatTimeInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 
 // ---------------------------------------------------------------------------
@@ -231,14 +232,16 @@ function ChatBubble({
   content,
   createdAt,
   agentConfig,
+  timezone,
 }: {
   role: string;
   content: string;
   createdAt: string | Date;
   agentConfig: AgentConfig;
+  timezone: string;
 }) {
   const isUser = role === "user";
-  const time = new Date(createdAt).toLocaleTimeString([], {
+  const time = formatTimeInTz(createdAt, timezone, {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -284,6 +287,7 @@ function ChatBubble({
 
 export default function CoachPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [activeAgent, setActiveAgent] = useState<AgentType>("sport-scientist");
@@ -422,6 +426,7 @@ export default function CoachPage() {
                 content={msg.content}
                 createdAt={msg.createdAt}
                 agentConfig={agentConfig}
+                timezone={timezone}
               />
             ))}
             {sendMutation.isPending && (
@@ -489,7 +494,7 @@ export default function CoachPage() {
       )}
 
       {/* Input Area */}
-      <div className="pb-safe border-t border-zinc-800 bg-zinc-900 px-4 py-3">
+      <div className="border-t border-zinc-800 bg-zinc-900 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <form
           onSubmit={(e) => {
             e.preventDefault();

@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
@@ -116,8 +117,8 @@ const TEMP_STATUS: Record<
 
 /* ─────────────── helpers ─────────────── */
 
-function formatDate(d: string) {
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+function formatDate(d: string, timezone: string) {
+  return formatDateInTz(d, timezone, {
     month: "short",
     day: "numeric",
   });
@@ -155,6 +156,7 @@ function StatCard({
 export default function VitalsPage() {
   const [days, setDays] = useState(30);
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
 
   const { data, isLoading } = useQuery(
     trpc.vitals.getTrends.queryOptions({ days }),
@@ -266,7 +268,9 @@ export default function VitalsPage() {
                       />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={formatDate}
+                        tickFormatter={(value) =>
+                          formatDate(String(value), timezone)
+                        }
                         tick={{ fill: "#888", fontSize: 10 }}
                         axisLine={false}
                       />
@@ -278,7 +282,7 @@ export default function VitalsPage() {
                       />
                       <Tooltip
                         labelFormatter={(label: unknown) =>
-                          formatDate(String(label))
+                          formatDate(String(label), timezone)
                         }
                         formatter={(v: unknown) => [`${Number(v)}%`, ""]}
                         contentStyle={{
@@ -412,7 +416,9 @@ export default function VitalsPage() {
                       />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={formatDate}
+                        tickFormatter={(value) =>
+                          formatDate(String(value), timezone)
+                        }
                         tick={{ fill: "#888", fontSize: 10 }}
                         axisLine={false}
                       />
@@ -423,7 +429,7 @@ export default function VitalsPage() {
                       />
                       <Tooltip
                         labelFormatter={(label: unknown) =>
-                          formatDate(String(label))
+                          formatDate(String(label), timezone)
                         }
                         formatter={(v: unknown) => [`${Number(v)} brpm`, ""]}
                         contentStyle={{
@@ -554,7 +560,9 @@ export default function VitalsPage() {
                       />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={formatDate}
+                        tickFormatter={(value) =>
+                          formatDate(String(value), timezone)
+                        }
                         tick={{ fill: "#888", fontSize: 10 }}
                         axisLine={false}
                       />
@@ -565,7 +573,7 @@ export default function VitalsPage() {
                       />
                       <Tooltip
                         labelFormatter={(label: unknown) =>
-                          formatDate(String(label))
+                          formatDate(String(label), timezone)
                         }
                         formatter={(v: unknown) => [`${Number(v)}°C`, ""]}
                         contentStyle={{

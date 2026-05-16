@@ -8,6 +8,7 @@ import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -104,9 +105,8 @@ function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fmtDate(iso: string): string {
-  const d = new Date(iso + "T12:00:00");
-  return d.toLocaleDateString("en-US", {
+function fmtDate(iso: string, timezone: string): string {
+  return formatDateInTz(iso, timezone, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -163,6 +163,7 @@ function ScoreSlider({
 
 export default function JournalPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
 
   // -- Date selection --
@@ -374,7 +375,7 @@ export default function JournalPage() {
         >
           {selectedDate === toDateStr(new Date())
             ? "Today"
-            : fmtDate(selectedDate)}
+            : fmtDate(selectedDate, timezone)}
         </button>
         <Button
           variant="outline"
@@ -689,7 +690,7 @@ export default function JournalPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">
-                        {fmtDate(entry.date)}
+                        {fmtDate(entry.date, timezone)}
                       </p>
 
                       {/* Scores summary */}

@@ -15,6 +15,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
@@ -117,9 +118,8 @@ function pacePerKm(seconds: number, distanceMeters: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")} /km`;
 }
 
-function fmtDateShort(d: string): string {
-  const date = new Date(d);
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function fmtDateShort(d: string, timezone: string): string {
+  return formatDateInTz(d, timezone, { month: "short", day: "numeric" });
 }
 
 /* ── Confidence interval helper ── */
@@ -164,6 +164,7 @@ function vdotPace(vo2max: number, fraction: number): string {
 
 export default function FitnessPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const [chartDays, setChartDays] = useState(90);
 
   const vo2max = useQuery(
@@ -199,7 +200,7 @@ export default function FitnessPage() {
       if (ep === bp && new Date(e.date) > new Date(best.date)) return e;
       return best;
     }, vo2max.data.estimates[0]!);
-  }, [vo2max.data]);
+  }, [vo2max.data, timezone]);
 
   const trend = vo2max.data?.trend;
   const trendInfo = trend ? TREND_BADGE[trend.trend] : null;
@@ -208,13 +209,13 @@ export default function FitnessPage() {
   const chartData = useMemo(() => {
     if (!vo2max.data?.estimates?.length) return [];
     return [...vo2max.data.estimates].reverse().map((e) => ({
-      date: fmtDateShort(e.date),
+      date: fmtDateShort(e.date, timezone),
       fullDate: e.date,
       value: e.value,
       sport: e.sport,
       source: e.source,
     }));
-  }, [vo2max.data]);
+  }, [vo2max.data, timezone]);
 
   // Garmin official VO2max data (Firstbeat-based).
   // Garmin Firstbeat only emits VO2max after qualifying outdoor runs
@@ -225,7 +226,7 @@ export default function FitnessPage() {
     const inWindow = vo2max.data?.garminEstimates ?? [];
     if (inWindow.length > 0) {
       return [...inWindow].reverse().map((e) => ({
-        date: fmtDateShort(e.date),
+        date: fmtDateShort(e.date, timezone),
         fullDate: e.date,
         value: e.value,
       }));
@@ -233,11 +234,11 @@ export default function FitnessPage() {
     const recent = vo2max.data?.garminEstimatesRecent ?? [];
     if (recent.length === 0) return [];
     return [...recent].reverse().map((e) => ({
-      date: fmtDateShort(e.date),
+      date: fmtDateShort(e.date, timezone),
       fullDate: e.date,
       value: e.value,
     }));
-  }, [vo2max.data]);
+  }, [vo2max.data, timezone]);
 
   const garminUsingFallback =
     (vo2max.data?.garminEstimates?.length ?? 0) === 0 &&
@@ -247,11 +248,11 @@ export default function FitnessPage() {
   const uthChartData = useMemo(() => {
     if (!vo2max.data?.uthEstimates?.length) return [];
     return [...vo2max.data.uthEstimates].reverse().map((e) => ({
-      date: fmtDateShort(e.date),
+      date: fmtDateShort(e.date, timezone),
       fullDate: e.date,
       value: e.value,
     }));
-  }, [vo2max.data]);
+  }, [vo2max.data, timezone]);
 
   // Trendline helper: simple linear regression overlay
   function computeTrendline(
@@ -348,7 +349,7 @@ export default function FitnessPage() {
           diff: diffSecs,
           diffFmt: `${diffSecs >= 0 ? "+" : ""}${fmtTime(Math.abs(diffSecs))}`,
           date: a.startedAt
-            ? new Date(a.startedAt as string).toLocaleDateString("en-US", {
+            ? formatDateInTz(a.startedAt, timezone, {
                 month: "short",
                 day: "numeric",
               })
@@ -356,7 +357,7 @@ export default function FitnessPage() {
         };
       });
     });
-  }, [recentActivities.data, racePredictions.data]);
+  }, [recentActivities.data, racePredictions.data, timezone]);
 
   /* ── Running Shape gauge (0–100) ── */
   const runningShape = useMemo(() => {
@@ -382,7 +383,9 @@ export default function FitnessPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold pl-12">Fitness &amp; Performance</h1>
+          <h1 className="pl-12 text-2xl font-bold">
+            Fitness &amp; Performance
+          </h1>
           <p className="text-muted-foreground text-sm">
             VO2max &amp; race predictions
           </p>
@@ -418,7 +421,8 @@ export default function FitnessPage() {
           </p>
           <p className="text-muted-foreground mt-1 text-sm">ml/kg/min</p>
           <p className="text-muted-foreground mt-1 text-[10px] tracking-wider uppercase">
-            via {latestVO2max.source === "garmin_official"
+            via{" "}
+            {latestVO2max.source === "garmin_official"
               ? "Garmin Firstbeat"
               : latestVO2max.source === "running_pace_hr"
                 ? "Pace+HR model"
@@ -472,9 +476,9 @@ export default function FitnessPage() {
           />
           {garminUsingFallback && (
             <p className="text-muted-foreground mb-3 text-xs">
-              ℹ️ No Garmin VO2max updates in the last {chartDays} days —
-              Garmin only records after qualifying outdoor runs (12+ min
-              with heart rate). Showing your most recent readings instead.
+              ℹ️ No Garmin VO2max updates in the last {chartDays} days — Garmin
+              only records after qualifying outdoor runs (12+ min with heart
+              rate). Showing your most recent readings instead.
             </p>
           )}
           {!garminUsingFallback && garminChartData.length < 3 && (

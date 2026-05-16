@@ -7,6 +7,7 @@ import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -38,9 +39,8 @@ function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function fmtDate(iso: string): string {
-  const d = new Date(iso + "T12:00:00");
-  return d.toLocaleDateString("en-US", {
+function fmtDate(iso: string, timezone: string): string {
+  return formatDateInTz(iso, timezone, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -63,6 +63,7 @@ function getTypeInfo(key: string) {
 
 export default function InterventionsPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
 
   // -- Form state --
@@ -258,7 +259,7 @@ export default function InterventionsPage() {
                           {typeInfo.label}
                         </p>
                         <p className="text-muted-foreground text-xs">
-                          {fmtDate(item.date)}
+                          {fmtDate(item.date, timezone)}
                         </p>
                       </div>
                     </div>

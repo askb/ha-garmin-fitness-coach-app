@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -54,6 +55,7 @@ function formatDateForFilename() {
 
 export default function ExportPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
 
   // Data queries
   const activities = useQuery(trpc.activity.list.queryOptions({ days: 365 }));
@@ -164,7 +166,7 @@ export default function ExportPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Data Export</h1>
+        <h1 className="pl-12 text-2xl font-bold">Data Export</h1>
         <p className="text-muted-foreground text-sm">
           Download your training data · Import backups
         </p>
@@ -190,13 +192,10 @@ export default function ExportPage() {
             <div className="bg-secondary/40 col-span-2 rounded-xl p-3 sm:col-span-1">
               <p className="truncate text-sm font-bold">
                 {earliestDate
-                  ? new Date(earliestDate as string).toLocaleDateString(
-                      "en-US",
-                      {
-                        month: "short",
-                        year: "numeric",
-                      },
-                    )
+                  ? formatDateInTz(earliestDate, timezone, {
+                      month: "short",
+                      year: "numeric",
+                    })
                   : "—"}
               </p>
               <p className="text-muted-foreground text-xs">Earliest data</p>
