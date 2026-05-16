@@ -67,6 +67,7 @@ export function formatTimeInTz(
   options: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
+    timeZoneName: "short",
   },
 ): string {
   if (value == null) return "—";

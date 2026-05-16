@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatTimeInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 
 // ---------------------------------------------------------------------------
@@ -231,17 +232,16 @@ function ChatBubble({
   content,
   createdAt,
   agentConfig,
+  timezone,
 }: {
   role: string;
   content: string;
   createdAt: string | Date;
   agentConfig: AgentConfig;
+  timezone: string;
 }) {
   const isUser = role === "user";
-  const time = new Date(createdAt).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const time = formatTimeInTz(createdAt, timezone);
 
   return (
     <div
@@ -292,6 +292,7 @@ export default function CoachPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const agentConfig = getAgentConfig(activeAgent);
+  const timezone = useUserTimezone();
 
   const history = useQuery(trpc.chat.getHistory.queryOptions({ limit: 50 }));
 
@@ -422,6 +423,7 @@ export default function CoachPage() {
                 content={msg.content}
                 createdAt={msg.createdAt}
                 agentConfig={agentConfig}
+                timezone={timezone}
               />
             ))}
             {sendMutation.isPending && (
