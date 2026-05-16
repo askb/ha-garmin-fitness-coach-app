@@ -123,7 +123,9 @@ function formatDate(iso: string): string {
 }
 
 function isToday(iso: string): boolean {
-  return iso === new Date().toISOString().split("T")[0];
+  const now = new Date();
+  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return iso === todayLocal;
 }
 
 function splitCategory(description: string): {
@@ -678,7 +680,9 @@ export default function TrendsPage() {
                     <div>
                       {isToday(nc.date) ? "Today" : formatDate(nc.date)}
                     </div>
-                    <div className="text-[10px] font-normal">vs window avg</div>
+                    <div className="text-[10px] font-normal">
+                      week-over-week
+                    </div>
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -701,9 +705,9 @@ export default function TrendsPage() {
                         "text-xs font-medium",
                         nc.change > 0 ? "text-green-400" : "text-red-400",
                       )}
-                      title="Today's value compared with the selected window average."
+                      title="Week-over-week percent change (current 7-day avg vs previous 7-day avg)."
                     >
-                      Today vs window avg: {nc.change > 0 ? "+" : ""}
+                      Week-over-week: {nc.change > 0 ? "+" : ""}
                       {nc.change.toFixed(1)}%
                     </p>
                   </div>
