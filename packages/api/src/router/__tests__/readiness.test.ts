@@ -99,6 +99,7 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       todayRow as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recent as any,
+      25, // hrvComponentScore — engine flagged HRV as below baseline
     );
     expect(action).not.toMatch(/HRV data is unavailable/);
     expect(action).toMatch(/HRV of 62ms/);
@@ -249,8 +250,42 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       metric as any,
       [],
+      25, // hrvComponentScore — engine flagged HRV as below baseline (19ms is low)
     );
     expect(action).toMatch(/Take it easy today/);
     expect(action).toMatch(/easy 30-min walk/);
+  });
+
+  it("does NOT blame HRV when readiness is low but HRV component is healthy", () => {
+    // Reproduces the home-screen contradiction: readiness 21/100 (poor zone)
+    // but the HRV component score is 76/100 (Optimal in the tile). Previously
+    // buildActionSuggestion still asserted "your HRV of Xms is below baseline"
+    // because it only checked dq.hrv === "missing" and the presence of a
+    // recent HRV value, not whether the engine actually graded HRV as low.
+    // The action should fall through to a non-HRV recovery message instead.
+    const metric = row(today, {
+      hrv: 62, // value is fine; engine scored it 76/100 (optimal)
+      totalSleepMinutes: 360, // short sleep is the actual driver
+      sleepDebtMinutes: 90,
+      restingHr: 50,
+    });
+    const dq = computeDataQuality(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [metric] as any,
+      3,
+      today,
+    );
+    const action = buildActionSuggestion(
+      21,
+      "poor",
+      dq,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      [],
+      76, // hrvComponentScore — engine scored HRV in the optimal range
+    );
+    expect(action).not.toMatch(/HRV of \d+ms is below baseline/);
   });
 });

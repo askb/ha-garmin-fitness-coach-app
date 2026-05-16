@@ -104,6 +104,7 @@ export function buildActionSuggestion(
   dq: DataQuality,
   metric: typeof DailyMetric.$inferSelect | null,
   recentMetrics: (typeof DailyMetric.$inferSelect)[] = [],
+  hrvComponentScore: number | null = null,
 ): string {
   const scoreZone = getReadinessZone(score);
   const resolvedZone = zone === scoreZone ? zone : scoreZone;
@@ -133,7 +134,14 @@ export function buildActionSuggestion(
   if (dq.hrv === "missing") {
     return "Take it easy today — HRV data is unavailable. Consider an easy 30-min walk instead of your planned session.";
   }
-  if (recentHrv != null) {
+  // Only blame HRV when the engine actually scored it below baseline.
+  // `hrvComponentScore < 40` matches the same threshold the engine uses in
+  // generateExplanation() to surface "HRV X% below baseline" as a negative
+  // factor. Without this guard the message would assert "HRV of Xms is below
+  // baseline" even when the HRV component is in the optimal range (e.g.,
+  // readiness is low because of sleep debt or training load, not HRV).
+  const hrvIsLow = hrvComponentScore != null && hrvComponentScore < 40;
+  if (hrvIsLow && recentHrv != null) {
     return `Take it easy today — your HRV of ${recentHrv.toFixed(0)}ms is below baseline. Consider an easy 30-min walk instead of your planned session.`;
   }
   if (dq.sleep !== "good" || metric?.sleepDebtMinutes != null) {
@@ -275,6 +283,7 @@ export const readinessRouter = {
         dq,
         todayDbMetric ?? null,
         recentMetricsForDQ,
+        existing.hrvComponent ?? null,
       );
       // Sanitize stale debug-style explanations written by older builds of
       // the engine, e.g.:
@@ -335,6 +344,7 @@ export const readinessRouter = {
       dq,
       todayDbMetric ?? null,
       recentMetricsForDQ,
+      result.components.hrv,
     );
 
     // Daily target-strain band (WHOOP-style coaching) — uses readiness

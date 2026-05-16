@@ -159,7 +159,9 @@ export function GarminTrainingSummary() {
               : "—"}
           </div>
           <div className="text-muted-foreground mt-0.5 text-xs">
-            {latest.garminTrainingReadinessLevel?.toLowerCase() ?? "—"}
+            {latest.garminTrainingStatus
+              ? (latest.garminTrainingReadinessLevel?.toLowerCase() ?? "")
+              : "unavailable"}
             {statusAsOf ? ` · ${statusAsOf}` : ""}
           </div>
         </div>
