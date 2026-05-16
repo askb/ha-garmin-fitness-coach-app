@@ -1,3 +1,5 @@
+import { formatDateInTz, formatTimeInTz } from "../format-date";
+
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
@@ -22,8 +24,6 @@
 // the CJS jest runtime.
 jest.mock("~/trpc/react", () => ({ useTRPC: () => ({}) }));
 
-import { formatDateInTz, formatTimeInTz } from "../format-date";
-
 describe("formatDateInTz", () => {
   it.each<[string, string, string]>([
     ["Australia/Brisbane", "2026-05-14", "Thu, May 14"],
@@ -39,7 +39,10 @@ describe("formatDateInTz", () => {
 
   it("still formats full ISO timestamps in the requested zone", () => {
     // 23:30 UTC on May 14 = 09:30 May 15 in Brisbane (UTC+10, no DST).
-    const out = formatDateInTz("2026-05-14T23:30:00.000Z", "Australia/Brisbane");
+    const out = formatDateInTz(
+      "2026-05-14T23:30:00.000Z",
+      "Australia/Brisbane",
+    );
     expect(out).toBe("Fri, May 15");
   });
 
