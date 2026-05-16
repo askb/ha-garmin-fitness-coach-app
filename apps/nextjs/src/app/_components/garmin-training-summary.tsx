@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { DataFreshness } from "./data-freshness";
 
@@ -33,8 +34,9 @@ function trendChip(trend: "rising" | "falling" | "stable" | null): {
 /* ── component ──────────────────────────────────────────────────── */
 export function GarminTrainingSummary() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const summary = useQuery(
-    trpc.garmin.getTrainingSummary.queryOptions({ days: 7 }),
+    trpc.garmin.getTrainingSummary.queryOptions({ days: 14 }),
   );
 
   if (summary.isLoading) {
@@ -51,7 +53,37 @@ export function GarminTrainingSummary() {
     );
   }
 
+  const todayKey = formatDateInTz(new Date(), timezone, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const staleCaption = (date: string | null | undefined) => {
+    if (!date) return null;
+    const value = `${date}T12:00:00Z`;
+    const dateKey = formatDateInTz(value, timezone, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    if (dateKey === todayKey) return null;
+    return `as of ${formatDateInTz(value, timezone, {
+      month: "short",
+      day: "numeric",
+    })}`;
+  };
+
   const readiness = readinessZone(latest.garminTrainingReadiness ?? null);
+  const readinessAsOf = staleCaption(
+    summary.data?.latestDates.garminTrainingReadiness,
+  );
+  const recoveryAsOf = staleCaption(
+    summary.data?.latestDates.garminRecoveryHours,
+  );
+  const statusAsOf = staleCaption(
+    summary.data?.latestDates.garminTrainingStatus ??
+      summary.data?.latestDates.garminTrainingReadinessLevel,
+  );
   const trend = trendChip(
     (summary.data?.hrvTrend as "rising" | "falling" | "stable" | null) ?? null,
   );
@@ -86,6 +118,9 @@ export function GarminTrainingSummary() {
           </div>
           <div className={cn("mt-0.5 text-xs", readiness.className)}>
             {readiness.label}
+            {readinessAsOf && (
+              <span className="text-muted-foreground"> · {readinessAsOf}</span>
+            )}
           </div>
         </div>
 
@@ -104,7 +139,9 @@ export function GarminTrainingSummary() {
               <span className="text-muted-foreground text-xs">h</span>
             )}
           </div>
-          <div className="text-muted-foreground mt-0.5 text-xs">remaining</div>
+          <div className="text-muted-foreground mt-0.5 text-xs">
+            remaining{recoveryAsOf ? ` · ${recoveryAsOf}` : ""}
+          </div>
         </div>
 
         {/* Training Status */}
@@ -119,6 +156,7 @@ export function GarminTrainingSummary() {
           </div>
           <div className="text-muted-foreground mt-0.5 text-xs">
             {latest.garminTrainingReadinessLevel?.toLowerCase() ?? "—"}
+            {statusAsOf ? ` · ${statusAsOf}` : ""}
           </div>
         </div>
 
