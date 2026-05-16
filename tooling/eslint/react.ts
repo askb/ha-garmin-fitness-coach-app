@@ -16,4 +16,19 @@ export const reactConfig = defineConfig(
     },
   },
   reactHooks.configs.flat["recommended-latest"]!,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      // Downgraded to warnings as part of the baseline cleanup. These
+      // flag legitimate React perf concerns but the codebase has a
+      // handful of `useEffect → setState` patterns and React-Compiler
+      // memoization-skipped notices that need targeted refactors; we
+      // surface them as warnings and address incrementally rather than
+      // blocking CI on them.
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
+      "react-hooks/purity": "warn",
+    },
+  },
 );

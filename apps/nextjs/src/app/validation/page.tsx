@@ -151,19 +151,19 @@ export default function ValidationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
+    <div className="bg-background text-foreground min-h-screen pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card px-4 py-4 shadow-sm border-b">
-        <h1 className="text-xl font-bold text-foreground">Data Validation</h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">
+      <div className="bg-card sticky top-0 z-10 border-b px-4 py-4 shadow-sm">
+        <h1 className="text-foreground text-xl font-bold">Data Validation</h1>
+        <p className="text-muted-foreground mt-0.5 text-sm">
           Compare Garmin estimates against reference measurements
         </p>
       </div>
 
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
         {/* Add Reference Measurement */}
-        <div className="rounded-xl bg-card p-4 shadow-sm border">
-          <h2 className="mb-3 font-semibold text-foreground">
+        <div className="bg-card rounded-xl border p-4 shadow-sm">
+          <h2 className="text-foreground mb-3 font-semibold">
             Add Reference Measurement
           </h2>
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -188,7 +188,7 @@ export default function ValidationPage() {
 
             {/* Date */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
+              <label className="text-foreground mb-1 block text-sm font-medium">
                 Date
               </label>
               <input
@@ -196,14 +196,14 @@ export default function ValidationPage() {
                 value={date}
                 max={today()}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="border-border w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
 
             {/* Value + unit */}
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="mb-1 block text-sm font-medium text-foreground">
+                <label className="text-foreground mb-1 block text-sm font-medium">
                   Reference Value
                 </label>
                 <input
@@ -212,14 +212,14 @@ export default function ValidationPage() {
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   placeholder="e.g. 52.4"
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  className="border-border w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 />
               </div>
               <div className="w-28">
-                <label className="mb-1 block text-sm font-medium text-foreground">
+                <label className="text-foreground mb-1 block text-sm font-medium">
                   Unit
                 </label>
-                <div className="flex h-[38px] items-center rounded-lg border border-border bg-muted px-3 text-sm text-muted-foreground">
+                <div className="border-border bg-muted text-muted-foreground flex h-[38px] items-center rounded-lg border px-3 text-sm">
                   {unit}
                 </div>
               </div>
@@ -227,9 +227,11 @@ export default function ValidationPage() {
 
             {/* Garmin comparable */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
+              <label className="text-foreground mb-1 block text-sm font-medium">
                 {GARMIN_LABEL[selectedType]}{" "}
-                <span className="font-normal text-muted-foreground">(optional)</span>
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
               </label>
               <input
                 type="number"
@@ -237,22 +239,24 @@ export default function ValidationPage() {
                 value={garminValue}
                 onChange={(e) => setGarminValue(e.target.value)}
                 placeholder={`Garmin's ${unit} estimate`}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="border-border w-full rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
 
             {/* Notes */}
             <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">
+              <label className="text-foreground mb-1 block text-sm font-medium">
                 Notes{" "}
-                <span className="font-normal text-muted-foreground">(optional)</span>
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="Lab conditions, protocol, context…"
-                className="w-full resize-none rounded-lg border border-border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="border-border w-full resize-none rounded-lg border px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
 
@@ -268,8 +272,10 @@ export default function ValidationPage() {
 
         {/* Match Quality Summary */}
         {Object.keys(matchQuality).length > 0 && (
-          <div className="rounded-xl bg-card p-4 shadow-sm border">
-            <h2 className="mb-3 font-semibold text-foreground">Match Quality</h2>
+          <div className="bg-card rounded-xl border p-4 shadow-sm">
+            <h2 className="text-foreground mb-3 font-semibold">
+              Match Quality
+            </h2>
             <div className="space-y-2">
               {Object.entries(matchQuality).map(([type, { sum, count }]) => {
                 const avg = sum / count;
@@ -281,7 +287,7 @@ export default function ValidationPage() {
                   >
                     <span className="text-foreground">
                       {typeInfo?.emoji} {typeInfo?.label ?? type}
-                      <span className="ml-1 text-muted-foreground">
+                      <span className="text-muted-foreground ml-1">
                         ({count} readings)
                       </span>
                     </span>
@@ -294,14 +300,14 @@ export default function ValidationPage() {
         )}
 
         {/* History */}
-        <div className="rounded-xl bg-card p-4 shadow-sm border">
-          <h2 className="mb-3 font-semibold text-foreground">
+        <div className="bg-card rounded-xl border p-4 shadow-sm">
+          <h2 className="text-foreground mb-3 font-semibold">
             Reference Measurements
           </h2>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
+            <p className="text-muted-foreground text-sm">Loading…</p>
           ) : measurements.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               No reference measurements yet. Add a lab or reference value above
               to compare it against Garmin&apos;s estimate and track accuracy.
             </p>
@@ -314,29 +320,31 @@ export default function ValidationPage() {
                 return (
                   <div
                     key={m.id}
-                    className="rounded-lg border border-border p-3"
+                    className="border-border rounded-lg border p-3"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        <div className="text-foreground flex items-center gap-1.5 text-sm font-medium">
                           <span>{typeInfo?.emoji ?? "📐"}</span>
                           <span>{typeInfo?.label ?? m.measurementType}</span>
                           <span className="text-muted-foreground">·</span>
-                          <span className="text-muted-foreground">{m.date}</span>
+                          <span className="text-muted-foreground">
+                            {m.date}
+                          </span>
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-2">
-                          <span className="text-sm text-foreground">
+                          <span className="text-foreground text-sm">
                             {m.value} {m.unit}
                           </span>
                           {m.garminComparableValue != null && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground text-xs">
                               Garmin: {m.garminComparableValue} {m.unit}
                             </span>
                           )}
                           {deviationBadge(m.deviationPercent)}
                         </div>
                         {m.notes && (
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="text-muted-foreground mt-1 text-xs">
                             {m.notes}
                           </p>
                         )}
@@ -354,7 +362,7 @@ export default function ValidationPage() {
                             </button>
                             <button
                               onClick={() => setConfirmDelete(null)}
-                              className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+                              className="text-muted-foreground hover:bg-muted rounded px-2 py-1 text-xs"
                             >
                               Cancel
                             </button>
@@ -362,7 +370,7 @@ export default function ValidationPage() {
                         ) : (
                           <button
                             onClick={() => setConfirmDelete(m.id)}
-                            className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-red-500"
+                            className="text-muted-foreground hover:bg-muted rounded p-1 hover:text-red-500"
                             aria-label="Delete"
                           >
                             🗑️

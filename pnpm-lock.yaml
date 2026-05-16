@@ -490,6 +490,12 @@ importers:
       '@acme/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
+      eslint:
+        specifier: 'catalog:'
+        version: 9.38.0(jiti@2.6.1)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.6.2
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -499,9 +505,15 @@ importers:
 
   packages/garmin:
     devDependencies:
+      '@acme/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
       '@acme/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
+      eslint:
+        specifier: 'catalog:'
+        version: 9.38.0(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
