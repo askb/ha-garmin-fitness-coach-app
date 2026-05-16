@@ -67,6 +67,15 @@ const METRIC_LABELS: Record<string, string> = {
   acwr: "ACWR",
 };
 
+const TREND_CATEGORY_LABELS: Record<string, string> = {
+  "🔥": "Load",
+  "📊": "Data",
+  "💪": "Training",
+  "🩺": "Health",
+  "🌙": "Sleep",
+  "😴": "Recovery",
+};
+
 function prettyMetric(key: string): string {
   if (METRIC_LABELS[key]) return METRIC_LABELS[key];
   return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -111,6 +120,29 @@ function correlationPeriod(p: Period): CorrelationPeriod {
 
 function formatDate(iso: string, timezone: string): string {
   return formatDateInTz(iso, timezone, { month: "short", day: "numeric" });
+}
+
+function isToday(iso: string): boolean {
+  // `nc.date` is normalized to UTC YYYY-MM-DD by the engine (see
+  // packages/engine/src/trends/index.ts). Compare against today's UTC date
+  // so the label stays consistent with the underlying data.
+  return iso === new Date().toISOString().split("T")[0];
+}
+
+function splitCategory(description: string): {
+  emoji: string;
+  label: string;
+  text: string;
+} | null {
+  const emoji = Array.from(description.trim())[0];
+  if (!emoji) return null;
+  const label = TREND_CATEGORY_LABELS[emoji];
+  if (!label) return null;
+  return {
+    emoji,
+    label,
+    text: description.trim().slice(emoji.length).trim(),
+  };
 }
 
 function formatSleep(minutes: number | null | undefined): string {
@@ -640,28 +672,53 @@ export default function TrendsPage() {
                 change: number;
                 description: string;
               }[]
-            ).map((nc, i) => (
-              <div
-                key={i}
-                className="bg-card flex items-start gap-3 rounded-xl border p-3"
-              >
-                <div className="text-muted-foreground mt-0.5 shrink-0 text-xs font-medium">
-                  {formatDate(nc.date, timezone)}
+            ).map((nc, i) => {
+              const category = splitCategory(nc.description);
+              return (
+                <div
+                  key={i}
+                  className="bg-card flex items-start gap-3 rounded-xl border p-3"
+                >
+                  <div className="text-muted-foreground mt-0.5 w-16 shrink-0 text-xs font-medium">
+                    <div>
+                      {isToday(nc.date)
+                        ? "Today"
+                        : formatDate(nc.date, timezone)}
+                    </div>
+                    <div className="text-[10px] font-normal">
+                      week-over-week
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {category && (
+                        <span
+                          className="rounded-full bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-300"
+                          title={`${category.label} category`}
+                          aria-label={`${category.label} category`}
+                        >
+                          <span aria-hidden="true">{category.emoji}</span>{" "}
+                          {category.label}
+                        </span>
+                      )}
+                      <p className="text-sm">
+                        {category ? category.text : nc.description}
+                      </p>
+                    </div>
+                    <p
+                      className={cn(
+                        "text-xs font-medium",
+                        nc.change > 0 ? "text-green-400" : "text-red-400",
+                      )}
+                      title="Week-over-week percent change (current 7-day avg vs previous 7-day avg)."
+                    >
+                      Week-over-week: {nc.change > 0 ? "+" : ""}
+                      {nc.change.toFixed(1)}%
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm">{nc.description}</p>
-                  <p
-                    className={cn(
-                      "text-xs font-medium",
-                      nc.change > 0 ? "text-green-400" : "text-red-400",
-                    )}
-                  >
-                    {nc.change > 0 ? "+" : ""}
-                    {nc.change.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

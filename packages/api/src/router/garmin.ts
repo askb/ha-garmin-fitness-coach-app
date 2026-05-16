@@ -115,13 +115,13 @@ export const garminRouter = {
     }),
 
   getTrainingSummary: protectedProcedure
-    .input(z.object({ days: z.number().min(1).max(30).default(7) }).optional())
+    .input(z.object({ days: z.number().min(1).max(30).default(14) }).optional())
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      const days = input?.days ?? 7;
+      const days = input?.days ?? 14;
 
-      // Use an exclusive lower bound so a `days=7` window returns 7 calendar
-      // days, not 8. `gte` against `since + 1` is equivalent to `gt(since)`.
+      // Use an exclusive lower bound so a `days=N` window returns N calendar
+      // days, not N+1. `gte` against `since + 1` is equivalent to `gt(since)`.
       const since = new Date();
       since.setUTCDate(since.getUTCDate() - days + 1);
       const sinceStr = since.toISOString().split("T")[0]!;
@@ -151,29 +151,47 @@ export const garminRouter = {
       // UI's "Garmin Native" card was rendering all em-dashes because it
       // pulled `rows[0]` (today) verbatim. Fall back per-field to the most
       // recent date in the window that actually has data.
-      function latestNonNull<K extends keyof (typeof rows)[number]>(
+      function latestNonNullRow<K extends keyof (typeof rows)[number]>(
         key: K,
-      ): (typeof rows)[number][K] | null {
+      ): (typeof rows)[number] | null {
         for (const row of rows) {
           const v = row[key];
-          if (v != null) return v;
+          if (v != null) return row;
         }
         return null;
       }
 
+      const readinessRow = latestNonNullRow("garminTrainingReadiness");
+      const readinessLevelRow = latestNonNullRow(
+        "garminTrainingReadinessLevel",
+      );
+      const trainingLoadRow = latestNonNullRow("garminTrainingLoad");
+      const trainingStatusRow = latestNonNullRow("garminTrainingStatus");
+      const loadFocusRow = latestNonNullRow("garminLoadFocus");
+      const recoveryHoursRow = latestNonNullRow("garminRecoveryHours");
+
       const latest = rows[0]
         ? {
             ...rows[0],
-            garminTrainingReadiness: latestNonNull("garminTrainingReadiness"),
-            garminTrainingReadinessLevel: latestNonNull(
-              "garminTrainingReadinessLevel",
-            ),
-            garminTrainingLoad: latestNonNull("garminTrainingLoad"),
-            garminTrainingStatus: latestNonNull("garminTrainingStatus"),
-            garminLoadFocus: latestNonNull("garminLoadFocus"),
-            garminRecoveryHours: latestNonNull("garminRecoveryHours"),
+            garminTrainingReadiness:
+              readinessRow?.garminTrainingReadiness ?? null,
+            garminTrainingReadinessLevel:
+              readinessLevelRow?.garminTrainingReadinessLevel ?? null,
+            garminTrainingLoad: trainingLoadRow?.garminTrainingLoad ?? null,
+            garminTrainingStatus:
+              trainingStatusRow?.garminTrainingStatus ?? null,
+            garminLoadFocus: loadFocusRow?.garminLoadFocus ?? null,
+            garminRecoveryHours: recoveryHoursRow?.garminRecoveryHours ?? null,
           }
         : null;
+      const latestDates = {
+        garminTrainingReadiness: readinessRow?.date ?? null,
+        garminTrainingReadinessLevel: readinessLevelRow?.date ?? null,
+        garminTrainingLoad: trainingLoadRow?.date ?? null,
+        garminTrainingStatus: trainingStatusRow?.date ?? null,
+        garminLoadFocus: loadFocusRow?.date ?? null,
+        garminRecoveryHours: recoveryHoursRow?.date ?? null,
+      };
       const hrvSeries = rows
         .filter((r) => r.hrv != null)
         .map((r) => ({ date: r.date, hrv: r.hrv! }))
@@ -198,6 +216,7 @@ export const garminRouter = {
       return {
         days,
         latest,
+        latestDates,
         hrvSeries,
         hrvAvg: hrvAvg != null ? Math.round(hrvAvg * 10) / 10 : null,
         hrvTrend,

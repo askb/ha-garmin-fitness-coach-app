@@ -475,14 +475,14 @@ export default function CoachPage() {
 
       {/* Quick Actions — always visible above input */}
       {!history.isLoading && (
-        <div className="flex gap-2 overflow-x-auto border-t border-zinc-800/50 px-4 py-2">
+        <div className="flex flex-wrap gap-2 border-t border-zinc-800/50 px-4 py-2">
           {agentConfig.quickActions.map((action) => (
             <button
               key={action.label}
               onClick={() => handleSend(action.message)}
               disabled={sendMutation.isPending}
               className={cn(
-                "shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors disabled:opacity-50",
+                "max-w-full rounded-full border px-3 py-1.5 text-left text-xs whitespace-normal transition-colors disabled:opacity-50",
                 agentConfig.accentBorder,
                 "bg-zinc-800 text-zinc-300 hover:bg-zinc-700",
               )}

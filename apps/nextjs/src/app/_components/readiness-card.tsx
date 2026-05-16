@@ -69,7 +69,7 @@ function DataQualityDots({ dq }: { dq: DataQuality }) {
   ];
   return (
     <div
-      className="mt-2 flex flex-wrap gap-2"
+      className="mt-2 grid grid-cols-2 gap-2 min-[380px]:flex min-[380px]:flex-wrap"
       role="list"
       aria-label="Data quality indicators"
     >
@@ -185,8 +185,8 @@ export function ReadinessCard({
               {score}
             </span>
             {confidencePct != null && (
-              <span className="text-muted-foreground mt-0.5 text-[10px] tabular-nums">
-                {confidencePct}% conf.
+              <span className="text-muted-foreground mt-0.5 text-[9px] tabular-nums">
+                {confidencePct}% confidence
               </span>
             )}
           </div>

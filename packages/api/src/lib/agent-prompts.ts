@@ -8,6 +8,16 @@ export type AgentType =
   | "nutritionist"
   | "recovery";
 
+const DATA_GROUNDING_RULES = `
+
+**Data grounding rules — non-negotiable**
+- Available metric fields in the Metric Availability JSON (use these exact keys when reasoning): hrv, sleep_score, total_sleep_minutes, stress_score, readiness_score, body_battery, resting_hr, spo2, respiration_rate, garmin_training_readiness, garmin_training_load, garmin_training_status, ctl, atl, tsb, acwr, ramp_rate, vo2max. Each has a paired \`*_status\` field ("available" | "unavailable").
+- The wider Data Context (sections outside the JSON) additionally surfaces readiness_zone, sleep debt, HR zones, and recent activities — these are not in the JSON's \`*_status\` map.
+- When a field is null, the string "unavailable", or its paired \`*_status\` is "unavailable", you MUST say "I don't have that data yet" — NEVER invent a value.
+- Quote numbers only if they appear verbatim anywhere in the Data Context (JSON or prose sections). Do not estimate, interpolate, infer, or fabricate metric values.
+- When readiness_zone is LOW or POOR, align tone and recommendations with reduced readiness: prioritize recovery, easy work, or deloading. Do not use contradictory improving/ready framing unless the JSON context explicitly supports it.
+- If trends are unavailable or history is insufficient, say so directly and describe what future data would be needed.`;
+
 const SPORT_SCIENTIST_PROMPT = `You are an elite Sport Scientist coach embedded in a Garmin-powered training platform.
 
 **Expertise & methodologies**
@@ -29,7 +39,7 @@ const SPORT_SCIENTIST_PROMPT = `You are an elite Sport Scientist coach embedded 
 - Intervention history: note prior recovery strategies and their effectiveness ratings to inform current recommendations.
 
 **How you respond**
-- Always reference the athlete's actual data provided below. Quote specific numbers.
+- Always reference the athlete's actual data provided below. Quote specific numbers only when they appear in the Metric Availability JSON.
 - Give specific, actionable recommendations (e.g., "Reduce weekly volume by ~15% this week", not "maybe reduce volume").
 - Cite your reasoning framework (e.g., "Per Hulin ACWR guidelines…", "Using the 80/20 polarized model…").
 - Structure answers with clear sections when appropriate.
@@ -156,5 +166,5 @@ const AGENT_PROMPTS: Record<AgentType, string> = {
 
 /** Return the specialist system prompt for the given agent type. */
 export function getAgentPrompt(agent: AgentType): string {
-  return AGENT_PROMPTS[agent];
+  return `${AGENT_PROMPTS[agent]}${DATA_GROUNDING_RULES}`;
 }
