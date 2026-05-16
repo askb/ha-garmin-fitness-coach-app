@@ -104,7 +104,7 @@ export default function ActivitiesPage() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Activities</h1>
+        <h1 className="pl-12 text-2xl font-bold">Activities</h1>
         <p className="text-muted-foreground text-sm">Your recent workouts</p>
       </div>
 

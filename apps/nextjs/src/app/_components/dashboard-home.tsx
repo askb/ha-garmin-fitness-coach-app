@@ -2,10 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import {
-  formatDateInTz,
-  useUserTimezone,
-} from "~/lib/format-date";
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "./bottom-nav";
 import { DailyOutlookCard } from "./daily-outlook-card";
@@ -145,7 +142,7 @@ export function DashboardHome() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Good morning 👋</h1>
+        <h1 className="pl-12 text-2xl font-bold">Good morning 👋</h1>
         <p className="text-muted-foreground text-sm">
           {formatDateInTz(new Date(), timezone, {
             weekday: "long",

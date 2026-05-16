@@ -114,9 +114,7 @@ export function buildActionSuggestion(
   // today's row may not have HRV yet (Garmin publishes daily HRV the next
   // morning), but a fresh reading from the last few days is still actionable.
   const recentHrv =
-    metric?.hrv ??
-    recentMetrics.find((r) => r.hrv != null)?.hrv ??
-    null;
+    metric?.hrv ?? recentMetrics.find((r) => r.hrv != null)?.hrv ?? null;
   if (dq.hrv === "missing") {
     return "Take it easy today — HRV data is unavailable. Consider an easy 30-min walk instead of your planned session.";
   }

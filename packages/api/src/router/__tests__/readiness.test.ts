@@ -3,10 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import {
-  buildActionSuggestion,
-  computeDataQuality,
-} from "../readiness";
+import { buildActionSuggestion, computeDataQuality } from "../readiness";
 
 // Minimal shape — only the fields the helpers actually read.
 type Row = {
@@ -17,10 +14,7 @@ type Row = {
   sleepDebtMinutes?: number | null;
 };
 
-function row(
-  date: string,
-  overrides: Partial<Row> = {},
-): Row {
+function row(date: string, overrides: Partial<Row> = {}): Row {
   return {
     date,
     hrv: null,
@@ -65,10 +59,7 @@ describe("computeDataQuality — Garmin next-morning publish lag", () => {
   });
 
   it("reports HRV as 'stale' when the most recent reading is 5 days old", () => {
-    const recent = [
-      row(today),
-      row("2026-05-11", { hrv: 65 }),
-    ];
+    const recent = [row(today), row("2026-05-11", { hrv: 65 })];
     const dq = computeDataQuality(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       recent[0] as any,

@@ -52,8 +52,10 @@ export function formatDateInTz(
   if (value == null) return "—";
   const d = toDate(value);
   if (!d) return "—";
-  return new Intl.DateTimeFormat("en-US", { ...options, timeZone: timezone })
-    .format(d);
+  return new Intl.DateTimeFormat("en-US", {
+    ...options,
+    timeZone: timezone,
+  }).format(d);
 }
 
 /**
@@ -70,6 +72,8 @@ export function formatTimeInTz(
   if (value == null) return "—";
   const d = toDate(value);
   if (!d) return "—";
-  return new Intl.DateTimeFormat("en-US", { ...options, timeZone: timezone })
-    .format(d);
+  return new Intl.DateTimeFormat("en-US", {
+    ...options,
+    timeZone: timezone,
+  }).format(d);
 }
