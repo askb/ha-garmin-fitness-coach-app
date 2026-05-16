@@ -84,9 +84,12 @@ export function GarminTrainingSummary() {
   const recoveryAsOf = staleCaption(
     summary.data?.latestDates.garminRecoveryHours,
   );
+  // Only show the status date when the status itself is available — falling
+  // back to garminTrainingReadinessLevel's date here would attach an unrelated
+  // timestamp to an "unavailable" status (e.g. rendering
+  // "unavailable · as of Mon May 12" when the status column is genuinely null).
   const statusAsOf = staleCaption(
-    summary.data?.latestDates.garminTrainingStatus ??
-      summary.data?.latestDates.garminTrainingReadinessLevel,
+    summary.data?.latestDates.garminTrainingStatus,
   );
   const trend = trendChip(
     (summary.data?.hrvTrend as "rising" | "falling" | "stable" | null) ?? null,
@@ -159,7 +162,9 @@ export function GarminTrainingSummary() {
               : "—"}
           </div>
           <div className="text-muted-foreground mt-0.5 text-xs">
-            {latest.garminTrainingReadinessLevel?.toLowerCase() ?? "—"}
+            {latest.garminTrainingStatus
+              ? (latest.garminTrainingReadinessLevel?.toLowerCase() ?? "")
+              : "unavailable"}
             {statusAsOf ? ` · ${statusAsOf}` : ""}
           </div>
         </div>
