@@ -82,6 +82,18 @@ function acwrStatus(acwr: number): string {
   return "High injury risk";
 }
 
+function statusFor(value: unknown): "available" | "unavailable" {
+  return value == null ? "unavailable" : "available";
+}
+
+function numericOrNull(value: number | null | undefined): number | null {
+  return value == null ? null : value;
+}
+
+function stringOrUnavailable(value: string | null | undefined): string {
+  return value == null || value === "" ? "unavailable" : value;
+}
+
 // ---------------------------------------------------------------------------
 // Main context builder
 // ---------------------------------------------------------------------------
@@ -220,7 +232,73 @@ export async function buildDataContext(
     return "No athlete data available yet — Garmin has not been synced.";
   }
 
-  const sections: string[] = [];
+  const todayMetric = metrics14[0];
+  const latestAdvMetric = advancedMetrics42[0];
+  const asOfDate =
+    latestReadiness?.date ??
+    todayMetric?.date ??
+    latestAdvMetric?.date ??
+    latestVo2?.date ??
+    dateNDaysAgo(0);
+  const readinessZone = latestReadiness?.zone ?? "unavailable";
+  const latestVo2Value = latestVo2?.value ?? profile?.vo2maxRunning;
+
+  const metricContext = {
+    as_of_date: asOfDate,
+    readiness_zone: readinessZone,
+    readiness: numericOrNull(latestReadiness?.score),
+    readiness_status: statusFor(latestReadiness?.score),
+    hrv: numericOrNull(todayMetric?.hrv),
+    hrv_status: statusFor(todayMetric?.hrv),
+    sleep_score: numericOrNull(todayMetric?.sleepScore),
+    sleep_score_status: statusFor(todayMetric?.sleepScore),
+    total_sleep_minutes: numericOrNull(todayMetric?.totalSleepMinutes),
+    total_sleep_minutes_status: statusFor(todayMetric?.totalSleepMinutes),
+    stress_score: numericOrNull(todayMetric?.stressScore),
+    stress_score_status: statusFor(todayMetric?.stressScore),
+    resting_hr: numericOrNull(todayMetric?.restingHr),
+    resting_hr_status: statusFor(todayMetric?.restingHr),
+    body_battery: numericOrNull(todayMetric?.bodyBatteryEnd),
+    body_battery_status: statusFor(todayMetric?.bodyBatteryEnd),
+    spo2: numericOrNull(todayMetric?.spo2),
+    spo2_status: statusFor(todayMetric?.spo2),
+    respiration_rate: numericOrNull(todayMetric?.respirationRate),
+    respiration_rate_status: statusFor(todayMetric?.respirationRate),
+    garmin_training_readiness: numericOrNull(
+      todayMetric?.garminTrainingReadiness,
+    ),
+    garmin_training_readiness_status: statusFor(
+      todayMetric?.garminTrainingReadiness,
+    ),
+    garmin_training_load: numericOrNull(todayMetric?.garminTrainingLoad),
+    garmin_training_load_status: statusFor(todayMetric?.garminTrainingLoad),
+    garmin_training_status: stringOrUnavailable(
+      todayMetric?.garminTrainingStatus,
+    ),
+    garmin_training_status_status: statusFor(todayMetric?.garminTrainingStatus),
+    ctl: numericOrNull(latestAdvMetric?.ctl),
+    ctl_status: statusFor(latestAdvMetric?.ctl),
+    atl: numericOrNull(latestAdvMetric?.atl),
+    atl_status: statusFor(latestAdvMetric?.atl),
+    tsb: numericOrNull(latestAdvMetric?.tsb),
+    tsb_status: statusFor(latestAdvMetric?.tsb),
+    acwr: numericOrNull(latestAdvMetric?.acwr),
+    acwr_status: statusFor(latestAdvMetric?.acwr),
+    ramp_rate: numericOrNull(latestAdvMetric?.rampRate),
+    ramp_rate_status: statusFor(latestAdvMetric?.rampRate),
+    vo2max: numericOrNull(latestVo2Value),
+    vo2max_status: statusFor(latestVo2Value),
+  };
+
+  const sections: string[] = [
+    [
+      "## Metric Availability JSON",
+      'Only quote metric numbers that appear in this JSON. If a *_status field is unavailable, say "I don\'t have that data yet" for that metric.',
+      "```json",
+      JSON.stringify(metricContext, null, 2),
+      "```",
+    ].join("\n"),
+  ];
 
   // 1. Athlete Profile -----------------------------------------------------
   {
