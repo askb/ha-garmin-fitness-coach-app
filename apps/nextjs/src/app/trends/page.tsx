@@ -123,9 +123,10 @@ function formatDate(iso: string): string {
 }
 
 function isToday(iso: string): boolean {
-  const now = new Date();
-  const todayLocal = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  return iso === todayLocal;
+  // `nc.date` is normalized to UTC YYYY-MM-DD by the engine (see
+  // packages/engine/src/trends/index.ts). Compare against today's UTC date
+  // so the label stays consistent with the underlying data.
+  return iso === new Date().toISOString().split("T")[0];
 }
 
 function splitCategory(description: string): {
