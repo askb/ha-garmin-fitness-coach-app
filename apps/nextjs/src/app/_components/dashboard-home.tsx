@@ -9,6 +9,7 @@ import { DailyOutlookCard } from "./daily-outlook-card";
 import { IngressLink as Link } from "./ingress-link";
 import { QuickStats } from "./quick-stats";
 import { ReadinessCard } from "./readiness-card";
+import { getReadinessComponent } from "./readiness-helpers";
 import { WorkoutCard } from "./workout-card";
 
 export function DashboardHome() {
@@ -35,31 +36,14 @@ export function DashboardHome() {
 
   // Extract readiness component (0-100 scale each).
   // Cached DB rows use top-level fields (e.g. hrvComponent);
-  // freshly computed results nest under components.xxx.
-  function getComponent(
-    data: Record<string, unknown> | null | undefined,
-    topKey: string,
-    nestedKey: string,
-  ): number | null {
-    const top = data?.[topKey];
-    if (typeof top === "number") return top;
-    const comps = data?.components;
-    if (comps && typeof comps === "object") {
-      const nested = (comps as Record<string, unknown>)[nestedKey];
-      if (typeof nested === "number") return nested;
-    }
-    const factors = data?.factors;
-    if (factors && typeof factors === "object") {
-      const nested = (factors as Record<string, unknown>)[nestedKey];
-      if (typeof nested === "number") return nested;
-    }
-    return null;
-  }
+  // freshly computed results nest under components.xxx; legacy
+  // Garmin-native rows preserve scores only in the factors JSONB.
+  // See readiness-helpers.ts for the lookup priority.
 
-  const sleepRaw = getComponent(r, "sleepQuantityComponent", "sleepQuantity");
-  const hrvRaw = getComponent(r, "hrvComponent", "hrv");
-  const loadRaw = getComponent(r, "trainingLoadComponent", "trainingLoad");
-  const stressRaw = getComponent(r, "stressComponent", "stress");
+  const sleepRaw = getReadinessComponent(r, "sleepQuantityComponent", "sleepQuantity");
+  const hrvRaw = getReadinessComponent(r, "hrvComponent", "hrv");
+  const loadRaw = getReadinessComponent(r, "trainingLoadComponent", "trainingLoad");
+  const stressRaw = getReadinessComponent(r, "stressComponent", "stress");
 
   const sleepVal = sleepRaw != null ? Math.round(sleepRaw) : null;
   const hrvVal = hrvRaw != null ? Math.round(hrvRaw) : null;
