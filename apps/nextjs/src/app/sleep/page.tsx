@@ -264,13 +264,11 @@ export default function SleepDashboard() {
     if (!raw) return [];
     const data = [...raw].reverse();
     const slice = data.slice(-7);
-    const fallbackNeed =
-      coachData?.recommendedDurationMinutes ?? 480; // 8h default
+    const fallbackNeed = coachData?.recommendedDurationMinutes ?? 480; // 8h default
     return slice.map((d) => {
       const need = d.sleepNeedMinutes ?? fallbackNeed;
       const actual = d.totalSleepMinutes;
-      const computed =
-        actual != null ? Math.max(0, need - actual) : 0;
+      const computed = actual != null ? Math.max(0, need - actual) : 0;
       const debt = d.sleepDebt ?? computed;
       return {
         date: fmtDateShort(d.date, slice.length),
@@ -316,7 +314,7 @@ export default function SleepDashboard() {
       {/* Header: Sleep Coach Recommendation                                 */}
       {/* ================================================================== */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Sleep Dashboard</h1>
+        <h1 className="pl-12 text-2xl font-bold">Sleep Dashboard</h1>
         <p className="text-muted-foreground text-sm">
           Your sleep insights &amp; coaching
         </p>

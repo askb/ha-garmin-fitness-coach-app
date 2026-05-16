@@ -550,7 +550,7 @@ export default function InsightsPage() {
       <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
         {/* ── Header ── */}
         <div>
-          <h1 className="text-2xl font-bold pl-12">Insights</h1>
+          <h1 className="pl-12 text-2xl font-bold">Insights</h1>
           <p className="text-muted-foreground text-sm">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
