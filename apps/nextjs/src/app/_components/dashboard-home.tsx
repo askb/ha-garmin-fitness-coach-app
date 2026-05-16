@@ -48,6 +48,11 @@ export function DashboardHome() {
       const nested = (comps as Record<string, unknown>)[nestedKey];
       if (typeof nested === "number") return nested;
     }
+    const factors = data?.factors;
+    if (factors && typeof factors === "object") {
+      const nested = (factors as Record<string, unknown>)[nestedKey];
+      if (typeof nested === "number") return nested;
+    }
     return null;
   }
 
