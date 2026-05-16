@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
@@ -210,7 +211,9 @@ type Preference = "higher" | "lower";
 const COMPACT_UNITS = new Set(["%", "°C"]);
 
 function formatDate(d: string) {
-  return new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+  // Note: chart axis labels — noon-UTC anchor is acceptable here since
+  // we only render month/day on the axis, not the full timestamp.
+  return new Date(d + "T12:00:00Z").toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
@@ -479,6 +482,7 @@ function VitalMetricSection({
 export default function VitalsPage() {
   const [days, setDays] = useState(30);
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
 
   const { data, isLoading } = useQuery(
     trpc.vitals.getTrends.queryOptions({ days }),

@@ -12,6 +12,12 @@
  */
 import { useEffect, useState } from "react";
 
+import {
+  formatDateInTz,
+  formatTimeInTz,
+  useUserTimezone,
+} from "~/lib/format-date";
+
 function format(deltaMs: number): string {
   if (deltaMs < 0) return "just now";
   const seconds = Math.floor(deltaMs / 1000);
@@ -35,6 +41,7 @@ export function DataFreshness({
   className = "",
   prefix = "updated",
 }: Props) {
+  const timezone = useUserTimezone();
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -49,8 +56,13 @@ export function DataFreshness({
       : computedAt.getTime();
   if (!Number.isFinite(ts)) return null;
 
+  const absolute = `${formatDateInTz(computedAt, timezone, { month: "short", day: "numeric", year: "numeric" })} at ${formatTimeInTz(computedAt, timezone)}`;
+
   return (
-    <span className={`text-muted-foreground text-[10px] ${className}`}>
+    <span
+      className={`text-muted-foreground text-[10px] ${className}`}
+      title={absolute}
+    >
       {prefix} {format(now - ts)}
     </span>
   );

@@ -8,6 +8,11 @@ import { Button } from "@acme/ui/button";
 import { Input } from "@acme/ui/input";
 import { Label } from "@acme/ui/label";
 
+import {
+  formatDateInTz,
+  formatTimeInTz,
+  useUserTimezone,
+} from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -462,6 +467,7 @@ interface AuthResponse {
 }
 
 function GarminConnection() {
+  const timezone = useUserTimezone();
   const [status, setStatus] = useState<GarminStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -680,7 +686,13 @@ function GarminConnection() {
             </p>
             {status.lastSync && (
               <p className="text-muted-foreground text-xs">
-                Last sync: {new Date(status.lastSync).toLocaleString()}
+                Last sync:{" "}
+                {formatDateInTz(status.lastSync, timezone, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}{" "}
+                at {formatTimeInTz(status.lastSync, timezone)}
               </p>
             )}
           </div>

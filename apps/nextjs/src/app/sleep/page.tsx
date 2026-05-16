@@ -19,6 +19,7 @@ import {
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
@@ -44,12 +45,15 @@ function minToHours(min: number): number {
 }
 
 /** Format a date string as short day name or "Mon D" depending on range */
-function fmtDateShort(iso: string, totalDays: number): string {
-  const d = new Date(iso + "T00:00:00");
+function fmtDateShort(
+  iso: string,
+  totalDays: number,
+  timezone: string,
+): string {
   if (totalDays <= 7) {
-    return d.toLocaleDateString("en-US", { weekday: "short" });
+    return formatDateInTz(iso, timezone, { weekday: "short" });
   }
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return formatDateInTz(iso, timezone, { month: "short", day: "numeric" });
 }
 
 /** Format a clock time given as minutes-from-midnight (or decimal hours) */
@@ -95,6 +99,7 @@ function debtTextColor(debt: number): string {
 
 export default function SleepDashboard() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const [sleepDays, setSleepDays] = useState(28);
 
   // ---- Data queries ----
@@ -173,7 +178,7 @@ export default function SleepDashboard() {
     }
 
     return { avgDuration, avgScore, currentDebt, avgEfficiency };
-  }, [history.data]);
+  }, [history.data, timezone]);
 
   // ---- Derived: Sleep stages chart data ----
   const stagesChartData = useMemo(() => {
@@ -190,14 +195,14 @@ export default function SleepDashboard() {
     if (!raw) return [];
     const data = [...raw].reverse();
     return data.map((d) => ({
-      date: fmtDateShort(d.date, data.length),
+      date: fmtDateShort(d.date, data.length, timezone),
       deep: minToHours(d.deepMinutes),
       rem: minToHours(d.remMinutes),
       light: minToHours(d.lightMinutes),
       awake: minToHours(d.awakeMinutes),
       need: d.sleepNeedMinutes ? minToHours(d.sleepNeedMinutes) : undefined,
     }));
-  }, [stages.data]);
+  }, [stages.data, timezone]);
 
   // True when data exists but all detailed stage values are zero/null —
   // indicating the device doesn't support sleep stage tracking.
@@ -220,11 +225,11 @@ export default function SleepDashboard() {
     const scores = data.map((d) => d.sleepScore);
     const ma = data.length > 14 ? movingAvg(scores, 7) : null;
     return data.map((d, i) => ({
-      date: fmtDateShort(d.date, data.length),
+      date: fmtDateShort(d.date, data.length, timezone),
       score: d.sleepScore,
       avg: ma ? ma[i] : undefined,
     }));
-  }, [history.data]);
+  }, [history.data, timezone]);
 
   // ---- Derived: Sleep vs Need chart ----
   const vsNeedChartData = useMemo(() => {
@@ -240,11 +245,11 @@ export default function SleepDashboard() {
     // Show last 14 days for readability
     const slice = data.slice(-14);
     return slice.map((d) => ({
-      date: fmtDateShort(d.date, slice.length),
+      date: fmtDateShort(d.date, slice.length, timezone),
       actual: d.totalSleepMinutes ? minToHours(d.totalSleepMinutes) : null,
       need: d.sleepNeedMinutes ? minToHours(d.sleepNeedMinutes) : null,
     }));
-  }, [history.data]);
+  }, [history.data, timezone]);
 
   // ---- Derived: Sleep debt tracker (last 7 days) ----
   // Daily debt = max(0, sleepNeed - actualSleep). The historic
@@ -271,12 +276,12 @@ export default function SleepDashboard() {
       const computed = actual != null ? Math.max(0, need - actual) : 0;
       const debt = d.sleepDebt ?? computed;
       return {
-        date: fmtDateShort(d.date, slice.length),
+        date: fmtDateShort(d.date, slice.length, timezone),
         debt,
         color: debtColor(debt),
       };
     });
-  }, [history.data, coachData?.recommendedDurationMinutes]);
+  }, [history.data, coachData?.recommendedDurationMinutes, timezone]);
 
   // ---- Derived: Sleep timing range chart ----
   const timingChartData = useMemo(() => {
@@ -296,7 +301,7 @@ export default function SleepDashboard() {
       let start = d.sleepStartTime;
       if (start != null && start < 720) start += 1440;
       return {
-        date: fmtDateShort(d.date, slice.length),
+        date: fmtDateShort(d.date, slice.length, timezone),
         bedtime: start ?? null,
         wakeTime: d.sleepEndTime ?? null,
         range:
@@ -305,7 +310,7 @@ export default function SleepDashboard() {
             : [null, null],
       };
     });
-  }, [history.data]);
+  }, [history.data, timezone]);
 
   // ---------------------------------------------------------------------------
   return (

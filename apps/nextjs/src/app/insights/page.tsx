@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@acme/ui";
 import { toast } from "@acme/ui/toast";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -445,6 +446,7 @@ function InsightCardUI({ insight }: { insight: InsightCard }) {
 
 export default function InsightsPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
 
   // Proactive AI insights — refetch every 5 minutes to catch post-sync updates
@@ -552,7 +554,7 @@ export default function InsightsPage() {
         <div>
           <h1 className="pl-12 text-2xl font-bold">Insights</h1>
           <p className="text-muted-foreground text-sm">
-            {new Date().toLocaleDateString("en-US", {
+            {formatDateInTz(new Date(), timezone, {
               weekday: "long",
               month: "long",
               day: "numeric",

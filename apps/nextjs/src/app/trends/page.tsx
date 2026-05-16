@@ -16,6 +16,7 @@ import {
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
@@ -117,9 +118,8 @@ function correlationPeriod(p: Period): CorrelationPeriod {
   return "30d";
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function formatDate(iso: string, timezone: string): string {
+  return formatDateInTz(iso, timezone, { month: "short", day: "numeric" });
 }
 
 function isToday(iso: string): boolean {
@@ -178,6 +178,7 @@ export default function TrendsPage() {
   const [period, setPeriod] = useState<Period>("28d");
   const days = daysFor(period);
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const useSmoothed = days > 90;
 
   // ---- Summary stats ----
@@ -285,7 +286,7 @@ export default function TrendsPage() {
 
       return dates.map((date) => ({
         date,
-        label: formatDate(date),
+        label: formatDate(date, timezone),
         readiness: readMap.get(date) ?? null,
         sleep: sleepMap.get(date) ?? null,
         hrv: hrvMap.get(date) ?? null,
@@ -312,12 +313,13 @@ export default function TrendsPage() {
 
     return dates.map((date) => ({
       date,
-      label: formatDate(date),
+      label: formatDate(date, timezone),
       readiness: maps.readiness?.get(date) ?? null,
       sleep: maps.sleep?.get(date) ?? null,
       hrv: maps.hrv?.get(date) ?? null,
     }));
   }, [
+    timezone,
     useSmoothed,
     multiChart.data,
     rollingReadiness.data,
@@ -679,7 +681,9 @@ export default function TrendsPage() {
                 >
                   <div className="text-muted-foreground mt-0.5 w-16 shrink-0 text-xs font-medium">
                     <div>
-                      {isToday(nc.date) ? "Today" : formatDate(nc.date)}
+                      {isToday(nc.date)
+                        ? "Today"
+                        : formatDate(nc.date, timezone)}
                     </div>
                     <div className="text-[10px] font-normal">
                       week-over-week

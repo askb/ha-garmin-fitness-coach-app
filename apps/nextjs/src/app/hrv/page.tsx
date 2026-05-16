@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@acme/ui";
 
+import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
@@ -62,15 +63,15 @@ const HRV_PRESETS = [
   { label: "1y", days: 365 },
 ];
 
-function fmtDateShort(d: string): string {
-  const date = new Date(d);
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function fmtDateShort(d: string, timezone: string): string {
+  return formatDateInTz(d, timezone, { month: "short", day: "numeric" });
 }
 
 /* ─────────────── page ─────────────── */
 
 export default function HrvPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const [days, setDays] = useState(90);
 
   const { data, isLoading } = useQuery(
@@ -99,7 +100,7 @@ export default function HrvPage() {
     for (const d of data.daily) {
       map.set(d.date, {
         date: d.date,
-        label: fmtDateShort(d.date),
+        label: fmtDateShort(d.date, timezone),
         daily: d.value,
       });
     }
@@ -115,7 +116,7 @@ export default function HrvPage() {
     return Array.from(map.values()).sort((a, b) =>
       a.date.localeCompare(b.date),
     );
-  }, [data]);
+  }, [data, timezone]);
 
   // CV% over time: compute rolling 7-day CV for each point
   const cvData = useMemo(() => {
@@ -130,12 +131,12 @@ export default function HrvPage() {
       const cv = Math.round((std / mean) * 1000) / 10;
       result.push({
         date: data.daily[i]!.date,
-        label: fmtDateShort(data.daily[i]!.date),
+        label: fmtDateShort(data.daily[i]!.date, timezone),
         cv,
       });
     }
     return result;
-  }, [data]);
+  }, [data, timezone]);
 
   return (
     <main className="mx-auto flex max-w-lg flex-col gap-4 px-4 pt-6 pb-24">

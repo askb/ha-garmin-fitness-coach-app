@@ -31,7 +31,29 @@ export function useUserTimezone(): string {
   return "UTC";
 }
 
-function toDate(value: Date | string | number): Date | null {
+function toDate(value: Date | string | number, timezone?: string): Date | null {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    // Anchoring a bare YYYY-MM-DD at noon UTC breaks at IANA zones whose
+    // offset from UTC is >12h (e.g. Pacific/Kiritimati at UTC+14, or some
+    // historical zones at UTC-12+DST). When a target timezone is supplied,
+    // probe both 12:00 UTC and 00:00 UTC and pick the one whose calendar
+    // day in `timezone` matches the requested Y-M-D.
+    const noonUtc = new Date(`${value}T12:00:00.000Z`);
+    if (!timezone) return noonUtc;
+    const dayInTz = (d: Date) =>
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone: timezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(d);
+    if (dayInTz(noonUtc) === value) return noonUtc;
+    const midnightUtc = new Date(`${value}T00:00:00.000Z`);
+    if (dayInTz(midnightUtc) === value) return midnightUtc;
+    const lateUtc = new Date(`${value}T23:00:00.000Z`);
+    if (dayInTz(lateUtc) === value) return lateUtc;
+    return noonUtc;
+  }
   const d = value instanceof Date ? value : new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
 }
@@ -50,7 +72,7 @@ export function formatDateInTz(
   },
 ): string {
   if (value == null) return "—";
-  const d = toDate(value);
+  const d = toDate(value, timezone);
   if (!d) return "—";
   return new Intl.DateTimeFormat("en-US", {
     ...options,
@@ -71,7 +93,7 @@ export function formatTimeInTz(
   },
 ): string {
   if (value == null) return "—";
-  const d = toDate(value);
+  const d = toDate(value, timezone);
   if (!d) return "—";
   return new Intl.DateTimeFormat("en-US", {
     ...options,
