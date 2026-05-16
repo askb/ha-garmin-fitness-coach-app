@@ -83,7 +83,9 @@ function acwrStatus(acwr: number): string {
 }
 
 function statusFor(value: unknown): "available" | "unavailable" {
-  return value == null ? "unavailable" : "available";
+  if (value == null) return "unavailable";
+  if (typeof value === "string" && value === "") return "unavailable";
+  return "available";
 }
 
 function numericOrNull(value: number | null | undefined): number | null {
