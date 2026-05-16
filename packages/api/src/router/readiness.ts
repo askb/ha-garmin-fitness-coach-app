@@ -37,8 +37,9 @@ function daysBetween(dateStr: string, today: string): number {
   );
 }
 
-function computeDataQuality(
+export function computeDataQuality(
   metric: typeof DailyMetric.$inferSelect | null,
+  recentMetrics: (typeof DailyMetric.$inferSelect)[],
   recentActivityCount: number,
   today: string,
 ): DataQuality {
@@ -51,11 +52,38 @@ function computeDataQuality(
   const daysOld = metricDate ? daysBetween(metricDate, today) : 999;
   const stale = daysOld > 3;
 
+  // Garmin publishes daily HRV / sleep / RHR with a delay — today's row is
+  // often created by an activity sync hours before the next-morning health
+  // snapshot lands. Treat each field as "good" if any of the last 3 days
+  // has a value, "stale" if the most recent value is 4-7 days old, and
+  // "missing" only when there has been no value for >7 days. This matches
+  // how the engine actually consumes these metrics (it uses the most recent
+  // non-null reading against the baseline window).
+  function fieldQuality(
+    pick: (row: typeof DailyMetric.$inferSelect) => number | null | undefined,
+  ): DataQualityStatus {
+    const todayValue = metric ? pick(metric) : null;
+    if (todayValue != null) return stale ? "stale" : "good";
+    for (const row of recentMetrics) {
+      const v = pick(row);
+      if (v != null) {
+        const rowDate =
+          typeof row.date === "string"
+            ? row.date
+            : (row.date as Date).toISOString().split("T")[0]!;
+        const age = daysBetween(rowDate, today);
+        if (age <= 3) return "good";
+        if (age <= 7) return "stale";
+        return "missing";
+      }
+    }
+    return "missing";
+  }
+
   return {
-    hrv: metric?.hrv == null ? "missing" : stale ? "stale" : "good",
-    sleep:
-      metric?.totalSleepMinutes == null ? "missing" : stale ? "stale" : "good",
-    restingHr: metric?.restingHr == null ? "missing" : stale ? "stale" : "good",
+    hrv: fieldQuality((r) => r.hrv),
+    sleep: fieldQuality((r) => r.totalSleepMinutes),
+    restingHr: fieldQuality((r) => r.restingHr),
     trainingLoad:
       recentActivityCount === 0 ? "missing" : daysOld > 7 ? "stale" : "good",
   };
@@ -70,10 +98,11 @@ function computeConfidence(dq: DataQuality): number {
   return Math.max(confidence, 0.3);
 }
 
-function buildActionSuggestion(
+export function buildActionSuggestion(
   score: number,
   dq: DataQuality,
   metric: typeof DailyMetric.$inferSelect | null,
+  recentMetrics: (typeof DailyMetric.$inferSelect)[] = [],
 ): string {
   if (score >= 80) {
     return "You're well recovered — today is a good day for a quality session or race effort.";
@@ -81,15 +110,18 @@ function buildActionSuggestion(
   if (score >= 60) {
     return "Moderate readiness — stick to planned training but listen to your body.";
   }
-  // Below 60: find worst component
-  if (dq.hrv !== "good" || metric?.hrv != null) {
-    const hrv = metric?.hrv;
-    if (dq.hrv !== "good") {
-      return "Take it easy today — HRV data is unavailable. Consider an easy 30-min walk instead of your planned session.";
-    }
-    if (hrv != null) {
-      return `Take it easy today — your HRV of ${hrv.toFixed(0)}ms is below baseline. Consider an easy 30-min walk instead of your planned session.`;
-    }
+  // Below 60: find worst component. Use the same lookback as the engine —
+  // today's row may not have HRV yet (Garmin publishes daily HRV the next
+  // morning), but a fresh reading from the last few days is still actionable.
+  const recentHrv =
+    metric?.hrv ??
+    recentMetrics.find((r) => r.hrv != null)?.hrv ??
+    null;
+  if (dq.hrv === "missing") {
+    return "Take it easy today — HRV data is unavailable. Consider an easy 30-min walk instead of your planned session.";
+  }
+  if (recentHrv != null) {
+    return `Take it easy today — your HRV of ${recentHrv.toFixed(0)}ms is below baseline. Consider an easy 30-min walk instead of your planned session.`;
   }
   if (dq.sleep !== "good" || metric?.sleepDebtMinutes != null) {
     const debt = metric?.sleepDebtMinutes ?? 0;
@@ -184,6 +216,16 @@ export const readinessRouter = {
       where: and(eq(DailyMetric.userId, userId), eq(DailyMetric.date, today)),
     });
 
+    // Fetch the last 8 days of metrics so computeDataQuality can fall back
+    // to the most recent non-null reading for each field (HRV, sleep, RHR).
+    const recentMetricsForDQ = await ctx.db.query.DailyMetric.findMany({
+      where: and(
+        eq(DailyMetric.userId, userId),
+        gte(DailyMetric.date, getDateString(8)),
+      ),
+      orderBy: desc(DailyMetric.date),
+    });
+
     // Fetch recent activities to determine training load data quality
     const recentActivities = await ctx.db.query.Activity.findMany({
       where: and(
@@ -195,6 +237,7 @@ export const readinessRouter = {
 
     const dq = computeDataQuality(
       todayDbMetric ?? null,
+      recentMetricsForDQ,
       recentActivities.length,
       today,
     );
@@ -213,6 +256,7 @@ export const readinessRouter = {
         existing.score,
         dq,
         todayDbMetric ?? null,
+        recentMetricsForDQ,
       );
       // Sanitize stale debug-style explanations written by older builds of
       // the engine, e.g.:
@@ -271,6 +315,7 @@ export const readinessRouter = {
       result.score,
       dq,
       todayDbMetric ?? null,
+      recentMetricsForDQ,
     );
 
     // Daily target-strain band (WHOOP-style coaching) — uses readiness
