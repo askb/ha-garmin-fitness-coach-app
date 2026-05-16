@@ -12,11 +12,19 @@ function getDateString(daysAgo: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+type DailyMetricRow = typeof DailyMetric.$inferSelect;
+type TrendPoint = { date: string; value: number };
+type MetricStatus =
+  | "normal"
+  | "low"
+  | "critical"
+  | "elevated"
+  | "high"
+  | "depleted"
+  | "no_data";
+
 /** Compute a rolling average over `window` days. */
-function computeRolling(
-  data: { date: string; value: number }[],
-  window: number,
-) {
+function computeRolling(data: TrendPoint[], window: number) {
   return data.map((d, i) => {
     const start = Math.max(0, i - window + 1);
     const slice = data.slice(start, i + 1);
@@ -37,13 +45,71 @@ function deviationAbs(current: number, baseline: number): number | null {
   return Math.round((current - baseline) * 10) / 10;
 }
 
+function latestValue(data: TrendPoint[]): number | null {
+  return data.length > 0 ? data[data.length - 1]!.value : null;
+}
+
+function buildTrend(
+  metrics: DailyMetricRow[],
+  displaySince: string,
+  getValue: (metric: DailyMetricRow) => number | null | undefined,
+) {
+  const allData = metrics
+    .map((m) => ({ date: m.date as string, value: getValue(m) }))
+    .filter((m): m is TrendPoint => m.value !== null && m.value !== undefined);
+  const displayData = allData.filter((m) => m.date >= displaySince);
+  const baselineWindow = allData.slice(-30);
+  const baselineDays = baselineWindow.length;
+  const baseline =
+    baselineDays >= 30
+      ? Math.round(
+          (baselineWindow.reduce((sum, m) => sum + m.value, 0) / baselineDays) *
+            10,
+        ) / 10
+      : null;
+
+  return {
+    daily: displayData,
+    rolling7d: computeRolling(displayData, 7),
+    baseline,
+    latest: latestValue(displayData),
+    daysWithData: displayData.length,
+    baselineDays,
+  };
+}
+
+function assessLowerIsBetter(
+  latest: number | null,
+  baseline: number | null,
+): "normal" | "elevated" | "high" | "no_data" {
+  if (latest === null || baseline === null) return "no_data";
+  const deviation = deviationPct(latest, baseline);
+  if (deviation === null) return "no_data";
+  if (deviation <= 3) return "normal";
+  if (deviation <= 7) return "elevated";
+  return "high";
+}
+
+function assessHigherIsBetter(
+  latest: number | null,
+  baseline: number | null,
+): "normal" | "low" | "critical" | "no_data" {
+  if (latest === null || baseline === null) return "no_data";
+  const deviation = deviationPct(latest, baseline);
+  if (deviation === null) return "no_data";
+  if (deviation >= -3) return "normal";
+  if (deviation >= -7) return "low";
+  return "critical";
+}
+
 export const vitalsRouter = {
-  /** SpO2, respiration rate, and skin temperature trends with baselines */
+  /** Recovery vitals from daily Garmin metrics with 30-day baselines. */
   getTrends: protectedProcedure
     .input(z.object({ days: z.number().min(7).max(365).default(30) }))
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      const since = getDateString(input.days);
+      const displaySince = getDateString(input.days);
+      const since = getDateString(Math.max(input.days, 30));
 
       const metrics = await ctx.db.query.DailyMetric.findMany({
         where: and(
@@ -53,111 +119,104 @@ export const vitalsRouter = {
         orderBy: asc(DailyMetric.date),
       });
 
-      // --- SpO2 ---
-      const spo2Data = metrics
-        .filter((m) => m.spo2 !== null)
-        .map((m) => ({ date: m.date as string, value: m.spo2! }));
+      const spo2 = buildTrend(metrics, displaySince, (m) => m.spo2);
+      const respirationRate = buildTrend(
+        metrics,
+        displaySince,
+        (m) => m.respirationRate,
+      );
+      const skinTemp = buildTrend(metrics, displaySince, (m) => m.skinTemp);
+      const restingHr = buildTrend(metrics, displaySince, (m) => m.restingHr);
+      const bodyBattery = buildTrend(
+        metrics,
+        displaySince,
+        (m) => m.bodyBatteryHigh ?? m.bodyBatteryEnd,
+      );
+      const stress = buildTrend(metrics, displaySince, (m) => m.stressScore);
 
-      const spo2Rolling7d = computeRolling(spo2Data, 7);
-      const spo2Baseline =
-        spo2Rolling7d.length > 0
-          ? spo2Rolling7d[spo2Rolling7d.length - 1]!.value
-          : null;
-      const latestSpo2 =
-        spo2Data.length > 0 ? spo2Data[spo2Data.length - 1]!.value : null;
-
-      // --- Respiration Rate ---
-      const rrData = metrics
-        .filter((m) => m.respirationRate !== null)
-        .map((m) => ({ date: m.date as string, value: m.respirationRate! }));
-
-      const rrRolling7d = computeRolling(rrData, 7);
-      const rrBaseline =
-        rrRolling7d.length > 0
-          ? rrRolling7d[rrRolling7d.length - 1]!.value
-          : null;
-      const latestRR =
-        rrData.length > 0 ? rrData[rrData.length - 1]!.value : null;
-
-      // --- Skin Temperature ---
-      const skinTempData = metrics
-        .filter((m) => m.skinTemp !== null)
-        .map((m) => ({ date: m.date as string, value: m.skinTemp! }));
-
-      const skinTempRolling7d = computeRolling(skinTempData, 7);
-      const skinTempBaseline =
-        skinTempRolling7d.length > 0
-          ? skinTempRolling7d[skinTempRolling7d.length - 1]!.value
-          : null;
-      const latestSkinTemp =
-        skinTempData.length > 0
-          ? skinTempData[skinTempData.length - 1]!.value
-          : null;
-
-      // --- Status assessment ---
       const spo2Status: "normal" | "low" | "critical" | "no_data" =
-        latestSpo2 === null
+        spo2.latest === null
           ? "no_data"
-          : latestSpo2 >= 95
+          : spo2.latest >= 95
             ? "normal"
-            : latestSpo2 >= 90
+            : spo2.latest >= 90
               ? "low"
               : "critical";
 
-      const rrStatus: "normal" | "elevated" | "high" | "no_data" =
-        latestRR === null || rrBaseline === null
+      const skinTempStatus: "normal" | "elevated" | "high" | "no_data" =
+        skinTemp.latest === null || skinTemp.baseline === null
           ? "no_data"
-          : latestRR <= rrBaseline + 1
+          : Math.abs(skinTemp.latest - skinTemp.baseline) <= 0.3
             ? "normal"
-            : latestRR <= rrBaseline + 3
+            : Math.abs(skinTemp.latest - skinTemp.baseline) <= 0.8
               ? "elevated"
               : "high";
 
-      const skinTempStatus: "normal" | "elevated" | "high" | "no_data" =
-        latestSkinTemp === null || skinTempBaseline === null
+      const bodyBatteryStatus: MetricStatus =
+        bodyBattery.latest === null || bodyBattery.baseline === null
           ? "no_data"
-          : Math.abs(latestSkinTemp - skinTempBaseline) <= 0.3
-            ? "normal"
-            : Math.abs(latestSkinTemp - skinTempBaseline) <= 0.8
-              ? "elevated"
-              : "high";
+          : assessHigherIsBetter(bodyBattery.latest, bodyBattery.baseline) ===
+              "critical"
+            ? "depleted"
+            : assessHigherIsBetter(bodyBattery.latest, bodyBattery.baseline);
 
       return {
         spo2: {
-          daily: spo2Data,
-          rolling7d: spo2Rolling7d,
-          baseline: spo2Baseline,
-          latest: latestSpo2,
+          ...spo2,
           status: spo2Status,
           deviation:
-            latestSpo2 != null && spo2Baseline != null
-              ? deviationPct(latestSpo2, spo2Baseline)
+            spo2.latest != null && spo2.baseline != null
+              ? deviationPct(spo2.latest, spo2.baseline)
               : null,
-          daysWithData: spo2Data.length,
         },
         respirationRate: {
-          daily: rrData,
-          rolling7d: rrRolling7d,
-          baseline: rrBaseline,
-          latest: latestRR,
-          status: rrStatus,
+          ...respirationRate,
+          status: assessLowerIsBetter(
+            respirationRate.latest,
+            respirationRate.baseline,
+          ),
           deviation:
-            latestRR != null && rrBaseline != null
-              ? deviationPct(latestRR, rrBaseline)
+            respirationRate.latest != null && respirationRate.baseline != null
+              ? deviationPct(respirationRate.latest, respirationRate.baseline)
               : null,
-          daysWithData: rrData.length,
         },
         skinTemp: {
-          daily: skinTempData,
-          rolling7d: skinTempRolling7d,
-          baseline: skinTempBaseline,
-          latest: latestSkinTemp,
+          ...skinTemp,
           status: skinTempStatus,
           deviation:
-            latestSkinTemp != null && skinTempBaseline != null
-              ? deviationAbs(latestSkinTemp, skinTempBaseline)
+            skinTemp.latest != null && skinTemp.baseline != null
+              ? deviationAbs(skinTemp.latest, skinTemp.baseline)
               : null,
-          daysWithData: skinTempData.length,
+        },
+        restingHr: {
+          ...restingHr,
+          status: assessLowerIsBetter(restingHr.latest, restingHr.baseline),
+          deviation:
+            restingHr.latest != null && restingHr.baseline != null
+              ? deviationPct(restingHr.latest, restingHr.baseline)
+              : null,
+        },
+        bodyBattery: {
+          ...bodyBattery,
+          status: bodyBatteryStatus,
+          deviation:
+            bodyBattery.latest != null && bodyBattery.baseline != null
+              ? deviationPct(bodyBattery.latest, bodyBattery.baseline)
+              : null,
+        },
+        stress: {
+          ...stress,
+          status: assessLowerIsBetter(stress.latest, stress.baseline),
+          deviation:
+            stress.latest != null && stress.baseline != null
+              ? deviationPct(stress.latest, stress.baseline)
+              : null,
+        },
+        bodyComposition: {
+          hasData: false,
+          weightKg: null,
+          bodyFatPct: null,
+          message: "Connect a Garmin Index scale",
         },
       };
     }),
