@@ -122,7 +122,7 @@ export function computeRollingAverage(
 export function findNotableChanges(
   values: Array<{ date: string; value: number }>,
   metric: string,
-  thresholdPercent: number = 10,
+  thresholdPercent = 10,
 ): Array<{ date: string; change: number; description: string }> {
   if (values.length < 7) return [];
 

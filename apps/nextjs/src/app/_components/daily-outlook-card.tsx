@@ -52,10 +52,7 @@ export function DailyOutlookCard({ targetStrain, isLoading }: Props) {
       </div>
 
       <div className="mt-3 flex items-baseline gap-2">
-        <span
-          className="text-3xl font-bold tabular-nums"
-          style={{ color }}
-        >
+        <span className="text-3xl font-bold tabular-nums" style={{ color }}>
           {min}–{max}
         </span>
         <span className="text-muted-foreground text-xs">/ 21</span>

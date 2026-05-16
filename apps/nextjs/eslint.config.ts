@@ -6,7 +6,7 @@ import { reactConfig } from "@acme/eslint-config/react";
 
 export default defineConfig(
   {
-    ignores: [".next/**"],
+    ignores: [".next/**", "__mocks__/**"],
   },
   baseConfig,
   reactConfig,

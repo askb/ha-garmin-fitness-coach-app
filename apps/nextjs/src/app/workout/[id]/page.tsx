@@ -62,7 +62,7 @@ export default function WorkoutDetailPage() {
 
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">{w.title}</h1>
+        <h1 className="pl-12 text-2xl font-bold">{w.title}</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           {w.sportType} · Zone {w.targetHrZoneLow}
           {w.targetHrZoneLow !== w.targetHrZoneHigh
