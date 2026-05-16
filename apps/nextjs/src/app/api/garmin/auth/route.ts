@@ -2,6 +2,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const AUTH_SERVER = "http://127.0.0.1:8099";
+// Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
+// eslint-disable-next-line no-restricted-properties
 const IS_ADDON = process.env.NODE_ENV === "production";
 
 // ── Mock responses for local development ────────────────────────────────────

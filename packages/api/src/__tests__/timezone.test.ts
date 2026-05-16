@@ -35,9 +35,7 @@ describe("dayInTimezone", () => {
     // `analytics.getTrainingLoads` / `getTrainingStatus` when an Activity
     // row has a malformed `startedAt` (seen in production logs).
     expect(dayInTimezone(new Date("not-a-date"), "UTC")).toBe("1970-01-01");
-    expect(dayInTimezone(new Date(NaN), "Australia/Sydney")).toBe(
-      "1970-01-01",
-    );
+    expect(dayInTimezone(new Date(NaN), "Australia/Sydney")).toBe("1970-01-01");
   });
 
   // ---------------------------------------------------------------------
