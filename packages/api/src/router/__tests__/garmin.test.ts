@@ -42,7 +42,7 @@ type TrainingSummaryRow = {
   garminTrainingReadinessLevel: string | null;
   garminTrainingLoad: number | null;
   garminTrainingStatus: string | null;
-  garminLoadFocus: unknown | null;
+  garminLoadFocus: unknown;
   garminRecoveryHours: number | null;
 };
 
