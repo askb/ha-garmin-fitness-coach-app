@@ -120,8 +120,8 @@ export const garminRouter = {
       const userId = ctx.session.user.id;
       const days = input?.days ?? 14;
 
-      // Use an exclusive lower bound so a `days=7` window returns 7 calendar
-      // days, not 8. `gte` against `since + 1` is equivalent to `gt(since)`.
+      // Use an exclusive lower bound so a `days=N` window returns N calendar
+      // days, not N+1. `gte` against `since + 1` is equivalent to `gt(since)`.
       const since = new Date();
       since.setUTCDate(since.getUTCDate() - days + 1);
       const sinceStr = since.toISOString().split("T")[0]!;

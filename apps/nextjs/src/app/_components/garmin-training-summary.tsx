@@ -60,14 +60,18 @@ export function GarminTrainingSummary() {
   });
   const staleCaption = (date: string | null | undefined) => {
     if (!date) return null;
-    const value = `${date}T12:00:00Z`;
-    const dateKey = formatDateInTz(value, timezone, {
+    // `date` is YYYY-MM-DD from the API. Anchor at noon in the *target*
+    // timezone (not UTC) so we don't drift a day at UTC±12. We do this by
+    // building the ISO timestamp `${date}T12:00:00` and parsing it as local
+    // (no Z), then formatting with `timeZone: timezone`.
+    const local = new Date(`${date}T12:00:00`);
+    const dateKey = formatDateInTz(local, timezone, {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
     });
     if (dateKey === todayKey) return null;
-    return `as of ${formatDateInTz(value, timezone, {
+    return `as of ${formatDateInTz(local, timezone, {
       month: "short",
       day: "numeric",
     })}`;
@@ -163,7 +167,7 @@ export function GarminTrainingSummary() {
         {/* HRV (weekly avg + trend) */}
         <div className="bg-background/40 rounded-lg p-3">
           <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
-            HRV (7d)
+            HRV (14d)
           </div>
           <div className="mt-1 flex items-baseline gap-1">
             <span className="text-2xl font-bold">
