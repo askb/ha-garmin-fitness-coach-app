@@ -2,6 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import {
+  formatDateInTz,
+  useUserTimezone,
+} from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "./bottom-nav";
 import { DailyOutlookCard } from "./daily-outlook-card";
@@ -12,6 +16,7 @@ import { WorkoutCard } from "./workout-card";
 
 export function DashboardHome() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
 
   const readiness = useQuery(trpc.readiness.getToday.queryOptions());
@@ -142,7 +147,7 @@ export function DashboardHome() {
       <div>
         <h1 className="text-2xl font-bold pl-12">Good morning 👋</h1>
         <p className="text-muted-foreground text-sm">
-          {new Date().toLocaleDateString("en-US", {
+          {formatDateInTz(new Date(), timezone, {
             weekday: "long",
             month: "long",
             day: "numeric",
@@ -254,7 +259,7 @@ export function DashboardHome() {
                   .replace(/_/g, " ")
                   .replace(/\b\w/g, (c: string) => c.toUpperCase())
               : "Activity";
-            const date = new Date(a.startedAt).toLocaleDateString("en-US", {
+            const date = formatDateInTz(a.startedAt, timezone, {
               weekday: "short",
               month: "short",
               day: "numeric",

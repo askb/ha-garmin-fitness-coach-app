@@ -6,6 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@acme/ui";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import {
+  formatDateInTz,
+  formatTimeInTz,
+  useUserTimezone,
+} from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
@@ -70,22 +75,9 @@ function formatPace(secPerKm: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}/km`;
 }
 
-function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+// Date/time formatting is timezone-aware and lives in
+// ~/lib/format-date so it respects the user's profile timezone
+// instead of the SSR container's UTC.
 
 function sportLabel(sportType: string | null): string {
   if (!sportType) return "Activity";
@@ -98,6 +90,7 @@ function sportLabel(sportType: string | null): string {
 
 export default function ActivitiesPage() {
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const [sportFilter, setSportFilter] = useState<string | undefined>(undefined);
 
   const { data: activities, isLoading } = useQuery(
@@ -174,7 +167,8 @@ export default function ActivitiesPage() {
                 </div>
                 <div className="text-muted-foreground flex flex-wrap gap-x-3 text-xs">
                   <span>
-                    {formatDate(a.startedAt)} · {formatTime(a.startedAt)}
+                    {formatDateInTz(a.startedAt, timezone)} ·{" "}
+                    {formatTimeInTz(a.startedAt, timezone)}
                   </span>
                 </div>
               </div>
