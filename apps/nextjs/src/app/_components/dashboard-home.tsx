@@ -207,7 +207,7 @@ export function DashboardHome() {
           <div>
             <p className="text-sm font-semibold">Fitness</p>
             <p className="text-muted-foreground text-xs">
-              VO2max &amp; race predictions
+              VO2max &amp; Race Predictions
             </p>
           </div>
         </Link>
@@ -219,7 +219,7 @@ export function DashboardHome() {
           <div>
             <p className="text-sm font-semibold">Insights</p>
             <p className="text-muted-foreground text-xs">
-              Daily recommendations
+              Daily Recommendations
             </p>
           </div>
         </Link>
@@ -257,8 +257,8 @@ export function DashboardHome() {
                   .replace(/\b\w/g, (c: string) => c.toUpperCase())
               : "Activity";
             const date = formatDateInTz(a.startedAt, timezone, {
-              weekday: "short",
-              month: "short",
+              weekday: "long",
+              month: "long",
               day: "numeric",
             });
             return (

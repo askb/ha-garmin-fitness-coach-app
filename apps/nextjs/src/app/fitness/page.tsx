@@ -382,9 +382,11 @@ export default function FitnessPage() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold pl-12">Fitness &amp; Performance</h1>
+          <h1 className="pl-12 text-2xl font-bold">
+            Fitness &amp; Performance
+          </h1>
           <p className="text-muted-foreground text-sm">
-            VO2max &amp; race predictions
+            VO2max &amp; Race Predictions
           </p>
         </div>
         {trendInfo && (
@@ -418,7 +420,8 @@ export default function FitnessPage() {
           </p>
           <p className="text-muted-foreground mt-1 text-sm">ml/kg/min</p>
           <p className="text-muted-foreground mt-1 text-[10px] tracking-wider uppercase">
-            via {latestVO2max.source === "garmin_official"
+            via{" "}
+            {latestVO2max.source === "garmin_official"
               ? "Garmin Firstbeat"
               : latestVO2max.source === "running_pace_hr"
                 ? "Pace+HR model"
@@ -472,9 +475,9 @@ export default function FitnessPage() {
           />
           {garminUsingFallback && (
             <p className="text-muted-foreground mb-3 text-xs">
-              ℹ️ No Garmin VO2max updates in the last {chartDays} days —
-              Garmin only records after qualifying outdoor runs (12+ min
-              with heart rate). Showing your most recent readings instead.
+              ℹ️ No Garmin VO2max updates in the last {chartDays} days — Garmin
+              only records after qualifying outdoor runs (12+ min with heart
+              rate). Showing your most recent readings instead.
             </p>
           )}
           {!garminUsingFallback && garminChartData.length < 3 && (
@@ -841,6 +844,8 @@ export default function FitnessPage() {
                       "text-xs font-medium",
                       r.diff > 0 ? "text-red-400" : "text-green-400",
                     )}
+                    title="Difference between your actual finish time and the VO2max-based predicted time. Positive means slower than predicted; negative means faster."
+                    aria-label={`${r.diffFmt} versus predicted ${r.predicted}. Positive means slower than predicted; negative means faster.`}
                   >
                     {r.diffFmt} vs predicted {r.predicted}
                   </p>

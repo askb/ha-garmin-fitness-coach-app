@@ -66,11 +66,18 @@ const METRIC_LABELS: Record<string, string> = {
   acwr: "ACWR",
 };
 
+const TREND_CATEGORY_LABELS: Record<string, string> = {
+  "🔥": "Load",
+  "📊": "Data",
+  "💪": "Training",
+  "🩺": "Health",
+  "🌙": "Sleep",
+  "😴": "Recovery",
+};
+
 function prettyMetric(key: string): string {
   if (METRIC_LABELS[key]) return METRIC_LABELS[key];
-  return key
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 type TrendMetric =
@@ -113,6 +120,26 @@ function correlationPeriod(p: Period): CorrelationPeriod {
 function formatDate(iso: string): string {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function isToday(iso: string): boolean {
+  return iso === new Date().toISOString().split("T")[0];
+}
+
+function splitCategory(description: string): {
+  emoji: string;
+  label: string;
+  text: string;
+} | null {
+  const emoji = Array.from(description.trim())[0];
+  if (!emoji) return null;
+  const label = TREND_CATEGORY_LABELS[emoji];
+  if (!label) return null;
+  return {
+    emoji,
+    label,
+    text: description.trim().slice(emoji.length).trim(),
+  };
 }
 
 function formatSleep(minutes: number | null | undefined): string {
@@ -316,7 +343,7 @@ export default function TrendsPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Trends &amp; Analytics</h1>
+        <h1 className="pl-12 text-2xl font-bold">Trends &amp; Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {PERIODS.find((x) => x.value === period)?.label ?? period} overview
           {useSmoothed ? " · 7-day rolling avg" : ""}
@@ -640,28 +667,49 @@ export default function TrendsPage() {
                 change: number;
                 description: string;
               }[]
-            ).map((nc, i) => (
-              <div
-                key={i}
-                className="bg-card flex items-start gap-3 rounded-xl border p-3"
-              >
-                <div className="text-muted-foreground mt-0.5 shrink-0 text-xs font-medium">
-                  {formatDate(nc.date)}
+            ).map((nc, i) => {
+              const category = splitCategory(nc.description);
+              return (
+                <div
+                  key={i}
+                  className="bg-card flex items-start gap-3 rounded-xl border p-3"
+                >
+                  <div className="text-muted-foreground mt-0.5 w-16 shrink-0 text-xs font-medium">
+                    <div>
+                      {isToday(nc.date) ? "Today" : formatDate(nc.date)}
+                    </div>
+                    <div className="text-[10px] font-normal">vs window avg</div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {category && (
+                        <span
+                          className="rounded-full bg-zinc-800 px-2 py-0.5 text-[11px] text-zinc-300"
+                          title={`${category.label} category`}
+                          aria-label={`${category.label} category`}
+                        >
+                          <span aria-hidden="true">{category.emoji}</span>{" "}
+                          {category.label}
+                        </span>
+                      )}
+                      <p className="text-sm">
+                        {category ? category.text : nc.description}
+                      </p>
+                    </div>
+                    <p
+                      className={cn(
+                        "text-xs font-medium",
+                        nc.change > 0 ? "text-green-400" : "text-red-400",
+                      )}
+                      title="Today's value compared with the selected window average."
+                    >
+                      Today vs window avg: {nc.change > 0 ? "+" : ""}
+                      {nc.change.toFixed(1)}%
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm">{nc.description}</p>
-                  <p
-                    className={cn(
-                      "text-xs font-medium",
-                      nc.change > 0 ? "text-green-400" : "text-red-400",
-                    )}
-                  >
-                    {nc.change > 0 ? "+" : ""}
-                    {nc.change.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -701,8 +749,7 @@ export default function TrendsPage() {
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">
-                      {prettyMetric(c.metricA)} →{" "}
-                      {prettyMetric(c.metricB)}
+                      {prettyMetric(c.metricA)} → {prettyMetric(c.metricB)}
                     </p>
                     <span
                       className={cn(

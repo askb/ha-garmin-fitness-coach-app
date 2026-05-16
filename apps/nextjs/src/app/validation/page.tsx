@@ -302,8 +302,8 @@ export default function ValidationPage() {
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : measurements.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No reference measurements yet. Add one above to compare Garmin
-              accuracy.
+              No reference measurements yet. Add a lab or reference value above
+              to compare it against Garmin&apos;s estimate and track accuracy.
             </p>
           ) : (
             <div className="space-y-3">
