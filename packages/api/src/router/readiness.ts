@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import type { Baselines, DailyMetricInput } from "@acme/engine";
+import type { Baselines, DailyMetricInput, ReadinessZone } from "@acme/engine";
 import { and, desc, eq, gte, lte } from "@acme/db";
 import {
   Activity,
@@ -100,19 +100,34 @@ function computeConfidence(dq: DataQuality): number {
 
 export function buildActionSuggestion(
   score: number,
+  zone: ReadinessZone,
   dq: DataQuality,
   metric: typeof DailyMetric.$inferSelect | null,
   recentMetrics: (typeof DailyMetric.$inferSelect)[] = [],
 ): string {
-  if (score >= 80) {
+  const scoreZone = getReadinessZone(score);
+  const resolvedZone = zone === scoreZone ? zone : scoreZone;
+
+  // Anchor copy on the engine's zone (prime/high/moderate/low/poor) so the
+  // action suggestion stays consistent with the readiness subtitle. Previously
+  // this switched on bare score with a single `>= 60` cutoff, which collided
+  // with the engine's 5-zone scale: a score of 45 produced zone="moderate" but
+  // the action suggestion fell into the `< 60` branch and told the user to
+  // skip their planned session and walk.
+  if (resolvedZone === "prime") {
     return "You're well recovered — today is a good day for a quality session or race effort.";
   }
-  if (score >= 60) {
-    return "Moderate readiness — stick to planned training but listen to your body.";
+  if (resolvedZone === "high") {
+    return "High readiness — stick to your planned training and execute the session as written.";
   }
-  // Below 60: find worst component. Use the same lookback as the engine —
+  if (resolvedZone === "moderate") {
+    return "Moderate readiness — keep the planned session but trim volume slightly and stay in Zone 2.";
+  }
+
+  // Low / poor zones — the user *should* be advised to back off. Keep the
+  // detail actionable while using the same lookback as the engine because
   // today's row may not have HRV yet (Garmin publishes daily HRV the next
-  // morning), but a fresh reading from the last few days is still actionable.
+  // morning).
   const recentHrv =
     metric?.hrv ?? recentMetrics.find((r) => r.hrv != null)?.hrv ?? null;
   if (dq.hrv === "missing") {
@@ -250,8 +265,13 @@ export const readinessRouter = {
       ),
     });
     if (existing) {
+      const existingZone =
+        existing.zone === getReadinessZone(existing.score)
+          ? (existing.zone as ReadinessZone)
+          : getReadinessZone(existing.score);
       const actionSuggestion = buildActionSuggestion(
         existing.score,
+        existingZone,
         dq,
         todayDbMetric ?? null,
         recentMetricsForDQ,
@@ -311,6 +331,7 @@ export const readinessRouter = {
 
     const actionSuggestion = buildActionSuggestion(
       result.score,
+      result.zone,
       dq,
       todayDbMetric ?? null,
       recentMetricsForDQ,

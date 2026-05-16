@@ -92,7 +92,8 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       today,
     );
     const action = buildActionSuggestion(
-      45,
+      30,
+      "low",
       dq,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       todayRow as any,
@@ -113,13 +114,40 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       today,
     );
     const action = buildActionSuggestion(
-      45,
+      30,
+      "low",
       dq,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       row(today) as any,
       [],
     );
     expect(action).toMatch(/HRV data is unavailable/);
+  });
+
+  it("uses zone-based advice for high readiness", () => {
+    const metric = row(today, {
+      hrv: 60,
+      totalSleepMinutes: 420,
+      restingHr: 50,
+    });
+    const dq = computeDataQuality(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      [],
+      3,
+      today,
+    );
+    const action = buildActionSuggestion(
+      65,
+      "high",
+      dq,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      [],
+    );
+    expect(action).toBe(
+      "High readiness — stick to your planned training and execute the session as written.",
+    );
   });
 
   it("uses zone-based advice without contradiction for moderate readiness", () => {
@@ -131,7 +159,8 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
       today,
     );
     const action = buildActionSuggestion(
-      65,
+      45,
+      "moderate",
       dq,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       row(today, { hrv: 60, totalSleepMinutes: 420, restingHr: 50 }) as any,
@@ -139,5 +168,89 @@ describe("buildActionSuggestion — no contradiction with engine explanation", (
     );
     expect(action).toMatch(/Moderate readiness/);
     expect(action).not.toMatch(/HRV data is unavailable/);
+  });
+
+  it("keeps planned training for moderate readiness despite HRV deficit", () => {
+    const metric = row(today, {
+      hrv: 19,
+      totalSleepMinutes: 420,
+      restingHr: 50,
+    });
+    const dq = computeDataQuality(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [metric] as any,
+      3,
+      today,
+    );
+    const action = buildActionSuggestion(
+      45,
+      "moderate",
+      dq,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [metric] as any,
+    );
+    expect(action).toBe(
+      "Moderate readiness — keep the planned session but trim volume slightly and stay in Zone 2.",
+    );
+    expect(action).not.toMatch(/Take it easy|30-min walk|planned session\./);
+  });
+
+  it("keeps planned training for moderate readiness despite low sleep", () => {
+    const metric = row(today, {
+      hrv: 60,
+      totalSleepMinutes: 240,
+      restingHr: 50,
+      sleepDebtMinutes: 120,
+    });
+    const dq = computeDataQuality(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [metric] as any,
+      3,
+      today,
+    );
+    const action = buildActionSuggestion(
+      45,
+      "moderate",
+      dq,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      [],
+    );
+    expect(action).toBe(
+      "Moderate readiness — keep the planned session but trim volume slightly and stay in Zone 2.",
+    );
+    expect(action).not.toMatch(/rest|30-min walk|Prioritize/);
+  });
+
+  it("preserves conservative walk recommendation for low readiness", () => {
+    const metric = row(today, {
+      hrv: 19,
+      totalSleepMinutes: 420,
+      restingHr: 50,
+    });
+    const dq = computeDataQuality(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      [metric] as any,
+      3,
+      today,
+    );
+    const action = buildActionSuggestion(
+      30,
+      "low",
+      dq,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metric as any,
+      [],
+    );
+    expect(action).toMatch(/Take it easy today/);
+    expect(action).toMatch(/easy 30-min walk/);
   });
 });
