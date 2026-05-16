@@ -35,6 +35,7 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
               className={cn(
                 "flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1 text-xs transition-colors",
                 isActive
@@ -42,7 +43,9 @@ export function BottomNav() {
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <span className="text-lg">{item.icon}</span>
+              <span className="text-lg" aria-hidden="true">
+                {item.icon}
+              </span>
               <span className="max-[379px]:hidden">{item.label}</span>
             </Link>
           );

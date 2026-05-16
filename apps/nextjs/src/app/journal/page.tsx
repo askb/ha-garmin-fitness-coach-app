@@ -101,8 +101,16 @@ const NAP_OPTIONS = [0, 15, 20, 30, 45, 60, 90];
 // Helpers
 // ---------------------------------------------------------------------------
 
-function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+function toDateStr(d: Date, timezone?: string): string {
+  if (!timezone) return d.toISOString().slice(0, 10);
+  // Use Intl with en-CA (YYYY-MM-DD locale) to get the calendar day in the
+  // user's timezone — avoids a UTC-vs-local-day off-by-one at day boundaries.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
 }
 
 function fmtDate(iso: string, timezone: string): string {
@@ -167,7 +175,9 @@ export default function JournalPage() {
   const queryClient = useQueryClient();
 
   // -- Date selection --
-  const [selectedDate, setSelectedDate] = useState(toDateStr(new Date()));
+  const [selectedDate, setSelectedDate] = useState(
+    toDateStr(new Date(), timezone),
+  );
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<Record<string, boolean | number | string>>(
     {},
@@ -344,7 +354,7 @@ export default function JournalPage() {
     const d = new Date(selectedDate + "T12:00:00");
     d.setDate(d.getDate() + dir);
     const next = toDateStr(d);
-    if (next > toDateStr(new Date())) return;
+    if (next > toDateStr(new Date(), timezone)) return;
     setSyncedDate(null);
     setSelectedDate(next);
   }
@@ -370,10 +380,10 @@ export default function JournalPage() {
           className="text-sm font-medium"
           onClick={() => {
             setSyncedDate(null);
-            setSelectedDate(toDateStr(new Date()));
+            setSelectedDate(toDateStr(new Date(), timezone));
           }}
         >
-          {selectedDate === toDateStr(new Date())
+          {selectedDate === toDateStr(new Date(), timezone)
             ? "Today"
             : fmtDate(selectedDate, timezone)}
         </button>
@@ -381,7 +391,7 @@ export default function JournalPage() {
           variant="outline"
           size="sm"
           onClick={() => shiftDate(1)}
-          disabled={selectedDate === toDateStr(new Date())}
+          disabled={selectedDate === toDateStr(new Date(), timezone)}
         >
           →
         </Button>
