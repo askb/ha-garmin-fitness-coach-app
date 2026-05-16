@@ -123,7 +123,7 @@ export default function TrainingLoadPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold pl-12">Training Load</h1>
+        <h1 className="pl-12 text-2xl font-bold">Training Load</h1>
         {status.data ? (
           <span
             className={cn(

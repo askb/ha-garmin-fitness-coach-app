@@ -68,9 +68,7 @@ const METRIC_LABELS: Record<string, string> = {
 
 function prettyMetric(key: string): string {
   if (METRIC_LABELS[key]) return METRIC_LABELS[key];
-  return key
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 type TrendMetric =
@@ -316,7 +314,7 @@ export default function TrendsPage() {
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold pl-12">Trends &amp; Analytics</h1>
+        <h1 className="pl-12 text-2xl font-bold">Trends &amp; Analytics</h1>
         <p className="text-muted-foreground text-sm">
           {PERIODS.find((x) => x.value === period)?.label ?? period} overview
           {useSmoothed ? " · 7-day rolling avg" : ""}
@@ -701,8 +699,7 @@ export default function TrendsPage() {
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">
-                      {prettyMetric(c.metricA)} →{" "}
-                      {prettyMetric(c.metricB)}
+                      {prettyMetric(c.metricA)} → {prettyMetric(c.metricB)}
                     </p>
                     <span
                       className={cn(
