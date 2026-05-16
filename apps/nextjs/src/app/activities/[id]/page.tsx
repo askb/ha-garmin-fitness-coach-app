@@ -19,6 +19,11 @@ import { Button } from "@acme/ui/button";
 import { toast } from "@acme/ui/toast";
 
 import { IngressLink as Link } from "~/app/_components/ingress-link";
+import {
+  formatDateInTz,
+  formatTimeInTz,
+  useUserTimezone,
+} from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../../_components/bottom-nav";
 
@@ -46,23 +51,9 @@ function formatPace(secPerKm: number | null): string {
   return `${m}:${s.toString().padStart(2, "0")}/km`;
 }
 
-function formatDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+// Date/time formatting is timezone-aware and lives in
+// ~/lib/format-date so it respects the user's profile timezone
+// instead of the SSR container's UTC.
 
 function sportLabel(sportType: string | null): string {
   if (!sportType) return "Activity";
@@ -417,6 +408,7 @@ export default function ActivityDetailPage({
 }) {
   const { id } = use(params);
   const trpc = useTRPC();
+  const timezone = useUserTimezone();
   const queryClient = useQueryClient();
 
   const { data: activity, isLoading } = useQuery(
@@ -554,8 +546,13 @@ export default function ActivityDetailPage({
               {sportLabel(activity.sportType)}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {formatDate(activity.startedAt)} ·{" "}
-              {formatTime(activity.startedAt)}
+              {formatDateInTz(activity.startedAt, timezone, {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}{" "}
+              · {formatTimeInTz(activity.startedAt, timezone)}
             </p>
           </div>
         </div>

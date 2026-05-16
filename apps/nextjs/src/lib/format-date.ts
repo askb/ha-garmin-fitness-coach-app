@@ -1,0 +1,79 @@
+// SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
+// SPDX-License-Identifier: Apache-2.0
+
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+
+import { useTRPC } from "~/trpc/react";
+
+/**
+ * Returns the user's configured IANA timezone (e.g. "Australia/Brisbane")
+ * from the Profile record, falling back to the browser's resolved zone,
+ * and finally to "UTC" if both are unavailable.
+ *
+ * Why a hook? Server-side rendering uses the container's TZ (UTC in the
+ * HAOS addon) which makes raw `Date.toLocaleString()` show times 10+ hours
+ * off for AEST users. Resolving the user's TZ from their profile and
+ * passing it into every `Intl.DateTimeFormat` call fixes that.
+ */
+export function useUserTimezone(): string {
+  const trpc = useTRPC();
+  const profile = useQuery(trpc.profile.get.queryOptions());
+  if (profile.data?.timezone) return profile.data.timezone;
+  if (typeof Intl !== "undefined") {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      // fall through
+    }
+  }
+  return "UTC";
+}
+
+function toDate(value: Date | string | number): Date | null {
+  const d = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+/**
+ * Format a date in the user's timezone. Returns "—" for invalid inputs
+ * so callers can pass DB values directly without null-guarding.
+ */
+export function formatDateInTz(
+  value: Date | string | number | null | undefined,
+  timezone: string,
+  options: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  },
+): string {
+  if (value == null) return "—";
+  const d = toDate(value);
+  if (!d) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    ...options,
+    timeZone: timezone,
+  }).format(d);
+}
+
+/**
+ * Format the time-of-day in the user's timezone.
+ */
+export function formatTimeInTz(
+  value: Date | string | number | null | undefined,
+  timezone: string,
+  options: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+    minute: "2-digit",
+  },
+): string {
+  if (value == null) return "—";
+  const d = toDate(value);
+  if (!d) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    ...options,
+    timeZone: timezone,
+  }).format(d);
+}
