@@ -69,9 +69,10 @@ export const baseConfig = defineConfig(
       // Downgraded to warnings to clear the pre-existing baseline backlog
       // without blocking CI. These flag legitimate tech-debt but a large
       // chunk of the codebase pre-dates strict type-checked linting, so
-      // we surface them as warnings and clean up incrementally. Keep the
-      // genuine bug-catchers (no-misused-promises, react-hooks/set-state-
-      // in-effect) as errors.
+      // we surface them as warnings and clean up incrementally. The one
+      // genuine bug-catcher kept as an error here is no-misused-promises;
+      // react-hooks rules are similarly downgraded to warn in
+      // tooling/eslint/react.ts (see that file for the list).
       "@typescript-eslint/no-unnecessary-condition": [
         "warn",
         { allowConstantLoopConditions: true },
