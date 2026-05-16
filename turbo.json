@@ -53,7 +53,14 @@
     "AUTH_DISCORD_SECRET",
     "AUTH_REDIRECT_PROXY_URL",
     "AUTH_SECRET",
-    "PORT"
+    "DEV_BYPASS_AUTH",
+    "GARMIN_AUTH_SERVER",
+    "OLLAMA_MODEL",
+    "OLLAMA_URL",
+    "OPENCLAW_AGENT_ID",
+    "PORT",
+    "SKIP_DB_TESTS",
+    "SUPERVISOR_TOKEN"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
