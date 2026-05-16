@@ -152,13 +152,16 @@ export const vitalsRouter = {
               ? "elevated"
               : "high";
 
-      const bodyBatteryStatus: MetricStatus =
+      const bodyBatteryAssessment =
         bodyBattery.latest === null || bodyBattery.baseline === null
+          ? null
+          : assessHigherIsBetter(bodyBattery.latest, bodyBattery.baseline);
+      const bodyBatteryStatus: MetricStatus =
+        bodyBatteryAssessment === null
           ? "no_data"
-          : assessHigherIsBetter(bodyBattery.latest, bodyBattery.baseline) ===
-              "critical"
+          : bodyBatteryAssessment === "critical"
             ? "depleted"
-            : assessHigherIsBetter(bodyBattery.latest, bodyBattery.baseline);
+            : bodyBatteryAssessment;
 
       return {
         spo2: {
