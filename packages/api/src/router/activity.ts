@@ -13,6 +13,20 @@ function getDateString(daysAgo: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+// Maximum allowed offset between an Activity.startedAt and "now"
+// before we treat the row as garbage and hide it. The 26-hour window:
+//   - tolerates the worst real-world timezone offset (UTC+14)
+//   - tolerates ±2h of normal clock skew on top of that
+//   - is small enough to still hide seed-data / corrupted rows that
+//     land days or weeks in the future
+// See packages/api/src/router/activity.ts for the regression history
+// (TZ-correctness bug in the addon's Garmin sync).
+const FUTURE_ROW_HORIZON_MS = 26 * 60 * 60 * 1000;
+
+function futureRowCutoff(): Date {
+  return new Date(Date.now() + FUTURE_ROW_HORIZON_MS);
+}
+
 export const activityRouter = {
   list: protectedProcedure
     .input(
@@ -38,7 +52,7 @@ export const activityRouter = {
         // data. The addon fix lands in v0.16.22; this guardrail stays
         // so a future timezone regression can't reintroduce silent
         // data-loss.
-        lte(Activity.startedAt, new Date(Date.now() + 26 * 60 * 60 * 1000)),
+        lte(Activity.startedAt, futureRowCutoff()),
       ];
 
       if (input.sportType) {
@@ -114,7 +128,7 @@ export const activityRouter = {
     const activities = await ctx.db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
-        lte(Activity.startedAt, new Date(Date.now() + 26 * 60 * 60 * 1000)),
+        lte(Activity.startedAt, futureRowCutoff()),
       ),
       orderBy: desc(Activity.startedAt),
       limit: 5,
