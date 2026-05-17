@@ -3,6 +3,21 @@
 AI-powered sport scientist that turns Garmin data into actionable coaching,
 training analysis, and recovery optimization.
 
+## Screenshots
+
+A walkthrough of the main dashboards (captured from v0.2.13). Sleep,
+HRV, vitals, and validation pages are omitted from the README for
+privacy but render with the same layout conventions.
+
+| | |
+|---|---|
+| **Home** — readiness, today's plan, recent activity | **Fitness** — VO2max, racing shape, race predictions |
+| ![Home](docs/screenshots/home-desktop.png) | ![Fitness](docs/screenshots/fitness-desktop.png) |
+| **Training** — CTL/ATL/TSB, ACWR, ramp rate, Garmin Firstbeat | **Zones** — HR zone distribution, polarization, consistency heatmap |
+| ![Training](docs/screenshots/training-desktop.png) | ![Zones](docs/screenshots/zones-desktop.png) |
+| **Trends** — multi-year multi-metric overlays + correlations | **Coach** — persona AI agents (HA Conversation / Ollama) |
+| ![Trends](docs/screenshots/trends-desktop.png) | ![Coach](docs/screenshots/coach-desktop.png) |
+
 ## Architecture
 
 ```mermaid
