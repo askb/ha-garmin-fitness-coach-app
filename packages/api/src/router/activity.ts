@@ -38,10 +38,7 @@ export const activityRouter = {
         // data. The addon fix lands in v0.16.22; this guardrail stays
         // so a future timezone regression can't reintroduce silent
         // data-loss.
-        lte(
-          Activity.startedAt,
-          new Date(Date.now() + 26 * 60 * 60 * 1000),
-        ),
+        lte(Activity.startedAt, new Date(Date.now() + 26 * 60 * 60 * 1000)),
       ];
 
       if (input.sportType) {
@@ -117,10 +114,7 @@ export const activityRouter = {
     const activities = await ctx.db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
-        lte(
-          Activity.startedAt,
-          new Date(Date.now() + 26 * 60 * 60 * 1000),
-        ),
+        lte(Activity.startedAt, new Date(Date.now() + 26 * 60 * 60 * 1000)),
       ),
       orderBy: desc(Activity.startedAt),
       limit: 5,
