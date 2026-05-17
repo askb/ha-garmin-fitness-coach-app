@@ -13,6 +13,20 @@ function getDateString(daysAgo: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+// Maximum allowed offset between an Activity.startedAt and "now"
+// before we treat the row as garbage and hide it. The 26-hour window:
+//   - tolerates the worst real-world timezone offset (UTC+14)
+//   - tolerates ±2h of normal clock skew on top of that
+//   - is small enough to still hide seed-data / corrupted rows that
+//     land days or weeks in the future
+// See packages/api/src/router/activity.ts for the regression history
+// (TZ-correctness bug in the addon's Garmin sync).
+const FUTURE_ROW_HORIZON_MS = 26 * 60 * 60 * 1000;
+
+function futureRowCutoff(): Date {
+  return new Date(Date.now() + FUTURE_ROW_HORIZON_MS);
+}
+
 export const activityRouter = {
   list: protectedProcedure
     .input(
@@ -28,8 +42,17 @@ export const activityRouter = {
       const conditions = [
         eq(Activity.userId, userId),
         gte(Activity.startedAt, since),
-        // Hide future-dated rows (clock skew / TZ artefacts).
-        lte(Activity.startedAt, new Date()),
+        // Hide implausibly-future rows. We previously used `new Date()`
+        // which collided with a TZ-correctness bug in the addon's sync
+        // (startTimeLocal stored as UTC for AEST users → morning
+        // workouts timestamped ~10h in the future and silently
+        // disappeared from the home page until the wall clock caught
+        // up). Widen the horizon by ~26h so a sync regression like
+        // that fails loudly (we see a future date) instead of hiding
+        // data. The addon fix lands in v0.16.22; this guardrail stays
+        // so a future timezone regression can't reintroduce silent
+        // data-loss.
+        lte(Activity.startedAt, futureRowCutoff()),
       ];
 
       if (input.sportType) {
@@ -98,14 +121,14 @@ export const activityRouter = {
   getRecent: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    // Hide future-dated activities. Garmin sync or seed data occasionally
-    // produces records with startedAt past `now()` (clock skew, TZ ambiguity).
-    // The home page renders the most-recent row, so a future row would show
-    // a Friday activity even though today is Thursday.
+    // Hide implausibly-future activities. The 26-hour window
+    // protects against the TZ-correctness regression that used to
+    // hide AEST morning workouts (see `list` above for details)
+    // while still excluding actual clock-skew / seed-data anomalies.
     const activities = await ctx.db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
-        lte(Activity.startedAt, new Date()),
+        lte(Activity.startedAt, futureRowCutoff()),
       ),
       orderBy: desc(Activity.startedAt),
       limit: 5,
