@@ -230,22 +230,28 @@ export default function ZoneAnalysisPage() {
     }
 
     if (efficiency.data && efficiency.data.length >= 2) {
-      const first = efficiency.data[0];
-      const last = efficiency.data[efficiency.data.length - 1];
-      if (first && last) {
-        const firstEff = first.efficiencyIndex;
-        const lastEff = last.efficiencyIndex;
-        if (firstEff > 0) {
-          const pctChange = ((lastEff - firstEff) / firstEff) * 100;
-          items.push({
-            icon: pctChange >= 0 ? "⚡" : "🔻",
-            text: `Efficiency ${pctChange >= 0 ? "improved" : "declined"} by ${Math.abs(pctChange).toFixed(1)}% — ${pctChange >= 0 ? "you're getting faster at the same HR" : "review recovery & easy volume"}`,
-            color:
-              pctChange >= 0
-                ? "border-blue-500/40 bg-blue-500/10"
-                : "border-red-500/40 bg-red-500/10",
-          });
-        }
+      // Use the regression-based percentage change so the AI insight here
+      // matches the trend-line percentage shown on the chart (#141). The
+      // raw first-vs-last endpoint comparison previously used here is
+      // sensitive to the last data point and produced a different number
+      // from the same data.
+      const points = efficiency.data.map((d, i) => ({
+        x: i,
+        y: d.efficiencyIndex,
+      }));
+      const { slope, intercept } = linearRegression(points);
+      const firstY = intercept;
+      const lastY = slope * (points.length - 1) + intercept;
+      if (firstY > 0) {
+        const pctChange = ((lastY - firstY) / firstY) * 100;
+        items.push({
+          icon: pctChange >= 0 ? "⚡" : "🔻",
+          text: `Efficiency ${pctChange >= 0 ? "improved" : "declined"} by ${Math.abs(pctChange).toFixed(1)}% — ${pctChange >= 0 ? "you're getting faster at the same HR" : "review recovery & easy volume"}`,
+          color:
+            pctChange >= 0
+              ? "border-blue-500/40 bg-blue-500/10"
+              : "border-red-500/40 bg-red-500/10",
+        });
       }
     }
 
@@ -704,14 +710,16 @@ export default function ZoneAnalysisPage() {
               <YAxis
                 dataKey="efficiencyIndex"
                 tick={{ fill: "#888", fontSize: 10 }}
-                width={40}
+                width={48}
                 name="Efficiency"
                 label={{
-                  value: "Efficiency",
+                  value: "Efficiency Index (m·bpm⁻¹ × 1000)",
                   angle: -90,
                   position: "insideLeft",
                   fill: "#666",
                   fontSize: 10,
+                  offset: 0,
+                  style: { textAnchor: "middle" },
                 }}
               />
               <ZAxis range={[40, 40]} />

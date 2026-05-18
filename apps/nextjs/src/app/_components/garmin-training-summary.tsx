@@ -156,10 +156,15 @@ export function GarminTrainingSummary() {
           <div className="text-muted-foreground text-[10px] tracking-wide uppercase">
             Status
           </div>
-          <div className="mt-1 text-lg leading-snug font-semibold capitalize">
+          <div
+            className={cn(
+              "mt-1 text-lg leading-snug font-semibold capitalize",
+              !latest.garminTrainingStatus && "text-muted-foreground/70",
+            )}
+          >
             {latest.garminTrainingStatus
               ? latest.garminTrainingStatus.toLowerCase().replace(/_/g, " ")
-              : "—"}
+              : "Unavailable"}
           </div>
           <div className="text-muted-foreground mt-0.5 text-xs">
             {latest.garminTrainingStatus
