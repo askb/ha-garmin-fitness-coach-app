@@ -288,15 +288,19 @@ describe("Ramp rate and load spikes", () => {
 // ── Block 8: Sleep debt detection ────────────────────────────────────────────
 
 describe("Sleep debt", () => {
-  it("test 19 — 7 nights of 5.5h sleep → total sleep debt > 300 min", () => {
-    // Need = 480 min; actual = 330 min; debt per night = 150 min × 7 = 1050 min
+  it("test 19 — 7 nights of 5.5h sleep → sustained shortfall surfaces (EW-decay window)", () => {
+    // Need = 480 min; actual = 330 min; nightly deficit = 150 min.
+    // Under exponential decay (weight = 0.5^i) the same chronic
+    // restriction lands ~298 min instead of the naive 1050 min
+    // (see calculateSleepDebt comment + issue #128).
     const shortSleepMetrics = Array.from({ length: 7 }, (_, i) => ({
       ...athleteAData[0]!,
       date: `2024-04-${String(i + 1).padStart(2, "0")}`,
       totalSleepMinutes: 330, // 5.5 hours
     }));
     const debt = calculateSleepDebt(shortSleepMetrics, 480);
-    expect(debt).toBeGreaterThan(300);
+    expect(debt).toBeGreaterThan(200);
+    expect(debt).toBeLessThan(400);
   });
 
   it("test 19b — 7 nights of adequate sleep → sleep debt near zero", () => {

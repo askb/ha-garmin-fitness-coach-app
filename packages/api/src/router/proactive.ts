@@ -1,8 +1,9 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, desc, eq, gte, sql } from "@acme/db";
+import { and, desc, eq, gte, max, sql } from "@acme/db";
 import {
+  Activity,
   AdvancedMetric,
   AiInsight,
   AthleteBaseline,
@@ -487,10 +488,37 @@ export const proactiveRouter = {
       if (unreadOnly) {
         conditions.push(eq(AiInsight.isRead, false));
       }
-      return ctx.db.query.AiInsight.findMany({
-        where: and(...conditions),
-        orderBy: desc(AiInsight.createdAt),
-        limit: 20,
+      const [rows, latestActivity] = await Promise.all([
+        ctx.db.query.AiInsight.findMany({
+          where: and(...conditions),
+          orderBy: desc(AiInsight.createdAt),
+          limit: 20,
+        }),
+        ctx.db
+          .select({ latest: max(Activity.startedAt) })
+          .from(Activity)
+          .where(eq(Activity.userId, userId)),
+      ]);
+
+      // Suppress load-derived insights when a newer activity has landed
+      // since they were generated. ACWR / TSB / ramp-rate snapshots go
+      // stale the moment a new workout syncs, so a "Training Spike"
+      // card showing ACWR 1.27 after the live load has drifted to 1.24
+      // disagrees with the rule-based card on the same page (issue
+      // #129). Sleep / HRV / readiness insights are independent of
+      // activity sync and pass through unchanged.
+      const latestActivityAt = latestActivity[0]?.latest ?? null;
+      if (!latestActivityAt) return rows;
+
+      const LOAD_DERIVED = new Set([
+        "injury_risk",
+        "load_spike",
+        "overreaching",
+        "peaking",
+      ]);
+      return rows.filter((r) => {
+        if (!LOAD_DERIVED.has(r.insightType)) return true;
+        return r.createdAt >= latestActivityAt;
       });
     }),
 

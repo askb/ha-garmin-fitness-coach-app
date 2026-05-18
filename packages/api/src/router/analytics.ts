@@ -461,8 +461,14 @@ export const analyticsRouter = {
       limit: 7,
     });
 
+    // Match the engine's exponentially-weighted sleep-debt convention
+    // (see calculateSleepDebt in @acme/engine). Raw summation produced
+    // physically implausible totals (~17h) for chronically short
+    // sleepers, and `estimateRecoveryTime` then capped at >60 / >120
+    // thresholds anyway. Aligning the metric here keeps the recovery
+    // gauge and the insights card telling the same story.
     const sleepDebtMinutes = recentMetrics.reduce(
-      (sum, m) => sum + (m.sleepDebtMinutes ?? 0),
+      (sum, m, i) => sum + (m.sleepDebtMinutes ?? 0) * Math.pow(0.5, i),
       0,
     );
 

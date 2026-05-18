@@ -58,27 +58,33 @@ export function calculateSleepNeed(
 }
 
 /**
- * Calculate cumulative sleep debt over a rolling window.
+ * Calculate sleep debt as an exponentially-weighted rolling deficit.
  *
- * Sleep debt = sum of (need - actual) for days where actual < need.
- * Positive number = minutes of accumulated debt.
+ * Older nightly deficits decay so the number stays in a physiologically
+ * believable range. A raw 7-day sum produced ~17h of "debt" for a user
+ * consistently 2h short — far beyond what the literature supports
+ * (Van Dongen et al. 2003: only ~4-6h of accumulated deficit is
+ * measurable; further restriction degrades performance but the
+ * recoverable "debt" plateaus). We weight day i (0 = most recent) by
+ * 0.5^i so the effective window is ≈3 nights and the same chronic
+ * 2h/night shortfall surfaces as ~240 min rather than ~840 min.
  *
- * Ref: Simpson NS et al. (2016) — Sleep debt accumulates and impairs
- * performance even after "recovery" sleep.
+ * Ref: Van Dongen HPA et al. (2003), Simpson NS et al. (2016).
  */
 export function calculateSleepDebt(
   recentMetrics: DailyMetricInput[], // last 7 days, most recent first
   sleepNeedMinutes: number,
 ): number {
   let debt = 0;
-  for (const m of recentMetrics.slice(0, 7)) {
+  recentMetrics.slice(0, 7).forEach((m, i) => {
     if (
       m.totalSleepMinutes !== null &&
       m.totalSleepMinutes < sleepNeedMinutes
     ) {
-      debt += sleepNeedMinutes - m.totalSleepMinutes;
+      const dailyDeficit = sleepNeedMinutes - m.totalSleepMinutes;
+      debt += dailyDeficit * Math.pow(0.5, i);
     }
-  }
+  });
   return Math.round(debt);
 }
 
