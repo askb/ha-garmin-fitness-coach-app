@@ -162,6 +162,17 @@ function getAgentConfig(id: AgentType): AgentConfig {
 function renderMarkdown(text: string) {
   const lines = text.split("\n");
   return lines.map((line, li) => {
+    // Horizontal rule (e.g. "---" / "***" / "___"). Render as a divider
+    // instead of leaking the literal text into the response body.
+    if (/^\s*[-*_]{3,}\s*$/.test(line))
+      return (
+        <hr
+          key={li}
+          className="my-2 border-0 border-t border-zinc-700/60"
+          aria-hidden="true"
+        />
+      );
+
     // Headers
     if (line.startsWith("### "))
       return (
@@ -369,19 +380,21 @@ export default function CoachPage() {
       </header>
 
       {/* Agent Selector Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-zinc-800 bg-zinc-900/60 px-4 py-2">
+      <div className="flex gap-1 overflow-x-auto border-b border-zinc-800 bg-zinc-900/60 px-3 py-2 [scrollbar-width:thin]">
         {AGENTS.map((agent) => (
           <button
             key={agent.id}
             onClick={() => setActiveAgent(agent.id)}
+            aria-label={agent.label}
             className={cn(
-              "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+              "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors sm:px-3",
               activeAgent === agent.id
                 ? cn(agent.accentBg, "text-white")
                 : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200",
             )}
           >
-            {agent.icon} {agent.label}
+            <span aria-hidden="true">{agent.icon}</span>
+            <span className="ml-1 max-[400px]:hidden">{agent.label}</span>
           </button>
         ))}
       </div>
