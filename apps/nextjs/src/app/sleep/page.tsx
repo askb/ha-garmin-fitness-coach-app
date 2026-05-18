@@ -750,7 +750,7 @@ export default function SleepDashboard() {
                   tick={{ fill: "#a1a1aa", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
-                  width={35}
+                  width={40}
                   label={{
                     value: "min",
                     angle: -90,
