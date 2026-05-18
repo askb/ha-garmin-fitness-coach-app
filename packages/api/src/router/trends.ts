@@ -103,7 +103,11 @@ export const trendsRouter = {
     .query(async ({ ctx, input }) => {
       const days = input.period === "7d" ? 7 : 28;
       const userId = ctx.session.user.id;
-      const since = getDateString(days);
+      // `gte(date, since)` is inclusive on both ends, so we need to subtract
+      // one day to get exactly `days` calendar dates including today.
+      // Previously: 7d window returned 8 distinct days (#157 — Insights
+      // "This Week" showed "8 days tracked").
+      const since = getDateString(days - 1);
 
       const readinessScores = await ctx.db.query.ReadinessScore.findMany({
         where: and(

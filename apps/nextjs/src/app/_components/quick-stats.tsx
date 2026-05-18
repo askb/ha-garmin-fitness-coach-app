@@ -63,7 +63,7 @@ export function QuickStats({ stats }: { stats: StatItem[] }) {
             )}
             <p className="text-muted-foreground text-xs">{stat.label}</p>
             {stat.zoneLabel && (
-              <p className={`text-[10px] font-medium ${colors.text}`}>
+              <p className="text-[10px] font-medium text-zinc-400">
                 {stat.zoneLabel}
               </p>
             )}
