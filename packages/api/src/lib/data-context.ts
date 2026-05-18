@@ -21,6 +21,8 @@ import {
   countConsecutiveHardDays,
 } from "@acme/engine";
 
+import { pickBestVO2maxEstimate } from "./vo2max";
+
 // Drizzle db type — keep generic to avoid coupling to the concrete client
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DB = any;
@@ -204,30 +206,10 @@ export async function buildDataContext(
   ]);
 
   // Pick the best VO2max estimate using the same source priority as the UI
-  // hero card (Garmin Firstbeat > pace+HR > Cooper > UTH). This keeps the AI
-  // agent narrative aligned with the dashboard's "Current VO2max" number.
-  const VO2_SOURCE_PRIORITY: Record<string, number> = {
-    garmin_official: 0,
-    running_pace_hr: 1,
-    cooper: 2,
-    uth_method: 4,
-    uth_ratio: 4,
-  };
-  const latestVo2 =
-    vo2Estimates.length === 0
-      ? undefined
-      : vo2Estimates.reduce((best, e) => {
-          const bp = VO2_SOURCE_PRIORITY[best.source] ?? 3;
-          const ep = VO2_SOURCE_PRIORITY[e.source] ?? 3;
-          if (ep < bp) return e;
-          if (
-            ep === bp &&
-            new Date(e.date).getTime() > new Date(best.date).getTime()
-          ) {
-            return e;
-          }
-          return best;
-        }, vo2Estimates[0]!);
+  // hero card (Garmin Firstbeat > pace+HR > Cooper > UTH). The picker lives
+  // in `./vo2max.ts` so the AI coach narrative stays aligned with the
+  // /fitness dashboard's "Current VO2max" number (#154).
+  const latestVo2 = pickBestVO2maxEstimate(vo2Estimates);
 
   // Early exit if no data at all
   if (!profile && metrics14.length === 0 && activities10.length === 0) {

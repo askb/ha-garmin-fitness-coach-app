@@ -25,6 +25,7 @@ import {
 } from "@acme/engine";
 
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
+import { vo2SourcePriority } from "../lib/vo2max";
 import { protectedProcedure } from "../trpc";
 
 function getDateString(daysAgo: number): string {
@@ -221,25 +222,19 @@ export const analyticsRouter = {
       });
 
       // Deduplicate: keep the highest-priority source per date.
-      // Priority: garmin_official > running_pace_hr > cooper > uth_method
-      // Garmin's Firstbeat algorithm (pace+HR during runs) is far more accurate
-      // than the Uth ratio method (±5 ml/kg/min, overestimates for age >35).
-      // Ref: Uth et al. 2004, PMC8443998 (2021 age-correction study)
-      const SOURCE_PRIORITY: Record<string, number> = {
-        garmin_official: 0,
-        running_pace_hr: 1,
-        cooper: 2,
-        uth_method: 3,
-        uth_ratio: 3,
-      };
+      // Priority: garmin_official > running_pace_hr > cooper > UTH.
+      // Garmin's Firstbeat algorithm (pace+HR during runs) is far more
+      // accurate than the Uth ratio method (±5 ml/kg/min, overestimates
+      // for age >35). Ref: Uth et al. 2004, PMC8443998 (2021 study).
+      // Picker logic lives in `lib/vo2max.ts` so the /fitness hero card,
+      // the AI coach data-context, and this list view all agree (#154).
       const bestByDate = new Map<string, (typeof allEstimates)[number]>();
       for (const e of allEstimates) {
         const existing = bestByDate.get(e.date);
-        const ePriority = SOURCE_PRIORITY[e.source] ?? 2;
-        const existingPriority = existing
-          ? (SOURCE_PRIORITY[existing.source] ?? 2)
-          : Infinity;
-        if (ePriority < existingPriority) {
+        if (
+          !existing ||
+          vo2SourcePriority(e.source) < vo2SourcePriority(existing.source)
+        ) {
           bestByDate.set(e.date, e);
         }
       }
