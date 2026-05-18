@@ -329,6 +329,19 @@ export const readinessRouter = {
         existing.explanation && isLegacyDebugExplanation(existing.explanation)
           ? defaultZoneExplanation(existing.zone)
           : existing.explanation;
+      // Recompute the WHOOP-style target-strain band on every call. The
+      // band is derived from readiness score + recent strain history, not
+      // persisted on `ReadinessScore`, so omitting it here causes the
+      // DailyOutlookCard to silently disappear on the second-and-later
+      // page load of the day (cached branch returns no `targetStrain`,
+      // fresh-compute branch below does). See issue #144.
+      const cachedStrainScores = recentActivities.map(
+        (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
+      );
+      const targetStrain = computeTargetStrain(
+        existing.score,
+        cachedStrainScores.slice(0, 14),
+      );
       return {
         ...existing,
         explanation,
@@ -336,6 +349,7 @@ export const readinessRouter = {
         dataQuality: dq,
         actionSuggestion,
         doNotOverinterpret,
+        targetStrain,
       };
     }
 
