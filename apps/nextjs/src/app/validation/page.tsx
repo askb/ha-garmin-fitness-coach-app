@@ -157,7 +157,7 @@ export default function ValidationPage() {
         <h1 className="text-foreground pl-12 text-xl font-bold">
           Data Validation
         </h1>
-        <p className="text-muted-foreground mt-0.5 text-sm">
+        <p className="text-muted-foreground mt-0.5 pl-12 text-sm">
           Compare Garmin estimates against reference measurements
         </p>
       </div>
