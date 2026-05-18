@@ -154,8 +154,10 @@ export default function ValidationPage() {
     <div className="bg-background text-foreground min-h-screen pb-20">
       {/* Header */}
       <div className="bg-card sticky top-0 z-10 border-b px-4 py-4 shadow-sm">
-        <h1 className="text-foreground text-xl font-bold">Data Validation</h1>
-        <p className="text-muted-foreground mt-0.5 text-sm">
+        <h1 className="text-foreground pl-12 text-xl font-bold">
+          Data Validation
+        </h1>
+        <p className="text-muted-foreground mt-0.5 pl-12 text-sm">
           Compare Garmin estimates against reference measurements
         </p>
       </div>
