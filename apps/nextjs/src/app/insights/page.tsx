@@ -631,7 +631,7 @@ export default function InsightsPage() {
                   <p className="text-xl font-bold text-blue-400">
                     {summaryData.totalDays as number}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-300">
+                  <p className="mt-0.5 text-[11px] text-zinc-400">
                     Days tracked
                   </p>
                 </div>
@@ -641,7 +641,7 @@ export default function InsightsPage() {
                   <p className="text-xl font-bold text-green-400">
                     {Math.round(summaryData.avgReadiness as number)}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-300">
+                  <p className="mt-0.5 text-[11px] text-zinc-400">
                     Avg readiness
                   </p>
                 </div>
@@ -651,7 +651,7 @@ export default function InsightsPage() {
                   <p className="text-xl font-bold text-purple-400">
                     {((summaryData.avgSleepMinutes as number) / 60).toFixed(1)}h
                   </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-300">Avg sleep</p>
+                  <p className="mt-0.5 text-[11px] text-zinc-400">Avg sleep</p>
                 </div>
               )}
               {summaryData.avgHrv != null && (
@@ -659,7 +659,7 @@ export default function InsightsPage() {
                   <p className="text-xl font-bold text-pink-400">
                     {Math.round(summaryData.avgHrv as number)}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-zinc-300">Avg HRV</p>
+                  <p className="mt-0.5 text-[11px] text-zinc-400">Avg HRV</p>
                 </div>
               )}
             </div>

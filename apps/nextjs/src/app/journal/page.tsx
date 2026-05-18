@@ -215,6 +215,11 @@ export default function JournalPage() {
     trpc.analytics.getCorrelations.queryOptions({ period: "30d" }),
   );
 
+  const profileQuery = useQuery(trpc.profile.get.queryOptions());
+  // Hide cycle tracking UI for male profiles. Female / other / unspecified
+  // users keep the (collapsed-by-default) section visible.
+  const showCycleTracking = profileQuery.data?.sex !== "male";
+
   // Sync form when entry data changes
   const loadedDate = entryQuery.data?.date;
   const [syncedDate, setSyncedDate] = useState<string | null>(null);
@@ -341,7 +346,9 @@ export default function JournalPage() {
       alcoholDrinks: alcoholDrinks ?? undefined,
       napMinutes: napMinutes ?? undefined,
       medications: medications.length ? medications : undefined,
-      menstrualPhase: menstrualPhase ?? undefined,
+      menstrualPhase: showCycleTracking
+        ? (menstrualPhase ?? undefined)
+        : undefined,
     });
   }
 
@@ -609,47 +616,49 @@ export default function JournalPage() {
         </div>
       </div>
 
-      {/* ---- Cycle Section ---- */}
-      <div className="bg-card rounded-2xl border p-4">
-        <button
-          onClick={() => setShowCycle((v) => !v)}
-          className="flex w-full items-center justify-between text-sm font-medium"
-        >
-          <span>🩸 Track cycle</span>
-          <span className="text-muted-foreground text-xs">
-            {showCycle ? "▲ Hide" : "▼ Show"}
-          </span>
-        </button>
+      {/* ---- Cycle Section (hidden for male profiles) ---- */}
+      {showCycleTracking && (
+        <div className="bg-card rounded-2xl border p-4">
+          <button
+            onClick={() => setShowCycle((v) => !v)}
+            className="flex w-full items-center justify-between text-sm font-medium"
+          >
+            <span>🩸 Track cycle</span>
+            <span className="text-muted-foreground text-xs">
+              {showCycle ? "▲ Hide" : "▼ Show"}
+            </span>
+          </button>
 
-        {showCycle && (
-          <div className="mt-4 space-y-3">
-            <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-              Menstrual Phase
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {MENSTRUAL_PHASES.map((phase) => (
-                <button
-                  key={phase.key}
-                  onClick={() =>
-                    setMenstrualPhase(
-                      menstrualPhase === phase.key ? null : phase.key,
-                    )
-                  }
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-all",
-                    menstrualPhase === phase.key
-                      ? "border-pink-500/50 bg-pink-500/20 text-pink-400"
-                      : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
-                  )}
-                >
-                  <span>{phase.emoji}</span>
-                  <span className="font-medium">{phase.label}</span>
-                </button>
-              ))}
+          {showCycle && (
+            <div className="mt-4 space-y-3">
+              <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
+                Menstrual Phase
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {MENSTRUAL_PHASES.map((phase) => (
+                  <button
+                    key={phase.key}
+                    onClick={() =>
+                      setMenstrualPhase(
+                        menstrualPhase === phase.key ? null : phase.key,
+                      )
+                    }
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs transition-all",
+                      menstrualPhase === phase.key
+                        ? "border-pink-500/50 bg-pink-500/20 text-pink-400"
+                        : "bg-secondary/50 text-muted-foreground hover:bg-secondary border-transparent",
+                    )}
+                  >
+                    <span>{phase.emoji}</span>
+                    <span className="font-medium">{phase.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* ---- Save ---- */}
       <Button

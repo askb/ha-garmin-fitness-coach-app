@@ -121,6 +121,15 @@ export default function PowerPage() {
 
   const hasCpData = cp != null && wPrime != null;
 
+  // No power meter detected: every query returned without any power-bearing
+  // data. Render a single explainer rather than three empty-state cards.
+  const hasAnyPowerData =
+    hasCpData ||
+    powerActivities.length > 0 ||
+    pdCurveData.some((d) => d.power != null);
+  const queriesReady = !latest.isLoading && !activities.isLoading;
+  const showNoPowerMeterHero = queriesReady && !hasAnyPowerData;
+
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">
       {/* ── Header ── */}
@@ -131,246 +140,280 @@ export default function PowerPage() {
         </p>
       </div>
 
-      {/* ── CP Summary ── */}
-      <div className="bg-card rounded-2xl border p-4">
-        <SectionHeader
-          title="Critical Power Summary"
-          info="Critical Power (CP) is the highest sustainable power output. W' (W-prime) is the anaerobic work capacity above CP in kJ. mFTP ≈ 95% CP. Method: 3-parameter CP model from multi-duration best efforts."
-          className="mb-3"
-        />
-        {latest.isLoading ? (
-          <div className="grid grid-cols-3 gap-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-muted h-16 animate-pulse rounded-xl" />
-            ))}
-          </div>
-        ) : hasCpData ? (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-blue-400">
-                {Math.round(cp)}W
-              </p>
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                Critical Power
-              </p>
-            </div>
-            <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-purple-400">
-                {wPrime.toFixed(1)}kJ
-              </p>
-              <p className="text-muted-foreground mt-0.5 text-xs">W&apos;</p>
-            </div>
-            <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-xl font-bold text-green-400">
-                {mFtp != null
-                  ? `${Math.round(mFtp)}W`
-                  : `${Math.round(cp * 0.95)}W`}
-              </p>
-              <p className="text-muted-foreground mt-0.5 text-xs">mFTP</p>
-            </div>
-          </div>
-        ) : (
-          <p className="text-muted-foreground py-4 text-center text-sm">
-            Insufficient power data — complete 3+ workouts with a power meter
+      {/* ── No power-meter hero (single explainer, replaces empty sections) ── */}
+      {showNoPowerMeterHero ? (
+        <div className="bg-card rounded-2xl border p-6 text-center">
+          <div className="mb-3 text-4xl">⚡</div>
+          <h2 className="mb-2 text-lg font-semibold">Power meter required</h2>
+          <p className="text-muted-foreground mx-auto max-w-sm text-sm">
+            Power &amp; CP analytics estimate Critical Power, W&apos; and the
+            power-duration curve from workouts captured with a power-meter
+            capable device.
           </p>
-        )}
-      </div>
-
-      {/* ── Power-Duration Curve ── */}
-      <div className="bg-card rounded-2xl border p-4">
-        <SectionHeader
-          title="Power-Duration Curve"
-          info="Best power output at each duration from last 90 days. Uses Normalized Power when available. Each point is the highest power from activities matching that duration ±20%."
-          className="mb-3"
-        />
-        {activities.isLoading ? (
-          <div className="bg-muted h-48 animate-pulse rounded-lg" />
-        ) : pdCurveData.some((d) => d.power != null) ? (
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart
-              data={pdCurveData}
-              margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis dataKey="label" tick={{ fill: "#888", fontSize: 10 }} />
-              <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
-                width={40}
-                unit="W"
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                formatter={(v: unknown) => `${Math.round(Number(v))} W`}
-              />
-              <Line
-                type="monotone"
-                dataKey="power"
-                stroke="#f97316"
-                strokeWidth={2}
-                dot={{ fill: "#f97316", r: 4 }}
-                connectNulls
-                name="Best Power"
-              />
-              {cp != null && (
-                <Line
-                  type="monotone"
-                  dataKey="cp"
-                  stroke="#3b82f6"
-                  strokeWidth={1.5}
-                  strokeDasharray="6 3"
-                  dot={false}
-                  name="CP"
-                />
-              )}
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            No power data yet — complete rides/runs with a power meter.
+          <p className="text-muted-foreground mx-auto mt-3 max-w-sm text-xs">
+            Compatible sources include cycling power meters (Garmin Rally,
+            Stages, Favero), smart trainers, and running-power pods (Stryd,
+            COROS POD 2, Garmin HRM-Pro). Pair one with your Garmin and complete
+            a few rides or runs &mdash; this page will fill in automatically.
           </p>
-        )}
-      </div>
-
-      {/* ── W' Depletion Chart ── */}
-      {hasCpData && wPrimeData.length > 0 && (
-        <div className="bg-card rounded-2xl border p-4">
-          <SectionHeader
-            title="W′ Depletion Model"
-            info="How quickly W' depletes above CP at various intensities. Formula: t_lim = W' / (Power − CP). At 150% CP, W' depletes in seconds. Use to pace intervals. Citation: Monod & Scherrer (1965), Morton (1996)."
-            className="mb-3"
-          />
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart margin={{ top: 5, right: 5, left: -5, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-              <XAxis
-                type="number"
-                dataKey="t"
-                name="Time"
-                unit="s"
-                tick={{ fill: "#888", fontSize: 10 }}
-                allowDuplicatedCategory={false}
-              />
-              <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
-                width={36}
-                unit="kJ"
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                formatter={(v: unknown) => `${Number(v).toFixed(1)} kJ`}
-                labelFormatter={(label) => `Time: ${label}s`}
-              />
-              {wPrimeData.map((series) => (
-                <Line
-                  key={series.key}
-                  data={series.points}
-                  type="monotone"
-                  dataKey="remaining"
-                  stroke={series.color}
-                  strokeWidth={2}
-                  dot={false}
-                  name={series.label}
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
-          <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
-            {wPrimeData.map((s) => (
-              <span key={s.key} className="flex items-center gap-1">
-                <span
-                  className="inline-block h-0.5 w-5 rounded"
-                  style={{ background: s.color }}
-                />
-                <span className="text-muted-foreground">{s.label}</span>
-              </span>
-            ))}
-          </div>
         </div>
-      )}
-
-      {/* ── Recent Power Activities ── */}
-      <div className="bg-card rounded-2xl border p-4">
-        <SectionHeader
-          title="Recent Power Activities"
-          info="Last 10 activities with power data. Intensity Factor (IF) = NP/FTP. TSS estimate = duration × NP × IF / (FTP × 3600) × 100."
-          className="mb-3"
-        />
-        {activities.isLoading ? (
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-muted h-12 animate-pulse rounded-xl" />
-            ))}
-          </div>
-        ) : powerActivities.length > 0 ? (
-          <div className="space-y-2">
-            {powerActivities.map((act) => {
-              const ftp = mFtp ?? (cp != null ? cp * 0.95 : null);
-              const np = act.normalizedPower ?? act.avgPower ?? 0;
-              const IF = ftp && ftp > 0 ? np / ftp : null;
-              const tssEst =
-                ftp && IF != null && act.durationMinutes
-                  ? Math.round(
-                      ((act.durationMinutes * 60 * np * IF) / (ftp * 3600)) *
-                        100,
-                    )
-                  : null;
-              const intensity =
-                IF == null
-                  ? "text-muted-foreground"
-                  : IF < 0.75
-                    ? "text-blue-400"
-                    : IF < 0.9
-                      ? "text-green-400"
-                      : IF < 1.05
-                        ? "text-yellow-400"
-                        : "text-red-400";
-
-              return (
-                <div
-                  key={act.id}
-                  className="bg-secondary/40 flex items-center justify-between rounded-xl px-3 py-2.5"
-                >
-                  <div>
-                    <p className="text-sm font-medium capitalize">
-                      {act.sportType?.replace(/_/g, " ") ?? "Activity"}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      {act.durationMinutes != null
-                        ? fmtDuration(Math.round(act.durationMinutes))
-                        : "—"}
-                      {tssEst != null && ` · TSS ~${tssEst}`}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={cn("font-bold", intensity)}>
-                      {Math.round(np)} W
-                    </p>
-                    {IF != null && (
-                      <p className="text-muted-foreground text-xs">
-                        IF {IF.toFixed(2)}
-                      </p>
-                    )}
-                  </div>
+      ) : (
+        <>
+          {/* ── CP Summary ── */}
+          <div className="bg-card rounded-2xl border p-4">
+            <SectionHeader
+              title="Critical Power Summary"
+              info="Critical Power (CP) is the highest sustainable power output. W' (W-prime) is the anaerobic work capacity above CP in kJ. mFTP ≈ 95% CP. Method: 3-parameter CP model from multi-duration best efforts."
+              className="mb-3"
+            />
+            {latest.isLoading ? (
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-muted h-16 animate-pulse rounded-xl"
+                  />
+                ))}
+              </div>
+            ) : hasCpData ? (
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-secondary/40 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-blue-400">
+                    {Math.round(cp)}W
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    Critical Power
+                  </p>
                 </div>
-              );
-            })}
+                <div className="bg-secondary/40 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-purple-400">
+                    {wPrime.toFixed(1)}kJ
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
+                    W&apos;
+                  </p>
+                </div>
+                <div className="bg-secondary/40 rounded-xl p-3 text-center">
+                  <p className="text-xl font-bold text-green-400">
+                    {mFtp != null
+                      ? `${Math.round(mFtp)}W`
+                      : `${Math.round(cp * 0.95)}W`}
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">mFTP</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-4 text-center text-sm">
+                Insufficient power data — complete 3+ workouts with a power
+                meter
+              </p>
+            )}
           </div>
-        ) : (
-          <p className="text-muted-foreground py-4 text-center text-sm">
-            No power activities found in the last 90 days.
-          </p>
-        )}
-      </div>
+
+          {/* ── Power-Duration Curve ── */}
+          <div className="bg-card rounded-2xl border p-4">
+            <SectionHeader
+              title="Power-Duration Curve"
+              info="Best power output at each duration from last 90 days. Uses Normalized Power when available. Each point is the highest power from activities matching that duration ±20%."
+              className="mb-3"
+            />
+            {activities.isLoading ? (
+              <div className="bg-muted h-48 animate-pulse rounded-lg" />
+            ) : pdCurveData.some((d) => d.power != null) ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart
+                  data={pdCurveData}
+                  margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "#888", fontSize: 10 }}
+                  />
+                  <YAxis
+                    tick={{ fill: "#888", fontSize: 10 }}
+                    width={40}
+                    unit="W"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#18181b",
+                      border: "1px solid #333",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(v: unknown) => `${Math.round(Number(v))} W`}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="power"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    dot={{ fill: "#f97316", r: 4 }}
+                    connectNulls
+                    name="Best Power"
+                  />
+                  {cp != null && (
+                    <Line
+                      type="monotone"
+                      dataKey="cp"
+                      stroke="#3b82f6"
+                      strokeWidth={1.5}
+                      strokeDasharray="6 3"
+                      dot={false}
+                      name="CP"
+                    />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-muted-foreground py-8 text-center text-sm">
+                No power data yet — complete rides/runs with a power meter.
+              </p>
+            )}
+          </div>
+
+          {/* ── W' Depletion Chart ── */}
+          {hasCpData && wPrimeData.length > 0 && (
+            <div className="bg-card rounded-2xl border p-4">
+              <SectionHeader
+                title="W′ Depletion Model"
+                info="How quickly W' depletes above CP at various intensities. Formula: t_lim = W' / (Power − CP). At 150% CP, W' depletes in seconds. Use to pace intervals. Citation: Monod & Scherrer (1965), Morton (1996)."
+                className="mb-3"
+              />
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart margin={{ top: 5, right: 5, left: -5, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <XAxis
+                    type="number"
+                    dataKey="t"
+                    name="Time"
+                    unit="s"
+                    tick={{ fill: "#888", fontSize: 10 }}
+                    allowDuplicatedCategory={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "#888", fontSize: 10 }}
+                    width={36}
+                    unit="kJ"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#18181b",
+                      border: "1px solid #333",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    formatter={(v: unknown) => `${Number(v).toFixed(1)} kJ`}
+                    labelFormatter={(label) => `Time: ${label}s`}
+                  />
+                  {wPrimeData.map((series) => (
+                    <Line
+                      key={series.key}
+                      data={series.points}
+                      type="monotone"
+                      dataKey="remaining"
+                      stroke={series.color}
+                      strokeWidth={2}
+                      dot={false}
+                      name={series.label}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
+                {wPrimeData.map((s) => (
+                  <span key={s.key} className="flex items-center gap-1">
+                    <span
+                      className="inline-block h-0.5 w-5 rounded"
+                      style={{ background: s.color }}
+                    />
+                    <span className="text-muted-foreground">{s.label}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Recent Power Activities ── */}
+          <div className="bg-card rounded-2xl border p-4">
+            <SectionHeader
+              title="Recent Power Activities"
+              info="Last 10 activities with power data. Intensity Factor (IF) = NP/FTP. TSS estimate = duration × NP × IF / (FTP × 3600) × 100."
+              className="mb-3"
+            />
+            {activities.isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-muted h-12 animate-pulse rounded-xl"
+                  />
+                ))}
+              </div>
+            ) : powerActivities.length > 0 ? (
+              <div className="space-y-2">
+                {powerActivities.map((act) => {
+                  const ftp = mFtp ?? (cp != null ? cp * 0.95 : null);
+                  const np = act.normalizedPower ?? act.avgPower ?? 0;
+                  const IF = ftp && ftp > 0 ? np / ftp : null;
+                  const tssEst =
+                    ftp && IF != null && act.durationMinutes
+                      ? Math.round(
+                          ((act.durationMinutes * 60 * np * IF) /
+                            (ftp * 3600)) *
+                            100,
+                        )
+                      : null;
+                  const intensity =
+                    IF == null
+                      ? "text-muted-foreground"
+                      : IF < 0.75
+                        ? "text-blue-400"
+                        : IF < 0.9
+                          ? "text-green-400"
+                          : IF < 1.05
+                            ? "text-yellow-400"
+                            : "text-red-400";
+
+                  return (
+                    <div
+                      key={act.id}
+                      className="bg-secondary/40 flex items-center justify-between rounded-xl px-3 py-2.5"
+                    >
+                      <div>
+                        <p className="text-sm font-medium capitalize">
+                          {act.sportType?.replace(/_/g, " ") ?? "Activity"}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {act.durationMinutes != null
+                            ? fmtDuration(Math.round(act.durationMinutes))
+                            : "—"}
+                          {tssEst != null && ` · TSS ~${tssEst}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className={cn("font-bold", intensity)}>
+                          {Math.round(np)} W
+                        </p>
+                        {IF != null && (
+                          <p className="text-muted-foreground text-xs">
+                            IF {IF.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-muted-foreground py-4 text-center text-sm">
+                No power activities found in the last 90 days.
+              </p>
+            )}
+          </div>
+        </>
+      )}
 
       <BottomNav />
     </main>
