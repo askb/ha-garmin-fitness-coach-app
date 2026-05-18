@@ -975,26 +975,10 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
   const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div className="relative">
-      {/* Month labels */}
-      <div className="mb-1 flex pl-8" style={{ gap: 0 }}>
-        {monthLabels.map((m, i) => (
-          <div
-            key={i}
-            className="text-[10px] text-zinc-500"
-            style={{
-              position: "absolute",
-              left: `${m.col * 14 + 32}px`,
-            }}
-          >
-            {m.label}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 flex min-w-0 gap-0.5">
-        {/* Day labels */}
-        <div className="flex shrink-0 flex-col gap-0.5 pr-1">
+    <div className="relative overflow-x-clip">
+      <div className="flex gap-0.5">
+        {/* Day labels (sticky on the left) */}
+        <div className="flex shrink-0 flex-col gap-0.5 pt-4 pr-1">
           {DAYS.map((d, i) => (
             <div
               key={d}
@@ -1005,39 +989,61 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
-          {weeks.map((week, wIdx) => (
-            <div key={wIdx} className="flex flex-col gap-0.5">
-              {Array.from({ length: 7 }, (_, dIdx) => {
-                const dateStr = week[dIdx];
-                if (!dateStr) {
-                  return <div key={dIdx} className="h-[12px] w-[12px]" />;
-                }
-                const day = dayMap.get(dateStr);
-                const mins = day?.totalMinutes ?? 0;
-                return (
-                  <div
-                    key={dIdx}
-                    className={cn(
-                      "h-[12px] w-[12px] rounded-[2px] transition-colors",
-                      heatColor(mins),
-                    )}
-                    onMouseEnter={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setTooltip({
-                        x: rect.left + rect.width / 2,
-                        y: rect.top - 4,
-                        day: day ?? null,
-                        date: dateStr,
-                      });
-                    }}
-                    onMouseLeave={() => setTooltip(null)}
-                  />
-                );
-              })}
-            </div>
-          ))}
+        {/* Scrolling region: month labels + grid scroll together so they
+            stay aligned. Previously month labels were absolute-positioned
+            in the outer container and bled past the mobile viewport,
+            causing horizontal page scroll (#160 regression of #142). */}
+        <div className="min-w-0 flex-1 overflow-x-auto">
+          {/* Month labels row */}
+          <div
+            className="relative h-3 text-[10px] text-zinc-500"
+            style={{ width: `${weeks.length * 14}px` }}
+          >
+            {monthLabels.map((m, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{ left: `${m.col * 14}px`, top: 0 }}
+              >
+                {m.label}
+              </div>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="mt-1 flex gap-0.5">
+            {weeks.map((week, wIdx) => (
+              <div key={wIdx} className="flex flex-col gap-0.5">
+                {Array.from({ length: 7 }, (_, dIdx) => {
+                  const dateStr = week[dIdx];
+                  if (!dateStr) {
+                    return <div key={dIdx} className="h-[12px] w-[12px]" />;
+                  }
+                  const day = dayMap.get(dateStr);
+                  const mins = day?.totalMinutes ?? 0;
+                  return (
+                    <div
+                      key={dIdx}
+                      className={cn(
+                        "h-[12px] w-[12px] rounded-[2px] transition-colors",
+                        heatColor(mins),
+                      )}
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltip({
+                          x: rect.left + rect.width / 2,
+                          y: rect.top - 4,
+                          day: day ?? null,
+                          date: dateStr,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
