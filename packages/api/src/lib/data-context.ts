@@ -36,6 +36,7 @@ function prettySport(code: string | null | undefined): string {
   if (!code) return "Activity";
   return code
     .replace(/_v\d+$/i, "") // drop "_v2" / "_v3" variant suffixes
+    .replace(/_(legacy|alt|alt\d+|new|old|deprecated|raw)$/i, "") // misc Garmin suffix noise
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase())
     .trim();

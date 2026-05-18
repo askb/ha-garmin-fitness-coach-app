@@ -269,6 +269,17 @@ export const analyticsRouter = {
         limit: 60,
       });
 
+      // For the `latestBest` value we MUST query the same unwindowed pool
+      // the AI coach reads from (`data-context.ts` does last-30 unconditionally),
+      // not `estimates` which is filtered by the chart's date range. Otherwise
+      // shrinking the chart window can make the hero card and the coach
+      // disagree on "Current VO2max", which is exactly the #154/#164 bug.
+      const recentForLatest = await ctx.db.query.VO2maxEstimate.findMany({
+        where: eq(VO2maxEstimate.userId, userId),
+        orderBy: [desc(VO2maxEstimate.date)],
+        limit: 30,
+      });
+
       return {
         estimates,
         trend,
@@ -277,7 +288,10 @@ export const analyticsRouter = {
         garminEstimatesRecent,
         // Pre-computed best estimate so the hero card and AI coach use
         // identical picker logic (pickBestVO2maxEstimate from lib/vo2max.ts).
-        latestBest: pickBestVO2maxEstimate(estimates) ?? null,
+        // Computed from `recentForLatest` (unwindowed last-30) — same pool
+        // the coach reads — so the two surfaces never disagree regardless
+        // of which chart range the user selects.
+        latestBest: pickBestVO2maxEstimate(recentForLatest) ?? null,
       };
     }),
 

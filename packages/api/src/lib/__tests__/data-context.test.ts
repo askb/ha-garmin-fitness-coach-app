@@ -93,13 +93,17 @@ describe("buildDataContext", () => {
     expect(availability.garmin_training_status_status).toBe("unavailable");
   });
 
-  it("prettifies raw Garmin sport codes so LLM never sees Tennis_v2", async () => {
+  it("prettifies raw Garmin sport codes so LLM never sees variant or legacy suffixes", async () => {
+    // makeDb() returns a fresh object literal per test, so mutating
+    // `db.query.Activity.findMany` here does NOT leak into the other tests.
+    // Each `it()` gets its own db fixture.
     const db = makeDb() as {
       query: {
         Activity: { findMany: ReturnType<typeof vi.fn> };
       };
     };
-    // Override Activity.findMany to return a Tennis_v2 activity.
+    // Override Activity.findMany to return activities with a representative
+    // sample of the raw Garmin suffix noise we strip (#164).
     db.query.Activity.findMany = vi.fn(async () => [
       {
         id: "act-1",
@@ -119,10 +123,54 @@ describe("buildDataContext", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        id: "act-2",
+        userId: "user-1",
+        garminActivityId: "12346",
+        startedAt: new Date(),
+        durationMinutes: 30,
+        sportType: "running_legacy",
+        distanceMeters: 5000,
+        avgHr: 140,
+        maxHr: 160,
+        calories: 250,
+        elevationGain: null,
+        trimpScore: null,
+        strainScore: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "act-3",
+        userId: "user-1",
+        garminActivityId: "12347",
+        startedAt: new Date(),
+        durationMinutes: 45,
+        sportType: "cycling_alt2",
+        distanceMeters: 20000,
+        avgHr: 135,
+        maxHr: 155,
+        calories: 300,
+        elevationGain: null,
+        trimpScore: null,
+        strainScore: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ]);
     const context = await buildDataContext(db as never, "user-1");
-    expect(context).not.toMatch(/_v\d+/);
+    // No raw Garmin variant / legacy / alt suffix should survive into the
+    // LLM-facing context string.
+    expect(context).not.toMatch(/_v\d+/i);
+    expect(context).not.toMatch(/_legacy\b/i);
+    expect(context).not.toMatch(/_alt\d*\b/i);
+    expect(context).not.toMatch(/_(new|old|deprecated|raw)\b/i);
+    // The human-readable label should still be present.
     expect(context).toContain("Tennis");
+    expect(context).toContain("Running");
+    expect(context).toContain("Cycling");
   });
 
   it("coachContext.vo2max matches the highest-priority estimate (garmin_official wins over uth_method)", async () => {
