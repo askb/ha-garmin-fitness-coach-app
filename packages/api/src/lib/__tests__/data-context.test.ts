@@ -92,4 +92,71 @@ describe("buildDataContext", () => {
     expect(availability.garmin_training_status).toBe("unavailable");
     expect(availability.garmin_training_status_status).toBe("unavailable");
   });
+
+  it("prettifies raw Garmin sport codes so LLM never sees Tennis_v2", async () => {
+    const db = makeDb() as {
+      query: {
+        Activity: { findMany: ReturnType<typeof vi.fn> };
+      };
+    };
+    // Override Activity.findMany to return a Tennis_v2 activity.
+    db.query.Activity.findMany = vi.fn(async () => [
+      {
+        id: "act-1",
+        userId: "user-1",
+        garminActivityId: "12345",
+        startedAt: new Date(),
+        durationMinutes: 60,
+        sportType: "Tennis_v2",
+        distanceMeters: null,
+        avgHr: 130,
+        maxHr: 160,
+        calories: 400,
+        elevationGain: null,
+        trimpScore: null,
+        strainScore: null,
+        notes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const context = await buildDataContext(db as never, "user-1");
+    expect(context).not.toMatch(/_v\d+/);
+    expect(context).toContain("Tennis");
+  });
+
+  it("coachContext.vo2max matches the highest-priority estimate (garmin_official wins over uth_method)", async () => {
+    const db = makeDb() as {
+      query: {
+        VO2maxEstimate: { findMany: ReturnType<typeof vi.fn> };
+      };
+    };
+    db.query.VO2maxEstimate.findMany = vi.fn(async () => [
+      {
+        id: "vo2-1",
+        userId: "user-1",
+        date: "2026-03-24",
+        value: 28.7,
+        source: "uth_method",
+        sport: "running",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "vo2-2",
+        userId: "user-1",
+        date: "2026-03-20",
+        value: 32.2,
+        source: "garmin_official",
+        sport: "running",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const context = await buildDataContext(db as never, "user-1");
+    const availability = extractAvailabilityJson(context);
+    // garmin_official (priority 0) beats uth_method (priority 4)
+    // even though uth_method has a more recent date.
+    expect(availability.vo2max).toBe(32.2);
+  });
 });

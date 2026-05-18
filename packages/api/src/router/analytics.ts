@@ -25,7 +25,7 @@ import {
 } from "@acme/engine";
 
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
-import { vo2SourcePriority } from "../lib/vo2max";
+import { pickBestVO2maxEstimate, vo2SourcePriority } from "../lib/vo2max";
 import { protectedProcedure } from "../trpc";
 
 function getDateString(daysAgo: number): string {
@@ -275,6 +275,9 @@ export const analyticsRouter = {
         garminEstimates,
         uthEstimates,
         garminEstimatesRecent,
+        // Pre-computed best estimate so the hero card and AI coach use
+        // identical picker logic (pickBestVO2maxEstimate from lib/vo2max.ts).
+        latestBest: pickBestVO2maxEstimate(estimates) ?? null,
       };
     }),
 

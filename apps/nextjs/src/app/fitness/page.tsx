@@ -183,24 +183,13 @@ export default function FitnessPage() {
     trpc.analytics.getTrainingLoads.queryOptions(),
   );
 
-  // Latest VO2max value (prefer Garmin Firstbeat → running pace HR → Cooper → UTH)
-  const latestVO2max = useMemo(() => {
-    if (!vo2max.data?.estimates?.length) return null;
-    const SOURCE_PRIORITY: Record<string, number> = {
-      garmin_official: 0,
-      running_pace_hr: 1,
-      cooper: 2,
-      uth_method: 4,
-      uth_ratio: 4,
-    };
-    return vo2max.data.estimates.reduce((best, e) => {
-      const bp = SOURCE_PRIORITY[best.source] ?? 3;
-      const ep = SOURCE_PRIORITY[e.source] ?? 3;
-      if (ep < bp) return e;
-      if (ep === bp && new Date(e.date) > new Date(best.date)) return e;
-      return best;
-    }, vo2max.data.estimates[0]!);
-  }, [vo2max.data, timezone]);
+  // Use the server-computed best estimate so the hero card stays in sync
+  // with the AI coach context which uses the same pickBestVO2maxEstimate
+  // picker in packages/api/src/lib/vo2max.ts (fixes #164 VO2max drift).
+  const latestVO2max = useMemo(
+    () => vo2max.data?.latestBest ?? null,
+    [vo2max.data],
+  );
 
   const trend = vo2max.data?.trend;
   const trendInfo = trend ? TREND_BADGE[trend.trend] : null;
