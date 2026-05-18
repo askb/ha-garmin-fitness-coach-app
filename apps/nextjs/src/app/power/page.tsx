@@ -121,14 +121,22 @@ export default function PowerPage() {
 
   const hasCpData = cp != null && wPrime != null;
 
-  // No power meter detected: every query returned without any power-bearing
-  // data. Render a single explainer rather than three empty-state cards.
+  // No power meter detected: every query returned successfully without any
+  // power-bearing data. Render a single explainer rather than three empty-
+  // state cards. We require both queries to have resolved successfully —
+  // an error from either should not be silently re-labelled as "no power
+  // meter". On error we fall through to the original sections which have
+  // their own loading / error rendering.
   const hasAnyPowerData =
     hasCpData ||
     powerActivities.length > 0 ||
     pdCurveData.some((d) => d.power != null);
-  const queriesReady = !latest.isLoading && !activities.isLoading;
-  const showNoPowerMeterHero = queriesReady && !hasAnyPowerData;
+  const queriesSettledOk =
+    latest.isSuccess &&
+    activities.isSuccess &&
+    !latest.isError &&
+    !activities.isError;
+  const showNoPowerMeterHero = queriesSettledOk && !hasAnyPowerData;
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 pt-6 pb-24">

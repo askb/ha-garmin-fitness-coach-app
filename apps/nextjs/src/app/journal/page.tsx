@@ -217,8 +217,12 @@ export default function JournalPage() {
 
   const profileQuery = useQuery(trpc.profile.get.queryOptions());
   // Hide cycle tracking UI for male profiles. Female / other / unspecified
-  // users keep the (collapsed-by-default) section visible.
-  const showCycleTracking = profileQuery.data?.sex !== "male";
+  // users keep the (collapsed-by-default) section visible. Wait until the
+  // profile query has resolved so the section doesn't briefly render for
+  // male profiles on initial mount (and so a quick save before profile
+  // arrives can't accidentally persist menstrualPhase data).
+  const showCycleTracking =
+    profileQuery.isSuccess && profileQuery.data?.sex !== "male";
 
   // Sync form when entry data changes
   const loadedDate = entryQuery.data?.date;
