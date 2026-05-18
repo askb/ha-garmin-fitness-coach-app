@@ -82,7 +82,12 @@ export const activityRouter = {
         },
       });
 
-      return activities;
+      // Hide tiny incidental activities (< 10 min AND < 500 m). Garmin's
+      // auto-detected "phantom walks" otherwise dominate the list and
+      // bury real workouts (#158). Same filter as `getRecent` above.
+      return activities.filter(
+        (a) => (a.durationMinutes ?? 0) >= 10 || (a.distanceMeters ?? 0) >= 500,
+      );
     }),
 
   getDetail: protectedProcedure

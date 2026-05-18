@@ -322,7 +322,7 @@ export async function buildDataContext(
         profile.goals.length > 0
       )
         lines.push(
-          `- Goals: ${profile.goals.map((g) => `${g.sport} ${g.goalType}${g.target ? ` (${g.target})` : ""}`).join("; ")}`,
+          `- Goals: ${profile.goals.map((g) => `${prettySport(g.sport)} ${g.goalType}${g.target ? ` (${g.target})` : ""}`).join("; ")}`,
         );
     }
     if (latestVo2) {
@@ -332,7 +332,7 @@ export async function buildDataContext(
         profile?.sex,
       );
       lines.push(
-        `- VO2max: ${latestVo2.value.toFixed(1)} ml/kg/min (${classification}) [${latestVo2.sport}]`,
+        `- VO2max: ${latestVo2.value.toFixed(1)} ml/kg/min (${classification}) [${prettySport(latestVo2.sport)}]`,
       );
     } else if (profile?.vo2maxRunning) {
       const classification = classifyVO2max(

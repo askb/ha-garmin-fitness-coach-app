@@ -162,9 +162,14 @@ function getAgentConfig(id: AgentType): AgentConfig {
 function renderMarkdown(text: string) {
   const lines = text.split("\n");
   return lines.map((line, li) => {
+    // Strip leading whitespace before matching block-level markers. LLMs
+    // sometimes indent bullets/headers under a parent list which previously
+    // caused the prefix (`*`, `-`, `### `) to render literally (#153).
+    const trimmed = line.replace(/^\s+/, "");
+
     // Horizontal rule (e.g. "---" / "***" / "___"). Render as a divider
     // instead of leaking the literal text into the response body.
-    if (/^\s*[-*_]{3,}\s*$/.test(line))
+    if (/^[-*_]{3,}\s*$/.test(trimmed))
       return (
         <hr
           key={li}
@@ -174,32 +179,32 @@ function renderMarkdown(text: string) {
       );
 
     // Headers
-    if (line.startsWith("### "))
+    if (trimmed.startsWith("### "))
       return (
         <h4 key={li} className="mt-3 mb-1 text-sm font-bold text-zinc-200">
-          {renderInline(line.slice(4))}
+          {renderInline(trimmed.slice(4))}
         </h4>
       );
-    if (line.startsWith("## "))
+    if (trimmed.startsWith("## "))
       return (
         <h3 key={li} className="mt-3 mb-1 text-sm font-bold text-zinc-100">
-          {renderInline(line.slice(3))}
+          {renderInline(trimmed.slice(3))}
         </h3>
       );
 
     // Bullet lists
-    if (/^[-•*] /.test(line))
+    if (/^[-•*] /.test(trimmed))
       return (
         <li key={li} className="ml-4 list-disc text-sm leading-relaxed">
-          {renderInline(line.replace(/^[-•*] /, ""))}
+          {renderInline(trimmed.replace(/^[-•*] /, ""))}
         </li>
       );
 
     // Numbered lists
-    if (/^\d+\. /.test(line))
+    if (/^\d+\. /.test(trimmed))
       return (
         <li key={li} className="ml-4 list-decimal text-sm leading-relaxed">
-          {renderInline(line.replace(/^\d+\. /, ""))}
+          {renderInline(trimmed.replace(/^\d+\. /, ""))}
         </li>
       );
 
@@ -216,15 +221,21 @@ function renderMarkdown(text: string) {
 }
 
 function renderInline(text: string) {
-  // Bold **text** and _italic_
-  return text.split(/(\*\*[^*]+\*\*|_[^_]+_)/).map((seg, i) => {
+  // Bold **text**, italic _text_ or *text*. LLMs often emit single-asterisk
+  // italics which previously rendered as literal asterisks (#153).
+  // Order matters: try **bold** first so single-asterisk italic doesn't
+  // greedily eat the inner content.
+  return text.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/).map((seg, i) => {
     if (seg.startsWith("**") && seg.endsWith("**"))
       return (
         <strong key={i} className="font-semibold">
           {seg.slice(2, -2)}
         </strong>
       );
-    if (seg.startsWith("_") && seg.endsWith("_"))
+    if (
+      (seg.startsWith("_") && seg.endsWith("_") && seg.length > 2) ||
+      (seg.startsWith("*") && seg.endsWith("*") && seg.length > 2)
+    )
       return (
         <em key={i} className="italic">
           {seg.slice(1, -1)}
