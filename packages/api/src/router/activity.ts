@@ -77,6 +77,8 @@ export const activityRouter = {
           calories: true,
           aerobicTE: true,
           anaerobicTE: true,
+          avgPower: true,
+          normalizedPower: true,
         },
       });
 

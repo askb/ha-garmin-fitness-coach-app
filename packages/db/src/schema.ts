@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
+import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -112,11 +112,7 @@ export const DailyMetric = pgTable(
     rawDataHash: t.varchar({ length: 64 }),
   }),
   (table) => [
-    {
-      name: "daily_metric_user_date_unique",
-      columns: [table.userId, table.date],
-      unique: true,
-    },
+    uniqueIndex("daily_metric_user_date_unique").on(table.userId, table.date),
   ],
 );
 
@@ -212,11 +208,10 @@ export const ReadinessScore = pgTable(
     computedAt: t.timestamp().defaultNow().notNull(),
   }),
   (table) => [
-    {
-      name: "readiness_score_user_date_unique",
-      columns: [table.userId, table.date],
-      unique: true,
-    },
+    uniqueIndex("readiness_score_user_date_unique").on(
+      table.userId,
+      table.date,
+    ),
   ],
 );
 
@@ -308,11 +303,10 @@ export const TrainingStatus = pgTable(
     createdAt: t.timestamp().defaultNow().notNull(),
   }),
   (table) => [
-    {
-      name: "training_status_user_date_unique",
-      columns: [table.userId, table.date],
-      unique: true,
-    },
+    uniqueIndex("training_status_user_date_unique").on(
+      table.userId,
+      table.date,
+    ),
   ],
 );
 
@@ -351,11 +345,7 @@ export const JournalEntry = pgTable(
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
-    {
-      name: "journal_entry_user_date_unique",
-      columns: [table.userId, table.date],
-      unique: true,
-    },
+    uniqueIndex("journal_entry_user_date_unique").on(table.userId, table.date),
   ],
 );
 
@@ -399,11 +389,10 @@ export const SessionReport = pgTable(
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
-    {
-      name: "session_report_activity_user_unique",
-      columns: [table.activityId, table.userId],
-      unique: true,
-    },
+    uniqueIndex("session_report_activity_user_unique").on(
+      table.activityId,
+      table.userId,
+    ),
   ],
 );
 
@@ -439,11 +428,11 @@ export const Intervention = pgTable(
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
-    {
-      name: "intervention_user_date_type_unique",
-      columns: [table.userId, table.date, table.type],
-      unique: true,
-    },
+    uniqueIndex("intervention_user_date_type_unique").on(
+      table.userId,
+      table.date,
+      table.type,
+    ),
   ],
 );
 
@@ -476,11 +465,10 @@ export const AdvancedMetric = pgTable(
     computedAt: t.timestamp().defaultNow().notNull(),
   }),
   (table) => [
-    {
-      name: "advanced_metric_user_date_unique",
-      columns: [table.userId, table.date],
-      unique: true,
-    },
+    uniqueIndex("advanced_metric_user_date_unique").on(
+      table.userId,
+      table.date,
+    ),
   ],
 );
 
@@ -567,11 +555,10 @@ export const AthleteBaseline = pgTable(
     computedAt: t.timestamp().defaultNow().notNull(),
   }),
   (table) => [
-    {
-      name: "athlete_baseline_user_metric_unique",
-      columns: [table.userId, table.metricName],
-      unique: true,
-    },
+    uniqueIndex("athlete_baseline_user_metric_unique").on(
+      table.userId,
+      table.metricName,
+    ),
   ],
 );
 export const CreateAthleteBaselineSchema = createInsertSchema(
@@ -668,11 +655,11 @@ export const AiInsight = pgTable(
       .$onUpdateFn(() => new Date()),
   }),
   (table) => [
-    {
-      name: "ai_insight_user_date_type_unique",
-      columns: [table.userId, table.date, table.insightType],
-      unique: true,
-    },
+    uniqueIndex("ai_insight_user_date_type_unique").on(
+      table.userId,
+      table.date,
+      table.insightType,
+    ),
   ],
 );
 
