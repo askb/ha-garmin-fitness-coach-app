@@ -992,9 +992,9 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
         ))}
       </div>
 
-      <div className="mt-4 flex gap-0.5">
+      <div className="mt-4 flex min-w-0 gap-0.5">
         {/* Day labels */}
-        <div className="flex flex-col gap-0.5 pr-1">
+        <div className="flex shrink-0 flex-col gap-0.5 pr-1">
           {DAYS.map((d, i) => (
             <div
               key={d}
@@ -1006,7 +1006,7 @@ function CalendarHeatmap({ data }: { data: CalendarDay[] }) {
         </div>
 
         {/* Grid */}
-        <div className="flex gap-0.5 overflow-x-auto">
+        <div className="flex min-w-0 flex-1 gap-0.5 overflow-x-auto">
           {weeks.map((week, wIdx) => (
             <div key={wIdx} className="flex flex-col gap-0.5">
               {Array.from({ length: 7 }, (_, dIdx) => {

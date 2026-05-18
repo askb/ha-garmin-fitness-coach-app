@@ -341,7 +341,14 @@ export default function TrendsPage() {
     { key: "strain", query: trendStrain },
     { key: "stress", query: trendStress },
   ];
-  const topCorrelations = (correlations.data ?? []).slice(0, 6);
+  // Drop statistically insignificant correlations (p ≥ 0.05). A pearson r
+  // with p = 0.456 is indistinguishable from noise and showing it next to
+  // a "strong/moderate/weak" badge implies a relationship that doesn't
+  // exist (issue #138: HRV → Readiness r=-0.22, p=0.456 was being
+  // surfaced with a contradictory negative sign).
+  const topCorrelations = (correlations.data ?? [])
+    .filter((c) => c.pValue < 0.05)
+    .slice(0, 6);
 
   // ---------------------------------------------------------------------------
   return (
@@ -743,7 +750,8 @@ export default function TrendsPage() {
           ) : topCorrelations.length === 0 ? (
             <div className="bg-card rounded-xl border p-4">
               <p className="text-muted-foreground text-sm">
-                Not enough data for correlation analysis.
+                No statistically significant correlations yet (p &lt; 0.05).
+                More data will surface relationships as patterns emerge.
               </p>
             </div>
           ) : (

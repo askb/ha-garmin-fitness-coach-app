@@ -125,13 +125,18 @@ export const activityRouter = {
     // protects against the TZ-correctness regression that used to
     // hide AEST morning workouts (see `list` above for details)
     // while still excluding actual clock-skew / seed-data anomalies.
+    //
+    // We over-fetch (15) then filter client-side for the home page
+    // top-3 so auto-detected micro-activities (Garmin's "incidental"
+    // 1-minute walks etc.) don't push the user's real workout out
+    // of the carousel. See issue #143.
     const activities = await ctx.db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
         lte(Activity.startedAt, futureRowCutoff()),
       ),
       orderBy: desc(Activity.startedAt),
-      limit: 5,
+      limit: 15,
       columns: {
         id: true,
         sportType: true,
@@ -145,6 +150,13 @@ export const activityRouter = {
       },
     });
 
-    return activities;
+    // Hide tiny incidental activities (< 10 min AND < 500 m) so a real
+    // workout always surfaces on the home carousel. If everything we
+    // have is "incidental", fall back to the raw list rather than
+    // showing nothing.
+    const meaningful = activities.filter(
+      (a) => (a.durationMinutes ?? 0) >= 10 || (a.distanceMeters ?? 0) >= 500,
+    );
+    return (meaningful.length > 0 ? meaningful : activities).slice(0, 5);
   }),
 } satisfies TRPCRouterRecord;

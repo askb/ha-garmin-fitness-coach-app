@@ -305,6 +305,7 @@ export default function FitnessPage() {
     sportType?: string | null;
     durationMinutes?: number | null;
     distanceMeters?: number | null;
+    avgPaceSecPerKm?: number | null;
     startedAt?: Date | string | null;
   }
   interface RacePred {
@@ -337,7 +338,13 @@ export default function FitnessPage() {
         (a) =>
           a.distanceMeters != null &&
           Math.abs(a.distanceMeters - targetDist) / targetDist < 0.1 &&
-          a.durationMinutes != null,
+          a.durationMinutes != null &&
+          // Exclude walks misclassified as runs. A 5K at >8:00/km
+          // (480 s/km) pace is almost certainly a walk regardless of
+          // what `sportType` says — Garmin will occasionally label
+          // long brisk walks as `running`. Only count entries whose
+          // pace is plausible for a *run* at that distance.
+          (a.avgPaceSecPerKm == null || a.avgPaceSecPerKm < 480),
       );
       return matching.slice(0, 2).map((a) => {
         const actualSecs = (a.durationMinutes ?? 0) * 60;
