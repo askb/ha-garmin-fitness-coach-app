@@ -72,8 +72,10 @@ export const proactiveRouter = {
         limit: 10,
       }),
       ctx.db.query.ReadinessScore.findFirst({
-        where: eq(ReadinessScore.userId, userId),
-        orderBy: desc(ReadinessScore.date),
+        where: and(
+          eq(ReadinessScore.userId, userId),
+          eq(ReadinessScore.date, today),
+        ),
       }),
     ]);
 
