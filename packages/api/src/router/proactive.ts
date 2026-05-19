@@ -72,8 +72,10 @@ export const proactiveRouter = {
         limit: 10,
       }),
       ctx.db.query.ReadinessScore.findFirst({
-        where: eq(ReadinessScore.userId, userId),
-        orderBy: desc(ReadinessScore.date),
+        where: and(
+          eq(ReadinessScore.userId, userId),
+          eq(ReadinessScore.date, today),
+        ),
       }),
     ]);
 
@@ -395,15 +397,43 @@ export const proactiveRouter = {
         metricsObj.spo2 = spo2Values[0]!;
       }
 
-      // Determine overall tone
-      const score = latestReadiness?.score ?? 50;
-      const zone = latestReadiness?.zone ?? "moderate";
-      const icon = score >= 70 ? "🟢" : score >= 40 ? "🟡" : "🔴";
-      const statusWord = score >= 70 ? "Good" : score >= 40 ? "Fair" : "Low";
-
+      // Determine overall tone. If today's readiness hasn't been
+      // computed yet, do NOT synthesize a fake score/zone — derive the
+      // tone purely from the warning/critical counts (flagged concerns
+      // from other rules above) and surface a transparent "Readiness
+      // pending" hint so users don't see an invented 50/100 number.
+      const criticalCount = insights.filter(
+        (i) => i.severity === "critical",
+      ).length;
       const warningCount = insights.filter(
         (i) => i.severity === "warn" || i.severity === "critical",
       ).length;
+
+      let icon: string;
+      let statusWord: string;
+      let titleScoreSuffix: string;
+      let nextSessionSuggestion: string;
+      if (latestReadiness) {
+        const score = latestReadiness.score;
+        const zone = latestReadiness.zone;
+        icon = score >= 70 ? "🟢" : score >= 40 ? "🟡" : "🔴";
+        statusWord = score >= 70 ? "Good" : score >= 40 ? "Fair" : "Low";
+        titleScoreSuffix = ` (${score}/100)`;
+        nextSessionSuggestion =
+          zone === "high"
+            ? "Great day for a quality session or race effort."
+            : "Continue your planned training. Monitor how you feel.";
+      } else {
+        // No readiness row for today yet — keep tone neutral but never
+        // mask a critical condition. Always carry "Readiness pending"
+        // in the title so users know the score will appear later.
+        icon = criticalCount > 0 ? "🔴" : warningCount > 0 ? "🟡" : "🟢";
+        statusWord =
+          warningCount > 0 ? "Review · Readiness pending" : "Readiness pending";
+        titleScoreSuffix = "";
+        nextSessionSuggestion =
+          "Readiness will appear once today's metrics are computed. Continue your planned training.";
+      }
 
       let summary: string;
       if (parts.length === 0) {
@@ -420,16 +450,14 @@ export const proactiveRouter = {
         date: today,
         insightType: "daily_summary",
         severity: "info",
-        title: `${icon} Daily Status — ${statusWord} (${score}/100)`,
+        title: `${icon} Daily Status — ${statusWord}${titleScoreSuffix}`,
         body: summary,
         metrics: metricsObj,
         confidence: 0.9,
         actionSuggestion:
           warningCount > 0
             ? "Address the flagged concerns before your next hard session."
-            : zone === "high"
-              ? "Great day for a quality session or race effort."
-              : "Continue your planned training. Monitor how you feel.",
+            : nextSessionSuggestion,
         generatedBy: "rules",
       });
     }
