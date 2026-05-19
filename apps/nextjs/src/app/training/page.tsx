@@ -150,7 +150,7 @@ export default function TrainingLoadPage() {
 
       {/* ── PMC — Performance Management Chart ── */}
       <div className="bg-card rounded-2xl border p-4">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <SectionHeader
             title="Performance Management Chart"
             info="CTL (Chronic Training Load) = fitness built over 42 days. ATL (Acute Training Load) = fatigue over 7 days. TSB (Training Stress Balance) = CTL - ATL = form. ACWR (Acute:Chronic Workload Ratio) = optimal 0.8–1.3. Citation: Banister (1991), Hulin et al. (2016)."
@@ -371,12 +371,14 @@ export default function TrainingLoadPage() {
         />
         {strainChart.isLoading ? (
           <div className="bg-muted h-48 animate-pulse rounded-lg" />
-        ) : strainChart.data && strainChart.data.length > 0 ? (
+        ) : strainChart.data &&
+          strainChart.data.length > 0 &&
+          strainChart.data.some((d) => (d.value ?? 0) > 0) ? (
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart
               data={strainChart.data.map((d) => ({
                 date: d.date.slice(5),
-                value: d.value ?? 0,
+                value: d.value ?? null,
               }))}
             >
               <defs>
@@ -431,12 +433,14 @@ export default function TrainingLoadPage() {
         />
         {stressChart.isLoading ? (
           <div className="bg-muted h-48 animate-pulse rounded-lg" />
-        ) : stressChart.data && stressChart.data.length > 0 ? (
+        ) : stressChart.data &&
+          stressChart.data.length > 0 &&
+          stressChart.data.some((d) => (d.value ?? 0) > 0) ? (
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart
               data={stressChart.data.map((d) => ({
                 date: d.date.slice(5),
-                value: d.value ?? 0,
+                value: d.value ?? null,
               }))}
             >
               <defs>
@@ -844,7 +848,7 @@ function LoadFocusChart({ focus }: { focus: string }) {
   const focusData = getFocusPieData(focus);
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex w-full flex-col items-center gap-3">
       <ResponsiveContainer width="100%" height={140}>
         <PieChart>
           <Pie
