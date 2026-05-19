@@ -405,7 +405,7 @@ export default function CoachPage() {
             )}
           >
             <span aria-hidden="true">{agent.icon}</span>
-            <span className="ml-1 max-[400px]:hidden">{agent.label}</span>
+            <span className="ml-1">{agent.label}</span>
           </button>
         ))}
       </div>
