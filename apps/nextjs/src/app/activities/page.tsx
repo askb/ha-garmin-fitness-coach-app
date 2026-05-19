@@ -122,7 +122,9 @@ export default function ActivitiesPage() {
       {/* Header */}
       <div>
         <h1 className="pl-12 text-2xl font-bold">Activities</h1>
-        <p className="text-muted-foreground text-sm">Your recent workouts</p>
+        <p className="text-muted-foreground pl-12 text-sm">
+          Your recent workouts
+        </p>
       </div>
 
       {/* Sport Filter */}
