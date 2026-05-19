@@ -399,9 +399,12 @@ export const proactiveRouter = {
 
       // Determine overall tone. If today's readiness hasn't been
       // computed yet, do NOT synthesize a fake score/zone — derive the
-      // tone purely from the warning count (flagged concerns from other
-      // rules above) and surface a transparent "Readiness pending"
-      // status so users don't see an invented 50/100 number.
+      // tone purely from the warning/critical counts (flagged concerns
+      // from other rules above) and surface a transparent "Readiness
+      // pending" hint so users don't see an invented 50/100 number.
+      const criticalCount = insights.filter(
+        (i) => i.severity === "critical",
+      ).length;
       const warningCount = insights.filter(
         (i) => i.severity === "warn" || i.severity === "critical",
       ).length;
@@ -421,9 +424,12 @@ export const proactiveRouter = {
             ? "Great day for a quality session or race effort."
             : "Continue your planned training. Monitor how you feel.";
       } else {
-        // No readiness row for today yet — keep tone neutral.
-        icon = warningCount > 0 ? "🟡" : "🟢";
-        statusWord = warningCount > 0 ? "Review" : "Pending";
+        // No readiness row for today yet — keep tone neutral but never
+        // mask a critical condition. Always carry "Readiness pending"
+        // in the title so users know the score will appear later.
+        icon = criticalCount > 0 ? "🔴" : warningCount > 0 ? "🟡" : "🟢";
+        statusWord =
+          warningCount > 0 ? "Review · Readiness pending" : "Readiness pending";
         titleScoreSuffix = "";
         nextSessionSuggestion =
           "Readiness will appear once today's metrics are computed. Continue your planned training.";
