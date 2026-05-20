@@ -305,7 +305,7 @@ export default function TrainingLoadPage() {
         {/* Legend */}
         <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
           {[
-          { color: "#60a5fa", label: "CTL (Fitness)" },
+            { color: "#60a5fa", label: "CTL (Fitness)" },
             { color: "#c084fc", label: "ATL (Fatigue)" },
             { color: "#4ade80", label: "TSB (Form)" },
             { color: "#fb923c", label: "ACWR (right)" },

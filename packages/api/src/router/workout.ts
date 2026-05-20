@@ -37,27 +37,43 @@ export const workoutRouter = {
     const userId = ctx.session.user.id;
     const today = getDateString(0);
 
-    // Check if already generated
-    const existing = await ctx.db.query.DailyWorkout.findFirst({
-      where: and(eq(DailyWorkout.userId, userId), eq(DailyWorkout.date, today)),
-    });
-    if (existing) return existing;
-
-    // Get profile + readiness
-    const profile = await ctx.db.query.Profile.findFirst({
-      where: eq(Profile.userId, userId),
-    });
+    // Get current readiness first — needed to detect stale cache
+    const [existing, profile, readiness] = await Promise.all([
+      ctx.db.query.DailyWorkout.findFirst({
+        where: and(
+          eq(DailyWorkout.userId, userId),
+          eq(DailyWorkout.date, today),
+        ),
+      }),
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+      }),
+      ctx.db.query.ReadinessScore.findFirst({
+        where: and(
+          eq(ReadinessScore.userId, userId),
+          eq(ReadinessScore.date, today),
+        ),
+      }),
+    ]);
     if (!profile) return null;
-
-    const readiness = await ctx.db.query.ReadinessScore.findFirst({
-      where: and(
-        eq(ReadinessScore.userId, userId),
-        eq(ReadinessScore.date, today),
-      ),
-    });
 
     const zone: ReadinessZone =
       (readiness?.zone as ReadinessZone) ?? "moderate";
+
+    // Return cached row only when the readiness zone it was built with still matches.
+    // Garmin sync can update ReadinessScore after the first load of the day, which
+    // previously caused the home page to show e.g. "High readiness" (ring) alongside
+    // a stale "Moderate / -10% volume" workout built from an earlier lower score.
+    if (existing?.readinessZoneUsed === zone) return existing;
+
+    // Stale or missing — delete the old row (if any) then regenerate below.
+    if (existing) {
+      await ctx.db
+        .delete(DailyWorkout)
+        .where(
+          and(eq(DailyWorkout.userId, userId), eq(DailyWorkout.date, today)),
+        );
+    }
 
     // Get recent strain for hard day stacking check
     const recentActivities = await ctx.db.query.Activity.findMany({

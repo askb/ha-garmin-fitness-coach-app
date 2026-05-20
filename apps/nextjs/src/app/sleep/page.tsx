@@ -212,7 +212,10 @@ export default function SleepDashboard() {
     () =>
       stagesChartData.length > 0 &&
       stagesChartData.every(
-        (d) => !(d.deep != null && d.deep > 0) && !(d.rem != null && d.rem > 0) && !(d.light != null && d.light > 0),
+        (d) =>
+          !(d.deep != null && d.deep > 0) &&
+          !(d.rem != null && d.rem > 0) &&
+          !(d.light != null && d.light > 0),
       ),
     [stagesChartData],
   );
@@ -530,7 +533,10 @@ export default function SleepDashboard() {
               />
               {stagesChartData.some((d) => d.need != null) && (
                 <ReferenceLine
-                  y={stagesChartData.find((d) => d.need != null)?.need ?? undefined}
+                  y={
+                    stagesChartData.find((d) => d.need != null)?.need ??
+                    undefined
+                  }
                   stroke="#eab308"
                   strokeDasharray="6 3"
                   label={{

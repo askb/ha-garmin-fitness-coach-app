@@ -619,7 +619,7 @@ export default function InsightsPage() {
             </div>
           </div>
         ) : summaryData ? (
-          <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-4">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
             <SectionHeader
               title="This Week"
               info="Weekly summary comparing key metrics against your 30-day personal baselines. Green = better than average, red = below. Method: Current week's mean vs 30-day EMA baseline for each metric (sleep, activity, RHR, stress, HRV). Threshold: >0.5 SD difference flagged. Citation: Individual monitoring using z-scores (Buchheit 2014)."
