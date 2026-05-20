@@ -176,8 +176,8 @@ export default function TrainingLoadPage() {
             >
               <defs>
                 <linearGradient id="tsbPosGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.05} />
+                  <stop offset="5%" stopColor="#4ade80" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#4ade80" stopOpacity={0.05} />
                 </linearGradient>
                 <linearGradient id="tsbNegGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#ef4444" stopOpacity={0.05} />
@@ -194,6 +194,10 @@ export default function TrainingLoadPage() {
                 yAxisId="left"
                 tick={{ fill: "#888", fontSize: 10 }}
                 width={32}
+                domain={[
+                  (dataMin: number) => Math.floor(dataMin) - 5,
+                  (dataMax: number) => Math.ceil(dataMax) + 5,
+                ]}
               />
               <YAxis
                 yAxisId="right"
@@ -255,8 +259,8 @@ export default function TrainingLoadPage() {
                 yAxisId="left"
                 type="monotone"
                 dataKey="ctl"
-                stroke="#3b82f6"
-                strokeWidth={2}
+                stroke="#60a5fa"
+                strokeWidth={2.5}
                 dot={false}
                 name="CTL"
               />
@@ -264,8 +268,8 @@ export default function TrainingLoadPage() {
                 yAxisId="left"
                 type="monotone"
                 dataKey="atl"
-                stroke="#a855f7"
-                strokeWidth={2}
+                stroke="#c084fc"
+                strokeWidth={2.5}
                 dot={false}
                 name="ATL"
               />
@@ -273,8 +277,8 @@ export default function TrainingLoadPage() {
                 yAxisId="left"
                 type="monotone"
                 dataKey="tsb"
-                stroke="#22c55e"
-                strokeWidth={1.5}
+                stroke="#4ade80"
+                strokeWidth={2}
                 strokeDasharray="4 2"
                 dot={false}
                 name="TSB"
@@ -284,8 +288,8 @@ export default function TrainingLoadPage() {
                 yAxisId="right"
                 type="monotone"
                 dataKey="acwr"
-                stroke="#f97316"
-                strokeWidth={1.5}
+                stroke="#fb923c"
+                strokeWidth={2}
                 strokeDasharray="6 3"
                 dot={false}
                 name="ACWR"
@@ -301,10 +305,10 @@ export default function TrainingLoadPage() {
         {/* Legend */}
         <div className="mt-2 flex flex-wrap gap-3 text-[10px]">
           {[
-            { color: "#3b82f6", label: "CTL (Fitness)" },
-            { color: "#a855f7", label: "ATL (Fatigue)" },
-            { color: "#22c55e", label: "TSB (Form)" },
-            { color: "#f97316", label: "ACWR (right)" },
+          { color: "#60a5fa", label: "CTL (Fitness)" },
+            { color: "#c084fc", label: "ATL (Fatigue)" },
+            { color: "#4ade80", label: "TSB (Form)" },
+            { color: "#fb923c", label: "ACWR (right)" },
           ].map((l) => (
             <span key={l.label} className="flex items-center gap-1">
               <span
