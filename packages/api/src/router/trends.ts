@@ -11,7 +11,6 @@ import {
   findNotableChanges,
 } from "@acme/engine";
 
-import { getDailySummaryRange } from "../lib/dailySummary";
 import { protectedProcedure } from "../trpc";
 
 type DB = typeof _dependencies_db;
@@ -63,32 +62,52 @@ async function fetchMetricData(
   metric: z.infer<typeof trendMetricEnum>,
   since: string,
 ): Promise<{ date: string; value: number }[]> {
-  // Strain stays activity-derived — daily_athlete_summary doesn't capture
-  // per-activity TRIMP, so we still group from the Activity table.
+  // Strain is activity-derived — the daily_athlete_summary view does not
+  // capture per-activity TRIMP, so we always read from the Activity table.
   if (metric === "strain") {
     return fetchStrainByDate(db, userId, since);
   }
 
-  // Everything else lives on `daily_athlete_summary` (or its live-table
-  // fallback). Single read path means readiness/HRV/sleep/etc. all stay
-  // consistent with whatever the matview last refreshed to.
-  const summary = await getDailySummaryRange(db, userId, since);
+  // Readiness lives in its own table (computed by the readiness engine).
+  // Read it directly — same as getChart does — so the multi-metric overlay
+  // is never affected by a stale or absent daily_athlete_summary matview.
+  if (metric === "readiness") {
+    const scores = await db.query.ReadinessScore.findMany({
+      where: and(
+        eq(ReadinessScore.userId, userId),
+        gte(ReadinessScore.date, since),
+      ),
+      orderBy: asc(ReadinessScore.date),
+    });
+    return scores.map((s) => ({ date: s.date, value: s.score }));
+  }
+
+  // sleep / hrv / restingHr / stress — all live in DailyMetric.
+  // Read directly from the live table (same path as getChart) so the
+  // multi-metric chart never diverges from what individual metric charts show.
+  const metrics = await db.query.DailyMetric.findMany({
+    where: and(
+      eq(DailyMetric.userId, userId),
+      gte(DailyMetric.date, since),
+    ),
+    orderBy: asc(DailyMetric.date),
+  });
 
   const fieldMap: Record<
-    Exclude<z.infer<typeof trendMetricEnum>, "strain">,
-    (row: (typeof summary)[number]) => number | null
+    Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">,
+    (row: (typeof metrics)[number]) => number | null
   > = {
-    readiness: (r) => r.readinessScore,
     sleep: (r) => r.totalSleepMinutes,
     hrv: (r) => r.hrv,
     restingHr: (r) => r.restingHr,
     stress: (r) => r.stressScore,
   };
 
-  const extractor = fieldMap[metric];
-  return summary
-    .filter((r) => extractor(r) !== null)
-    .map((r) => ({ date: r.date, value: extractor(r)! }));
+  const extractor = fieldMap[metric as Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">];
+  return metrics.flatMap((r) => {
+    const v = extractor(r);
+    return v != null ? [{ date: r.date, value: v }] : [];
+  });
 }
 
 function getDateString(daysAgo: number): string {
@@ -294,16 +313,50 @@ export const trendsRouter = {
       const userId = ctx.session.user.id;
       const since = getDateString(input.days);
 
-      const entries = await Promise.all(
-        input.metrics.map(async (metric) => {
-          const data = await fetchMetricData(ctx.db, userId, metric, since);
-          return [metric, data] as const;
-        }),
-      );
+      const hasStrain = input.metrics.includes("strain");
+      const nonStrain = input.metrics.filter((m) => m !== "strain");
+      const hasReadiness = nonStrain.includes("readiness");
+      const dailyMetrics = nonStrain.filter((m) => m !== "readiness");
 
-      return Object.fromEntries(entries) as Record<
-        string,
-        { date: string; value: number }[]
-      >;
+      // Fetch live tables once each — avoids N parallel queries for N metrics.
+      const [strainData, readinessRows, dailyRows] = await Promise.all([
+        hasStrain ? fetchStrainByDate(ctx.db, userId, since) : Promise.resolve([]),
+        hasReadiness
+          ? ctx.db.query.ReadinessScore.findMany({
+              where: and(eq(ReadinessScore.userId, userId), gte(ReadinessScore.date, since)),
+              orderBy: asc(ReadinessScore.date),
+            })
+          : Promise.resolve([]),
+        dailyMetrics.length > 0
+          ? ctx.db.query.DailyMetric.findMany({
+              where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
+              orderBy: asc(DailyMetric.date),
+            })
+          : Promise.resolve([]),
+      ]);
+
+      const dailyFieldMap: Record<string, (r: (typeof dailyRows)[number]) => number | null> = {
+        sleep: (r) => r.totalSleepMinutes,
+        hrv: (r) => r.hrv,
+        restingHr: (r) => r.restingHr,
+        stress: (r) => r.stressScore,
+      };
+
+      const entries: [string, { date: string; value: number }[]][] = [];
+
+      if (hasStrain) entries.push(["strain", strainData]);
+      if (hasReadiness)
+        entries.push(["readiness", readinessRows.map((s) => ({ date: s.date, value: s.score }))]);
+      for (const metric of dailyMetrics) {
+        const fn = dailyFieldMap[metric];
+        if (!fn) continue;
+        const series = dailyRows.flatMap((r) => {
+          const v = fn(r);
+          return v != null ? [{ date: r.date, value: v }] : [];
+        });
+        entries.push([metric, series]);
+      }
+
+      return Object.fromEntries(entries) as Record<string, { date: string; value: number }[]>;
     }),
 } satisfies TRPCRouterRecord;
