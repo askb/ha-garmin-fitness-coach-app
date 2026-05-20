@@ -734,8 +734,8 @@ export default function TrendsPage() {
                       )}
                       title="Week-over-week percent change (current 7-day avg vs previous 7-day avg)."
                     >
-                      Week-over-week: {nc.change > 0 ? "+" : ""}
-                      {nc.change.toFixed(1)}%
+                      {nc.change > 0 ? "+" : ""}
+                      {nc.change.toFixed(1)}% vs prev week
                     </p>
                   </div>
                 </div>
