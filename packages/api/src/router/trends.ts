@@ -104,9 +104,10 @@ async function fetchMetricData(
   };
 
   const extractor = fieldMap[metric as Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">];
-  return metrics
-    .filter((r) => extractor(r) !== null)
-    .map((r) => ({ date: r.date, value: extractor(r) ?? 0 }));
+  return metrics.flatMap((r) => {
+    const v = extractor(r);
+    return v != null ? [{ date: r.date, value: v }] : [];
+  });
 }
 
 function getDateString(daysAgo: number): string {
@@ -312,16 +313,50 @@ export const trendsRouter = {
       const userId = ctx.session.user.id;
       const since = getDateString(input.days);
 
-      const entries = await Promise.all(
-        input.metrics.map(async (metric) => {
-          const data = await fetchMetricData(ctx.db, userId, metric, since);
-          return [metric, data] as const;
-        }),
-      );
+      const hasStrain = input.metrics.includes("strain");
+      const nonStrain = input.metrics.filter((m) => m !== "strain");
+      const hasReadiness = nonStrain.includes("readiness");
+      const dailyMetrics = nonStrain.filter((m) => m !== "readiness");
 
-      return Object.fromEntries(entries) as Record<
-        string,
-        { date: string; value: number }[]
-      >;
+      // Fetch live tables once each — avoids N parallel queries for N metrics.
+      const [strainData, readinessRows, dailyRows] = await Promise.all([
+        hasStrain ? fetchStrainByDate(ctx.db, userId, since) : Promise.resolve([]),
+        hasReadiness
+          ? ctx.db.query.ReadinessScore.findMany({
+              where: and(eq(ReadinessScore.userId, userId), gte(ReadinessScore.date, since)),
+              orderBy: asc(ReadinessScore.date),
+            })
+          : Promise.resolve([]),
+        dailyMetrics.length > 0
+          ? ctx.db.query.DailyMetric.findMany({
+              where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
+              orderBy: asc(DailyMetric.date),
+            })
+          : Promise.resolve([]),
+      ]);
+
+      const dailyFieldMap: Record<string, (r: (typeof dailyRows)[number]) => number | null> = {
+        sleep: (r) => r.totalSleepMinutes,
+        hrv: (r) => r.hrv,
+        restingHr: (r) => r.restingHr,
+        stress: (r) => r.stressScore,
+      };
+
+      const entries: [string, { date: string; value: number }[]][] = [];
+
+      if (hasStrain) entries.push(["strain", strainData]);
+      if (hasReadiness)
+        entries.push(["readiness", readinessRows.map((s) => ({ date: s.date, value: s.score }))]);
+      for (const metric of dailyMetrics) {
+        const fn = dailyFieldMap[metric];
+        if (!fn) continue;
+        const series = dailyRows.flatMap((r) => {
+          const v = fn(r);
+          return v != null ? [{ date: r.date, value: v }] : [];
+        });
+        entries.push([metric, series]);
+      }
+
+      return Object.fromEntries(entries) as Record<string, { date: string; value: number }[]>;
     }),
 } satisfies TRPCRouterRecord;

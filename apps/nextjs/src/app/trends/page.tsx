@@ -219,6 +219,14 @@ export default function TrendsPage() {
     }),
     enabled: useSmoothed,
   });
+  const rollingStress = useQuery({
+    ...trpc.trends.getRollingAverages.queryOptions({
+      metric: "stress",
+      days,
+      window: 7,
+    }),
+    enabled: useSmoothed,
+  });
 
   // ---- Trend analysis per metric ----
   const trendReadiness = useQuery(
@@ -274,15 +282,18 @@ export default function TrendsPage() {
       const readinessArr = rollingReadiness.data ?? [];
       const sleepArr = rollingSleep.data ?? [];
       const hrvArr = rollingHrv.data ?? [];
+      const stressArr = rollingStress.data ?? [];
       const dateSet = new Set<string>();
       readinessArr.forEach((d) => dateSet.add(d.date));
       sleepArr.forEach((d) => dateSet.add(d.date));
       hrvArr.forEach((d) => dateSet.add(d.date));
+      stressArr.forEach((d) => dateSet.add(d.date));
       const dates = [...dateSet].sort();
 
       const readMap = new Map(readinessArr.map((d) => [d.date, d.value]));
       const sleepMap = new Map(sleepArr.map((d) => [d.date, d.value]));
       const hrvMap = new Map(hrvArr.map((d) => [d.date, d.value]));
+      const stressMap = new Map(stressArr.map((d) => [d.date, d.value]));
 
       return dates.map((date) => ({
         date,
@@ -290,6 +301,7 @@ export default function TrendsPage() {
         readiness: readMap.get(date) ?? null,
         sleep: sleepMap.get(date) ?? null,
         hrv: hrvMap.get(date) ?? null,
+        stress: stressMap.get(date) ?? null,
       }));
     }
 
@@ -326,12 +338,14 @@ export default function TrendsPage() {
     rollingReadiness.data,
     rollingSleep.data,
     rollingHrv.data,
+    rollingStress.data,
   ]);
 
   const chartLoading = useSmoothed
     ? rollingReadiness.isLoading ||
       rollingSleep.isLoading ||
-      rollingHrv.isLoading
+      rollingHrv.isLoading ||
+      rollingStress.isLoading
     : multiChart.isLoading;
 
   const s = summary.data;
