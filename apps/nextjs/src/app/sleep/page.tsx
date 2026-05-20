@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
@@ -655,7 +656,7 @@ export default function SleepDashboard() {
             </p>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart
+              <ComposedChart
                 data={vsNeedChartData}
                 margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
               >
@@ -704,16 +705,16 @@ export default function SleepDashboard() {
                   radius={[4, 4, 0, 0]}
                   name="actual"
                 />
-                <Bar
+                <Line
+                  type="monotone"
                   dataKey="need"
-                  fill="none"
                   stroke="#eab308"
                   strokeWidth={2}
                   strokeDasharray="4 2"
-                  radius={[4, 4, 0, 0]}
+                  dot={false}
                   name="need"
                 />
-              </BarChart>
+              </ComposedChart>
             </ResponsiveContainer>
           )}
         </div>
