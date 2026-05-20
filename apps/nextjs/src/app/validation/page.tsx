@@ -19,7 +19,7 @@ const MEASUREMENT_TYPES = [
   { key: "body_composition", emoji: "⚖️", label: "Body Composition" },
   { key: "chest_strap_hr", emoji: "❤️", label: "Chest Strap HR" },
   { key: "ecg_hrv", emoji: "📊", label: "ECG HRV" },
-  { key: "sleep_lab", emoji: "😴", label: "Sleep Lab" },
+  { key: "sleep_lab", emoji: "🛏️", label: "Sleep Lab" },
 ] as const;
 
 type MeasurementTypeKey = (typeof MEASUREMENT_TYPES)[number]["key"];
