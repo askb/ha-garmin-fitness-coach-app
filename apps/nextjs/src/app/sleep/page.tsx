@@ -40,7 +40,8 @@ function fmtDuration(minutes: number | null | undefined): string {
 }
 
 /** Convert minutes to decimal hours for chart Y-axis */
-function minToHours(min: number): number {
+function minToHours(min: number | null | undefined): number | null {
+  if (min == null) return null;
   return +(min / 60).toFixed(2);
 }
 
@@ -185,11 +186,11 @@ export default function SleepDashboard() {
     const raw = stages.data as
       | {
           date: string;
-          deepMinutes: number;
-          remMinutes: number;
-          lightMinutes: number;
-          awakeMinutes: number;
-          sleepNeedMinutes?: number;
+          deepMinutes: number | null;
+          remMinutes: number | null;
+          lightMinutes: number | null;
+          awakeMinutes: number | null;
+          sleepNeedMinutes?: number | null;
         }[]
       | undefined;
     if (!raw) return [];
@@ -210,7 +211,7 @@ export default function SleepDashboard() {
     () =>
       stagesChartData.length > 0 &&
       stagesChartData.every(
-        (d) => !(d.deep > 0) && !(d.rem > 0) && !(d.light > 0),
+        (d) => !(d.deep != null && d.deep > 0) && !(d.rem != null && d.rem > 0) && !(d.light != null && d.light > 0),
       ),
     [stagesChartData],
   );
@@ -528,7 +529,7 @@ export default function SleepDashboard() {
               />
               {stagesChartData.some((d) => d.need != null) && (
                 <ReferenceLine
-                  y={stagesChartData.find((d) => d.need != null)?.need}
+                  y={stagesChartData.find((d) => d.need != null)?.need ?? undefined}
                   stroke="#eab308"
                   strokeDasharray="6 3"
                   label={{
