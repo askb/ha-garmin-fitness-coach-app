@@ -266,7 +266,7 @@ function deviationClass(
 
 function baselineSubtext(metric: VitalMetric): string | undefined {
   if (metric.baseline !== null || metric.baselineDays >= 30) return undefined;
-  return `Baseline still warming up (${metric.baselineDays} days)`;
+  return `Still warming up (${metric.baselineDays} days)`;
 }
 
 function Unit({ unit, className }: { unit: string; className: string }) {
