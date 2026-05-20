@@ -41,13 +41,13 @@ const SPO2_STATUS: StatusConfig = {
     icon: "⚠️",
     label: "Low",
     cls: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    desc: "SpO2 is 90-94%. May indicate altitude, mild illness, or overtraining.",
+    desc: "SpO2 is 90–94% by absolute clinical threshold — this is independent of your personal baseline. May indicate altitude, mild illness, or overtraining.",
   },
   critical: {
     icon: "🚨",
     label: "Critical",
     cls: "bg-red-500/20 text-red-400 border-red-500/30",
-    desc: "SpO2 below 90%. Seek medical attention if persistent.",
+    desc: "SpO2 below 90% by absolute clinical threshold. Seek medical attention if persistent.",
   },
   no_data: {
     icon: "📊",
