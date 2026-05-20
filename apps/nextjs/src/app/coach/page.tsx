@@ -22,6 +22,7 @@ type AgentType =
 interface AgentConfig {
   id: AgentType;
   label: string;
+  shortLabel: string; // abbreviated label for mobile tab strip
   icon: string;
   accent: string; // tailwind text color
   accentBg: string; // tailwind bg color for buttons
@@ -34,6 +35,7 @@ const AGENTS: AgentConfig[] = [
   {
     id: "sport-scientist",
     label: "Sport Scientist",
+    shortLabel: "Scientist",
     icon: "🏋️",
     accent: "text-blue-400",
     accentBg: "bg-blue-600 hover:bg-blue-500",
@@ -65,6 +67,7 @@ const AGENTS: AgentConfig[] = [
   {
     id: "psychologist",
     label: "Psychologist",
+    shortLabel: "Mindset",
     icon: "🧠",
     accent: "text-purple-400",
     accentBg: "bg-purple-600 hover:bg-purple-500",
@@ -93,6 +96,7 @@ const AGENTS: AgentConfig[] = [
   {
     id: "nutritionist",
     label: "Nutritionist",
+    shortLabel: "Nutrition",
     icon: "🥗",
     accent: "text-green-400",
     accentBg: "bg-green-600 hover:bg-green-500",
@@ -123,6 +127,7 @@ const AGENTS: AgentConfig[] = [
   {
     id: "recovery",
     label: "Recovery",
+    shortLabel: "Recovery",
     icon: "💤",
     accent: "text-teal-400",
     accentBg: "bg-teal-600 hover:bg-teal-500",
@@ -405,7 +410,8 @@ export default function CoachPage() {
             )}
           >
             <span aria-hidden="true">{agent.icon}</span>
-            <span className="ml-1">{agent.label}</span>
+            <span className="ml-1 sm:hidden">{agent.shortLabel}</span>
+            <span className="ml-1 hidden sm:inline">{agent.label}</span>
           </button>
         ))}
       </div>
