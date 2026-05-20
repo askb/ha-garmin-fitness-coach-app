@@ -11,7 +11,6 @@ import {
   findNotableChanges,
 } from "@acme/engine";
 
-import { getDailySummaryRange } from "../lib/dailySummary";
 import { protectedProcedure } from "../trpc";
 
 type DB = typeof _dependencies_db;
@@ -63,32 +62,51 @@ async function fetchMetricData(
   metric: z.infer<typeof trendMetricEnum>,
   since: string,
 ): Promise<{ date: string; value: number }[]> {
-  // Strain stays activity-derived — daily_athlete_summary doesn't capture
-  // per-activity TRIMP, so we still group from the Activity table.
+  // Strain is activity-derived — the daily_athlete_summary view does not
+  // capture per-activity TRIMP, so we always read from the Activity table.
   if (metric === "strain") {
     return fetchStrainByDate(db, userId, since);
   }
 
-  // Everything else lives on `daily_athlete_summary` (or its live-table
-  // fallback). Single read path means readiness/HRV/sleep/etc. all stay
-  // consistent with whatever the matview last refreshed to.
-  const summary = await getDailySummaryRange(db, userId, since);
+  // Readiness lives in its own table (computed by the readiness engine).
+  // Read it directly — same as getChart does — so the multi-metric overlay
+  // is never affected by a stale or absent daily_athlete_summary matview.
+  if (metric === "readiness") {
+    const scores = await db.query.ReadinessScore.findMany({
+      where: and(
+        eq(ReadinessScore.userId, userId),
+        gte(ReadinessScore.date, since),
+      ),
+      orderBy: asc(ReadinessScore.date),
+    });
+    return scores.map((s) => ({ date: s.date, value: s.score }));
+  }
+
+  // sleep / hrv / restingHr / stress — all live in DailyMetric.
+  // Read directly from the live table (same path as getChart) so the
+  // multi-metric chart never diverges from what individual metric charts show.
+  const metrics = await db.query.DailyMetric.findMany({
+    where: and(
+      eq(DailyMetric.userId, userId),
+      gte(DailyMetric.date, since),
+    ),
+    orderBy: asc(DailyMetric.date),
+  });
 
   const fieldMap: Record<
-    Exclude<z.infer<typeof trendMetricEnum>, "strain">,
-    (row: (typeof summary)[number]) => number | null
+    Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">,
+    (row: (typeof metrics)[number]) => number | null
   > = {
-    readiness: (r) => r.readinessScore,
     sleep: (r) => r.totalSleepMinutes,
     hrv: (r) => r.hrv,
     restingHr: (r) => r.restingHr,
     stress: (r) => r.stressScore,
   };
 
-  const extractor = fieldMap[metric];
-  return summary
+  const extractor = fieldMap[metric as Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">];
+  return metrics
     .filter((r) => extractor(r) !== null)
-    .map((r) => ({ date: r.date, value: extractor(r)! }));
+    .map((r) => ({ date: r.date, value: extractor(r) ?? 0 }));
 }
 
 function getDateString(daysAgo: number): string {

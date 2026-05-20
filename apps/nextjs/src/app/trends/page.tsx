@@ -317,6 +317,7 @@ export default function TrendsPage() {
       readiness: maps.readiness?.get(date) ?? null,
       sleep: maps.sleep?.get(date) ?? null,
       hrv: maps.hrv?.get(date) ?? null,
+      stress: maps.stress?.get(date) ?? null,
     }));
   }, [
     timezone,
