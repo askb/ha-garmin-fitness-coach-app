@@ -86,10 +86,7 @@ async function fetchMetricData(
   // Read directly from the live table (same path as getChart) so the
   // multi-metric chart never diverges from what individual metric charts show.
   const metrics = await db.query.DailyMetric.findMany({
-    where: and(
-      eq(DailyMetric.userId, userId),
-      gte(DailyMetric.date, since),
-    ),
+    where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
     orderBy: asc(DailyMetric.date),
   });
 
@@ -103,7 +100,10 @@ async function fetchMetricData(
     stress: (r) => r.stressScore,
   };
 
-  const extractor = fieldMap[metric as Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">];
+  const extractor =
+    fieldMap[
+      metric as Exclude<z.infer<typeof trendMetricEnum>, "strain" | "readiness">
+    ];
   return metrics.flatMap((r) => {
     const v = extractor(r);
     return v != null ? [{ date: r.date, value: v }] : [];
@@ -320,22 +320,33 @@ export const trendsRouter = {
 
       // Fetch live tables once each — avoids N parallel queries for N metrics.
       const [strainData, readinessRows, dailyRows] = await Promise.all([
-        hasStrain ? fetchStrainByDate(ctx.db, userId, since) : Promise.resolve([]),
+        hasStrain
+          ? fetchStrainByDate(ctx.db, userId, since)
+          : Promise.resolve([]),
         hasReadiness
           ? ctx.db.query.ReadinessScore.findMany({
-              where: and(eq(ReadinessScore.userId, userId), gte(ReadinessScore.date, since)),
+              where: and(
+                eq(ReadinessScore.userId, userId),
+                gte(ReadinessScore.date, since),
+              ),
               orderBy: asc(ReadinessScore.date),
             })
           : Promise.resolve([]),
         dailyMetrics.length > 0
           ? ctx.db.query.DailyMetric.findMany({
-              where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
+              where: and(
+                eq(DailyMetric.userId, userId),
+                gte(DailyMetric.date, since),
+              ),
               orderBy: asc(DailyMetric.date),
             })
           : Promise.resolve([]),
       ]);
 
-      const dailyFieldMap: Record<string, (r: (typeof dailyRows)[number]) => number | null> = {
+      const dailyFieldMap: Record<
+        string,
+        (r: (typeof dailyRows)[number]) => number | null
+      > = {
         sleep: (r) => r.totalSleepMinutes,
         hrv: (r) => r.hrv,
         restingHr: (r) => r.restingHr,
@@ -346,7 +357,10 @@ export const trendsRouter = {
 
       if (hasStrain) entries.push(["strain", strainData]);
       if (hasReadiness)
-        entries.push(["readiness", readinessRows.map((s) => ({ date: s.date, value: s.score }))]);
+        entries.push([
+          "readiness",
+          readinessRows.map((s) => ({ date: s.date, value: s.score })),
+        ]);
       for (const metric of dailyMetrics) {
         const fn = dailyFieldMap[metric];
         if (!fn) continue;
@@ -357,6 +371,9 @@ export const trendsRouter = {
         entries.push([metric, series]);
       }
 
-      return Object.fromEntries(entries) as Record<string, { date: string; value: number }[]>;
+      return Object.fromEntries(entries) as Record<
+        string,
+        { date: string; value: number }[]
+      >;
     }),
 } satisfies TRPCRouterRecord;

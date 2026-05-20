@@ -185,7 +185,7 @@ export function ReadinessCard({
               {score}
             </span>
             {confidencePct != null && (
-              <span className="text-muted-foreground mt-0.5 text-[9px] tabular-nums whitespace-nowrap">
+              <span className="text-muted-foreground mt-0.5 text-[9px] whitespace-nowrap tabular-nums">
                 {confidencePct}% confidence
               </span>
             )}
