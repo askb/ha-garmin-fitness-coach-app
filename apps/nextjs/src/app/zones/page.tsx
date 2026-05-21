@@ -436,7 +436,7 @@ export default function ZoneAnalysisPage() {
                     ? (ZONE_LABELS[value] ?? value)
                     : String(value)
                 }
-                wrapperStyle={{ fontSize: 11 }}
+                wrapperStyle={{ fontSize: 11, flexWrap: "wrap" }}
               />
               {(["z1", "z2", "z3", "z4", "z5"] as const).map((z) => (
                 <Bar
@@ -528,7 +528,7 @@ export default function ZoneAnalysisPage() {
                   return [`${v}%`, n];
                 }}
               />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 11, flexWrap: "wrap" }} />
               <ReferenceLine
                 yAxisId="pi"
                 y={2.0}
@@ -650,7 +650,7 @@ export default function ZoneAnalysisPage() {
                   const v = String(value);
                   return ZONE_LABELS[v.replace("Pct", "")] ?? v;
                 }}
-                wrapperStyle={{ fontSize: 11 }}
+                wrapperStyle={{ fontSize: 11, flexWrap: "wrap" }}
               />
               {(["z1Pct", "z2Pct", "z3Pct", "z4Pct", "z5Pct"] as const).map(
                 (key) => {
@@ -686,8 +686,8 @@ export default function ZoneAnalysisPage() {
         />
         {efficiencyTrendLine && (
           <p className="text-muted-foreground mb-3 text-[11px]">
-            {efficiencyTrendLine.pctImprovement >= 0 ? "↑" : "↓"}{" "}
-            {Math.abs(efficiencyTrendLine.pctImprovement).toFixed(1)}%{" "}
+            {efficiencyTrendLine.pctImprovement >= 0 ? "+" : ""}
+            {efficiencyTrendLine.pctImprovement.toFixed(1)}%{" "}
             {efficiencyTrendLine.pctImprovement >= 0
               ? "improvement"
               : "decline"}{" "}
@@ -845,7 +845,7 @@ export default function ZoneAnalysisPage() {
                   const v = String(value);
                   return v.charAt(0).toUpperCase() + v.slice(1);
                 }}
-                wrapperStyle={{ fontSize: 11 }}
+                wrapperStyle={{ fontSize: 11, flexWrap: "wrap" }}
               />
               {Object.entries(SPORT_COLORS).map(([key, color]) => (
                 <Bar
