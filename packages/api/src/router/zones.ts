@@ -34,14 +34,22 @@ function getDateString(date: Date): string {
   return date.toISOString().split("T")[0]!;
 }
 
+function zoneValue(obj: Record<string, unknown>, ...keys: string[]): number {
+  for (const key of keys) {
+    const value = obj[key];
+    if (value != null) return Number(value) || 0;
+  }
+  return 0;
+}
+
 function parseZones(raw: unknown): HrZoneMinutes | null {
   if (!raw || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
-  const zone1 = Number(obj.zone1) || 0;
-  const zone2 = Number(obj.zone2) || 0;
-  const zone3 = Number(obj.zone3) || 0;
-  const zone4 = Number(obj.zone4) || 0;
-  const zone5 = Number(obj.zone5) || 0;
+  const zone1 = zoneValue(obj, "zone1", "z1", "1");
+  const zone2 = zoneValue(obj, "zone2", "z2", "2");
+  const zone3 = zoneValue(obj, "zone3", "z3", "3");
+  const zone4 = zoneValue(obj, "zone4", "z4", "4");
+  const zone5 = zoneValue(obj, "zone5", "z5", "5");
   if (zone1 + zone2 + zone3 + zone4 + zone5 === 0) return null;
   return { zone1, zone2, zone3, zone4, zone5 };
 }

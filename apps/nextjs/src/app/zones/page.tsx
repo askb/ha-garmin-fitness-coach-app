@@ -8,18 +8,14 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
   Legend,
   Line,
   ReferenceLine,
   ResponsiveContainer,
-  Scatter,
-  ScatterChart,
   Tooltip,
   XAxis,
   YAxis,
-  ZAxis,
 } from "recharts";
 
 import { cn } from "@acme/ui";
@@ -122,6 +118,57 @@ function linearRegression(points: { x: number; y: number }[]) {
   return { slope, intercept };
 }
 
+type ChartDatum = Record<string, unknown>;
+
+function numberFrom(row: ChartDatum, ...keys: string[]): number {
+  for (const key of keys) {
+    const raw = row[key];
+    if (raw == null) continue;
+    const value = typeof raw === "number" ? raw : Number(raw);
+    if (Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
+function stringFrom(row: ChartDatum, ...keys: string[]): string {
+  for (const key of keys) {
+    const raw = row[key];
+    if (raw != null) return String(raw);
+  }
+  return "";
+}
+
+function percentZones(
+  row: ChartDatum,
+  prefix = "z",
+): [number, number, number, number, number] {
+  const pctValues = [
+    numberFrom(row, `${prefix}1Pct`, "zone1Pct"),
+    numberFrom(row, `${prefix}2Pct`, "zone2Pct"),
+    numberFrom(row, `${prefix}3Pct`, "zone3Pct"),
+    numberFrom(row, `${prefix}4Pct`, "zone4Pct"),
+    numberFrom(row, `${prefix}5Pct`, "zone5Pct"),
+  ] satisfies [number, number, number, number, number];
+  if (pctValues.some((value) => value > 0)) return pctValues;
+
+  const rawValues = [
+    numberFrom(row, `${prefix}1`, "zone1"),
+    numberFrom(row, `${prefix}2`, "zone2"),
+    numberFrom(row, `${prefix}3`, "zone3"),
+    numberFrom(row, `${prefix}4`, "zone4"),
+    numberFrom(row, `${prefix}5`, "zone5"),
+  ] satisfies [number, number, number, number, number];
+  const total = rawValues.reduce((sum, value) => sum + value, 0);
+  if (total <= 0) return rawValues;
+  return rawValues.map((value) => Math.round((value / total) * 1000) / 10) as [
+    number,
+    number,
+    number,
+    number,
+    number,
+  ];
+}
+
 function heatColor(minutes: number): string {
   if (minutes === 0) return "bg-zinc-800";
   if (minutes < 30) return "bg-green-900";
@@ -188,13 +235,124 @@ export default function ZoneAnalysisPage() {
   );
   const volume = useQuery(trpc.zones.getVolumeByWeek.queryOptions({ days }));
 
+  const weeklyZoneChartData = useMemo(
+    () =>
+      (weeklyZones.data ?? [])
+        .map((d) => {
+          const row = d as ChartDatum;
+          const z1 = numberFrom(row, "z1", "zone1");
+          const z2 = numberFrom(row, "z2", "zone2");
+          const z3 = numberFrom(row, "z3", "zone3");
+          const z4 = numberFrom(row, "z4", "zone4");
+          const z5 = numberFrom(row, "z5", "zone5");
+          const total = z1 + z2 + z3 + z4 + z5;
+          return {
+            week: stringFrom(row, "week", "date"),
+            z1,
+            z2,
+            z3,
+            z4,
+            z5,
+            total,
+            activities: numberFrom(row, "activities"),
+          };
+        })
+        .filter((d) => d.week && d.total > 0),
+    [weeklyZones.data],
+  );
+
+  const polarizationChartData = useMemo(
+    () =>
+      (polarization.data ?? [])
+        .map((d) => {
+          const row = d as ChartDatum;
+          const [easyPct, moderatePct, hardPct] = [
+            numberFrom(row, "easyPct"),
+            numberFrom(row, "moderatePct"),
+            numberFrom(row, "hardPct"),
+          ];
+          return {
+            week: stringFrom(row, "week", "date"),
+            easyPct,
+            moderatePct,
+            hardPct,
+            polarizationIndex: numberFrom(row, "polarizationIndex"),
+          };
+        })
+        .filter((d) => d.week && d.easyPct + d.moderatePct + d.hardPct > 0),
+    [polarization.data],
+  );
+
+  const zoneTrendChartData = useMemo(
+    () =>
+      (zoneTrends.data ?? [])
+        .map((d) => {
+          const row = d as ChartDatum;
+          const [z1Pct, z2Pct, z3Pct, z4Pct, z5Pct] = percentZones(row);
+          return {
+            month: stringFrom(row, "month", "date"),
+            z1Pct,
+            z2Pct,
+            z3Pct,
+            z4Pct,
+            z5Pct,
+          };
+        })
+        .filter(
+          (d) => d.month && d.z1Pct + d.z2Pct + d.z3Pct + d.z4Pct + d.z5Pct > 0,
+        ),
+    [zoneTrends.data],
+  );
+
+  const efficiencyChartData = useMemo(
+    () =>
+      (efficiency.data ?? [])
+        .map((d) => {
+          const row = d as ChartDatum;
+          return {
+            date: stringFrom(row, "date", "week"),
+            avgHr: numberFrom(row, "avgHr"),
+            paceSecPerKm: numberFrom(row, "paceSecPerKm"),
+            efficiencyIndex: numberFrom(row, "efficiencyIndex", "value"),
+          };
+        })
+        .filter((d) => d.date && d.efficiencyIndex > 0),
+    [efficiency.data],
+  );
+
+  const volumeChartData = useMemo(
+    () =>
+      (volume.data ?? [])
+        .map((d) => {
+          const row = d as ChartDatum;
+          const running = numberFrom(row, "running");
+          const walking = numberFrom(row, "walking");
+          const strength = numberFrom(row, "strength");
+          const yoga = numberFrom(row, "yoga");
+          const tennis = numberFrom(row, "tennis");
+          const other = numberFrom(row, "other");
+          return {
+            week: stringFrom(row, "week", "date"),
+            running,
+            walking,
+            strength,
+            yoga,
+            tennis,
+            other,
+            total: running + walking + strength + yoga + tennis + other,
+          };
+        })
+        .filter((d) => d.week && d.total > 0),
+    [volume.data],
+  );
+
   /* ── derived insights ── */
   const insights = useMemo(() => {
     const items: { icon: string; text: string; color: string }[] = [];
 
-    if (zoneTrends.data && zoneTrends.data.length >= 2) {
-      const first = zoneTrends.data[0];
-      const last = zoneTrends.data[zoneTrends.data.length - 1];
+    if (zoneTrendChartData.length >= 2) {
+      const first = zoneTrendChartData[0];
+      const last = zoneTrendChartData[zoneTrendChartData.length - 1];
       if (first && last) {
         const firstZ2 = first.z2Pct;
         const lastZ2 = last.z2Pct;
@@ -211,8 +369,8 @@ export default function ZoneAnalysisPage() {
       }
     }
 
-    if (polarization.data && polarization.data.length > 0) {
-      const latest = polarization.data[polarization.data.length - 1];
+    if (polarizationChartData.length > 0) {
+      const latest = polarizationChartData[polarizationChartData.length - 1];
       if (latest) {
         const pi = latest.polarizationIndex;
         const info = piLabel(pi);
@@ -229,13 +387,13 @@ export default function ZoneAnalysisPage() {
       }
     }
 
-    if (efficiency.data && efficiency.data.length >= 2) {
+    if (efficiencyChartData.length >= 2) {
       // Use the regression-based percentage change so the AI insight here
       // matches the trend-line percentage shown on the chart (#141). The
       // raw first-vs-last endpoint comparison previously used here is
       // sensitive to the last data point and produced a different number
       // from the same data.
-      const points = efficiency.data.map((d, i) => ({
+      const points = efficiencyChartData.map((d, i) => ({
         x: i,
         y: d.efficiencyIndex,
       }));
@@ -293,12 +451,17 @@ export default function ZoneAnalysisPage() {
     }
 
     return items;
-  }, [zoneTrends.data, polarization.data, efficiency.data, calendar.data]);
+  }, [
+    zoneTrendChartData,
+    polarizationChartData,
+    efficiencyChartData,
+    calendar.data,
+  ]);
 
   /* ── efficiency trend line ── */
   const efficiencyTrendLine = useMemo(() => {
-    if (!efficiency.data || efficiency.data.length < 2) return null;
-    const points = efficiency.data.map((d, i) => ({
+    if (efficiencyChartData.length < 2) return null;
+    const points = efficiencyChartData.map((d, i) => ({
       x: i,
       y: d.efficiencyIndex,
     }));
@@ -311,7 +474,7 @@ export default function ZoneAnalysisPage() {
     const pctImprovement =
       first.y > 0 ? ((last.y - first.y) / first.y) * 100 : 0;
     return { first, last, slope, pctImprovement };
-  }, [efficiency.data]);
+  }, [efficiencyChartData]);
 
   const allLoading =
     weeklyZones.isLoading &&
@@ -325,9 +488,9 @@ export default function ZoneAnalysisPage() {
     !weeklyZones.isLoading &&
     !polarization.isLoading &&
     !zoneTrends.isLoading &&
-    (!weeklyZones.data || weeklyZones.data.length === 0) &&
-    (!polarization.data || polarization.data.length === 0) &&
-    (!zoneTrends.data || zoneTrends.data.length === 0);
+    weeklyZoneChartData.length === 0 &&
+    polarizationChartData.length === 0 &&
+    zoneTrendChartData.length === 0;
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
@@ -397,9 +560,9 @@ export default function ZoneAnalysisPage() {
         />
         {weeklyZones.isLoading ? (
           <ChartSkeleton />
-        ) : weeklyZones.data && weeklyZones.data.length > 0 ? (
+        ) : weeklyZoneChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={weeklyZones.data}>
+            <BarChart data={weeklyZoneChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis
                 dataKey="week"
@@ -466,9 +629,9 @@ export default function ZoneAnalysisPage() {
         />
         {polarization.isLoading ? (
           <ChartSkeleton />
-        ) : polarization.data && polarization.data.length > 0 ? (
+        ) : polarizationChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={polarization.data}>
+            <ComposedChart data={polarizationChartData}>
               <defs>
                 <linearGradient id="easyGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#22c55e" stopOpacity={0.5} />
@@ -596,9 +759,9 @@ export default function ZoneAnalysisPage() {
         />
         {zoneTrends.isLoading ? (
           <ChartSkeleton />
-        ) : zoneTrends.data && zoneTrends.data.length > 0 ? (
+        ) : zoneTrendChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={zoneTrends.data}>
+            <AreaChart data={zoneTrendChartData}>
               <defs>
                 {(["z1", "z2", "z3", "z4", "z5"] as const).map((z) => (
                   <linearGradient
@@ -696,9 +859,9 @@ export default function ZoneAnalysisPage() {
         )}
         {efficiency.isLoading ? (
           <ChartSkeleton />
-        ) : efficiency.data && efficiency.data.length > 0 ? (
+        ) : efficiencyChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <ScatterChart>
+            <ComposedChart data={efficiencyChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis
                 dataKey="date"
@@ -722,7 +885,6 @@ export default function ZoneAnalysisPage() {
                   style: { textAnchor: "middle" },
                 }}
               />
-              <ZAxis range={[40, 40]} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 formatter={(value: unknown, name: unknown) => [
@@ -733,47 +895,51 @@ export default function ZoneAnalysisPage() {
                   typeof label === "string" ? formatWeek(label) : String(label)
                 }
               />
-              <Scatter data={efficiency.data} name="Efficiency">
-                {efficiency.data.map((entry, i) => {
-                  const hr = entry.avgHr;
+              <Line
+                type="monotone"
+                dataKey="efficiencyIndex"
+                stroke="#3b82f6"
+                strokeWidth={2}
+                dot={({ cx, cy, payload }) => {
+                  if (cx == null || cy == null) return <></>;
+                  const hr = (payload as { avgHr?: number }).avgHr ?? 120;
                   const t = Math.min(1, Math.max(0, (hr - 100) / 80));
                   const r = Math.round(59 + t * 180);
                   const g = Math.round(130 - t * 80);
                   const b = Math.round(246 - t * 180);
-                  return <Cell key={i} fill={`rgb(${r},${g},${b})`} />;
-                })}
-              </Scatter>
-              {/* Trend line rendered as two extra scatter points connected */}
-              {efficiencyTrendLine &&
-                efficiency.data.length >= 2 &&
-                (() => {
-                  const firstEntry = efficiency.data[0];
-                  const lastEntry = efficiency.data[efficiency.data.length - 1];
-                  if (!firstEntry || !lastEntry) return null;
                   return (
-                    <Scatter
-                      data={[
-                        {
-                          date: firstEntry.date,
-                          efficiencyIndex: efficiencyTrendLine.first.y,
-                        },
-                        {
-                          date: lastEntry.date,
-                          efficiencyIndex: efficiencyTrendLine.last.y,
-                        },
-                      ]}
-                      line={{
-                        stroke: "#ffffff",
-                        strokeWidth: 2,
-                        strokeDasharray: "6 3",
-                      }}
-                      shape={() => <></>}
-                      name="Trend"
-                      legendType="line"
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={4}
+                      fill={`rgb(${r},${g},${b})`}
                     />
                   );
-                })()}
-            </ScatterChart>
+                }}
+                name="Efficiency"
+              />
+              {efficiencyTrendLine && (
+                <Line
+                  type="linear"
+                  dataKey="trendline"
+                  data={efficiencyChartData.map((d, i) => ({
+                    ...d,
+                    trendline:
+                      i === 0
+                        ? efficiencyTrendLine.first.y
+                        : i === efficiencyChartData.length - 1
+                          ? efficiencyTrendLine.last.y
+                          : null,
+                  }))}
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={false}
+                  connectNulls
+                  name="Trend"
+                />
+              )}
+            </ComposedChart>
           </ResponsiveContainer>
         ) : (
           <p className="text-muted-foreground py-8 text-center text-sm">
@@ -809,9 +975,9 @@ export default function ZoneAnalysisPage() {
         />
         {volume.isLoading ? (
           <ChartSkeleton />
-        ) : volume.data && volume.data.length > 0 ? (
+        ) : volumeChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={volume.data}>
+            <BarChart data={volumeChartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis
                 dataKey="week"
