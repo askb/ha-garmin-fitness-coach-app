@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
@@ -468,6 +468,7 @@ interface AuthResponse {
 
 function GarminConnection() {
   const timezone = useUserTimezone();
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<GarminStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -516,9 +517,21 @@ function GarminConnection() {
     void fetchStatus();
   }, [fetchStatus]);
 
-  // Poll sync status when connected
+  // Poll sync status when connected. When syncing flips from true to
+  // false we invalidate every React Query cache so all dashboards pick
+  // up the freshly synced rows (and the recompute that auto-chains
+  // after sync in addon ≥ 0.16.29) without waiting for a manual
+  // refresh.
+  const prevSyncingRef = useRef(false);
+  const lastSyncingRef = useRef(false);
   useEffect(() => {
-    if (!status?.connected) return;
+    if (!status?.connected) {
+      // Reset the falling-edge tracker so a previous session ending
+      // mid-sync doesn't trigger a spurious invalidate on reconnect.
+      prevSyncingRef.current = false;
+      lastSyncingRef.current = false;
+      return;
+    }
 
     const fetchSyncStatus = async () => {
       try {
@@ -530,22 +543,84 @@ function GarminConnection() {
           progress: number;
         };
         setSyncStatus(data);
+        if (prevSyncingRef.current && !data.syncing) {
+          void queryClient.invalidateQueries();
+        }
+        prevSyncingRef.current = data.syncing;
+        lastSyncingRef.current = data.syncing;
       } catch {
+        // Transient fetch error — keep the last-known syncing flag so
+        // the polling cadence below stays fast while a job is in
+        // flight. Surface a null status to the UI only after a full
+        // poll interval has passed without recovery.
         setSyncStatus(null);
       }
     };
 
     void fetchSyncStatus();
-    // Poll every 3s while syncing, 30s otherwise
+    // Poll every 3s while syncing, 30s otherwise. Fall back to the
+    // last-known syncing flag if syncStatus is currently null due to a
+    // transient error.
     const interval = setInterval(
       () => {
         void fetchSyncStatus();
       },
-      syncStatus?.syncing ? 3000 : 30000,
+      (syncStatus?.syncing ?? lastSyncingRef.current) ? 3000 : 30000,
     );
 
     return () => clearInterval(interval);
-  }, [status?.connected, apiUrl, syncStatus?.syncing]);
+  }, [status?.connected, apiUrl, syncStatus?.syncing, queryClient]);
+
+  // Poll recompute status. When it transitions from running:true to
+  // running:false we invalidate every React Query cache so the
+  // refreshed readiness_score / advanced_metric rows surface
+  // everywhere without a manual page reload.
+  const [recomputeRunning, setRecomputeRunning] = useState(false);
+  const prevRecomputingRef = useRef(false);
+  const lastRecomputingRef = useRef(false);
+  useEffect(() => {
+    if (!status?.connected) {
+      prevRecomputingRef.current = false;
+      lastRecomputingRef.current = false;
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchRecomputeStatus = async () => {
+      try {
+        const res = await fetch(apiUrl("/api/garmin/recompute"));
+        const data = (await res.json()) as { running?: boolean };
+        if (cancelled) return;
+        const running = data.running === true;
+        if (prevRecomputingRef.current && !running) {
+          void queryClient.invalidateQueries();
+        }
+        prevRecomputingRef.current = running;
+        lastRecomputingRef.current = running;
+        setRecomputeRunning(running);
+      } catch {
+        // Older addons may not expose the status endpoint, or a
+        // transient fetch error occurred — keep the last-known
+        // running flag so polling cadence stays fast.
+      }
+    };
+
+    void fetchRecomputeStatus();
+    // Faster cadence while recompute is in flight so dashboards light
+    // up promptly when the worker finishes.
+    const interval = setInterval(
+      () => {
+        void fetchRecomputeStatus();
+      },
+      recomputeRunning || lastRecomputingRef.current ? 3000 : 30000,
+    );
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [status?.connected, apiUrl, recomputeRunning, queryClient]);
 
   const handleSyncNow = async () => {
     setTriggeringSyncState(true);
