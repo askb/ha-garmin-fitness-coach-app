@@ -41,7 +41,7 @@ const METRIC_COLORS: Record<string, string> = {
   hrv: "#a855f7",
   strain: "#ef4444",
   restingHr: "#f59e0b",
-  stress: "#3b82f6",
+  stress: "#f43f5e",
 };
 
 const METRIC_LABELS: Record<string, string> = {
