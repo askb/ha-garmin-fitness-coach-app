@@ -67,6 +67,37 @@ function normalizeSportType(
 }
 
 export const zonesRouter = {
+  // Distinct sportType strings the user has logged in the window,
+  // each paired with how many activities they've done of that
+  // sport. Powers the Zones page sport dropdown — replaces the
+  // previous hardcoded "all / running / walking" list so users
+  // who do tennis, swimming, strength, hiking, etc see those
+  // sports in the dropdown automatically.
+  listSportTypes: protectedProcedure
+    .input(
+      z
+        .object({
+          days: z.number().min(1).max(730).default(365),
+        })
+        .default({ days: 365 }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const since = getDateAgo(input.days);
+      const activities = await ctx.db.query.Activity.findMany({
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, since)),
+        columns: { sportType: true },
+      });
+      const counts = new Map<string, number>();
+      for (const a of activities) {
+        if (!a.sportType) continue;
+        counts.set(a.sportType, (counts.get(a.sportType) ?? 0) + 1);
+      }
+      return [...counts.entries()]
+        .map(([sportType, count]) => ({ sportType, count }))
+        .sort((a, b) => b.count - a.count);
+    }),
+
   getWeeklyZoneDistribution: protectedProcedure
     .input(
       z.object({
