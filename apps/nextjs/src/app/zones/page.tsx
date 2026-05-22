@@ -27,7 +27,6 @@ import { SectionHeader } from "../_components/info-button";
 /* ─────────────── constants ─────────────── */
 
 type Period = "90d" | "180d" | "365d";
-type Sport = "all" | "running" | "walking";
 
 const PERIODS: { value: Period; label: string; days: number }[] = [
   { value: "90d", label: "90 D", days: 90 },
@@ -35,11 +34,17 @@ const PERIODS: { value: Period; label: string; days: number }[] = [
   { value: "365d", label: "1 Y", days: 365 },
 ];
 
-const SPORTS: { value: Sport; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "running", label: "Running" },
-  { value: "walking", label: "Walking" },
-];
+// Title-case a raw Garmin sportType string for display:
+//   "strength_training" -> "Strength Training"
+//   "lap_swimming"      -> "Lap Swimming"
+//   "running"           -> "Running"
+function formatSportLabel(sportType: string): string {
+  return sportType
+    .split(/[_\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
 
 const ZONE_COLORS: Record<string, string> = {
   z1: "#94a3b8",
@@ -207,12 +212,28 @@ function CardSkeleton() {
 
 export default function ZoneAnalysisPage() {
   const [period, setPeriod] = useState<Period>("365d");
-  const [sport, setSport] = useState<Sport>("all");
+  // "all" sentinel selects every sportType (no filter applied).
+  // Any other value is the raw Garmin sportType string ("running",
+  // "tennis", "strength_training", "lap_swimming", …) populated
+  // from the listSportTypes query below.
+  const [sport, setSport] = useState<string>("all");
   const periodConfig = PERIODS.find((p) => p.value === period);
   const days = periodConfig?.days ?? 365;
   const sportType = sport === "all" ? undefined : sport;
 
   const trpc = useTRPC();
+
+  // Drive the dropdown from the user's actual activity log over
+  // the selected window — sports they've never done don't appear,
+  // sports they do (tennis, swimming, hiking, …) do.
+  const sportTypes = useQuery(trpc.zones.listSportTypes.queryOptions({ days }));
+  const sportOptions = useMemo(() => {
+    const fromDb = (sportTypes.data ?? []).map((s) => ({
+      value: s.sportType,
+      label: `${formatSportLabel(s.sportType)} (${s.count})`,
+    }));
+    return [{ value: "all", label: "All sports" }, ...fromDb];
+  }, [sportTypes.data]);
 
   /* ── queries ── */
   const weeklyZones = useQuery(
@@ -520,21 +541,22 @@ export default function ZoneAnalysisPage() {
             </button>
           ))}
         </div>
-        <div className="flex gap-1 rounded-lg bg-zinc-800 p-1">
-          {SPORTS.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => setSport(s.value)}
-              className={cn(
-                "rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                sport === s.value
-                  ? "bg-zinc-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-200",
-              )}
-            >
-              {s.label}
-            </button>
-          ))}
+        <div className="rounded-lg bg-zinc-800 p-1">
+          <select
+            value={sport}
+            onChange={(e) => setSport(e.target.value)}
+            className={cn(
+              "appearance-none rounded-md bg-zinc-700 px-3 py-1 text-xs font-medium text-white",
+              "focus:ring-2 focus:ring-zinc-500 focus:outline-none",
+            )}
+            aria-label="Filter by sport"
+          >
+            {sportOptions.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
