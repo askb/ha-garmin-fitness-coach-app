@@ -178,6 +178,9 @@ function makeDb() {
           tsb: 5,
         })),
       },
+      RecommendationAudit: {
+        findFirst: vi.fn(async () => null),
+      },
     },
   };
 }
@@ -218,6 +221,7 @@ describe("coach router", () => {
       recommendation: engineRecommendation,
       auditId: "audit-1",
       date: TEST_DATE,
+      actionState: null,
     });
 
     expect(mocks.auditValues).toHaveBeenCalledTimes(1);
