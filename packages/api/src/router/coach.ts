@@ -5,6 +5,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
+import type { db as appDb } from "@acme/db/client";
 import type { DailyWorkoutStatus } from "@acme/db/schema";
 import type {
   DailyRecommendationInput,
@@ -38,6 +39,7 @@ import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
 import { protectedProcedure } from "../trpc";
 
 const LLM_FRAME_TIMEOUT_MS = 5_000;
+type AppDb = typeof appDb;
 type EngineReadinessZone = NonNullable<
   DailyRecommendationInput["readiness"]
 >["zone"];
@@ -48,12 +50,31 @@ type PersistableReconcileStatus = Extract<
   ReconcileResult["status"]
 >;
 
+function isIsoCalendarDate(value: string): boolean {
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return (
+    !Number.isNaN(parsed.getTime()) &&
+    parsed.toISOString().slice(0, 10) === value
+  );
+}
+
 const IsoDateSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD date")
-  .refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)), {
+  .refine(isIsoCalendarDate, {
     message: "Expected a valid calendar date",
   });
+
+const RecommendationActionInputSchema = z.object({
+  userId: z.string(),
+  date: IsoDateSchema,
+  auditId: z.string().uuid(),
+  note: z.string().max(500).optional(),
+});
+
+const RecommendationDeferInputSchema = RecommendationActionInputSchema.extend({
+  deferToDate: IsoDateSchema,
+});
 
 function toIsoDay(value: Date | string | null | undefined): string | null {
   if (value == null) return null;
@@ -250,6 +271,53 @@ async function frameReasonWithTimeout(
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+function enforceOwnUser(inputUserId: string, sessionUserId: string): void {
+  if (inputUserId !== sessionUserId) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Cannot act on recommendations for another user",
+    });
+  }
+}
+
+async function loadReferencedRecommendationAudit(
+  db: AppDb,
+  auditId: string,
+  userId: string,
+  expectedDate: string,
+): Promise<typeof schema.RecommendationAudit.$inferSelect> {
+  const audit = await db.query.RecommendationAudit.findFirst({
+    where: eq(schema.RecommendationAudit.id, auditId),
+  });
+
+  if (!audit) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Referenced recommendation audit was not found",
+    });
+  }
+  if (audit.userId !== userId) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Referenced recommendation audit belongs to another user",
+    });
+  }
+  if (audit.kind !== "recommendation") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Referenced audit must be a recommendation",
+    });
+  }
+  if (toIsoDay(audit.date) !== expectedDate) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Referenced audit date must match action date",
+    });
+  }
+
+  return audit;
 }
 
 function plannedWorkoutInput(
@@ -534,6 +602,88 @@ export const coachRouter = {
           : recommendation,
         auditId: audit.id,
       };
+    }),
+
+  accept: protectedProcedure
+    .input(RecommendationActionInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      enforceOwnUser(input.userId, userId);
+      await loadReferencedRecommendationAudit(
+        ctx.db,
+        input.auditId,
+        userId,
+        input.date,
+      );
+
+      const audit = await recordRecommendationAudit({
+        userId,
+        date: input.date,
+        kind: "intervention_accept",
+        payload: {
+          referencedAuditId: input.auditId,
+          note: input.note,
+        },
+      });
+
+      return { auditId: audit.id };
+    }),
+
+  skip: protectedProcedure
+    .input(RecommendationActionInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      enforceOwnUser(input.userId, userId);
+      await loadReferencedRecommendationAudit(
+        ctx.db,
+        input.auditId,
+        userId,
+        input.date,
+      );
+
+      const audit = await recordRecommendationAudit({
+        userId,
+        date: input.date,
+        kind: "intervention_skip",
+        payload: {
+          referencedAuditId: input.auditId,
+          note: input.note ?? "user skipped recommendation",
+        },
+      });
+
+      return { auditId: audit.id };
+    }),
+
+  defer: protectedProcedure
+    .input(RecommendationDeferInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      enforceOwnUser(input.userId, userId);
+      if (input.deferToDate <= input.date) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "deferToDate must be after date",
+        });
+      }
+      await loadReferencedRecommendationAudit(
+        ctx.db,
+        input.auditId,
+        userId,
+        input.date,
+      );
+
+      const audit = await recordRecommendationAudit({
+        userId,
+        date: input.date,
+        kind: "intervention_defer",
+        payload: {
+          referencedAuditId: input.auditId,
+          deferToDate: input.deferToDate,
+          note: input.note,
+        },
+      });
+
+      return { auditId: audit.id };
     }),
 
   reconcile: protectedProcedure
