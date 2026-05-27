@@ -231,7 +231,10 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
   }
 
   return (
-    <section className="bg-card rounded-2xl border p-5 shadow-sm">
+    <section
+      className="bg-card rounded-2xl border p-5 shadow-sm"
+      data-testid="adherence-trend-card"
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-muted-foreground text-sm font-medium">
@@ -269,6 +272,7 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
             <div
               className="text-4xl font-bold tabular-nums"
               aria-label={`Adherence rate ${rate} percent`}
+              data-testid="adherence-rate"
             >
               {rate}%
             </div>
@@ -281,6 +285,7 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
           <div
             className="mt-5 flex gap-1"
             aria-label={`${days} day adherence strip`}
+            data-testid="adherence-strip"
           >
             {cells.map((cell) => {
               const status = cell.point?.status ?? "no-data";
@@ -301,6 +306,7 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
                   onClick={() => setSelectedDate(cell.date)}
                   onFocus={() => setSelectedDate(cell.date)}
                   onMouseEnter={() => setSelectedDate(cell.date)}
+                  data-testid="adherence-cell"
                 />
               );
             })}

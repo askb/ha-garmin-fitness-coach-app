@@ -27,7 +27,8 @@
     "studio": "pnpm with-env drizzle-kit studio",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --",
-    "db:seed": "dotenv -e ../../.env -- tsx src/seed.ts"
+    "db:seed": "dotenv -e ../../.env -- tsx src/seed.ts",
+    "db:seed:e2e": "tsx src/seed-e2e.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.44.7",

@@ -389,6 +389,18 @@ type AdherencePoint = {
   actualIds: string[];
 };
 
+const RECOMMENDATION_ACTION_KINDS = [
+  "intervention_accept",
+  "intervention_skip",
+  "intervention_defer",
+] as const;
+
+type RecommendationActionKind = (typeof RECOMMENDATION_ACTION_KINDS)[number];
+
+type RecommendationActionPayload = {
+  deferToDate?: string | null;
+};
+
 function coercePayload(value: unknown): ReconcileAuditPayload {
   return value && typeof value === "object"
     ? (value as ReconcileAuditPayload)
@@ -432,6 +444,35 @@ function isAdherenceSuccess(point: AdherencePoint): boolean {
 function pct(count: number, total: number): number {
   if (total === 0) return 0;
   return Number(((count / total) * 100).toFixed(2));
+}
+
+function coerceActionPayload(value: unknown): RecommendationActionPayload {
+  return value && typeof value === "object"
+    ? (value as RecommendationActionPayload)
+    : {};
+}
+
+async function loadLatestRecommendationActionState(
+  db: AppDb,
+  userId: string,
+  date: string,
+) {
+  const action = await db.query.RecommendationAudit.findFirst({
+    where: and(
+      eq(schema.RecommendationAudit.userId, userId),
+      eq(schema.RecommendationAudit.date, date),
+      inArray(schema.RecommendationAudit.kind, RECOMMENDATION_ACTION_KINDS),
+    ),
+    orderBy: desc(schema.RecommendationAudit.createdAt),
+  });
+
+  if (!action) return null;
+  const payload = coerceActionPayload(action.payload);
+  return {
+    auditId: action.id,
+    kind: action.kind as RecommendationActionKind,
+    deferToDate: payload.deferToDate ?? null,
+  };
 }
 
 function adherenceSummary(points: AdherencePoint[]) {
@@ -595,13 +636,17 @@ export const coachRouter = {
         payload: { recommendation, engineInput },
       });
 
-      const framedReason = await frameReasonWithTimeout(recommendation, date);
+      const [framedReason, actionState] = await Promise.all([
+        frameReasonWithTimeout(recommendation, date),
+        loadLatestRecommendationActionState(ctx.db, userId, date),
+      ]);
       return {
         recommendation: framedReason
           ? { ...recommendation, reason: framedReason }
           : recommendation,
         auditId: audit.id,
         date,
+        actionState,
       };
     }),
 
