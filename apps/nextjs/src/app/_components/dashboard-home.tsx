@@ -10,9 +10,10 @@ import { IngressLink as Link } from "./ingress-link";
 import { QuickStats } from "./quick-stats";
 import { ReadinessCard } from "./readiness-card";
 import { getReadinessComponent } from "./readiness-helpers";
+import { TodayRecommendationCard } from "./today-recommendation-card";
 import { WorkoutCard } from "./workout-card";
 
-export function DashboardHome() {
+export function DashboardHome({ userId }: { userId: string }) {
   const trpc = useTRPC();
   const timezone = useUserTimezone();
   const queryClient = useQueryClient();
@@ -148,6 +149,9 @@ export function DashboardHome() {
           })}
         </p>
       </div>
+
+      {/* Today's Recommendation */}
+      <TodayRecommendationCard userId={userId} />
 
       {/* Readiness */}
       <ReadinessCard
