@@ -190,7 +190,7 @@ function makeAudit(
     id: `audit-${date}`,
     userId: TEST_USER_ID,
     date,
-    kind: status === "missed" ? "workout_missed" : "workout_complete",
+    kind: "reconciliation",
     confidence: 0.9,
     relatedActivityIds: actualIds,
     payload: {
@@ -228,7 +228,7 @@ describe("coach reconciliation", () => {
     );
     expect(result.auditId).toBe("audit-1");
     expect(db.updateSet).toHaveBeenCalledWith({ status: "completed" });
-    expect(auditRow().kind).toBe("workout_complete");
+    expect(auditRow().kind).toBe("reconciliation");
   });
 
   it("records missed reconciliation and updates DailyWorkout.status", async () => {
@@ -243,7 +243,7 @@ describe("coach reconciliation", () => {
 
     await caller.coach.reconcile({ userId: TEST_USER_ID, date: TEST_DATE });
 
-    expect(auditRow().kind).toBe("workout_missed");
+    expect(auditRow().kind).toBe("reconciliation");
     expect(db.updateSet).toHaveBeenCalledWith({ status: "missed" });
   });
 
@@ -257,11 +257,11 @@ describe("coach reconciliation", () => {
 
     await caller.coach.reconcile({ userId: TEST_USER_ID, date: TEST_DATE });
 
-    expect(auditRow().kind).toBe("workout_complete");
+    expect(auditRow().kind).toBe("reconciliation");
     expect(db.updateSet).toHaveBeenCalledWith({ status: "extra" });
   });
 
-  it("records no-plan activity as override without touching DailyWorkout", async () => {
+  it("records no-plan activity as reconciliation without touching DailyWorkout", async () => {
     mocks.reconcilePlanVsActual.mockReturnValue(
       makeReconcile({ status: "no-plan", confidence: 1 }),
     );
@@ -269,7 +269,7 @@ describe("coach reconciliation", () => {
 
     await caller.coach.reconcile({ userId: TEST_USER_ID, date: TEST_DATE });
 
-    expect(auditRow().kind).toBe("override");
+    expect(auditRow().kind).toBe("reconciliation");
     expect(auditRow().payload.plannedId).toBeNull();
     expect(db.update).not.toHaveBeenCalled();
   });
