@@ -241,6 +241,15 @@ describe("coach recommendation action mutations", () => {
     expect(mocks.auditValues).not.toHaveBeenCalled();
   });
 
+  it("rejects impossible calendar dates with BAD_REQUEST", async () => {
+    const { caller } = setup();
+
+    await expect(
+      callAction(caller, "defer", { deferToDate: "2026-04-31" }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(mocks.auditValues).not.toHaveBeenCalled();
+  });
+
   it("rejects all actions for a different input user with FORBIDDEN", async () => {
     for (const action of ["accept", "skip", "defer"] as const) {
       const { caller } = setup();
