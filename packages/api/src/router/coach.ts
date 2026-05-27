@@ -5,12 +5,16 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
+import type { DailyWorkoutStatus } from "@acme/db/schema";
 import type {
   DailyRecommendationInput,
   Recommendation,
   RecommendationIntensity,
+  ReconcileInput,
+  ReconcileResult,
 } from "@acme/engine";
-import { and, desc, eq, gte, lte } from "@acme/db";
+import { and, asc, desc, eq, gte, inArray, lte } from "@acme/db";
+import * as schema from "@acme/db/schema";
 import {
   Activity,
   AdvancedMetric,
@@ -26,16 +30,23 @@ import {
   computeStrainScore,
   countConsecutiveHardDays,
   recommendDay,
+  reconcilePlanVsActual,
 } from "@acme/engine";
 
 import { frameRecommendationReason, recordRecommendationAudit } from "../lib";
-import { shiftIsoDay, todayInTimezone } from "../lib/timezone";
+import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
 import { protectedProcedure } from "../trpc";
 
 const LLM_FRAME_TIMEOUT_MS = 5_000;
 type EngineReadinessZone = NonNullable<
   DailyRecommendationInput["readiness"]
 >["zone"];
+type PlannedWorkoutInput = NonNullable<ReconcileInput["planned"]>;
+type ActualActivityInput = ReconcileInput["actuals"][number];
+type PersistableReconcileStatus = Extract<
+  DailyWorkoutStatus,
+  ReconcileResult["status"]
+>;
 
 const IsoDateSchema = z
   .string()
@@ -241,6 +252,155 @@ async function frameReasonWithTimeout(
   }
 }
 
+function plannedWorkoutInput(
+  workout: typeof DailyWorkout.$inferSelect | null | undefined,
+): PlannedWorkoutInput | null {
+  if (!workout) return null;
+  return {
+    workoutType: workout.workoutType,
+    sportType: workout.sportType,
+    durationMin:
+      workout.targetDurationMin ??
+      workout.targetDurationMax ??
+      (workout.workoutType.toLowerCase() === "rest" ? 0 : 30),
+    intensity: inferIntensity(workout),
+  };
+}
+
+function actualActivityInput(
+  activity: typeof Activity.$inferSelect,
+  profile: typeof Profile.$inferSelect | null | undefined,
+): ActualActivityInput {
+  return {
+    id: activity.id,
+    sportType: activity.sportType,
+    durationMin: activity.durationMinutes,
+    avgHrBpm: activity.avgHr,
+    hrMax: profile?.maxHr ?? activity.maxHr,
+  };
+}
+
+function auditKindForReconcile(
+  reconcile: ReconcileResult,
+): "workout_complete" | "workout_missed" | "override" {
+  if (reconcile.status === "missed") return "workout_missed";
+  if (
+    reconcile.status === "completed" ||
+    reconcile.status === "partial" ||
+    reconcile.status === "extra"
+  ) {
+    return "workout_complete";
+  }
+  return "override";
+}
+
+function isPersistableWorkoutStatus(
+  status: ReconcileResult["status"],
+): status is PersistableReconcileStatus {
+  return status !== "no-plan";
+}
+
+function auditDate(value: Date | string): string {
+  return typeof value === "string" ? value : value.toISOString().slice(0, 10);
+}
+
+type ReconcileAuditPayload = {
+  reconcile?: ReconcileResult;
+  plannedId?: string | null;
+  actualIds?: string[];
+  plannedDurationMin?: number | null;
+  actualDurationMin?: number;
+};
+
+type AdherencePoint = {
+  date: string;
+  status: ReconcileResult["status"];
+  plannedDurationMin: number | null;
+  actualDurationMin: number;
+  confidence: number;
+  actualIds: string[];
+};
+
+function coercePayload(value: unknown): ReconcileAuditPayload {
+  return value && typeof value === "object"
+    ? (value as ReconcileAuditPayload)
+    : {};
+}
+
+function statusFromAudit(
+  kind: string,
+  payload: ReconcileAuditPayload,
+): ReconcileResult["status"] {
+  if (payload.reconcile?.status) return payload.reconcile.status;
+  if (kind === "workout_missed") return "missed";
+  if (kind === "override") return "no-plan";
+  return "completed";
+}
+
+function trendPointFromAudit(
+  row: typeof schema.RecommendationAudit.$inferSelect,
+) {
+  const payload = coercePayload(row.payload);
+  const status = statusFromAudit(row.kind, payload);
+  return {
+    date: auditDate(row.date),
+    status,
+    plannedDurationMin: payload.plannedDurationMin ?? null,
+    actualDurationMin: payload.actualDurationMin ?? 0,
+    confidence: payload.reconcile?.confidence ?? row.confidence ?? 0,
+    actualIds: payload.actualIds ?? row.relatedActivityIds ?? [],
+  } satisfies AdherencePoint;
+}
+
+function isAdherenceSuccess(point: AdherencePoint): boolean {
+  return (
+    point.status === "completed" ||
+    point.status === "partial" ||
+    point.status === "extra" ||
+    (point.status === "no-plan" && point.actualIds.length === 0)
+  );
+}
+
+function pct(count: number, total: number): number {
+  if (total === 0) return 0;
+  return Number(((count / total) * 100).toFixed(2));
+}
+
+function adherenceSummary(points: AdherencePoint[]) {
+  let longestStreak = 0;
+  let runningStreak = 0;
+  for (const point of points) {
+    if (isAdherenceSuccess(point)) {
+      runningStreak += 1;
+      longestStreak = Math.max(longestStreak, runningStreak);
+    } else {
+      runningStreak = 0;
+    }
+  }
+
+  let currentStreak = 0;
+  for (let index = points.length - 1; index >= 0; index -= 1) {
+    const point = points[index]!;
+    if (!isAdherenceSuccess(point)) break;
+    currentStreak += 1;
+  }
+
+  return {
+    completedPct: pct(points.filter(isAdherenceSuccess).length, points.length),
+    missedPct: pct(
+      points.filter((point) => point.status === "missed").length,
+      points.length,
+    ),
+    extraCount: points.filter(
+      (point) =>
+        point.status === "extra" ||
+        (point.status === "no-plan" && point.actualIds.length > 0),
+    ).length,
+    currentStreak,
+    longestStreak,
+  };
+}
+
 export const coachRouter = {
   getDailyRecommendation: protectedProcedure
     .input(z.object({ userId: z.string(), date: IsoDateSchema.optional() }))
@@ -374,5 +534,147 @@ export const coachRouter = {
           : recommendation,
         auditId: audit.id,
       };
+    }),
+
+  reconcile: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        date: IsoDateSchema,
+        matchWindow: z
+          .object({
+            minAbsoluteDurationMin: z.number().optional(),
+            durationMinTolerancePct: z.number().optional(),
+          })
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      if (input.userId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot reconcile workouts for another user",
+        });
+      }
+
+      const [profile, planned] = await Promise.all([
+        ctx.db.query.Profile.findFirst({ where: eq(Profile.userId, userId) }),
+        ctx.db.query.DailyWorkout.findFirst({
+          where: and(
+            eq(DailyWorkout.userId, userId),
+            eq(DailyWorkout.date, input.date),
+          ),
+        }),
+      ]);
+      const timezone = profile?.timezone ?? "UTC";
+      const actualRows = await ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(
+            Activity.startedAt,
+            new Date(`${shiftIsoDay(input.date, -1)}T00:00:00Z`),
+          ),
+          lte(
+            Activity.startedAt,
+            new Date(`${shiftIsoDay(input.date, 1)}T23:59:59.999Z`),
+          ),
+        ),
+        orderBy: asc(Activity.startedAt),
+      });
+      const actuals = actualRows
+        .filter(
+          (activity) =>
+            dayInTimezone(activity.startedAt, timezone) === input.date,
+        )
+        .map((activity) => actualActivityInput(activity, profile ?? null));
+      const plannedInput = plannedWorkoutInput(planned ?? null);
+      const reconcile = reconcilePlanVsActual({
+        date: input.date,
+        planned: plannedInput,
+        actuals,
+        matchWindow: input.matchWindow,
+      });
+      const actualIds = actuals.map((activity) => activity.id);
+      const actualDurationMin = actuals.reduce(
+        (total, activity) => total + activity.durationMin,
+        0,
+      );
+
+      // The audit trail is written before mutating DailyWorkout.status. The
+      // helper uses the central DB writer, so this ordering preserves rollback
+      // semantics for audit failures in environments without a shared tx.
+      const audit = await recordRecommendationAudit({
+        userId,
+        date: input.date,
+        kind: auditKindForReconcile(reconcile),
+        confidence: reconcile.confidence,
+        durationMin: plannedInput?.durationMin ?? null,
+        relatedWorkoutId: planned?.id,
+        relatedActivityIds: actualIds,
+        payload: {
+          reconcile,
+          plannedId: planned?.id ?? null,
+          actualIds,
+          plannedDurationMin: plannedInput?.durationMin ?? null,
+          actualDurationMin,
+        },
+      });
+
+      if (planned && isPersistableWorkoutStatus(reconcile.status)) {
+        await ctx.db
+          .update(DailyWorkout)
+          .set({ status: reconcile.status })
+          .where(
+            and(
+              eq(DailyWorkout.userId, userId),
+              eq(DailyWorkout.id, planned.id),
+            ),
+          );
+      }
+
+      return { reconcile, auditId: audit.id };
+    }),
+
+  adherenceTrend: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        days: z.number().int().min(1).max(90).default(28),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      if (input.userId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot request adherence for another user",
+        });
+      }
+
+      const profile = await ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+      });
+      const endDate = todayInTimezone(profile?.timezone);
+      const startDate = shiftIsoDay(endDate, -(input.days - 1));
+      const rows = await ctx.db.query.RecommendationAudit.findMany({
+        where: and(
+          eq(schema.RecommendationAudit.userId, userId),
+          inArray(schema.RecommendationAudit.kind, [
+            "workout_complete",
+            "workout_missed",
+            "override",
+          ]),
+          gte(schema.RecommendationAudit.date, startDate),
+          lte(schema.RecommendationAudit.date, endDate),
+        ),
+        orderBy: asc(schema.RecommendationAudit.date),
+      });
+      const points = rows
+        .map(trendPointFromAudit)
+        .filter((point) => point.date >= startDate && point.date <= endDate)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      return { points, summary: adherenceSummary(points) };
     }),
 } satisfies TRPCRouterRecord;
