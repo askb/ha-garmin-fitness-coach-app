@@ -231,6 +231,24 @@ export const WeeklyPlan = pgTable("weekly_plan", (t) => ({
 // ---------------------------------------------------------------------------
 // Daily Workouts (generated recommendations)
 // ---------------------------------------------------------------------------
+
+// DailyWorkout.status legal value space. Declared here so the `status`
+// column below can narrow its TypeScript type to the tuple via $type().
+// Kept in sync with the v0.17.0 reconciliation engine (see
+// packages/engine/src/planned-vs-actual). "planned" is the initial state
+// written when the workout is generated; reconciliation later updates it
+// to one of the post-state values.
+export const DAILY_WORKOUT_STATUSES = [
+  "planned",
+  "completed",
+  "partial",
+  "missed",
+  "extra",
+  "skipped",
+] as const;
+
+export type DailyWorkoutStatus = (typeof DAILY_WORKOUT_STATUSES)[number];
+
 export const DailyWorkout = pgTable("daily_workout", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   weeklyPlanId: t.uuid(),
@@ -248,7 +266,10 @@ export const DailyWorkout = pgTable("daily_workout", (t) => ({
   targetStrainHigh: t.doublePrecision(),
   structure: t.jsonb(),
   readinessZoneUsed: t.varchar({ length: 20 }),
-  status: t.varchar({ length: 20 }).default("planned"),
+  status: t
+    .varchar({ length: 20 })
+    .$type<DailyWorkoutStatus>()
+    .default("planned"),
   explanation: t.text(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
@@ -728,23 +749,25 @@ export const RecommendationAudit = pgTable(
 
 export const CreateRecommendationAuditSchema = createInsertSchema(
   RecommendationAudit,
-).omit({
-  id: true,
-  createdAt: true,
-});
+)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  // The drizzle-zod inference treats `kind` as a generic string because
+  // .$type<RecommendationAuditKind>() is a TypeScript-only constraint with
+  // no runtime effect. Override with a real Zod enum so invalid kinds are
+  // rejected at the API boundary (the inescapable audit helper validates
+  // every insert against this schema before touching Postgres).
+  .extend({
+    kind: z.enum(RECOMMENDATION_AUDIT_KINDS),
+  });
 
-// DailyWorkout.status legal value space — exported for the API layer.
-// The column itself remains varchar(20) default "planned" (no DDL change).
-export const DAILY_WORKOUT_STATUSES = [
-  "planned",
-  "completed",
-  "partial",
-  "missed",
-  "extra",
-  "skipped",
-] as const;
-
-export type DailyWorkoutStatus = (typeof DAILY_WORKOUT_STATUSES)[number];
+// DailyWorkout.status legal value space — defined alongside the
+// DailyWorkout table declaration above. Re-exported here for symmetry
+// with the v0.17.0 audit constants (callers can import both from one
+// section). DO NOT re-declare the tuple; the canonical definition lives
+// above the DailyWorkout pgTable() call.
 
 // ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
