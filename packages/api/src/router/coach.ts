@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
 import type {
@@ -29,17 +30,24 @@ import {
 
 import { frameRecommendationReason, recordRecommendationAudit } from "../lib";
 import { shiftIsoDay, todayInTimezone } from "../lib/timezone";
-import { publicProcedure } from "../trpc";
+import { protectedProcedure } from "../trpc";
 
 const LLM_FRAME_TIMEOUT_MS = 5_000;
 type EngineReadinessZone = NonNullable<
   DailyRecommendationInput["readiness"]
 >["zone"];
 
+const IsoDateSchema = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD date")
+  .refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)), {
+    message: "Expected a valid calendar date",
+  });
+
 function toIsoDay(value: Date | string | null | undefined): string | null {
   if (value == null) return null;
   if (typeof value === "string") return value;
-  return value.toISOString().split("T")[0]!;
+  return value.toISOString().slice(0, 10);
 }
 
 function weekStartFor(isoDay: string): string {
@@ -47,7 +55,7 @@ function weekStartFor(isoDay: string): string {
   const jsDay = date.getUTCDay();
   const mondayOffset = jsDay === 0 ? -6 : 1 - jsDay;
   date.setUTCDate(date.getUTCDate() + mondayOffset);
-  return date.toISOString().split("T")[0]!;
+  return date.toISOString().slice(0, 10);
 }
 
 function mapReadinessZone(
@@ -234,11 +242,19 @@ async function frameReasonWithTimeout(
 }
 
 export const coachRouter = {
-  getDailyRecommendation: publicProcedure
-    .input(z.object({ userId: z.string(), date: z.string().optional() }))
+  getDailyRecommendation: protectedProcedure
+    .input(z.object({ userId: z.string(), date: IsoDateSchema.optional() }))
     .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      if (input.userId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot request recommendations for another user",
+        });
+      }
+
       const profile = await ctx.db.query.Profile.findFirst({
-        where: eq(Profile.userId, input.userId),
+        where: eq(Profile.userId, userId),
       });
       const date = input.date ?? todayInTimezone(profile?.timezone);
       const weekStart = weekStartFor(date);
@@ -256,14 +272,14 @@ export const coachRouter = {
       ] = await Promise.all([
         ctx.db.query.ReadinessScore.findFirst({
           where: and(
-            eq(ReadinessScore.userId, input.userId),
+            eq(ReadinessScore.userId, userId),
             eq(ReadinessScore.date, date),
           ),
           orderBy: desc(ReadinessScore.computedAt),
         }),
         ctx.db.query.Activity.findMany({
           where: and(
-            eq(Activity.userId, input.userId),
+            eq(Activity.userId, userId),
             gte(
               Activity.startedAt,
               new Date(`${shiftIsoDay(date, -6)}T00:00:00Z`),
@@ -275,13 +291,13 @@ export const coachRouter = {
         }),
         ctx.db.query.DailyWorkout.findFirst({
           where: and(
-            eq(DailyWorkout.userId, input.userId),
+            eq(DailyWorkout.userId, userId),
             eq(DailyWorkout.date, date),
           ),
         }),
         ctx.db.query.DailyWorkout.findMany({
           where: and(
-            eq(DailyWorkout.userId, input.userId),
+            eq(DailyWorkout.userId, userId),
             gte(DailyWorkout.date, weekStart),
             lte(DailyWorkout.date, shiftIsoDay(weekStart, 6)),
           ),
@@ -289,14 +305,14 @@ export const coachRouter = {
         }),
         ctx.db.query.WeeklyPlan.findFirst({
           where: and(
-            eq(WeeklyPlan.userId, input.userId),
+            eq(WeeklyPlan.userId, userId),
             lte(WeeklyPlan.weekStart, date),
           ),
           orderBy: desc(WeeklyPlan.weekStart),
         }),
         ctx.db.query.Intervention.findMany({
           where: and(
-            eq(Intervention.userId, input.userId),
+            eq(Intervention.userId, userId),
             gte(Intervention.date, shiftIsoDay(date, -14)),
             lte(Intervention.date, date),
           ),
@@ -304,17 +320,17 @@ export const coachRouter = {
           limit: 20,
         }),
         ctx.db.query.AthleteBaseline.findMany({
-          where: eq(AthleteBaseline.userId, input.userId),
+          where: eq(AthleteBaseline.userId, userId),
         }),
         ctx.db.query.DailyMetric.findFirst({
           where: and(
-            eq(DailyMetric.userId, input.userId),
+            eq(DailyMetric.userId, userId),
             eq(DailyMetric.date, date),
           ),
         }),
         ctx.db.query.AdvancedMetric.findFirst({
           where: and(
-            eq(AdvancedMetric.userId, input.userId),
+            eq(AdvancedMetric.userId, userId),
             lte(AdvancedMetric.date, date),
           ),
           orderBy: desc(AdvancedMetric.date),
@@ -337,7 +353,7 @@ export const coachRouter = {
       const recommendation = recommendDay(engineInput);
 
       const audit = await recordRecommendationAudit({
-        userId: input.userId,
+        userId: userId,
         date,
         kind: "recommendation",
         action: recommendation.action,

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-import { z } from "zod/v4";
+import type { z } from "zod/v4";
 
 import type { RecommendationAuditKind } from "@acme/db";
 import {
