@@ -111,3 +111,12 @@ export {
 } from "./correlations";
 
 export { analyzeRunningForm } from "./running-form";
+
+export {
+  recommendDay,
+  type Recommendation,
+  type RecommendationAction,
+  type RecommendationIntensity,
+  type RuleTrace,
+  type DailyRecommendationInput,
+} from "./daily-recommendation";
