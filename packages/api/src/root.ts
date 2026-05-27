@@ -4,6 +4,7 @@ import { analyticsRouter } from "./router/analytics";
 import { authRouter } from "./router/auth";
 import { baselinesRouter } from "./router/baselines";
 import { chatRouter } from "./router/chat";
+import { coachRouter } from "./router/coach";
 import { dataQualityRouter } from "./router/data-quality";
 import { garminRouter } from "./router/garmin";
 import { hrvRouter } from "./router/hrv";
@@ -29,6 +30,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   baselines: baselinesRouter,
   chat: chatRouter,
+  coach: coachRouter,
   dataQuality: dataQualityRouter,
   garmin: garminRouter,
   hrv: hrvRouter,
