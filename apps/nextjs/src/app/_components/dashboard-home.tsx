@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
+import { AdherenceTrendCard } from "./adherence-trend-card";
 import { BottomNav } from "./bottom-nav";
 import { DailyOutlookCard } from "./daily-outlook-card";
 import { IngressLink as Link } from "./ingress-link";
@@ -152,6 +153,9 @@ export function DashboardHome({ userId }: { userId: string }) {
 
       {/* Today's Recommendation */}
       <TodayRecommendationCard userId={userId} />
+
+      {/* Adherence Trend */}
+      <AdherenceTrendCard userId={userId} />
 
       {/* Readiness */}
       <ReadinessCard
