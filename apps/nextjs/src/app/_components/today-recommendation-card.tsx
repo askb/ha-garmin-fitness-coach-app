@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import type { RouterOutputs } from "@acme/api";
 import type { Recommendation, RuleTrace } from "@acme/engine";
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
@@ -13,11 +14,10 @@ import { toast } from "@acme/ui/toast";
 
 import { useTRPC } from "~/trpc/react";
 
-type RecommendationPayload = {
-  recommendation: Recommendation;
-  auditId: string;
-  date: string;
-} | null;
+type RecommendationPayload = RouterOutputs["coach"]["getDailyRecommendation"];
+type RecommendationActionState = NonNullable<
+  NonNullable<RecommendationPayload>["actionState"]
+>;
 
 interface TodayRecommendationCardProps {
   userId: string;
@@ -29,6 +29,12 @@ const ACTION_LABEL: Record<Recommendation["action"], string> = {
   rest: "Rest day",
   active_recovery: "Active recovery",
   deload: "Deload",
+};
+
+const ACTION_STATE_LABEL: Record<RecommendationActionState["kind"], string> = {
+  intervention_accept: "Accepted",
+  intervention_skip: "Skipped",
+  intervention_defer: "Deferred",
 };
 
 const SEVERITY_STYLE: Record<
@@ -210,10 +216,9 @@ export function TodayRecommendationCard({
     );
   }
 
-  const data = query.data as RecommendationPayload | undefined;
-  const recommendation = data?.recommendation;
+  const data = query.data;
 
-  if (!recommendation) {
+  if (!data?.recommendation) {
     return (
       <section className="bg-card rounded-2xl border p-5 text-center">
         <h2 className="text-lg font-semibold">No recommendation for today</h2>
@@ -230,8 +235,10 @@ export function TodayRecommendationCard({
     );
   }
 
-  const auditId = data?.auditId ?? "";
+  const recommendation = data.recommendation;
+  const auditId = data.auditId;
   const effectiveDate = data.date;
+  const actionState = data.actionState;
   const minDeferDate = shiftIsoDay(effectiveDate, 1);
   const actionInput = { userId, date: effectiveDate, auditId };
   const firedRules = recommendation.rules.filter((rule) => rule.fired);
@@ -263,16 +270,36 @@ export function TodayRecommendationCard({
   }
 
   return (
-    <section className="bg-card rounded-2xl border p-5 shadow-sm">
+    <section
+      className="bg-card rounded-2xl border p-5 shadow-sm"
+      data-testid="today-recommendation-card"
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold">
+            <span
+              className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-semibold"
+              data-testid="today-recommendation-headline"
+            >
               {formatHeadline(recommendation)}
             </span>
-            <span className="text-muted-foreground text-xs font-medium tabular-nums">
+            <span
+              className="text-muted-foreground text-xs font-medium tabular-nums"
+              data-testid="today-recommendation-duration"
+            >
               {formatDuration(recommendation.durationMin)}
             </span>
+            {actionState ? (
+              <span
+                className="border-primary/30 bg-primary/10 text-primary rounded-full border px-3 py-1 text-xs font-semibold"
+                data-testid="today-recommendation-action-state"
+              >
+                {ACTION_STATE_LABEL[actionState.kind]}
+                {actionState.deferToDate
+                  ? ` to ${actionState.deferToDate}`
+                  : ""}
+              </span>
+            ) : null}
           </div>
           <h2 className="mt-3 text-xl leading-tight font-semibold">
             {recommendation.reason}
@@ -305,7 +332,10 @@ export function TodayRecommendationCard({
         </div>
       )}
 
-      <details className="mt-4 rounded-xl border p-3">
+      <details
+        className="mt-4 rounded-xl border p-3"
+        data-testid="rule-trace-accordion"
+      >
         <summary className="focus-visible:ring-ring cursor-pointer text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none">
           Why
         </summary>
@@ -316,6 +346,7 @@ export function TodayRecommendationCard({
               return (
                 <div
                   key={rule.ruleId}
+                  data-testid="rule-trace-row"
                   className={cn(
                     "rounded-lg border px-3 py-2 text-sm",
                     style.className,
@@ -354,6 +385,7 @@ export function TodayRecommendationCard({
           className="w-full bg-green-600 text-white hover:bg-green-500"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => acceptMutation.mutate(actionInput)}
+          data-testid="recommendation-accept"
         >
           {acceptMutation.isPending ? (
             <span aria-label="Accept pending" role="status">
@@ -368,6 +400,7 @@ export function TodayRecommendationCard({
           className="w-full"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => skipMutation.mutate(actionInput)}
+          data-testid="recommendation-skip"
         >
           {skipMutation.isPending ? (
             <span aria-label="Skip pending" role="status">
@@ -382,6 +415,7 @@ export function TodayRecommendationCard({
           className="w-full"
           disabled={isAnyMutationPending || !auditId}
           onClick={openDeferPicker}
+          data-testid="recommendation-defer"
         >
           {deferMutation.isPending ? (
             <span aria-label="Defer pending" role="status">
@@ -415,6 +449,7 @@ export function TodayRecommendationCard({
                 onChange={(event) => updateDeferDate(event.target.value)}
                 type="date"
                 value={deferDate}
+                data-testid="recommendation-defer-date"
               />
             </div>
             {deferError ? (
@@ -431,6 +466,7 @@ export function TodayRecommendationCard({
                   !deferDate ||
                   deferDate <= effectiveDate
                 }
+                data-testid="recommendation-save-defer"
               >
                 {deferMutation.isPending ? (
                   <span aria-label="Defer pending" role="status">

@@ -379,10 +379,13 @@ type AdherencePoint = {
   actualIds: string[];
 };
 
-type RecommendationActionKind =
-  | "intervention_accept"
-  | "intervention_skip"
-  | "intervention_defer";
+const RECOMMENDATION_ACTION_KINDS = [
+  "intervention_accept",
+  "intervention_skip",
+  "intervention_defer",
+] as const;
+
+type RecommendationActionKind = (typeof RECOMMENDATION_ACTION_KINDS)[number];
 
 type RecommendationActionPayload = {
   deferToDate?: string | null;
@@ -453,11 +456,7 @@ async function loadLatestRecommendationActionState(
     where: and(
       eq(schema.RecommendationAudit.userId, userId),
       eq(schema.RecommendationAudit.date, date),
-      inArray(schema.RecommendationAudit.kind, [
-        "intervention_accept",
-        "intervention_skip",
-        "intervention_defer",
-      ]),
+      inArray(schema.RecommendationAudit.kind, RECOMMENDATION_ACTION_KINDS),
     ),
     orderBy: desc(schema.RecommendationAudit.createdAt),
   });
@@ -631,6 +630,7 @@ export const coachRouter = {
         relatedWorkoutId: todayWorkout?.id,
         payload: { recommendation, engineInput },
       });
+
       const [framedReason, actionState] = await Promise.all([
         frameReasonWithTimeout(recommendation, date),
         loadLatestRecommendationActionState(ctx.db, userId, date),
