@@ -256,7 +256,7 @@ const fixtures: Array<{
       intensity: "easy",
       workoutType: "steady_run",
       hardBlocks: [],
-      firedRules: ["intervention-recent-respects", "plan-honored-when-safe"],
+      firedRules: ["intervention-recent-respects"],
     },
   },
   {
@@ -269,7 +269,7 @@ const fixtures: Array<{
       intensity: "moderate",
       workoutType: "tempo",
       hardBlocks: [],
-      firedRules: ["intervention-recent-respects", "plan-honored-when-safe"],
+      firedRules: ["intervention-recent-respects"],
     },
   },
   {
@@ -446,5 +446,53 @@ describe("recommendDay", () => {
         severity: "block",
       }),
     );
+  });
+
+  // Regression: PR #206 Copilot review — race-week-protects-taper fires on
+  // race day (raceDateDaysAway === 0) and previously downgraded the planned
+  // race itself from hard to moderate, defeating the race-day branch.
+  it("race day with planned race workout keeps hard intensity", () => {
+    const result = recommendDay(
+      makeInput({
+        raceDateDaysAway: 0,
+        weeklyPlan: {
+          plannedToday: {
+            workoutType: "race",
+            intensity: "hard",
+            durationMin: 90,
+          },
+          sessionsThisWeek: 3,
+          plannedThisWeek: 5,
+        },
+      }),
+    );
+
+    expect(result.action).toBe("workout");
+    expect(result.workoutType).toBe("race");
+    expect(result.intensity).toBe("hard");
+  });
+
+  // Regression: PR #206 Copilot review — plan-honored-when-safe must not fire
+  // when warning rules will subsequently downgrade the planned intensity,
+  // otherwise the audit trace contradicts the actual recommendation.
+  it("plan-honored-when-safe does not fire when warns will downgrade plan", () => {
+    const result = recommendDay(
+      makeInput({
+        recentInterventions: [{ type: "physio", date: "2026-04-09" }],
+      }),
+    );
+
+    const planHonored = result.rules.find(
+      (rule) => rule.ruleId === "plan-honored-when-safe",
+    );
+    expect(planHonored).toBeDefined();
+    expect(planHonored?.fired).toBe(false);
+
+    // And the intensity should actually be downgraded by the intervention rule.
+    const interventionRule = result.rules.find(
+      (rule) => rule.ruleId === "intervention-recent-respects",
+    );
+    expect(interventionRule?.fired).toBe(true);
+    expect(result.intensity).not.toBe("hard");
   });
 });

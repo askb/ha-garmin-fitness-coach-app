@@ -225,7 +225,12 @@ function enforceHardBlocks(
     (hasFired(rules, "hrv-suppressed-blocks-hard") ||
       hasFired(rules, "acwr-spike-blocks-hard") ||
       hasFired(rules, "race-week-protects-taper")) &&
-    next.intensity === "hard"
+    next.intensity === "hard" &&
+    // Race-day exemption: when the user is racing today and the plan is the
+    // actual race workout, the taper rule must not downgrade it. The race-day
+    // branch in computeDesiredRecommendation returns the planned race; we
+    // honor that here too. See PR #206 Copilot review (race-week double-fire).
+    next.workoutType !== "race"
   ) {
     next = applyIntensity(next, "moderate");
   }

@@ -104,6 +104,21 @@ function isSparseData(input: DailyRecommendationInput): boolean {
   );
 }
 
+function hasWarnDowngradeSignal(input: DailyRecommendationInput): boolean {
+  // Signals that, while not hard-blocking, will downgrade a planned workout's
+  // intensity during the enforcement phase. The plan-honored-when-safe trace
+  // should NOT fire when these are present — otherwise the audit reads "no
+  // signals against your plan" while the recommendation has already been
+  // softened. Kept in sync with applyWarnDowngrades() in ./index.ts.
+  const recentDowngradingIntervention =
+    Array.isArray(input.recentInterventions) &&
+    input.recentInterventions.some((intervention) =>
+      ["physio", "ice_bath", "massage"].includes(intervention.type),
+    );
+  const acwrVeryLow = input.load.acwr !== null && input.load.acwr < 0.8;
+  return recentDowngradingIntervention || acwrVeryLow;
+}
+
 function hasHardBlockSignal(input: DailyRecommendationInput): boolean {
   const readiness = input.readiness;
   const lowReadiness =
@@ -290,7 +305,8 @@ export function planHonoredWhenSafe(
     inputs: { plannedToday: input.weeklyPlan?.plannedToday ?? null },
     predicate: (candidate) =>
       candidate.weeklyPlan?.plannedToday != null &&
-      !hasHardBlockSignal(candidate),
+      !hasHardBlockSignal(candidate) &&
+      !hasWarnDowngradeSignal(candidate),
   });
 }
 
