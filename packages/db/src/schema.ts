@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, uniqueIndex } from "drizzle-orm/pg-core";
+import { index, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -668,6 +668,83 @@ export const CreateAiInsightSchema = createInsertSchema(AiInsight).omit({
   createdAt: true,
   updatedAt: true,
 });
+
+// ---------------------------------------------------------------------------
+// Recommendation Audit (v0.17.0 AI-native coaching decision log)
+// ---------------------------------------------------------------------------
+//
+// Inescapable audit trail for every state-changing event in the coach loop:
+//   - "recommendation": engine produced a daily recommendation
+//   - "intervention_accept": user accepted today's recommendation
+//   - "intervention_skip": user skipped today's recommendation
+//   - "intervention_defer": user deferred today's recommendation
+//   - "workout_complete": planned-vs-actual reconciliation matched a workout
+//   - "workout_missed": reconciliation found no matching activity
+//   - "override": user manually overrode the recommendation
+//
+// `ruleTrace` is the full rule-by-rule output from
+// `@acme/engine.recommendDay()`. `llmExplanation` is the optional
+// natural-language framing produced by the AI backend; it is NEVER
+// allowed to mutate the structured action/intensity/hardBlocks fields.
+//
+export const RECOMMENDATION_AUDIT_KINDS = [
+  "recommendation",
+  "intervention_accept",
+  "intervention_skip",
+  "intervention_defer",
+  "workout_complete",
+  "workout_missed",
+  "override",
+] as const;
+
+export type RecommendationAuditKind =
+  (typeof RECOMMENDATION_AUDIT_KINDS)[number];
+
+export const RecommendationAudit = pgTable(
+  "recommendation_audit",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    date: t.date().notNull(),
+    kind: t.varchar({ length: 32 }).notNull().$type<RecommendationAuditKind>(),
+    action: t.varchar({ length: 32 }), // recommendation.action snapshot
+    intensity: t.varchar({ length: 16 }),
+    workoutType: t.varchar({ length: 64 }),
+    durationMin: t.integer(),
+    confidence: t.doublePrecision(),
+    hardBlocks: t.jsonb().$type<string[]>(),
+    ruleTrace: t.jsonb(), // engine RuleTrace[]
+    llmExplanation: t.text(),
+    relatedActivityIds: t.jsonb().$type<string[]>(),
+    relatedWorkoutId: t.uuid(), // DailyWorkout.id, optional
+    payload: t.jsonb(), // arbitrary kind-specific extras
+    createdAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    index("recommendation_audit_user_date_idx").on(table.userId, table.date),
+    index("recommendation_audit_kind_idx").on(table.kind),
+  ],
+);
+
+export const CreateRecommendationAuditSchema = createInsertSchema(
+  RecommendationAudit,
+).omit({
+  id: true,
+  createdAt: true,
+});
+
+// DailyWorkout.status legal value space — exported for the API layer.
+// The column itself remains varchar(20) default "planned" (no DDL change).
+export const DAILY_WORKOUT_STATUSES = [
+  "planned",
+  "completed",
+  "partial",
+  "missed",
+  "extra",
+  "skipped",
+] as const;
+
+export type DailyWorkoutStatus = (typeof DAILY_WORKOUT_STATUSES)[number];
 
 // ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
