@@ -117,11 +117,18 @@ export function scoreDuration(
 ): number {
   if (plannedDurationMin <= 0) return actualDurationMin <= 0 ? 1 : 0;
 
+  // Hard floor: if the actual session is shorter than the configured
+  // absolute minimum, treat it as not-a-real-match regardless of the
+  // ratio to the planned duration. Default floor is 10 minutes — a
+  // 9-minute walk should not score against a planned 60-minute run.
+  const minAbsolute = window.minAbsoluteDurationMin ?? 10;
+  if (actualDurationMin < minAbsolute) return 0;
+
   const ratioDelta =
     Math.abs(actualDurationMin - plannedDurationMin) / plannedDurationMin;
   const mediumTolerance = Math.max(
     window.durationMinTolerancePct ?? 0.35,
-    (window.minAbsoluteDurationMin ?? 10) / plannedDurationMin,
+    minAbsolute / plannedDurationMin,
   );
 
   if (ratioDelta <= 0.15) return 1;

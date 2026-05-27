@@ -67,6 +67,15 @@ describe("matching scores", () => {
     expect(scoreDuration(20, 10, { minAbsoluteDurationMin: 10 })).toBe(0.6);
   });
 
+  it("enforces minAbsoluteDurationMin as a hard floor (regression: PR #207)", () => {
+    // Actual is below the absolute floor — must score 0 regardless of
+    // how close it is in ratio terms to the planned target.
+    expect(scoreDuration(60, 9, { minAbsoluteDurationMin: 10 })).toBe(0);
+    expect(scoreDuration(15, 5, { minAbsoluteDurationMin: 10 })).toBe(0);
+    // At the floor exactly: not rejected by the floor itself.
+    expect(scoreDuration(10, 10, { minAbsoluteDurationMin: 10 })).toBe(1);
+  });
+
   it("scores intensity as non-penalizing when unknown", () => {
     expect(computeIntensityShift("easy", { avgHrBpm: 180, hrMax: 200 })).toBe(
       2,

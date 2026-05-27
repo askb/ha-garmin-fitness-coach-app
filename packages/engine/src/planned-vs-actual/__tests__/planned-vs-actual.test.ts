@@ -253,4 +253,37 @@ describe("reconcilePlanVsActual", () => {
 
     expect(result.confidence).toBeLessThan(0.7);
   });
+
+  it("does not penalize confidence when plan omits intensity (regression: PR #207)", () => {
+    // Plan has no intensity field, activity has no HR data either —
+    // intensity uncertainty should NOT count against confidence.
+    const planNoIntensity: PlannedWorkoutInput = {
+      workoutType: "easy_run",
+      sportType: "running",
+      durationMin: 45,
+    };
+    const result = reconcilePlanVsActual({
+      date,
+      planned: planNoIntensity,
+      actuals: [activity("a1", "running", 45)],
+    });
+
+    expect(result.confidence).toBe(1);
+  });
+
+  it("returns EMPTY_DEVIATION for unplanned-activity (extra) branch (regression: PR #207)", () => {
+    const result = reconcilePlanVsActual({
+      date,
+      planned: null,
+      actuals: [activity("a1", "running", 30)],
+    });
+
+    expect(result.status).toBe("extra");
+    expect(result.deviation).toEqual({
+      durationMinDelta: null,
+      durationPctDelta: null,
+      intensityShift: null,
+      sportTypeMatch: null,
+    });
+  });
 });

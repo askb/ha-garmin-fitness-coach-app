@@ -214,14 +214,17 @@ function computeConfidence(
   let confidence = 1;
   const exactSportMatch = sportTypeMatch(planned.sportType, activity.sportType);
   const familyMatch = sameSportFamily(planned.sportType, activity.sportType);
-  const intensityKnown =
-    planned.intensity !== undefined &&
-    deriveActualIntensityStep(activity) !== null;
+  // Only penalize intensity uncertainty when the plan actually specified
+  // an intensity that the activity failed to confirm. Plans that omit
+  // intensity (e.g. an "easy ride" with no target) should not lose
+  // confidence just because we can't derive a step from the activity.
+  const intensityExpected = planned.intensity !== undefined;
+  const intensityDerived = deriveActualIntensityStep(activity) !== null;
   const durationPctDelta = buildDeviation(planned, activity).durationPctDelta;
 
   if (exactSportMatch === false && familyMatch) confidence -= 0.2;
   if (exactSportMatch === false && !familyMatch) confidence -= 0.4;
-  if (!intensityKnown) confidence -= 0.2;
+  if (intensityExpected && !intensityDerived) confidence -= 0.2;
   if (durationPctDelta !== null && Math.abs(durationPctDelta) > 0.5) {
     confidence -= 0.3;
   }
@@ -252,11 +255,8 @@ export function reconcilePlanVsActual(input: ReconcileInput): ReconcileResult {
     return {
       status: "extra",
       matchedActivityIds: actuals.map((activity) => activity.id),
-      deviation: {
-        ...durationDeviation(null, sumDurationMin(actuals)),
-        intensityShift: null,
-        sportTypeMatch: null,
-      },
+      // No planned target → no deviation to compute.
+      deviation: EMPTY_DEVIATION,
       notes: ["unplanned activity recorded"],
       confidence: 1,
     };
