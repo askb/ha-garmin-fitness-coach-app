@@ -348,18 +348,8 @@ function actualActivityInput(
   };
 }
 
-function auditKindForReconcile(
-  reconcile: ReconcileResult,
-): "workout_complete" | "workout_missed" | "override" {
-  if (reconcile.status === "missed") return "workout_missed";
-  if (
-    reconcile.status === "completed" ||
-    reconcile.status === "partial" ||
-    reconcile.status === "extra"
-  ) {
-    return "workout_complete";
-  }
-  return "override";
+function auditKindForReconcile(): "reconciliation" {
+  return "reconciliation";
 }
 
 function isPersistableWorkoutStatus(
@@ -387,6 +377,15 @@ type AdherencePoint = {
   actualDurationMin: number;
   confidence: number;
   actualIds: string[];
+};
+
+type RecommendationActionKind =
+  | "intervention_accept"
+  | "intervention_skip"
+  | "intervention_defer";
+
+type RecommendationActionPayload = {
+  deferToDate?: string | null;
 };
 
 function coercePayload(value: unknown): ReconcileAuditPayload {
@@ -432,6 +431,44 @@ function isAdherenceSuccess(point: AdherencePoint): boolean {
 function pct(count: number, total: number): number {
   if (total === 0) return 0;
   return Number(((count / total) * 100).toFixed(2));
+}
+
+function coerceActionPayload(value: unknown): RecommendationActionPayload {
+  return value && typeof value === "object"
+    ? (value as RecommendationActionPayload)
+    : {};
+}
+
+async function loadLatestRecommendationActionState(
+  db: AppDb,
+  userId: string,
+  date: string,
+) {
+  const action = await db.query.RecommendationAudit.findFirst({
+    columns: {
+      id: true,
+      kind: true,
+      payload: true,
+    },
+    where: and(
+      eq(schema.RecommendationAudit.userId, userId),
+      eq(schema.RecommendationAudit.date, date),
+      inArray(schema.RecommendationAudit.kind, [
+        "intervention_accept",
+        "intervention_skip",
+        "intervention_defer",
+      ]),
+    ),
+    orderBy: desc(schema.RecommendationAudit.createdAt),
+  });
+
+  if (!action) return null;
+  const payload = coerceActionPayload(action.payload);
+  return {
+    auditId: action.id,
+    kind: action.kind as RecommendationActionKind,
+    deferToDate: payload.deferToDate ?? null,
+  };
 }
 
 function adherenceSummary(points: AdherencePoint[]) {
@@ -594,14 +631,17 @@ export const coachRouter = {
         relatedWorkoutId: todayWorkout?.id,
         payload: { recommendation, engineInput },
       });
-
-      const framedReason = await frameReasonWithTimeout(recommendation, date);
+      const [framedReason, actionState] = await Promise.all([
+        frameReasonWithTimeout(recommendation, date),
+        loadLatestRecommendationActionState(ctx.db, userId, date),
+      ]);
       return {
         recommendation: framedReason
           ? { ...recommendation, reason: framedReason }
           : recommendation,
         auditId: audit.id,
         date,
+        actionState,
       };
     }),
 
@@ -758,7 +798,7 @@ export const coachRouter = {
       const audit = await recordRecommendationAudit({
         userId,
         date: input.date,
-        kind: auditKindForReconcile(reconcile),
+        kind: auditKindForReconcile(),
         confidence: reconcile.confidence,
         durationMin: plannedInput?.durationMin ?? null,
         relatedWorkoutId: planned?.id,
@@ -812,6 +852,7 @@ export const coachRouter = {
         where: and(
           eq(schema.RecommendationAudit.userId, userId),
           inArray(schema.RecommendationAudit.kind, [
+            "reconciliation",
             "workout_complete",
             "workout_missed",
             "override",
