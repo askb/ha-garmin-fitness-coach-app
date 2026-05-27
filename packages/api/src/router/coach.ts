@@ -601,6 +601,7 @@ export const coachRouter = {
           ? { ...recommendation, reason: framedReason }
           : recommendation,
         auditId: audit.id,
+        date,
       };
     }),
 

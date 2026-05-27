@@ -12,24 +12,70 @@ import type { Recommendation } from "@acme/engine";
 import { TodayRecommendationCard } from "../today-recommendation-card";
 
 const mockUseQuery = jest.fn();
+const mockUseMutation = jest.fn();
+const mockInvalidateQueries = jest.fn();
 const mockToastSuccess = jest.fn();
+const mockToastError = jest.fn();
+const mockAcceptMutate = jest.fn();
+const mockSkipMutate = jest.fn();
+const mockDeferMutate = jest.fn();
+type MockMutationOptions = {
+  mutationKey?: string[];
+  onError?: (error: { message: string }) => void;
+  onSuccess?: () => void;
+};
+
+const mockMutationOptions: Record<string, MockMutationOptions> = {};
+const mockMutationStates = {
+  accept: { isPending: false, mutate: mockAcceptMutate },
+  skip: { isPending: false, mutate: mockSkipMutate },
+  defer: { isPending: false, mutate: mockDeferMutate },
+};
 
 jest.mock("~/trpc/react", () => ({
   useTRPC: () => ({
     coach: {
       getDailyRecommendation: {
+        queryKey: (input: unknown) => [
+          "coach",
+          "getDailyRecommendation",
+          input,
+        ],
         queryOptions: (input: unknown) => ({ queryKey: ["coach", input] }),
+      },
+      accept: {
+        mutationOptions: (options: unknown) => ({
+          ...(options as object),
+          mutationKey: ["coach", "accept"],
+        }),
+      },
+      skip: {
+        mutationOptions: (options: unknown) => ({
+          ...(options as object),
+          mutationKey: ["coach", "skip"],
+        }),
+      },
+      defer: {
+        mutationOptions: (options: unknown) => ({
+          ...(options as object),
+          mutationKey: ["coach", "defer"],
+        }),
       },
     },
   }),
 }));
 
 jest.mock("@tanstack/react-query", () => ({
+  useMutation: (...args: unknown[]) => mockUseMutation(...args),
   useQuery: (...args: unknown[]) => mockUseQuery(...args),
+  useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
 }));
 
 jest.mock("@acme/ui/toast", () => ({
-  toast: { success: (message: string) => mockToastSuccess(message) },
+  toast: {
+    error: (message: string) => mockToastError(message),
+    success: (message: string) => mockToastSuccess(message),
+  },
 }));
 
 function makeRecommendation(confidence = 0.85): Recommendation {
@@ -75,10 +121,14 @@ function makeRecommendation(confidence = 0.85): Recommendation {
   };
 }
 
-function mockRecommendation(confidence = 0.85) {
+function mockRecommendation(
+  confidence = 0.85,
+  recommendationDate = "2026-05-27",
+) {
   mockUseQuery.mockReturnValue({
     data: {
-      auditId: "audit-123",
+      auditId: "00000000-0000-4000-8000-000000000123",
+      date: recommendationDate,
       recommendation: makeRecommendation(confidence),
     },
     isLoading: false,
@@ -86,9 +136,27 @@ function mockRecommendation(confidence = 0.85) {
   });
 }
 
+function setupMutations() {
+  mockUseMutation.mockImplementation((options: MockMutationOptions) => {
+    const action = options.mutationKey?.[1] ?? "";
+    mockMutationOptions[action] = options;
+    return mockMutationStates[action as "accept" | "skip" | "defer"];
+  });
+}
+
 describe("TodayRecommendationCard", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockMutationOptions.accept = {};
+    mockMutationOptions.skip = {};
+    mockMutationOptions.defer = {};
+    mockMutationStates.accept.isPending = false;
+    mockMutationStates.skip.isPending = false;
+    mockMutationStates.defer.isPending = false;
+    mockAcceptMutate.mockReset();
+    mockSkipMutate.mockReset();
+    mockDeferMutate.mockReset();
+    setupMutations();
   });
 
   it("renders the recommendation, hard block, and fired rule trace", () => {
@@ -164,36 +232,129 @@ describe("TodayRecommendationCard", () => {
     expect(screen.getByText(label)).toBeInTheDocument();
   });
 
-  it("fires accept, skip, and defer placeholder handlers", () => {
+  it("calls accept mutation with the recommendation audit args", () => {
     mockRecommendation();
-    const logSpy = jest
-      .spyOn(console, "log")
-      .mockImplementation(() => undefined);
 
     render(
       <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+
+    expect(mockAcceptMutate).toHaveBeenCalledWith({
+      auditId: "00000000-0000-4000-8000-000000000123",
+      date: "2026-05-27",
+      userId: "seed-user-001",
+    });
+  });
+
+  it("calls skip mutation with the recommendation audit args", () => {
+    mockRecommendation();
+
+    render(
+      <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
+    );
+
     fireEvent.click(screen.getByRole("button", { name: "Skip" }));
+
+    expect(mockSkipMutate).toHaveBeenCalledWith({
+      auditId: "00000000-0000-4000-8000-000000000123",
+      date: "2026-05-27",
+      userId: "seed-user-001",
+    });
+  });
+
+  it("uses the recommendation response date when no date prop is provided", () => {
+    mockRecommendation(0.85, "2026-05-26");
+
+    render(<TodayRecommendationCard userId="seed-user-001" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+
+    expect(mockAcceptMutate).toHaveBeenCalledWith({
+      auditId: "00000000-0000-4000-8000-000000000123",
+      date: "2026-05-26",
+      userId: "seed-user-001",
+    });
+  });
+
+  it("opens defer picker and submits tomorrow's date", () => {
+    mockRecommendation();
+
+    render(
+      <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
+    );
+
     fireEvent.click(screen.getByRole("button", { name: "Defer" }));
+    const dateInput = screen.getByLabelText("Defer to") as HTMLInputElement;
 
-    expect(logSpy).toHaveBeenCalledWith("[v0.17.0-w1.4] accept", {
-      auditId: "audit-123",
-      userId: "seed-user-001",
+    expect(dateInput.value).toBe("2026-05-28");
+    expect(dateInput.min).toBe("2026-05-28");
+
+    fireEvent.click(screen.getByRole("button", { name: "Save defer date" }));
+
+    expect(mockDeferMutate).toHaveBeenCalledWith({
+      auditId: "00000000-0000-4000-8000-000000000123",
       date: "2026-05-27",
+      deferToDate: "2026-05-28",
+      userId: "seed-user-001",
     });
-    expect(logSpy).toHaveBeenCalledWith("[v0.17.0-w1.4] skip", {
-      auditId: "audit-123",
-      userId: "seed-user-001",
-      date: "2026-05-27",
-    });
-    expect(logSpy).toHaveBeenCalledWith("[v0.17.0-w1.4] defer", {
-      auditId: "audit-123",
-      userId: "seed-user-001",
-      date: "2026-05-27",
+  });
+
+  it("prevents same-day or past defer dates at the UI level", () => {
+    mockRecommendation();
+
+    render(
+      <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Defer" }));
+    fireEvent.change(screen.getByLabelText("Defer to"), {
+      target: { value: "2026-05-27" },
     });
 
-    logSpy.mockRestore();
+    expect(
+      screen.getByText("Choose a defer date after the recommendation date."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Save defer date" }),
+    ).toBeDisabled();
+    expect(mockDeferMutate).not.toHaveBeenCalled();
+  });
+
+  it("disables all action buttons while any mutation is pending", () => {
+    mockRecommendation();
+    mockMutationStates.skip.isPending = true;
+
+    render(
+      <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
+    );
+
+    expect(screen.getByRole("button", { name: /Accept/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Skip/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Defer/ })).toBeDisabled();
+    expect(screen.getByLabelText("Skip pending")).toBeInTheDocument();
+  });
+
+  it("shows a success toast and invalidates the recommendation query on success", () => {
+    mockRecommendation();
+    mockAcceptMutate.mockImplementation(() => {
+      mockMutationOptions.accept?.onSuccess?.();
+    });
+
+    render(
+      <TodayRecommendationCard userId="seed-user-001" date="2026-05-27" />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+
+    expect(mockToastSuccess).toHaveBeenCalledWith("Recommendation accepted");
+    expect(mockInvalidateQueries).toHaveBeenCalledWith({
+      queryKey: [
+        "coach",
+        "getDailyRecommendation",
+        { date: "2026-05-27", userId: "seed-user-001" },
+      ],
+    });
   });
 });
