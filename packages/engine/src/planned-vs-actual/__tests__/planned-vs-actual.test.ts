@@ -61,7 +61,7 @@ describe("reconcilePlanVsActual", () => {
       actuals: [activity("a1", "walking", 20)],
       expectedStatus: "extra",
       expectedIds: ["a1"],
-      noteIncludes: "rested day had unplanned activity",
+      noteIncludes: "rest day had an unplanned activity",
     },
     {
       name: "exact match",

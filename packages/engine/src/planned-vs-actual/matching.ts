@@ -5,8 +5,11 @@
 export type PlannedIntensity = "easy" | "moderate" | "hard";
 
 export interface MatchWindow {
+  /** Fractional tolerance on duration, e.g. 0.35 = ±35%. */
   durationMinTolerancePct?: number;
-  durationMinMinAbsolute?: number;
+  /** Absolute floor in minutes — if the actual is shorter than this, the
+   *  duration score is 0 regardless of the percentage tolerance. Default 10. */
+  minAbsoluteDurationMin?: number;
 }
 
 export interface ActivityIntensityInput {
@@ -118,7 +121,7 @@ export function scoreDuration(
     Math.abs(actualDurationMin - plannedDurationMin) / plannedDurationMin;
   const mediumTolerance = Math.max(
     window.durationMinTolerancePct ?? 0.35,
-    (window.durationMinMinAbsolute ?? 10) / plannedDurationMin,
+    (window.minAbsoluteDurationMin ?? 10) / plannedDurationMin,
   );
 
   if (ratioDelta <= 0.15) return 1;

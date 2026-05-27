@@ -64,7 +64,7 @@ describe("matching scores", () => {
     expect(scoreDuration(60, 40)).toBe(0.6);
     expect(scoreDuration(60, 30)).toBe(0.2);
     expect(scoreDuration(60, 20)).toBe(0);
-    expect(scoreDuration(20, 10, { durationMinMinAbsolute: 10 })).toBe(0.6);
+    expect(scoreDuration(20, 10, { minAbsoluteDurationMin: 10 })).toBe(0.6);
   });
 
   it("scores intensity as non-penalizing when unknown", () => {

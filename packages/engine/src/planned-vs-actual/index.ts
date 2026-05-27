@@ -45,9 +45,9 @@ export interface ActualActivityInput {
   sportType: string;
   durationMin: number;
   avgHrBpm?: number | null;
-  maxHrBpm?: number | null;
+  /** User's max HR, used to derive intensity from avgHrBpm when no
+   *  explicit intensity is available on the activity. */
   hrMax?: number | null;
-  trimp?: number | null;
 }
 
 export interface ReconcileInput {
@@ -159,10 +159,13 @@ function classifyWorkoutStatus(
   const durationRatio =
     planned.durationMin > 0 ? activity.durationMin / planned.durationMin : 0;
   const familyMatch = sameSportFamily(planned.sportType, activity.sportType);
-  const exactSportMatch = sportTypeMatch(planned.sportType, activity.sportType);
 
+  // A workout counts as "completed" only when the sport family matches AND
+  // the user covered at least 85% of the planned duration. Everything else
+  // — wrong sport, too short, or family-only match — falls back to
+  // "partial". "missed" is handled upstream in reconcilePlanVsActual when
+  // there are no actuals at all.
   if (familyMatch && durationRatio >= 0.85) return "completed";
-  if (exactSportMatch === false || !familyMatch) return "partial";
   return "partial";
 }
 
@@ -278,7 +281,7 @@ export function reconcilePlanVsActual(input: ReconcileInput): ReconcileResult {
         intensityShift: null,
         sportTypeMatch: planned.sportType ? false : null,
       },
-      notes: ["rested day had unplanned activity"],
+      notes: ["rest day had an unplanned activity"],
       confidence: 1,
     };
   }
