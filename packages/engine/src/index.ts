@@ -111,3 +111,11 @@ export {
 } from "./correlations";
 
 export { analyzeRunningForm } from "./running-form";
+
+export {
+  reconcilePlanVsActual,
+  type ReconcileInput,
+  type ReconcileResult,
+  type ReconcileStatus,
+  type ReconcileDeviation,
+} from "./planned-vs-actual";
