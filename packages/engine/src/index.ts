@@ -120,3 +120,11 @@ export {
   type RuleTrace,
   type DailyRecommendationInput,
 } from "./daily-recommendation";
+
+export {
+  reconcilePlanVsActual,
+  type ReconcileInput,
+  type ReconcileResult,
+  type ReconcileStatus,
+  type ReconcileDeviation,
+} from "./planned-vs-actual";
