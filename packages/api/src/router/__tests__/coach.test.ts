@@ -217,6 +217,7 @@ describe("coach router", () => {
     expect(result).toEqual({
       recommendation: engineRecommendation,
       auditId: "audit-1",
+      date: TEST_DATE,
     });
 
     expect(mocks.auditValues).toHaveBeenCalledTimes(1);

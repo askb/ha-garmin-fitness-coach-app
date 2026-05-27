@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 "use client";
 
+import type { FormEvent } from "react";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { Recommendation, RuleTrace } from "@acme/engine";
 import { cn } from "@acme/ui";
@@ -15,6 +16,7 @@ import { useTRPC } from "~/trpc/react";
 type RecommendationPayload = {
   recommendation: Recommendation;
   auditId: string;
+  date: string;
 } | null;
 
 interface TodayRecommendationCardProps {
@@ -114,6 +116,12 @@ function hardBlockLabel(ruleId: string, rules: RuleTrace[]): string {
   );
 }
 
+function shiftIsoDay(value: string, days: number): string {
+  const shifted = new Date(`${value}T12:00:00Z`);
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
+}
+
 function RecommendationSkeleton() {
   return (
     <section
@@ -141,11 +149,46 @@ export function TodayRecommendationCard({
   date,
 }: TodayRecommendationCardProps) {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const [showAllRules, setShowAllRules] = useState(false);
+  const [isDeferOpen, setIsDeferOpen] = useState(false);
+  const [deferDate, setDeferDate] = useState("");
+  const [deferError, setDeferError] = useState<string | null>(null);
   const queryInput = date ? { userId, date } : { userId };
   const query = useQuery(
     trpc.coach.getDailyRecommendation.queryOptions(queryInput),
   );
+
+  const handleMutationSuccess = (message: string) => {
+    toast.success(message);
+    setIsDeferOpen(false);
+    void queryClient.invalidateQueries({
+      queryKey: trpc.coach.getDailyRecommendation.queryKey(queryInput),
+    });
+  };
+
+  const acceptMutation = useMutation(
+    trpc.coach.accept.mutationOptions({
+      onSuccess: () => handleMutationSuccess("Recommendation accepted"),
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const skipMutation = useMutation(
+    trpc.coach.skip.mutationOptions({
+      onSuccess: () => handleMutationSuccess("Recommendation skipped"),
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const deferMutation = useMutation(
+    trpc.coach.defer.mutationOptions({
+      onSuccess: () => handleMutationSuccess("Recommendation deferred"),
+      onError: (error) => toast.error(error.message),
+    }),
+  );
+  const isAnyMutationPending =
+    acceptMutation.isPending ||
+    skipMutation.isPending ||
+    deferMutation.isPending;
 
   if (query.isLoading) return <RecommendationSkeleton />;
 
@@ -188,14 +231,35 @@ export function TodayRecommendationCard({
   }
 
   const auditId = data?.auditId ?? "";
+  const effectiveDate = data.date;
+  const minDeferDate = shiftIsoDay(effectiveDate, 1);
+  const actionInput = { userId, date: effectiveDate, auditId };
   const firedRules = recommendation.rules.filter((rule) => rule.fired);
   const visibleRules = showAllRules ? recommendation.rules : firedRules;
   const confidence = confidenceLevel(recommendation.confidence);
 
-  function handleAction(action: "accept" | "skip" | "defer") {
-    // TODO(v0.17.0 W2.3): wire accept/skip/defer to coach.{accept,skip,defer} mutations.
-    console.log(`[v0.17.0-w1.4] ${action}`, { auditId, userId, date });
-    toast.success(`Recommendation ${action} recorded locally`);
+  function openDeferPicker() {
+    setDeferDate(minDeferDate);
+    setDeferError(null);
+    setIsDeferOpen(true);
+  }
+
+  function updateDeferDate(value: string) {
+    setDeferDate(value);
+    setDeferError(
+      value && value <= effectiveDate
+        ? "Choose a defer date after the recommendation date."
+        : null,
+    );
+  }
+
+  function submitDefer(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!deferDate || deferDate <= effectiveDate) {
+      setDeferError("Choose a defer date after the recommendation date.");
+      return;
+    }
+    deferMutation.mutate({ ...actionInput, deferToDate: deferDate });
   }
 
   return (
@@ -288,27 +352,106 @@ export function TodayRecommendationCard({
         <Button
           type="button"
           className="w-full bg-green-600 text-white hover:bg-green-500"
-          onClick={() => handleAction("accept")}
+          disabled={isAnyMutationPending || !auditId}
+          onClick={() => acceptMutation.mutate(actionInput)}
         >
+          {acceptMutation.isPending ? (
+            <span aria-label="Accept pending" role="status">
+              ⏳
+            </span>
+          ) : null}
           Accept
         </Button>
         <Button
           type="button"
           variant="secondary"
           className="w-full"
-          onClick={() => handleAction("skip")}
+          disabled={isAnyMutationPending || !auditId}
+          onClick={() => skipMutation.mutate(actionInput)}
         >
+          {skipMutation.isPending ? (
+            <span aria-label="Skip pending" role="status">
+              ⏳
+            </span>
+          ) : null}
           Skip
         </Button>
         <Button
           type="button"
           variant="outline"
           className="w-full"
-          onClick={() => handleAction("defer")}
+          disabled={isAnyMutationPending || !auditId}
+          onClick={openDeferPicker}
         >
+          {deferMutation.isPending ? (
+            <span aria-label="Defer pending" role="status">
+              ⏳
+            </span>
+          ) : null}
           Defer
         </Button>
       </div>
+
+      {isDeferOpen && (
+        <div
+          aria-labelledby="defer-dialog-title"
+          aria-modal="true"
+          className="bg-background mt-4 rounded-xl border p-4 shadow-sm"
+          role="dialog"
+        >
+          <form className="space-y-3" onSubmit={submitDefer}>
+            <h3 id="defer-dialog-title" className="text-sm font-semibold">
+              Defer recommendation
+            </h3>
+            <div>
+              <label className="text-sm font-medium" htmlFor="defer-to-date">
+                Defer to
+              </label>
+              <input
+                className="border-input bg-background mt-1 w-full rounded-md border px-3 py-2 text-sm"
+                disabled={isAnyMutationPending}
+                id="defer-to-date"
+                min={minDeferDate}
+                onChange={(event) => updateDeferDate(event.target.value)}
+                type="date"
+                value={deferDate}
+              />
+            </div>
+            {deferError ? (
+              <p className="text-destructive text-sm" role="alert">
+                {deferError}
+              </p>
+            ) : null}
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  isAnyMutationPending ||
+                  !deferDate ||
+                  deferDate <= effectiveDate
+                }
+              >
+                {deferMutation.isPending ? (
+                  <span aria-label="Defer pending" role="status">
+                    ⏳
+                  </span>
+                ) : null}
+                Save defer date
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                disabled={isAnyMutationPending}
+                onClick={() => setIsDeferOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
     </section>
   );
 }
