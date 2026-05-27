@@ -20,12 +20,12 @@ import {
 } from "./schema";
 
 const USER_ID = "seed-user-001";
-const DATABASE_URL = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error("POSTGRES_URL or DATABASE_URL must be set");
+const DATABASE_URL =
+  process.env.POSTGRES_URL ??
+  process.env.DATABASE_URL ??
+  "postgresql://postgres:postgres@localhost:5432/pulsecoach_e2e";
 
-const pool = new pg.Pool({
-  connectionString: DATABASE_URL.replace(":6543", ":5432"),
-});
+const pool = new pg.Pool({ connectionString: DATABASE_URL });
 const db = drizzle(pool, { casing: "snake_case" });
 
 function isoDay(offsetDays = 0): string {

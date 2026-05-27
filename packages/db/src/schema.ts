@@ -699,8 +699,9 @@ export const CreateAiInsightSchema = createInsertSchema(AiInsight).omit({
 //   - "intervention_accept": user accepted today's recommendation
 //   - "intervention_skip": user skipped today's recommendation
 //   - "intervention_defer": user deferred today's recommendation
-//   - "workout_complete": planned-vs-actual reconciliation matched a workout
-//   - "workout_missed": reconciliation found no matching activity
+//   - "reconciliation": planned-vs-actual reconciliation result
+//   - "workout_complete": legacy reconciliation matched a workout
+//   - "workout_missed": legacy reconciliation found no matching activity
 //   - "override": user manually overrode the recommendation
 //
 // `ruleTrace` is the full rule-by-rule output from
@@ -713,6 +714,7 @@ export const RECOMMENDATION_AUDIT_KINDS = [
   "intervention_accept",
   "intervention_skip",
   "intervention_defer",
+  "reconciliation",
   "workout_complete",
   "workout_missed",
   "override",

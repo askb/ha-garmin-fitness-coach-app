@@ -348,18 +348,8 @@ function actualActivityInput(
   };
 }
 
-function auditKindForReconcile(
-  reconcile: ReconcileResult,
-): "workout_complete" | "workout_missed" | "override" {
-  if (reconcile.status === "missed") return "workout_missed";
-  if (
-    reconcile.status === "completed" ||
-    reconcile.status === "partial" ||
-    reconcile.status === "extra"
-  ) {
-    return "workout_complete";
-  }
-  return "override";
+function auditKindForReconcile(): "reconciliation" {
+  return "reconciliation";
 }
 
 function isPersistableWorkoutStatus(
@@ -458,6 +448,11 @@ async function loadLatestRecommendationActionState(
   date: string,
 ) {
   const action = await db.query.RecommendationAudit.findFirst({
+    columns: {
+      id: true,
+      kind: true,
+      payload: true,
+    },
     where: and(
       eq(schema.RecommendationAudit.userId, userId),
       eq(schema.RecommendationAudit.date, date),
@@ -803,7 +798,7 @@ export const coachRouter = {
       const audit = await recordRecommendationAudit({
         userId,
         date: input.date,
-        kind: auditKindForReconcile(reconcile),
+        kind: auditKindForReconcile(),
         confidence: reconcile.confidence,
         durationMin: plannedInput?.durationMin ?? null,
         relatedWorkoutId: planned?.id,
@@ -857,6 +852,7 @@ export const coachRouter = {
         where: and(
           eq(schema.RecommendationAudit.userId, userId),
           inArray(schema.RecommendationAudit.kind, [
+            "reconciliation",
             "workout_complete",
             "workout_missed",
             "override",
