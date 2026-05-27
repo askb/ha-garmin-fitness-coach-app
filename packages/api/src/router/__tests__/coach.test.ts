@@ -21,10 +21,9 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("@acme/db", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@acme/db")>();
-  return { ...actual, db: mocks.auditDb };
-});
+vi.mock("@acme/db/client", () => ({
+  db: mocks.auditDb,
+}));
 
 vi.mock("@acme/engine", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@acme/engine")>();

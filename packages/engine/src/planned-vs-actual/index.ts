@@ -26,6 +26,11 @@ export interface ReconcileDeviation {
 }
 
 export interface ReconcileResult {
+  /** ISO calendar day this reconciliation applies to (echoed from input
+   *  for audit-trail correlation — every downstream RecommendationAudit
+   *  row carries this date so adherence trends can be rebuilt from
+   *  audit alone). */
+  date: string;
   status: ReconcileStatus;
   matchedActivityIds: string[];
   deviation: ReconcileDeviation;
@@ -57,12 +62,20 @@ export interface ReconcileInput {
   matchWindow?: MatchWindow;
 }
 
-const EMPTY_DEVIATION: ReconcileDeviation = {
+// Frozen so callers that share the constant reference can't mutate
+// the deviation of a previously-returned result. Each call site uses
+// emptyDeviation() to materialize a fresh copy where the caller may
+// retain the reference long-term.
+const EMPTY_DEVIATION: Readonly<ReconcileDeviation> = Object.freeze({
   durationMinDelta: null,
   durationPctDelta: null,
   intensityShift: null,
   sportTypeMatch: null,
-};
+});
+
+function emptyDeviation(): ReconcileDeviation {
+  return { ...EMPTY_DEVIATION };
+}
 
 function clampConfidence(confidence: number): number {
   return Math.max(0, Math.min(1, Number(confidence.toFixed(2))));
@@ -239,41 +252,46 @@ function computeConfidence(
  *      training. Journal of Strength and Conditioning Research, 15(1), 109-115.
  */
 export function reconcilePlanVsActual(input: ReconcileInput): ReconcileResult {
-  const { planned, actuals } = input;
+  const { planned, actuals, date } = input;
+  // Every return path goes through `withDate` so the audit-correlation
+  // field is never accidentally dropped on a new code path.
+  const withDate = (
+    partial: Omit<ReconcileResult, "date">,
+  ): ReconcileResult => ({ date, ...partial });
 
   if (planned === null) {
     if (actuals.length === 0) {
-      return {
+      return withDate({
         status: "no-plan",
         matchedActivityIds: [],
-        deviation: EMPTY_DEVIATION,
+        deviation: emptyDeviation(),
         notes: [],
         confidence: 1,
-      };
+      });
     }
 
-    return {
+    return withDate({
       status: "extra",
       matchedActivityIds: actuals.map((activity) => activity.id),
       // No planned target → no deviation to compute.
-      deviation: EMPTY_DEVIATION,
+      deviation: emptyDeviation(),
       notes: ["unplanned activity recorded"],
       confidence: 1,
-    };
+    });
   }
 
   if (planned.workoutType === "rest") {
     if (actuals.length === 0) {
-      return {
+      return withDate({
         status: "completed",
         matchedActivityIds: [],
         deviation: buildDeviation(planned, null),
         notes: [],
         confidence: 1,
-      };
+      });
     }
 
-    return {
+    return withDate({
       status: "extra",
       matchedActivityIds: actuals.map((activity) => activity.id),
       deviation: {
@@ -283,29 +301,29 @@ export function reconcilePlanVsActual(input: ReconcileInput): ReconcileResult {
       },
       notes: ["rest day had an unplanned activity"],
       confidence: 1,
-    };
+    });
   }
 
   if (actuals.length === 0) {
-    return {
+    return withDate({
       status: "missed",
       matchedActivityIds: [],
       deviation: buildDeviation(planned, null),
       notes: ["planned workout not recorded"],
       confidence: 1,
-    };
+    });
   }
 
   const matched = selectBestMatch(planned, actuals, input.matchWindow);
   const unmatchedCount = actuals.length - 1;
 
-  return {
+  return withDate({
     status: classifyWorkoutStatus(planned, matched),
     matchedActivityIds: [matched.id],
     deviation: buildDeviation(planned, matched),
     notes: buildNotes(planned, matched, unmatchedCount),
     confidence: computeConfidence(planned, matched),
-  };
+  });
 }
 
 export { sportFamily } from "./matching";
