@@ -118,7 +118,9 @@ describe("AdherenceTrendCard", () => {
     render(<AdherenceTrendCard userId="seed-user-001" />);
 
     expect(
-      screen.getByText("Start your first session to begin tracking adherence."),
+      screen.getByText(
+        "Adherence tracking starts after your first coach recommendation. Open today's recommendation above to begin.",
+      ),
     ).toBeInTheDocument();
   });
 

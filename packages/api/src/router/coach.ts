@@ -422,6 +422,73 @@ function trendPointFromAudit(
   } satisfies AdherencePoint;
 }
 
+function adherenceStatusFromWorkout(
+  status: DailyWorkoutStatus | null | undefined,
+): ReconcileResult["status"] {
+  if (status === "completed" || status === "partial" || status === "extra") {
+    return status;
+  }
+  if (status === "missed") return "missed";
+  return "no-plan";
+}
+
+function plannedDurationMin(
+  workout: typeof DailyWorkout.$inferSelect | null | undefined,
+): number | null {
+  return workout?.targetDurationMin ?? workout?.targetDurationMax ?? null;
+}
+
+function trendPointFromWorkout(
+  date: string,
+  workout: typeof DailyWorkout.$inferSelect | null | undefined,
+): AdherencePoint {
+  const status = adherenceStatusFromWorkout(workout?.status);
+  const planned = plannedDurationMin(workout);
+  return {
+    date,
+    status,
+    plannedDurationMin: planned,
+    actualDurationMin:
+      status === "completed" || status === "partial" || status === "extra"
+        ? (planned ?? 0)
+        : 0,
+    confidence: 0,
+    actualIds: [],
+  };
+}
+
+function dateRange(startDate: string, endDate: string): string[] {
+  const dates: string[] = [];
+  for (let date = startDate; date <= endDate; date = shiftIsoDay(date, 1)) {
+    dates.push(date);
+  }
+  return dates;
+}
+
+async function fallbackAdherencePointsFromWorkouts(args: {
+  db: AppDb;
+  userId: string;
+  startDate: string;
+  endDate: string;
+}): Promise<AdherencePoint[]> {
+  const workouts = await args.db.query.DailyWorkout.findMany({
+    where: and(
+      eq(DailyWorkout.userId, args.userId),
+      gte(DailyWorkout.date, args.startDate),
+      lte(DailyWorkout.date, args.endDate),
+    ),
+    orderBy: asc(DailyWorkout.date),
+  });
+  if (workouts.length === 0) return [];
+
+  const workoutsByDate = new Map(
+    workouts.map((workout) => [auditDate(workout.date), workout]),
+  );
+  return dateRange(args.startDate, args.endDate).map((date) =>
+    trendPointFromWorkout(date, workoutsByDate.get(date)),
+  );
+}
+
 function isAdherenceSuccess(point: AdherencePoint): boolean {
   return (
     point.status === "completed" ||
@@ -827,6 +894,13 @@ export const coachRouter = {
       return { reconcile, auditId: audit.id };
     }),
 
+  /**
+   * Return adherence trend points from RecommendationAudit rows.
+   *
+   * Fallback mode for users transitioning from pre-v0.17 versions: when no
+   * RecommendationAudit rows exist in the requested window, derive the trend
+   * from daily_workout.status for the same date range.
+   */
   adherenceTrend: protectedProcedure
     .input(
       z.object({
@@ -862,10 +936,19 @@ export const coachRouter = {
         ),
         orderBy: asc(schema.RecommendationAudit.date),
       });
-      const points = rows
+      let points = rows
         .map(trendPointFromAudit)
         .filter((point) => point.date >= startDate && point.date <= endDate)
         .sort((a, b) => a.date.localeCompare(b.date));
+
+      if (points.length === 0) {
+        points = await fallbackAdherencePointsFromWorkouts({
+          db: ctx.db,
+          userId,
+          startDate,
+          endDate,
+        });
+      }
 
       return { points, summary: adherenceSummary(points) };
     }),

@@ -478,6 +478,44 @@ describe("v0.17.0 coach loop integration", () => {
     );
   });
 
+  it("adherenceTrend falls back to completed daily_workout history when audits are empty", async () => {
+    await db
+      .insert(schema.Profile)
+      .values({ userId: TEST_USER_ID, timezone: "UTC" });
+    const today = new Date().toISOString().slice(0, 10);
+    const workouts = Array.from({ length: 7 }, (_, index) => {
+      const date = shiftIsoDay(today, index - 6);
+      return {
+        userId: TEST_USER_ID,
+        date,
+        sportType: "running",
+        workoutType: "easy",
+        title: `Completed workout ${index + 1}`,
+        targetDurationMin: 45,
+        status: "completed" as const,
+      };
+    });
+    await db.insert(schema.DailyWorkout).values(workouts);
+
+    const result = await makeCaller().coach.adherenceTrend({
+      userId: TEST_USER_ID,
+      days: 7,
+    });
+
+    expect(result.points).toHaveLength(7);
+    expect(result.points).toEqual(
+      workouts.map((workout) =>
+        expect.objectContaining({
+          date: workout.date,
+          status: "completed",
+          plannedDurationMin: 45,
+          actualDurationMin: 45,
+        }),
+      ),
+    );
+    expect(result.summary.completedPct).toBe(100);
+  });
+
   it("rules-first invariant produces deterministic output without LLM calls", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     try {
