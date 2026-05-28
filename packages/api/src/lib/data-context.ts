@@ -21,25 +21,15 @@ import {
   countConsecutiveHardDays,
 } from "@acme/engine";
 
+import { humanizeActivityName } from "./humanize";
 import { pickBestVO2maxEstimate } from "./vo2max";
 
 // Drizzle db type — keep generic to avoid coupling to the concrete client
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DB = any;
 
-/**
- * Render a Garmin sport-code (e.g. "Tennis_v2", "trail_running",
- * "lap_swimming") as a human-readable label suitable for LLM prompts
- * and user-facing strings.
- */
 function prettySport(code: string | null | undefined): string {
-  if (!code) return "Activity";
-  return code
-    .replace(/_v\d+$/i, "") // drop "_v2" / "_v3" variant suffixes
-    .replace(/_(legacy|alt|alt\d+|new|old|deprecated|raw)$/i, "") // misc Garmin suffix noise
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
-    .trim();
+  return code ? humanizeActivityName(code) : "Activity";
 }
 
 // ---------------------------------------------------------------------------

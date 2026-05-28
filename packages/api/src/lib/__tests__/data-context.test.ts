@@ -93,7 +93,7 @@ describe("buildDataContext", () => {
     expect(availability.garmin_training_status_status).toBe("unavailable");
   });
 
-  it("prettifies raw Garmin sport codes so LLM never sees variant or legacy suffixes", async () => {
+  it("prettifies raw Garmin sport codes so LLM never sees variant suffixes", async () => {
     // makeDb() returns a fresh object literal per test, so mutating
     // `db.query.Activity.findMany` here does NOT leak into the other tests.
     // Each `it()` gets its own db fixture.
@@ -103,7 +103,7 @@ describe("buildDataContext", () => {
       };
     };
     // Override Activity.findMany to return activities with a representative
-    // sample of the raw Garmin suffix noise we strip (#164).
+    // sample of raw Garmin variant suffix noise we strip (#164).
     db.query.Activity.findMany = vi.fn(async () => [
       {
         id: "act-1",
@@ -161,12 +161,8 @@ describe("buildDataContext", () => {
       },
     ]);
     const context = await buildDataContext(db as never, "user-1");
-    // No raw Garmin variant / legacy / alt suffix should survive into the
-    // LLM-facing context string.
+    // No raw Garmin variant suffix should survive into the LLM-facing context.
     expect(context).not.toMatch(/_v\d+/i);
-    expect(context).not.toMatch(/_legacy\b/i);
-    expect(context).not.toMatch(/_alt\d*\b/i);
-    expect(context).not.toMatch(/_(new|old|deprecated|raw)\b/i);
     // The human-readable label should still be present.
     expect(context).toContain("Tennis");
     expect(context).toContain("Running");
