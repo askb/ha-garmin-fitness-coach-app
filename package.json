@@ -1,6 +1,6 @@
 {
   "name": "create-t3-turbo",
-  "version": "0.17.2",
+  "version": "0.17.4",
   "private": true,
   "engines": {
     "node": "^22.21.0",
@@ -23,7 +23,8 @@
     "lint:ws": "pnpm dlx sherif@latest",
     "postinstall": "pnpm lint:ws",
     "typecheck": "turbo run typecheck",
-    "ui-add": "turbo run ui-add"
+    "ui-add": "turbo run ui-add",
+    "test": "turbo run test"
   },
   "devDependencies": {
     "@acme/prettier-config": "workspace:*",

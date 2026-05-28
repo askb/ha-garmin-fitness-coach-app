@@ -1,10 +1,30 @@
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 
 import { eq } from "@acme/db";
 import { CreateProfileSchema, Profile } from "@acme/db/schema";
 
 import { protectedProcedure } from "../trpc";
+
+export function supportedTimezones(): string[] {
+  if (typeof Intl.supportedValuesOf !== "function") return ["UTC"];
+  return Intl.supportedValuesOf("timeZone");
+}
+
+export function isSupportedTimezone(timezone: string): boolean {
+  return timezone === "UTC" || supportedTimezones().includes(timezone);
+}
+
+function validateTimezone(timezone: string): string {
+  if (!isSupportedTimezone(timezone)) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Unsupported IANA timezone: ${timezone}`,
+    });
+  }
+  return timezone;
+}
 
 export const profileRouter = {
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -71,6 +91,29 @@ export const profileRouter = {
         .update(Profile)
         .set(input)
         .where(eq(Profile.userId, ctx.session.user.id));
+    }),
+
+  updateTimezone: protectedProcedure
+    .input(z.object({ timezone: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const timezone = validateTimezone(input.timezone);
+      const existing = await ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, ctx.session.user.id),
+      });
+
+      if (existing) {
+        await ctx.db
+          .update(Profile)
+          .set({ timezone })
+          .where(eq(Profile.userId, ctx.session.user.id));
+        return { ...existing, timezone };
+      }
+
+      const [created] = await ctx.db
+        .insert(Profile)
+        .values({ userId: ctx.session.user.id, timezone })
+        .returning();
+      return created;
     }),
 
   updateHealth: protectedProcedure

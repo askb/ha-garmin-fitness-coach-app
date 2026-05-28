@@ -202,6 +202,14 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
       normalizePayload(query.data as TrendPayload | TrendPoint[] | undefined),
     [query.data],
   );
+  const source = Array.isArray(query.data)
+    ? "audit"
+    : (query.data?.source ?? "audit");
+  const title = source === "activity" ? "Training streak" : "Plan adherence";
+  const sourceLabel =
+    source === "activity"
+      ? "Based on Garmin activities"
+      : "Based on coach plans";
   const cells = useMemo(
     () => buildCells(points, days, timezone),
     [days, points, timezone],
@@ -238,9 +246,9 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-muted-foreground text-sm font-medium">
-            Adherence trend
+            {sourceLabel}
           </p>
-          <h2 className="mt-1 text-xl font-semibold">Training consistency</h2>
+          <h2 className="mt-1 text-xl font-semibold">{title}</h2>
         </div>
         <div
           className="bg-muted inline-flex w-fit rounded-full p-1"
