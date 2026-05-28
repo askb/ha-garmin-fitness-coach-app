@@ -75,4 +75,11 @@ describe("chat history rendering cleanup", () => {
 
     expect(twice).toBe(once);
   });
+
+  it("restarts numbering on visually separated ordered-list blocks", () => {
+    const input = "1. a\n11. b\n\nsome paragraph\n\n15. c\n16. d";
+    expect(normalizeAssistantMessageContent(input)).toBe(
+      "1. a\n2. b\n\nsome paragraph\n\n1. c\n2. d",
+    );
+  });
 });

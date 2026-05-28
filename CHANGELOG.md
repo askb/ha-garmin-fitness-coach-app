@@ -10,6 +10,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.8] - 2026-05-29
+
+### Fixed
+
+- Humanized Garmin activity slugs at the activity API boundary so Home/Activities views no longer surface raw versioned names like `Tennis_v2`.
+- Fixed adherence mixed-window fallback so planless workout days can always be overlaid by same-window Garmin activities.
+- Improved chat ordered-list renumbering to handle realistic LLM output with blank lines and short paragraph separators while staying idempotent.
+- Increased dashboard version badge contrast/opacity for HA dark-theme visibility without changing Settings placement.
+
 ## [0.17.6] - 2026-05-28
 
 ### Fixed

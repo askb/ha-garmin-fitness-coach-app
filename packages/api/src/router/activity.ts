@@ -5,6 +5,7 @@ import { and, desc, eq, gte, lte } from "@acme/db";
 import { Activity, Profile } from "@acme/db/schema";
 import { analyzeRunningForm } from "@acme/engine";
 
+import { humanizeActivityName } from "../lib/humanize";
 import { protectedProcedure } from "../trpc";
 
 function getDateString(daysAgo: number): string {
@@ -25,6 +26,20 @@ const FUTURE_ROW_HORIZON_MS = 26 * 60 * 60 * 1000;
 
 function futureRowCutoff(): Date {
   return new Date(Date.now() + FUTURE_ROW_HORIZON_MS);
+}
+
+export function humanizeActivityRow<
+  T extends { sportType?: string | null; subType?: string | null },
+>(activity: T): T {
+  return {
+    ...activity,
+    sportType: activity.sportType
+      ? humanizeActivityName(activity.sportType)
+      : activity.sportType,
+    subType: activity.subType
+      ? humanizeActivityName(activity.subType)
+      : activity.subType,
+  };
 }
 
 export const activityRouter = {
@@ -85,9 +100,12 @@ export const activityRouter = {
       // Hide tiny incidental activities (< 10 min AND < 500 m). Garmin's
       // auto-detected "phantom walks" otherwise dominate the list and
       // bury real workouts (#158). Same filter as `getRecent` above.
-      return activities.filter(
-        (a) => (a.durationMinutes ?? 0) >= 10 || (a.distanceMeters ?? 0) >= 500,
-      );
+      return activities
+        .filter(
+          (a) =>
+            (a.durationMinutes ?? 0) >= 10 || (a.distanceMeters ?? 0) >= 500,
+        )
+        .map(humanizeActivityRow);
     }),
 
   getDetail: protectedProcedure
@@ -119,10 +137,10 @@ export const activityRouter = {
         );
       }
 
-      return {
+      return humanizeActivityRow({
         ...activity,
         runningFormScore,
-      };
+      });
     }),
 
   getRecent: protectedProcedure.query(async ({ ctx }) => {
@@ -164,6 +182,8 @@ export const activityRouter = {
     const meaningful = activities.filter(
       (a) => (a.durationMinutes ?? 0) >= 10 || (a.distanceMeters ?? 0) >= 500,
     );
-    return (meaningful.length > 0 ? meaningful : activities).slice(0, 5);
+    return (meaningful.length > 0 ? meaningful : activities)
+      .slice(0, 5)
+      .map(humanizeActivityRow);
   }),
 } satisfies TRPCRouterRecord;

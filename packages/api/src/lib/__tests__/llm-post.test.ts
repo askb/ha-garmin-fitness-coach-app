@@ -18,6 +18,20 @@ describe("renumberOrderedLists", () => {
     );
   });
 
+  it("keeps list numbering over blank separators within a block", () => {
+    expect(renumberOrderedLists("1. first\n\n9. second\n\n10. third")).toBe(
+      "1. first\n\n2. second\n\n3. third",
+    );
+  });
+
+  it("supports continuous numbering through short bridge paragraphs", () => {
+    expect(
+      renumberOrderedLists("1. first\n\nBridge text\n\n9. second", {
+        resetEachBlock: false,
+      }),
+    ).toBe("1. first\n\nBridge text\n\n2. second");
+  });
+
   it("preserves nested ordered-list counters", () => {
     expect(renumberOrderedLists("1. Main\n   1. Sub\n2. Next")).toBe(
       "1. Main\n   1. Sub\n2. Next",
