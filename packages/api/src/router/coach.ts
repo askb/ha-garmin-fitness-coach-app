@@ -438,6 +438,32 @@ function plannedDurationMin(
   return workout?.targetDurationMin ?? workout?.targetDurationMax ?? null;
 }
 
+function hasStructuredWorkoutPlan(
+  workout: typeof DailyWorkout.$inferSelect | null | undefined,
+): boolean {
+  if (!workout) return false;
+  if (workout.weeklyPlanId) return true;
+
+  const { structure } = workout;
+  if (Array.isArray(structure)) return structure.length > 0;
+  if (structure && typeof structure === "object") {
+    return Object.keys(structure).length > 0;
+  }
+
+  return false;
+}
+
+function isActionableWorkoutPlan(
+  workout: typeof DailyWorkout.$inferSelect | null | undefined,
+): boolean {
+  if (!workout) return false;
+  return (
+    ["completed", "partial", "missed", "planned"].includes(
+      workout.status ?? "",
+    ) && hasStructuredWorkoutPlan(workout)
+  );
+}
+
 function trendPointFromWorkout(
   date: string,
   workout: typeof DailyWorkout.$inferSelect | null | undefined,
@@ -467,7 +493,11 @@ async function fallbackAdherencePointsFromWorkouts(args: {
   userId: string;
   startDate: string;
   endDate: string;
-}): Promise<AdherencePoint[]> {
+}): Promise<{
+  points: AdherencePoint[];
+  actionablePlanDays: number;
+  planlessDates: string[];
+}> {
   const workouts = await args.db.query.DailyWorkout.findMany({
     where: and(
       eq(DailyWorkout.userId, args.userId),
@@ -476,14 +506,26 @@ async function fallbackAdherencePointsFromWorkouts(args: {
     ),
     orderBy: asc(DailyWorkout.date),
   });
-  if (workouts.length === 0) return [];
+  if (workouts.length === 0) {
+    return { points: [], actionablePlanDays: 0, planlessDates: [] };
+  }
 
   const workoutsByDate = new Map(
     workouts.map((workout) => [auditDate(workout.date), workout]),
   );
-  return dateRange(args.startDate, args.endDate).map((date) =>
-    trendPointFromWorkout(date, workoutsByDate.get(date)),
-  );
+  let actionablePlanDays = 0;
+  const planlessDates: string[] = [];
+  const points = dateRange(args.startDate, args.endDate).map((date) => {
+    const workout = workoutsByDate.get(date);
+    if (isActionableWorkoutPlan(workout)) {
+      actionablePlanDays += 1;
+    } else {
+      planlessDates.push(date);
+    }
+    return trendPointFromWorkout(date, workout);
+  });
+
+  return { points, actionablePlanDays, planlessDates };
 }
 
 async function fallbackAdherencePointsFromActivities(args: {
@@ -988,19 +1030,43 @@ export const coachRouter = {
         orderBy: asc(schema.RecommendationAudit.date),
       });
       let source: "audit" | "workout" | "activity" = "audit";
+      let mixedSources: boolean | undefined;
       let points = rows
         .map(trendPointFromAudit)
         .filter((point) => point.date >= startDate && point.date <= endDate)
         .sort((a, b) => a.date.localeCompare(b.date));
 
       if (points.length === 0) {
-        points = await fallbackAdherencePointsFromWorkouts({
+        const workoutFallback = await fallbackAdherencePointsFromWorkouts({
           db: ctx.db,
           userId,
           startDate,
           endDate,
         });
+        points = workoutFallback.points;
         source = points.length > 0 ? "workout" : "activity";
+
+        if (workoutFallback.actionablePlanDays === 0) {
+          points = [];
+          source = "activity";
+        } else if (workoutFallback.planlessDates.length > 0) {
+          const activityPoints = await fallbackAdherencePointsFromActivities({
+            db: ctx.db,
+            userId,
+            startDate,
+            endDate,
+            timezone: profile?.timezone,
+          });
+          const activityPointsByDate = new Map(
+            activityPoints.map((point) => [point.date, point]),
+          );
+          points = points.map((point) =>
+            workoutFallback.planlessDates.includes(point.date)
+              ? (activityPointsByDate.get(point.date) ?? point)
+              : point,
+          );
+          mixedSources = true;
+        }
       }
 
       if (points.length === 0) {
@@ -1013,6 +1079,11 @@ export const coachRouter = {
         });
       }
 
-      return { points, summary: adherenceSummary(points), source };
+      return {
+        points,
+        summary: adherenceSummary(points),
+        source,
+        ...(mixedSources ? { mixedSources } : {}),
+      };
     }),
 } satisfies TRPCRouterRecord;

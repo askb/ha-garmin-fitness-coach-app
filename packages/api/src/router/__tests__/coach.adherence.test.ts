@@ -5,15 +5,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { appRouter } from "../../root";
 
-const TEST_USER_ID = "adherence-user";
+const TEST_USER_ID = "coach-adherence-user";
 
 function makeSession() {
   const now = new Date("2026-05-03T12:00:00Z");
   return {
     user: {
       id: TEST_USER_ID,
-      name: "Adherence User",
-      email: "adherence@example.test",
+      name: "Coach Adherence User",
+      email: "coach-adherence@example.test",
       emailVerified: true,
       createdAt: now,
       updatedAt: now,
@@ -63,148 +63,41 @@ function makeDb(args: {
   };
 }
 
-describe("coach adherence fallback", () => {
+describe("coach adherence cascade", () => {
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  it("prefers audit rows over workout and activity fallbacks", async () => {
-    vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
-    const db = makeDb({
-      auditRows: [
-        {
-          date: "2026-05-03",
-          kind: "workout_complete",
-          payload: { actualDurationMin: 42, actualIds: ["audit-activity"] },
-          confidence: 0.8,
-          relatedActivityIds: ["audit-activity"],
-        },
-      ],
-      workoutRows: [
-        { date: "2026-05-03", status: "missed", targetDurationMin: 30 },
-      ],
-      activityRows: [
-        {
-          id: "activity-1",
-          userId: TEST_USER_ID,
-          startedAt: new Date("2026-05-03T01:00:00Z"),
-          durationMinutes: 60,
-        },
-      ],
-    });
-
-    const result = await createCaller(db).coach.adherenceTrend({
-      userId: TEST_USER_ID,
-      days: 1,
-    });
-
-    expect(result.source).toBe("audit");
-    expect(result.points[0]).toMatchObject({
-      status: "completed",
-      actualIds: ["audit-activity"],
-    });
-    expect(db.query.DailyWorkout.findMany).not.toHaveBeenCalled();
-    expect(db.query.Activity.findMany).not.toHaveBeenCalled();
-  });
-
-  it("uses workout fallback before activity fallback", async () => {
-    vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
-    const db = makeDb({
-      workoutRows: [
-        {
-          date: "2026-05-03",
-          status: "completed",
-          targetDurationMin: 45,
-          weeklyPlanId: "plan-1",
-          structure: [{ step: "run" }],
-        },
-      ],
-      activityRows: [
-        {
-          id: "activity-1",
-          userId: TEST_USER_ID,
-          startedAt: new Date("2026-05-03T01:00:00Z"),
-          durationMinutes: 60,
-        },
-      ],
-    });
-
-    const result = await createCaller(db).coach.adherenceTrend({
-      userId: TEST_USER_ID,
-      days: 1,
-    });
-
-    expect(result.source).toBe("workout");
-    expect(result.points[0]).toMatchObject({
-      status: "completed",
-      plannedDurationMin: 45,
-      actualDurationMin: 45,
-    });
-    expect(db.query.Activity.findMany).not.toHaveBeenCalled();
-  });
-
-  it("falls back to timezone-local Garmin activity days", async () => {
-    vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
-    const db = makeDb({
-      activityRows: [
-        {
-          id: "activity-1",
-          userId: TEST_USER_ID,
-          startedAt: new Date("2026-05-02T15:30:00Z"),
-          durationMinutes: 31.4,
-        },
-        {
-          id: "activity-2",
-          userId: TEST_USER_ID,
-          startedAt: new Date("2026-05-02T22:00:00Z"),
-          durationMinutes: 20,
-        },
-      ],
-    });
-
-    const result = await createCaller(db).coach.adherenceTrend({
-      userId: TEST_USER_ID,
-      days: 2,
-    });
-
-    expect(result.source).toBe("activity");
-    expect(result.points).toEqual([
-      {
-        date: "2026-05-02",
-        status: "no-plan",
-        plannedDurationMin: null,
-        actualDurationMin: 0,
-        confidence: 0,
-        actualIds: [],
-      },
-      {
-        date: "2026-05-03",
-        status: "completed",
-        plannedDurationMin: null,
-        actualDurationMin: 51,
-        confidence: 0,
-        actualIds: ["activity-1", "activity-2"],
-      },
-    ]);
-  });
-
-  it("excludes no-plan days from adherence percentages", async () => {
+  it("falls back to Garmin activity when workout rows are all planless", async () => {
     vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
     const db = makeDb({
       workoutRows: [
         {
           date: "2026-05-01",
-          status: "completed",
-          targetDurationMin: 45,
-          weeklyPlanId: "plan-1",
-          structure: [{ step: "run" }],
+          status: null,
+          weeklyPlanId: null,
+          structure: null,
         },
         {
-          date: "2026-05-03",
-          status: "missed",
-          targetDurationMin: 45,
-          weeklyPlanId: "plan-1",
-          structure: [{ step: "run" }],
+          date: "2026-05-02",
+          status: "no-plan",
+          weeklyPlanId: null,
+          structure: [],
+        },
+        { date: "2026-05-03", status: "", weeklyPlanId: null, structure: null },
+      ],
+      activityRows: [
+        {
+          id: "activity-1",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-01T02:00:00Z"),
+          durationMinutes: 40,
+        },
+        {
+          id: "activity-2",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-03T03:00:00Z"),
+          durationMinutes: 30,
         },
       ],
     });
@@ -214,12 +107,120 @@ describe("coach adherence fallback", () => {
       days: 3,
     });
 
+    expect(result.source).toBe("activity");
+    expect(result).not.toHaveProperty("mixedSources");
     expect(result.points.map((point) => point.status)).toEqual([
       "completed",
       "no-plan",
+      "completed",
+    ]);
+    expect(result.summary.completedPct).toBe(100);
+  });
+
+  it("overlays Garmin activity onto planless days when the window mixes planned and no-plan workouts", async () => {
+    vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
+    const db = makeDb({
+      workoutRows: [
+        {
+          date: "2026-05-01",
+          status: "completed",
+          targetDurationMin: 45,
+          weeklyPlanId: "plan-1",
+          structure: [{ step: "warmup" }],
+        },
+        {
+          date: "2026-05-02",
+          status: "no-plan",
+          weeklyPlanId: null,
+          structure: [],
+        },
+        {
+          date: "2026-05-03",
+          status: "missed",
+          targetDurationMin: 30,
+          weeklyPlanId: "plan-1",
+          structure: [{ step: "run" }],
+        },
+      ],
+      activityRows: [
+        {
+          id: "activity-2",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-02T02:30:00Z"),
+          durationMinutes: 32,
+        },
+      ],
+    });
+
+    const result = await createCaller(db).coach.adherenceTrend({
+      userId: TEST_USER_ID,
+      days: 3,
+    });
+
+    expect(result.source).toBe("workout");
+    expect(result.mixedSources).toBe(true);
+    expect(result.points).toEqual([
+      expect.objectContaining({
+        date: "2026-05-01",
+        status: "completed",
+        plannedDurationMin: 45,
+      }),
+      expect.objectContaining({
+        date: "2026-05-02",
+        status: "completed",
+        plannedDurationMin: null,
+        actualDurationMin: 32,
+        actualIds: ["activity-2"],
+      }),
+      expect.objectContaining({
+        date: "2026-05-03",
+        status: "missed",
+        plannedDurationMin: 30,
+      }),
+    ]);
+    expect(result.summary.completedPct).toBe(66.67);
+    expect(result.summary.missedPct).toBe(33.33);
+  });
+
+  it("keeps pure plan windows on the workout path without mixedSources", async () => {
+    vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
+    const db = makeDb({
+      workoutRows: [
+        {
+          date: "2026-05-02",
+          status: "completed",
+          targetDurationMin: 45,
+          weeklyPlanId: "plan-1",
+          structure: [{ step: "warmup" }],
+        },
+        {
+          date: "2026-05-03",
+          status: "missed",
+          targetDurationMin: 30,
+          weeklyPlanId: "plan-1",
+          structure: [{ step: "run" }],
+        },
+      ],
+      activityRows: [
+        {
+          id: "activity-1",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-03T01:00:00Z"),
+          durationMinutes: 50,
+        },
+      ],
+    });
+
+    const result = await createCaller(db).coach.adherenceTrend({
+      userId: TEST_USER_ID,
+      days: 2,
+    });
+
+    expect(result.source).toBe("workout");
+    expect(result).not.toHaveProperty("mixedSources");
+    expect(result.points.map((point) => point.status)).toEqual([
+      "completed",
       "missed",
     ]);
-    expect(result.summary.completedPct).toBe(50);
-    expect(result.summary.missedPct).toBe(50);
   });
 });
