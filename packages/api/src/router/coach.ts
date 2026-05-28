@@ -448,10 +448,7 @@ function trendPointFromWorkout(
     date,
     status,
     plannedDurationMin: planned,
-    actualDurationMin:
-      status === "completed" || status === "partial" || status === "extra"
-        ? (planned ?? 0)
-        : 0,
+    actualDurationMin: status === "completed" ? (planned ?? 0) : 0,
     confidence: 0,
     actualIds: [],
   };

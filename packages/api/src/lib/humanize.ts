@@ -5,6 +5,7 @@
 export function humanizeActivityName(slug: string): string {
   return slug
     .replace(/_v\d+$/i, "")
+    .replace(/_(legacy|alt|alt\d+|new|old|deprecated|raw)$/i, "")
     .replace(/_/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }

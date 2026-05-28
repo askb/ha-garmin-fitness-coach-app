@@ -10,6 +10,8 @@ describe("humanizeActivityName", () => {
     ["tennis_v2", "Tennis"],
     ["open_water_swim", "Open Water Swim"],
     ["Run", "Run"],
+    ["running_legacy", "Running"],
+    ["cycling_alt2", "Cycling"],
     ["", ""],
   ])("humanizes %s", (slug, expected) => {
     expect(humanizeActivityName(slug)).toBe(expected);

@@ -18,6 +18,12 @@ describe("renumberOrderedLists", () => {
     );
   });
 
+  it("preserves nested ordered-list counters", () => {
+    expect(renumberOrderedLists("1. Main\n   1. Sub\n2. Next")).toBe(
+      "1. Main\n   1. Sub\n2. Next",
+    );
+  });
+
   it("leaves bulleted lists untouched", () => {
     expect(renumberOrderedLists("* foo\n- bar\n1. baz")).toBe(
       "* foo\n- bar\n1. baz",

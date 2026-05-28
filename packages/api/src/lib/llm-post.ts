@@ -14,18 +14,20 @@ export function renumberOrderedLists(text: string): string {
 
   return lines
     .map((line) => {
-      const match = /^(\s*)\d+\.\s+(.*)$/.exec(line);
+      const match = /^(\d+)\.\s+(.*)$/.exec(line);
       if (!match) {
-        inList = false;
-        expected = 1;
+        if (line.trim() === "" || !/^\s+/.test(line)) {
+          inList = false;
+          expected = 1;
+        }
         return line;
       }
 
-      const [, indent, content] = match;
+      const [, , content] = match;
       const number = inList ? expected : 1;
       inList = true;
       expected = number + 1;
-      return `${indent}${number}. ${content}`;
+      return `${number}. ${content}`;
     })
     .join("\n");
 }
