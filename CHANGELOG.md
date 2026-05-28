@@ -10,6 +10,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.1] - 2026-05-28
+
+### Fixed
+
+- TodayRecommendationCard: Accept/Skip/Defer buttons now align inside the card (was overflowing viewport)
+- AdherenceTrendCard: empty-state copy clarified; falls back to deriving adherence from daily_workout history for users without RecommendationAudit rows yet
+- TodayRecommendationCard: removed duplicate rule headline badge
+- Coach LLM: enforce consecutive ordered-list numbering via system prompt + server-side renumberOrderedLists post-processor
+- Coach LLM: humanize activity slugs (no more "Tennis_v2" leaking into prose)
+
 ## [0.17.0] - 2026-05-28 — AI-native coach loop
 
 ### Added
