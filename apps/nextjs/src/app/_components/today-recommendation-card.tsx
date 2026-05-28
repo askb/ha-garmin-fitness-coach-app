@@ -379,10 +379,10 @@ export function TodayRecommendationCard({
         </div>
       </details>
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-5 flex gap-2">
         <Button
           type="button"
-          className="w-full bg-green-600 text-white hover:bg-green-500"
+          className="flex-1 bg-green-600 text-white hover:bg-green-500"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => acceptMutation.mutate(actionInput)}
           data-testid="recommendation-accept"
@@ -397,7 +397,7 @@ export function TodayRecommendationCard({
         <Button
           type="button"
           variant="secondary"
-          className="w-full"
+          className="flex-1"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => skipMutation.mutate(actionInput)}
           data-testid="recommendation-skip"
@@ -412,7 +412,7 @@ export function TodayRecommendationCard({
         <Button
           type="button"
           variant="outline"
-          className="w-full"
+          className="flex-1"
           disabled={isAnyMutationPending || !auditId}
           onClick={openDeferPicker}
           data-testid="recommendation-defer"
