@@ -4,6 +4,7 @@
 import type { Recommendation } from "@acme/engine";
 
 import type { OllamaMessage } from "./ollama";
+import { humanizeActivityName } from "./humanize";
 import { ollamaChat } from "./ollama";
 import { openclawChat } from "./openclaw";
 
@@ -36,7 +37,7 @@ function buildPrompt(input: RecommendationFramingInput): string {
     "Return plain text only; no JSON, markdown tables, or structured fields.",
     `Date: ${input.date}`,
     `Action: ${input.recommendation.action}`,
-    `Workout type: ${input.recommendation.workoutType ?? "none"}`,
+    `Workout type: ${input.recommendation.workoutType ? humanizeActivityName(input.recommendation.workoutType) : "none"}`,
     `Intensity: ${input.recommendation.intensity ?? "none"}`,
     `Hard blocks: ${input.recommendation.hardBlocks.join(", ") || "none"}`,
     `Deterministic reason: ${input.recommendation.reason}`,

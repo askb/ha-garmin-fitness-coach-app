@@ -264,7 +264,8 @@ export function AdherenceTrendCard({ userId }: { userId: string }) {
 
       {points.length === 0 ? (
         <p className="text-muted-foreground mt-5 rounded-xl border border-dashed p-4 text-sm">
-          Start your first session to begin tracking adherence.
+          Adherence tracking starts after your first coach recommendation. Open
+          today&apos;s recommendation above to begin.
         </p>
       ) : (
         <>

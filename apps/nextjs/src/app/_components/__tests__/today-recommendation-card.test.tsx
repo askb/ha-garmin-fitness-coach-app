@@ -159,7 +159,7 @@ describe("TodayRecommendationCard", () => {
     setupMutations();
   });
 
-  it("renders the recommendation, hard block, and fired rule trace", () => {
+  it("renders the recommendation and fired rule trace without duplicate headline badges", () => {
     mockRecommendation();
 
     render(
@@ -171,18 +171,19 @@ describe("TodayRecommendationCard", () => {
     expect(
       screen.getByText("Your readiness supports hard intervals today."),
     ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Hard blocks")).toBeNull();
     expect(
       screen.getAllByText(
         "Readiness is low, so intensity should be reduced today.",
-      )[0],
-    ).toBeInTheDocument();
+      ),
+    ).toHaveLength(1);
 
     fireEvent.click(screen.getByText("Why"));
 
     expect(
-      screen.getAllByText(
+      screen.getByText(
         "Readiness is low, so intensity should be reduced today.",
-      )[1],
+      ),
     ).toBeVisible();
     expect(
       screen.getByText("Plan day — no signals against your scheduled workout."),

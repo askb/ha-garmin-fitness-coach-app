@@ -116,12 +116,6 @@ function confidenceClass(level: ReturnType<typeof confidenceLevel>): string {
   return "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300";
 }
 
-function hardBlockLabel(ruleId: string, rules: RuleTrace[]): string {
-  return (
-    rules.find((rule) => rule.ruleId === ruleId)?.message ?? titleCase(ruleId)
-  );
-}
-
 function shiftIsoDay(value: string, days: number): string {
   const shifted = new Date(`${value}T12:00:00Z`);
   shifted.setUTCDate(shifted.getUTCDate() + days);
@@ -318,20 +312,6 @@ export function TodayRecommendationCard({
         </span>
       </div>
 
-      {recommendation.hardBlocks.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Hard blocks">
-          {recommendation.hardBlocks.map((ruleId) => (
-            <span
-              key={ruleId}
-              className="inline-flex items-center gap-1 rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-700 dark:text-red-300"
-            >
-              <span aria-hidden="true">⛔</span>
-              {hardBlockLabel(ruleId, recommendation.rules)}
-            </span>
-          ))}
-        </div>
-      )}
-
       <details
         className="mt-4 rounded-xl border p-3"
         data-testid="rule-trace-accordion"
@@ -379,10 +359,10 @@ export function TodayRecommendationCard({
         </div>
       </details>
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-5 flex gap-2">
         <Button
           type="button"
-          className="w-full bg-green-600 text-white hover:bg-green-500"
+          className="flex-1 bg-green-600 text-white hover:bg-green-500"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => acceptMutation.mutate(actionInput)}
           data-testid="recommendation-accept"
@@ -397,7 +377,7 @@ export function TodayRecommendationCard({
         <Button
           type="button"
           variant="secondary"
-          className="w-full"
+          className="flex-1"
           disabled={isAnyMutationPending || !auditId}
           onClick={() => skipMutation.mutate(actionInput)}
           data-testid="recommendation-skip"
@@ -412,7 +392,7 @@ export function TodayRecommendationCard({
         <Button
           type="button"
           variant="outline"
-          className="w-full"
+          className="flex-1"
           disabled={isAnyMutationPending || !auditId}
           onClick={openDeferPicker}
           data-testid="recommendation-defer"
