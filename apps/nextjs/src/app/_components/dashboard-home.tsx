@@ -2,12 +2,14 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { env } from "~/env";
 import {
   formatDateInTz,
   getGreeting,
   useUserTimezone,
 } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
+import { VersionBadge } from "~/components/version-badge";
 import { AdherenceTrendCard } from "./adherence-trend-card";
 import { BottomNav } from "./bottom-nav";
 import { DailyOutlookCard } from "./daily-outlook-card";
@@ -23,6 +25,8 @@ export function DashboardHome({ userId }: { userId: string }) {
   const timezone = useUserTimezone();
   const greeting = getGreeting(new Date(), timezone);
   const queryClient = useQueryClient();
+  const version = env.NEXT_PUBLIC_APP_VERSION;
+  const buildTime = env.NEXT_PUBLIC_BUILD_TIME;
 
   const readiness = useQuery(trpc.readiness.getToday.queryOptions());
   const workout = useQuery(trpc.workout.getToday.queryOptions());
@@ -300,6 +304,12 @@ export function DashboardHome({ userId }: { userId: string }) {
       >
         🏋️
       </Link>
+
+      <VersionBadge
+        version={version}
+        buildTime={buildTime}
+        className="fixed right-4 bottom-4 z-40"
+      />
 
       <BottomNav />
     </div>

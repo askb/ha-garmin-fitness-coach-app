@@ -43,6 +43,13 @@ jest.mock("~/trpc/react", () => ({
   }),
 }));
 
+jest.mock("~/env", () => ({
+  env: {
+    NEXT_PUBLIC_APP_VERSION: "0.17.6",
+    NEXT_PUBLIC_BUILD_TIME: "2026-05-28T10:00:00.000Z",
+  },
+}));
+
 jest.mock("@tanstack/react-query", () => ({
   useMutation: (...args: unknown[]) => mockUseMutation(...args),
   useQuery: (...args: unknown[]) => mockUseQuery(...args),

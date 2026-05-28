@@ -8,6 +8,7 @@ import type { AgentType } from "../lib/agent-prompts";
 import type { OllamaMessage } from "../lib/ollama";
 import { getAgentPrompt } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
+import { humanizeActivityName } from "../lib/humanize";
 import { renumberOrderedLists } from "../lib/llm-post";
 import { ollamaChat } from "../lib/ollama";
 import { openclawChat } from "../lib/openclaw";
@@ -29,6 +30,7 @@ let _aiInFlight = false;
 let _aiAbortController: AbortController | null = null;
 
 const AI_TIMEOUT_MS = 45_000; // 45s — HA Conversation API on RPi4 can be slow
+const ACTIVITY_SLUG_PATTERN = /\b[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+\b/g;
 
 /**
  * Quick data-driven fallback when Ollama is unreachable.
@@ -56,6 +58,24 @@ function generateFallbackResponse(
   return lines.join("\n");
 }
 
+function humanizeActivityNamesInText(text: string): string {
+  return text.replace(ACTIVITY_SLUG_PATTERN, (token) =>
+    humanizeActivityName(token),
+  );
+}
+
+export function normalizeAssistantMessageContent(content: string): string {
+  return renumberOrderedLists(humanizeActivityNamesInText(content));
+}
+
+function mapChatMessage<T extends { role: string; content: string }>(message: T): T {
+  if (message.role !== "assistant") return message;
+  return {
+    ...message,
+    content: normalizeAssistantMessageContent(message.content),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -69,7 +89,7 @@ export const chatRouter = {
         orderBy: desc(ChatMessage.createdAt),
         limit: input.limit,
       });
-      return messages.reverse();
+      return messages.reverse().map(mapChatMessage);
     }),
 
   sendMessage: protectedProcedure
@@ -170,7 +190,7 @@ export const chatRouter = {
         }
 
         // 6. Normalize common LLM markdown issues, then append disclaimer
-        responseContent = renumberOrderedLists(responseContent);
+        responseContent = normalizeAssistantMessageContent(responseContent);
         const disclaimer =
           "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
           "Individual results may vary. Consult a qualified healthcare professional " +

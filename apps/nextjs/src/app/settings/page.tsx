@@ -14,6 +14,8 @@ import {
   useUserTimezone,
 } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
+import { env } from "~/env";
+import { VersionBadge } from "~/components/version-badge";
 import { BottomNav } from "../_components/bottom-nav";
 
 const HEALTH_CONDITIONS = [
@@ -1053,6 +1055,9 @@ function GarminConnection() {
 }
 
 export default function SettingsPage() {
+  const version = env.NEXT_PUBLIC_APP_VERSION;
+  const buildTime = env.NEXT_PUBLIC_BUILD_TIME;
+
   return (
     <main className="mx-auto max-w-lg space-y-6 px-4 pt-6 pb-24">
       <h1 className="pl-12 text-2xl font-bold">Settings</h1>
@@ -1087,6 +1092,10 @@ export default function SettingsPage() {
             exercise program. Individual results may vary.
           </p>
         </div>
+      </div>
+
+      <div className="pb-2 text-center">
+        <VersionBadge version={version} buildTime={buildTime} fullText />
       </div>
 
       <BottomNav />
