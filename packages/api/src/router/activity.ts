@@ -28,6 +28,10 @@ function futureRowCutoff(): Date {
   return new Date(Date.now() + FUTURE_ROW_HORIZON_MS);
 }
 
+/**
+ * Humanize raw DB sport/subtype slugs at the API boundary for UI consumers.
+ * Returns a shallow copy of the provided row with transformed name fields.
+ */
 export function humanizeActivityRow<
   T extends { sportType?: string | null; subType?: string | null },
 >(activity: T): T {

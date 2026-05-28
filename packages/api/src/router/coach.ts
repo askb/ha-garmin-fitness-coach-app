@@ -457,8 +457,13 @@ function isActionableWorkoutPlan(
   workout: typeof DailyWorkout.$inferSelect | null | undefined,
 ): boolean {
   if (!workout) return false;
+  const historicalStatuses: DailyWorkoutStatus[] = [
+    "completed",
+    "partial",
+    "missed",
+  ];
   return (
-    ["completed", "partial", "missed"].includes(workout.status ?? "") &&
+    historicalStatuses.includes(workout.status ?? "") &&
     hasStructuredWorkoutPlan(workout)
   );
 }
