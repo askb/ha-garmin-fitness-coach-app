@@ -8,6 +8,7 @@ import type { AgentType } from "../lib/agent-prompts";
 import type { OllamaMessage } from "../lib/ollama";
 import { getAgentPrompt } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
+import { renumberOrderedLists } from "../lib/llm-post";
 import { ollamaChat } from "../lib/ollama";
 import { openclawChat } from "../lib/openclaw";
 import { protectedProcedure } from "../trpc";
@@ -168,7 +169,8 @@ export const chatRouter = {
           }
         }
 
-        // 6. Append medical disclaimer
+        // 6. Normalize common LLM markdown issues, then append disclaimer
+        responseContent = renumberOrderedLists(responseContent);
         const disclaimer =
           "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
           "Individual results may vary. Consult a qualified healthcare professional " +

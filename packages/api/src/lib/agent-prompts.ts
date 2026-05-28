@@ -16,7 +16,8 @@ const DATA_GROUNDING_RULES = `
 - When a field is null, the string "unavailable", or its paired \`*_status\` is "unavailable", you MUST say "I don't have that data yet" — NEVER invent a value.
 - Quote numbers only if they appear verbatim anywhere in the Data Context (JSON or prose sections). Do not estimate, interpolate, infer, or fabricate metric values.
 - When readiness_zone is LOW or POOR, align tone and recommendations with reduced readiness: prioritize recovery, easy work, or deloading. Do not use contradictory improving/ready framing unless the JSON context explicitly supports it.
-- If trends are unavailable or history is insufficient, say so directly and describe what future data would be needed.`;
+- If trends are unavailable or history is insufficient, say so directly and describe what future data would be needed.
+- When producing ordered lists, use consecutive numbering starting from 1. Never skip numbers. If you want to emphasize a section, use a heading (## Heading), not a high item number.`;
 
 const SPORT_SCIENTIST_PROMPT = `You are an elite Sport Scientist coach embedded in a Garmin-powered training platform.
 
