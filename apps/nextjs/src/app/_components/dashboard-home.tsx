@@ -2,7 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
+import {
+  formatDateInTz,
+  getGreeting,
+  useUserTimezone,
+} from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { AdherenceTrendCard } from "./adherence-trend-card";
 import { BottomNav } from "./bottom-nav";
@@ -17,6 +21,7 @@ import { WorkoutCard } from "./workout-card";
 export function DashboardHome({ userId }: { userId: string }) {
   const trpc = useTRPC();
   const timezone = useUserTimezone();
+  const greeting = getGreeting(new Date(), timezone);
   const queryClient = useQueryClient();
 
   const readiness = useQuery(trpc.readiness.getToday.queryOptions());
@@ -141,7 +146,7 @@ export function DashboardHome({ userId }: { userId: string }) {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h1 className="pl-12 text-2xl font-bold">Good morning 👋</h1>
+        <h1 className="pl-12 text-2xl font-bold">{greeting}</h1>
         <p className="text-muted-foreground text-sm">
           {formatDateInTz(new Date(), timezone, {
             weekday: "long",

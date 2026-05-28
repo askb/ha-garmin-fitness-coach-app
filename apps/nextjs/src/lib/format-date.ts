@@ -80,6 +80,20 @@ export function formatDateInTz(
   }).format(d);
 }
 
+export function getGreeting(date: Date, timezone: string): string {
+  const rawHour = new Intl.DateTimeFormat("en-US", {
+    timeZone: timezone,
+    hour: "numeric",
+    hour12: false,
+  }).format(date);
+  const hour = Number.parseInt(rawHour, 10) % 24;
+
+  if (hour >= 5 && hour <= 11) return "Good morning ☀️";
+  if (hour >= 12 && hour <= 16) return "Good afternoon 🌤️";
+  if (hour >= 17 && hour <= 21) return "Good evening 🌙";
+  return "Good night ✨";
+}
+
 /**
  * Format the time-of-day in the user's timezone.
  */

@@ -1,4 +1,4 @@
-import { formatDateInTz, formatTimeInTz } from "../format-date";
+import { formatDateInTz, formatTimeInTz, getGreeting } from "../format-date";
 
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
@@ -58,6 +58,24 @@ describe("formatDateInTz", () => {
     );
     const epoch = Date.UTC(2026, 4, 14, 12, 0, 0);
     expect(formatDateInTz(epoch, "UTC")).toBe("Thu, May 14");
+  });
+});
+
+describe("getGreeting", () => {
+  it.each<[string, string]>([
+    ["2026-05-14T09:00:00.000Z", "Good morning ☀️"],
+    ["2026-05-14T13:00:00.000Z", "Good afternoon 🌤️"],
+    ["2026-05-14T19:00:00.000Z", "Good evening 🌙"],
+    ["2026-05-14T23:00:00.000Z", "Good night ✨"],
+    ["2026-05-14T04:00:00.000Z", "Good night ✨"],
+  ])("returns %s greeting for UTC hour", (input, expected) => {
+    expect(getGreeting(new Date(input), "UTC")).toBe(expected);
+  });
+
+  it("uses the configured timezone to determine local hour", () => {
+    expect(
+      getGreeting(new Date("2026-05-14T12:00:00.000Z"), "Australia/Brisbane"),
+    ).toBe("Good night ✨");
   });
 });
 
