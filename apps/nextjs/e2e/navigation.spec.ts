@@ -22,7 +22,9 @@ test.describe("Navigation", () => {
     await page.getByRole("navigation").getByText("Today").click();
     await expect(page).toHaveURL("/");
     await expect(
-      page.getByRole("heading", { name: "Good morning" }),
+      page.getByRole("heading", {
+        name: /Good (morning|afternoon|evening|night)/,
+      }),
     ).toBeVisible();
   });
 });

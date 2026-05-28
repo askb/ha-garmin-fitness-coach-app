@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 test.describe("Home / Today page", () => {
   test("renders the greeting and date", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("Good morning")).toBeVisible();
+    await expect(
+      page.getByText(/Good (morning|afternoon|evening|night)/),
+    ).toBeVisible();
     // Date should be visible
     const today = new Date().toLocaleDateString("en-US", {
       weekday: "long",
