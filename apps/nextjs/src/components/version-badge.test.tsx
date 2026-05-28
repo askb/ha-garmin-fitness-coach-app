@@ -15,4 +15,22 @@ describe("VersionBadge", () => {
 
     expect(screen.getByText("v0.17.6")).toBeInTheDocument();
   });
+
+  it("renders full text, tooltip, and custom classes when requested", () => {
+    render(
+      <VersionBadge
+        version="0.17.6"
+        buildTime="2026-05-28T10:00:00.000Z"
+        fullText
+        className="custom-class"
+      />,
+    );
+
+    const badge = screen.getByText(
+      "PulseCoach App v0.17.6 · Built 2026-05-28T10:00:00.000Z",
+    );
+
+    expect(badge).toHaveAttribute("title", "Built 2026-05-28T10:00:00.000Z");
+    expect(badge).toHaveClass("custom-class");
+  });
 });

@@ -218,6 +218,7 @@ async function seedRecommendationInputs(date = TEST_DATE): Promise<void> {
     targetDurationMax: 50,
     targetHrZoneLow: 2,
     targetHrZoneHigh: 3,
+    structure: [{ step: "easy-run", durationMin: 45 }],
     status: "planned",
   });
 }
@@ -492,6 +493,7 @@ describe("v0.17.0 coach loop integration", () => {
         workoutType: "easy",
         title: `Completed workout ${index + 1}`,
         targetDurationMin: 45,
+        structure: [{ step: "easy-run", durationMin: 45 }],
         status: "completed" as const,
       };
     });
