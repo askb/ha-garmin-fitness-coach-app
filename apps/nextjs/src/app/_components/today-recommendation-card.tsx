@@ -116,12 +116,6 @@ function confidenceClass(level: ReturnType<typeof confidenceLevel>): string {
   return "border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300";
 }
 
-function hardBlockLabel(ruleId: string, rules: RuleTrace[]): string {
-  return (
-    rules.find((rule) => rule.ruleId === ruleId)?.message ?? titleCase(ruleId)
-  );
-}
-
 function shiftIsoDay(value: string, days: number): string {
   const shifted = new Date(`${value}T12:00:00Z`);
   shifted.setUTCDate(shifted.getUTCDate() + days);
@@ -317,20 +311,6 @@ export function TodayRecommendationCard({
           {confidence} confidence
         </span>
       </div>
-
-      {recommendation.hardBlocks.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Hard blocks">
-          {recommendation.hardBlocks.map((ruleId) => (
-            <span
-              key={ruleId}
-              className="inline-flex items-center gap-1 rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-700 dark:text-red-300"
-            >
-              <span aria-hidden="true">⛔</span>
-              {hardBlockLabel(ruleId, recommendation.rules)}
-            </span>
-          ))}
-        </div>
-      )}
 
       <details
         className="mt-4 rounded-xl border p-3"
