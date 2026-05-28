@@ -19,7 +19,9 @@ export function renumberOrderedLists(
       const match = topLevelOrderedLine.exec(line);
       return match ? { index, content: match[2] } : null;
     })
-    .filter((item): item is { index: number; content: string } => item !== null);
+    .filter(
+      (item): item is { index: number; content: string } => item !== null,
+    );
 
   let expected = 1;
   for (let i = 0; i < orderedItems.length; i += 1) {
