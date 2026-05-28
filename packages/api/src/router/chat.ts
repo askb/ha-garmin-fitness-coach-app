@@ -30,7 +30,8 @@ let _aiInFlight = false;
 let _aiAbortController: AbortController | null = null;
 
 const AI_TIMEOUT_MS = 45_000; // 45s — HA Conversation API on RPi4 can be slow
-const ACTIVITY_NAME_SLUG_PATTERN = /\b[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+\b/g;
+const ACTIVITY_NAME_SLUG_PATTERN =
+  /\b[A-Za-z][A-Za-z0-9]*(?:_[A-Za-z0-9]+)+\b/g;
 
 /**
  * Quick data-driven fallback when Ollama is unreachable.
@@ -68,7 +69,9 @@ export function normalizeAssistantMessageContent(content: string): string {
   return renumberOrderedLists(humanizeActivityNamesInText(content));
 }
 
-function mapChatMessage<T extends { role: string; content: string }>(message: T): T {
+function mapChatMessage<T extends { role: string; content: string }>(
+  message: T,
+): T {
   if (message.role !== "assistant") return message;
   return {
     ...message,

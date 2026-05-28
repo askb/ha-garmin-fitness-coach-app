@@ -1,5 +1,4 @@
 import { readFileSync } from "node:fs";
-
 import { createJiti } from "jiti";
 
 const jiti = createJiti(import.meta.url);

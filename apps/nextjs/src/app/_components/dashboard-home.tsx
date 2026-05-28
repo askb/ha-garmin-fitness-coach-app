@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { VersionBadge } from "~/components/version-badge";
 import { env } from "~/env";
 import {
   formatDateInTz,
@@ -9,7 +10,6 @@ import {
   useUserTimezone,
 } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
-import { VersionBadge } from "~/components/version-badge";
 import { AdherenceTrendCard } from "./adherence-trend-card";
 import { BottomNav } from "./bottom-nav";
 import { DailyOutlookCard } from "./daily-outlook-card";

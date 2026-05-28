@@ -11,7 +11,9 @@ import { VersionBadge } from "./version-badge";
 
 describe("VersionBadge", () => {
   it("renders the provided version string", () => {
-    render(<VersionBadge version="0.17.6" buildTime="2026-05-28T10:00:00.000Z" />);
+    render(
+      <VersionBadge version="0.17.6" buildTime="2026-05-28T10:00:00.000Z" />,
+    );
 
     expect(screen.getByText("v0.17.6")).toBeInTheDocument();
   });

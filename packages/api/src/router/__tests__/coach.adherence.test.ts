@@ -72,8 +72,18 @@ describe("coach adherence cascade", () => {
     vi.setSystemTime(new Date("2026-05-03T12:00:00Z"));
     const db = makeDb({
       workoutRows: [
-        { date: "2026-05-01", status: null, weeklyPlanId: null, structure: null },
-        { date: "2026-05-02", status: "no-plan", weeklyPlanId: null, structure: [] },
+        {
+          date: "2026-05-01",
+          status: null,
+          weeklyPlanId: null,
+          structure: null,
+        },
+        {
+          date: "2026-05-02",
+          status: "no-plan",
+          weeklyPlanId: null,
+          structure: [],
+        },
         { date: "2026-05-03", status: "", weeklyPlanId: null, structure: null },
       ],
       activityRows: [
