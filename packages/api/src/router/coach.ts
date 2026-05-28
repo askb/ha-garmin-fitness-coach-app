@@ -486,12 +486,59 @@ async function fallbackAdherencePointsFromWorkouts(args: {
   );
 }
 
+async function fallbackAdherencePointsFromActivities(args: {
+  db: AppDb;
+  userId: string;
+  startDate: string;
+  endDate: string;
+  timezone: string | null | undefined;
+}): Promise<AdherencePoint[]> {
+  const queryStart = new Date(`${shiftIsoDay(args.startDate, -1)}T00:00:00Z`);
+  const queryEnd = new Date(`${shiftIsoDay(args.endDate, 1)}T23:59:59Z`);
+  const activities = await args.db.query.Activity.findMany({
+    where: and(
+      eq(Activity.userId, args.userId),
+      gte(Activity.startedAt, queryStart),
+      lte(Activity.startedAt, queryEnd),
+    ),
+    orderBy: asc(Activity.startedAt),
+  });
+  if (activities.length === 0) return [];
+
+  const activitiesByDate = new Map<
+    string,
+    { actualDurationMin: number; actualIds: string[] }
+  >();
+  for (const activity of activities) {
+    const date = dayInTimezone(activity.startedAt, args.timezone);
+    if (date < args.startDate || date > args.endDate) continue;
+    const aggregate = activitiesByDate.get(date) ?? {
+      actualDurationMin: 0,
+      actualIds: [],
+    };
+    aggregate.actualDurationMin += Math.round(activity.durationMinutes);
+    aggregate.actualIds.push(activity.id);
+    activitiesByDate.set(date, aggregate);
+  }
+
+  return dateRange(args.startDate, args.endDate).map((date) => {
+    const aggregate = activitiesByDate.get(date);
+    return {
+      date,
+      status: aggregate ? "completed" : "no-plan",
+      plannedDurationMin: null,
+      actualDurationMin: aggregate?.actualDurationMin ?? 0,
+      confidence: 0,
+      actualIds: aggregate?.actualIds ?? [],
+    } satisfies AdherencePoint;
+  });
+}
+
 function isAdherenceSuccess(point: AdherencePoint): boolean {
   return (
     point.status === "completed" ||
     point.status === "partial" ||
-    point.status === "extra" ||
-    (point.status === "no-plan" && point.actualIds.length === 0)
+    point.status === "extra"
   );
 }
 
@@ -534,7 +581,7 @@ async function loadLatestRecommendationActionState(
   };
 }
 
-function adherenceSummary(points: AdherencePoint[]) {
+export function adherenceSummary(points: AdherencePoint[]) {
   let longestStreak = 0;
   let runningStreak = 0;
   for (const point of points) {
@@ -553,11 +600,18 @@ function adherenceSummary(points: AdherencePoint[]) {
     currentStreak += 1;
   }
 
+  const accountablePoints = points.filter((point) =>
+    ["completed", "partial", "extra", "missed"].includes(point.status),
+  );
+
   return {
-    completedPct: pct(points.filter(isAdherenceSuccess).length, points.length),
+    completedPct: pct(
+      accountablePoints.filter(isAdherenceSuccess).length,
+      accountablePoints.length,
+    ),
     missedPct: pct(
-      points.filter((point) => point.status === "missed").length,
-      points.length,
+      accountablePoints.filter((point) => point.status === "missed").length,
+      accountablePoints.length,
     ),
     extraCount: points.filter(
       (point) =>
@@ -933,6 +987,7 @@ export const coachRouter = {
         ),
         orderBy: asc(schema.RecommendationAudit.date),
       });
+      let source: "audit" | "workout" | "activity" = "audit";
       let points = rows
         .map(trendPointFromAudit)
         .filter((point) => point.date >= startDate && point.date <= endDate)
@@ -945,8 +1000,19 @@ export const coachRouter = {
           startDate,
           endDate,
         });
+        source = points.length > 0 ? "workout" : "activity";
       }
 
-      return { points, summary: adherenceSummary(points) };
+      if (points.length === 0) {
+        points = await fallbackAdherencePointsFromActivities({
+          db: ctx.db,
+          userId,
+          startDate,
+          endDate,
+          timezone: profile?.timezone,
+        });
+      }
+
+      return { points, summary: adherenceSummary(points), source };
     }),
 } satisfies TRPCRouterRecord;

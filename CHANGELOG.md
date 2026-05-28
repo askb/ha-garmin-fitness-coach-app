@@ -10,6 +10,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.4] - 2026-05-28
+
+### Fixed
+
+- Settings now lets users pick, auto-detect, and save an IANA timezone.
+- Adherence trends fall back from coach audits to workouts to Garmin activities.
+- Adherence percentages now exclude no-plan rest days from the denominator.
+- Coach chat responses now persist and return renumbered ordered lists.
+- Coach chat prompts now humanize Garmin activity slugs such as `Tennis_v2`.
+
 ## [0.17.2] - 2026-05-28
 
 ### Fixed

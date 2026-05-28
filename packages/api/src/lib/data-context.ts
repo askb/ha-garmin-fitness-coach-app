@@ -32,6 +32,15 @@ function prettySport(code: string | null | undefined): string {
   return code ? humanizeActivityName(code) : "Activity";
 }
 
+export function humanizeActivities<
+  T extends { sportType: string | null | undefined },
+>(items: T[]): (T & { sportTypeLabel: string })[] {
+  return items.map((item) => ({
+    ...item,
+    sportTypeLabel: prettySport(item.sportType),
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -196,6 +205,9 @@ export async function buildDataContext(
     }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
   ]);
 
+  const humanizedActivities10 = humanizeActivities(activities10);
+  const humanizedMetrics30 = humanizeActivities(metrics30);
+
   // Pick the best VO2max estimate using the same source priority as the UI
   // hero card (Garmin Firstbeat > pace+HR > Cooper > UTH). The picker lives
   // in `./vo2max.ts` so the AI coach narrative stays aligned with the
@@ -358,7 +370,7 @@ export async function buildDataContext(
 
   // 2. Training Load -------------------------------------------------------
   {
-    const strainScores = activities10.map(
+    const strainScores = humanizedActivities10.map(
       (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
     );
     const loads = computeTrainingLoads([...strainScores].reverse());
@@ -376,9 +388,9 @@ export async function buildDataContext(
   }
 
   // 3. Recent Activities ---------------------------------------------------
-  if (activities10.length > 0) {
+  if (humanizedActivities10.length > 0) {
     const lines: string[] = ["## Recent Activities (Last 14 Days)"];
-    for (const a of activities10) {
+    for (const a of humanizedActivities10) {
       const dur = Math.round(a.durationMinutes);
       const hr = a.avgHr ? `HR ${a.avgHr}` : "no HR";
       const strain =
@@ -388,7 +400,7 @@ export async function buildDataContext(
           ? `${(a.distanceMeters / 1000).toFixed(1)}km`
           : "";
       lines.push(
-        `- ${prettySport(a.sportType)}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
+        `- ${a.sportTypeLabel}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
       );
     }
     sections.push(lines.join("\n"));
@@ -402,7 +414,7 @@ export async function buildDataContext(
       totalZ4 = 0,
       totalZ5 = 0;
     let hasZoneData = false;
-    for (const a of metrics30) {
+    for (const a of humanizedMetrics30) {
       const zones = a.hrZoneMinutes as
         | {
             zone1: number;

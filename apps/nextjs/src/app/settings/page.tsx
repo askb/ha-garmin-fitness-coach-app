@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
@@ -45,6 +45,46 @@ const BODY_PARTS = [
   "calf",
   "quad",
 ];
+
+function getBrowserTimezone(): string {
+  if (typeof Intl === "undefined") return "UTC";
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function getSupportedTimezones(): string[] {
+  if (typeof Intl.supportedValuesOf !== "function") return ["UTC"];
+  const zones = Intl.supportedValuesOf("timeZone");
+  return zones.includes("UTC") ? zones : ["UTC", ...zones];
+}
+
+function timezonePart(
+  timezone: string,
+  timeZoneName: "short" | "shortOffset",
+): string {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      timeZoneName,
+    }).formatToParts(new Date());
+    return parts.find((part) => part.type === "timeZoneName")?.value ?? "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function formatTimezoneLabel(timezone: string): string {
+  const abbreviation = timezonePart(timezone, "short");
+  const offset = timezonePart(timezone, "shortOffset").replace("GMT", "UTC");
+  return `${timezone} (${abbreviation} ${offset})`;
+}
+
+function timezoneNeedsDefault(timezone: string | null | undefined): boolean {
+  return !timezone || timezone.trim() === "" || timezone === "UTC";
+}
 
 function ProfileEditor() {
   const trpc = useTRPC();
@@ -464,6 +504,89 @@ interface AuthResponse {
   success: boolean;
   needsMfa?: boolean;
   message?: string;
+}
+
+function TimezoneSettings() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const currentTimezone = useUserTimezone();
+  const { data: profile } = useQuery(trpc.profile.get.queryOptions());
+  const timezones = useMemo(() => getSupportedTimezones(), []);
+  const browserTimezone = useMemo(() => getBrowserTimezone(), []);
+  const [selectedTimezone, setSelectedTimezone] = useState(browserTimezone);
+
+  useEffect(() => {
+    const savedTimezone = profile?.timezone;
+    setSelectedTimezone(
+      timezoneNeedsDefault(savedTimezone)
+        ? browserTimezone
+        : (savedTimezone ?? browserTimezone),
+    );
+  }, [browserTimezone, profile?.timezone]);
+
+  const updateTimezone = useMutation(
+    trpc.profile.updateTimezone.mutationOptions({
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: trpc.profile.get.queryKey(),
+        });
+      },
+    }),
+  );
+
+  return (
+    <div className="bg-card space-y-3 rounded-2xl border p-4">
+      <h2 className="text-muted-foreground text-sm font-semibold tracking-wider uppercase">
+        Timezone
+      </h2>
+      <p className="text-sm">
+        <span className="text-muted-foreground">Current:</span>{" "}
+        {formatTimezoneLabel(currentTimezone)}
+      </p>
+      <div className="space-y-2">
+        <Label htmlFor="timezone-select">IANA timezone</Label>
+        <input
+          id="timezone-select"
+          list="timezone-options"
+          role="combobox"
+          value={selectedTimezone}
+          onChange={(event) => setSelectedTimezone(event.target.value)}
+          className="border-input bg-background w-full rounded-lg border px-3 py-2 text-sm"
+          placeholder="Search timezones"
+        />
+        <datalist id="timezone-options">
+          {timezones.map((timezone) => (
+            <option key={timezone} value={timezone}>
+              {formatTimezoneLabel(timezone)}
+            </option>
+          ))}
+        </datalist>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setSelectedTimezone(browserTimezone)}
+        >
+          Auto-detect from browser
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          disabled={
+            updateTimezone.isPending || !timezones.includes(selectedTimezone)
+          }
+          onClick={() => updateTimezone.mutate({ timezone: selectedTimezone })}
+        >
+          {updateTimezone.isPending ? "Saving…" : "Save timezone"}
+        </Button>
+      </div>
+      {!timezones.includes(selectedTimezone) ? (
+        <p className="text-xs text-red-500">Choose a valid IANA timezone.</p>
+      ) : null}
+    </div>
+  );
 }
 
 function GarminConnection() {
@@ -939,6 +1062,9 @@ export default function SettingsPage() {
 
       {/* Health & Safety */}
       <HealthProfile />
+
+      {/* Timezone */}
+      <TimezoneSettings />
 
       {/* Garmin Connection — must work for data sync */}
       <GarminConnection />
