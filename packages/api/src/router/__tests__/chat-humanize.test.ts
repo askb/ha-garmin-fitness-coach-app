@@ -4,12 +4,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  openclawChat: vi.fn(),
+  haConversationChat: vi.fn(),
   ollamaChat: vi.fn(),
 }));
 
-vi.mock("../../lib/openclaw", () => ({
-  openclawChat: mocks.openclawChat,
+vi.mock("../../lib/ha-conversation", () => ({
+  haConversationChat: mocks.haConversationChat,
 }));
 
 vi.mock("../../lib/ollama", () => ({
@@ -102,7 +102,7 @@ function createCaller(db: unknown) {
 describe("chat activity humanization", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.openclawChat.mockResolvedValue("Looks good.");
+    mocks.haConversationChat.mockResolvedValue("Looks good.");
   });
 
   it("injects humanized activity names into the chat prompt", async () => {
@@ -111,7 +111,7 @@ describe("chat activity humanization", () => {
       agent: "sport-scientist",
     });
 
-    const prompt = mocks.openclawChat.mock.calls[0]?.[0] as string;
+    const prompt = mocks.haConversationChat.mock.calls[0]?.[0] as string;
     expect(prompt).toContain("Tennis");
     expect(prompt).not.toContain("Tennis_v2");
     expect(prompt).not.toContain("Tennis v2");
