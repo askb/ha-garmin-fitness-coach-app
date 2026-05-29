@@ -8,10 +8,10 @@ import type { AgentType } from "../lib/agent-prompts";
 import type { OllamaMessage } from "../lib/ollama";
 import { getAgentPrompt } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
+import { haConversationChat } from "../lib/ha-conversation";
 import { humanizeActivityName } from "../lib/humanize";
 import { renumberOrderedLists } from "../lib/llm-post";
 import { ollamaChat } from "../lib/ollama";
-import { haConversationChat } from "../lib/ha-conversation";
 import { protectedProcedure } from "../trpc";
 
 // ---------------------------------------------------------------------------

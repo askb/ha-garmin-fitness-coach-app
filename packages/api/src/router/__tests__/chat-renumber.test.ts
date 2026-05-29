@@ -107,7 +107,9 @@ function createCaller(db: unknown) {
 describe("chat response post-processing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.haConversationChat.mockResolvedValue("5. Warm up\n6. Build\n10. Cool down");
+    mocks.haConversationChat.mockResolvedValue(
+      "5. Warm up\n6. Build\n10. Cool down",
+    );
   });
 
   it("renumbers LLM ordered lists before persisting and returning", async () => {

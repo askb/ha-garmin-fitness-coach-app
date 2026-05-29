@@ -225,8 +225,12 @@ describe("detectAggregateIntent", () => {
   });
 
   it("returns aggregate=false for ordinary day-level questions", () => {
-    expect(detectAggregateIntent("how did I sleep last night?").isAggregate).toBe(false);
-    expect(detectAggregateIntent("am I ready to train today?").isAggregate).toBe(false);
+    expect(
+      detectAggregateIntent("how did I sleep last night?").isAggregate,
+    ).toBe(false);
+    expect(
+      detectAggregateIntent("am I ready to train today?").isAggregate,
+    ).toBe(false);
     expect(detectAggregateIntent("").isAggregate).toBe(false);
   });
 

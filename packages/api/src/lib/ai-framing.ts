@@ -4,9 +4,9 @@
 import type { Recommendation } from "@acme/engine";
 
 import type { OllamaMessage } from "./ollama";
+import { haConversationChat } from "./ha-conversation";
 import { humanizeActivityName } from "./humanize";
 import { ollamaChat } from "./ollama";
-import { haConversationChat } from "./ha-conversation";
 
 export interface RecommendationFramingInput {
   recommendation: Recommendation;

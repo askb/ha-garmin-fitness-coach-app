@@ -18,9 +18,7 @@ describe("isHaAssistFallback", () => {
     expect(
       isHaAssistFallback("I can help you controlling your smart home."),
     ).toBe(true);
-    expect(
-      isHaAssistFallback("I can help you control your home."),
-    ).toBe(true);
+    expect(isHaAssistFallback("I can help you control your home.")).toBe(true);
   });
 
   it("detects 'Sorry, I'm not sure' and 'I don't know how to help' variants", () => {

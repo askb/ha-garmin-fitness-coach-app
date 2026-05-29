@@ -484,8 +484,7 @@ export async function buildDataContext(
     for (const a of activitiesYtd) {
       totalCount += 1;
       totalDurMin += a.durationMinutes ?? 0;
-      const distKm =
-        a.distanceMeters != null ? a.distanceMeters / 1000 : 0;
+      const distKm = a.distanceMeters != null ? a.distanceMeters / 1000 : 0;
       totalDistKm += distKm;
       const label = prettySport(a.sportType);
       const cur = bySport.get(label) ?? {
