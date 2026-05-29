@@ -457,10 +457,15 @@ function isActionableWorkoutPlan(
   workout: typeof DailyWorkout.$inferSelect | null | undefined,
 ): boolean {
   if (!workout) return false;
+  const historicalStatuses: DailyWorkoutStatus[] = [
+    "completed",
+    "partial",
+    "missed",
+  ];
+  if (!workout.status) return false;
   return (
-    ["completed", "partial", "missed", "planned"].includes(
-      workout.status ?? "",
-    ) && hasStructuredWorkoutPlan(workout)
+    historicalStatuses.includes(workout.status) &&
+    hasStructuredWorkoutPlan(workout)
   );
 }
 
@@ -1058,11 +1063,14 @@ export const coachRouter = {
             timezone: profile?.timezone,
           });
           const activityPointsByDate = new Map(
-            activityPoints.map((point) => [point.date, point]),
+            activityPoints.map((point) => [auditDate(point.date), point]),
+          );
+          const planlessDateSet = new Set(
+            workoutFallback.planlessDates.map((date) => auditDate(date)),
           );
           points = points.map((point) =>
-            workoutFallback.planlessDates.includes(point.date)
-              ? (activityPointsByDate.get(point.date) ?? point)
+            planlessDateSet.has(auditDate(point.date))
+              ? (activityPointsByDate.get(auditDate(point.date)) ?? point)
               : point,
           );
           mixedSources = true;

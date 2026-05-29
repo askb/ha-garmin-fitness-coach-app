@@ -223,4 +223,96 @@ describe("coach adherence cascade", () => {
       "missed",
     ]);
   });
+
+  it("overlays activities on planless fallback days in a mixed 14-day window", async () => {
+    vi.setSystemTime(new Date("2026-05-28T21:42:00Z"));
+    const windowDates = [
+      "2026-05-15",
+      "2026-05-16",
+      "2026-05-17",
+      "2026-05-18",
+      "2026-05-19",
+      "2026-05-20",
+      "2026-05-21",
+      "2026-05-22",
+      "2026-05-23",
+      "2026-05-24",
+      "2026-05-25",
+      "2026-05-26",
+      "2026-05-27",
+      "2026-05-28",
+    ];
+    const workoutRows = windowDates.map((date) =>
+      date === "2026-05-21"
+        ? {
+            date,
+            status: "completed",
+            targetDurationMin: 45,
+            weeklyPlanId: "plan-1",
+            structure: [{ step: "run" }],
+          }
+        : {
+            date,
+            status: "planned",
+            weeklyPlanId: "plan-1",
+            structure: [{ step: "rest" }],
+          },
+    );
+    const db = makeDb({
+      workoutRows,
+      activityRows: [
+        {
+          id: "activity-26",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-26T05:30:00Z"),
+          durationMinutes: 35,
+        },
+        {
+          id: "activity-27",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-27T05:30:00Z"),
+          durationMinutes: 22,
+        },
+        {
+          id: "activity-28",
+          userId: TEST_USER_ID,
+          startedAt: new Date("2026-05-28T05:30:00Z"),
+          durationMinutes: 41,
+        },
+      ],
+    });
+
+    const result = await createCaller(db).coach.adherenceTrend({
+      userId: TEST_USER_ID,
+      days: 14,
+    });
+
+    const byDate = new Map(result.points.map((point) => [point.date, point]));
+
+    expect(result.source).toBe("workout");
+    expect(result.mixedSources).toBe(true);
+    expect(byDate.get("2026-05-21")).toMatchObject({
+      status: "completed",
+      plannedDurationMin: 45,
+    });
+    expect(byDate.get("2026-05-26")).toMatchObject({
+      status: "completed",
+      plannedDurationMin: null,
+      actualIds: ["activity-26"],
+    });
+    expect(byDate.get("2026-05-27")).toMatchObject({
+      status: "completed",
+      plannedDurationMin: null,
+      actualIds: ["activity-27"],
+    });
+    expect(byDate.get("2026-05-28")).toMatchObject({
+      status: "completed",
+      plannedDurationMin: null,
+      actualIds: ["activity-28"],
+    });
+    expect(byDate.get("2026-05-20")).toMatchObject({
+      status: "no-plan",
+      actualIds: [],
+    });
+  });
 });

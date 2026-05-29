@@ -23,7 +23,10 @@ export function VersionBadge({
 
   return (
     <span
-      className={cn("text-muted-foreground text-xs opacity-60", className)}
+      className={cn(
+        "text-xs text-zinc-500 opacity-80 dark:text-zinc-400",
+        className,
+      )}
       title={buildTime ? `Built ${buildTime}` : undefined}
     >
       {label}

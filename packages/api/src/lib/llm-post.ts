@@ -6,28 +6,52 @@
  *
  * Only line-starting ordered-list markers are rewritten. Separate list blocks
  * restart at 1 so paragraphs can safely divide independent lists.
+ *
+ * @param options.resetEachBlock - When true (default), short non-list
+ * paragraphs reset numbering so visually separated blocks restart from 1.
  */
-export function renumberOrderedLists(text: string): string {
+export function renumberOrderedLists(
+  text: string,
+  options?: { resetEachBlock?: boolean },
+): string {
+  // Three or more prose lines between numbered markers usually indicates a
+  // genuinely separate section rather than a continuation of one list.
+  const BRIDGE_RESET_LINE_THRESHOLD = 3;
+  const { resetEachBlock = true } = options ?? {};
   const lines = text.split("\n");
-  let expected = 1;
-  let inList = false;
-
-  return lines
-    .map((line) => {
-      const match = /^(\d+)\.\s+(.*)$/.exec(line);
-      if (!match) {
-        if (line.trim() === "" || !/^\s+/.test(line)) {
-          inList = false;
-          expected = 1;
-        }
-        return line;
-      }
-
-      const [, , content] = match;
-      const number = inList ? expected : 1;
-      inList = true;
-      expected = number + 1;
-      return `${number}. ${content}`;
+  const topLevelOrderedLine = /^(\d+)\.\s+(.*)$/;
+  const orderedItems = lines
+    .map((line, index) => {
+      const match = topLevelOrderedLine.exec(line);
+      return match ? { index, content: match[2] } : null;
     })
-    .join("\n");
+    .filter(
+      (item): item is { index: number; content: string } => item !== null,
+    );
+
+  let expected = 1;
+  for (let i = 0; i < orderedItems.length; i += 1) {
+    const current = orderedItems[i];
+    if (!current) continue;
+    const previous = orderedItems[i - 1];
+
+    if (previous) {
+      const bridge = lines.slice(previous.index + 1, current.index);
+      const nonEmptyBridgeLines = bridge.filter(
+        (line) => line.trim() !== "" && !/^\s+/.test(line),
+      );
+      // Treat 3+ lines of prose as a new section, even when block reset is off.
+      const shouldReset =
+        nonEmptyBridgeLines.length >= BRIDGE_RESET_LINE_THRESHOLD ||
+        (resetEachBlock && nonEmptyBridgeLines.length > 0);
+      if (shouldReset) {
+        expected = 1;
+      }
+    }
+
+    lines[current.index] = `${expected}. ${current.content}`;
+    expected += 1;
+  }
+
+  return lines.join("\n");
 }
