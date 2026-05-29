@@ -133,6 +133,30 @@ export function isHaAssistFallback(text: string): boolean {
   return HA_ASSIST_FALLBACK_PATTERNS.some((re) => re.test(text));
 }
 
+// When the upstream LLM provider (Google AI, OpenAI, Anthropic) returns
+// an error, HA wraps it in a successful Conversation response and the
+// error text becomes the user-visible answer. Detect those wrappers so
+// the caller can fall through to Ollama instead of surfacing
+// "This model is currently experiencing high demand" to the user.
+//
+// Patterns are intentionally narrow: they target HA's wrapper prefix
+// ("Sorry, I had a problem getting a response from …") and a small
+// set of upstream-only error phrases that are very unlikely to appear
+// in a real coaching answer.
+const HA_PROVIDER_ERROR_PATTERNS: RegExp[] = [
+  /sorry,?\s*i had a problem getting a response from/i,
+  /this model is currently (experiencing high demand|overloaded)/i,
+  /spikes in demand are usually temporary/i,
+  /(resource[_ ]exhausted|rate[_ ]?limit(ed|s)?|quota (exceeded|exhausted))/i,
+  /\b5(0[023]|29)\b.*(service unavailable|overloaded|gateway)/i,
+  /generativeai (api )?error/i,
+];
+
+export function isProviderError(text: string): boolean {
+  if (!text) return false;
+  return HA_PROVIDER_ERROR_PATTERNS.some((re) => re.test(text));
+}
+
 /**
  * Send a prompt to the HA conversation agent and return the text response.
  *
@@ -231,6 +255,22 @@ export async function haConversationChat(
       _cachedAgentId = null;
       _cachedAgentIdAt = 0;
       throw new Error("HA Conversation returned built-in Assist fallback");
+    }
+
+    // Upstream provider errors (Gemini quota/overload, OpenAI rate-limit,
+    // Anthropic 5xx) come back as a "successful" HA Conversation response
+    // whose speech text contains the wrapped error. Surfacing these as a
+    // chat reply tells the user "this model is experiencing high demand"
+    // instead of routing through Ollama. Throw so the caller falls through.
+    // Do NOT invalidate the agent cache — the agent is fine, the upstream
+    // provider is just busy; re-discovering would not help.
+    if (isProviderError(text)) {
+      console.warn(
+        `[AI] HA returned upstream provider error ("${text.slice(0, 120)}…") — falling through to next backend`,
+      );
+      throw new Error(
+        `HA Conversation upstream provider error: ${text.slice(0, 200)}`,
+      );
     }
 
     console.log(`[AI] Got response (${text.length} chars)`);
