@@ -4,9 +4,9 @@
 import type { Recommendation } from "@acme/engine";
 
 import type { OllamaMessage } from "./ollama";
+import { haConversationChat } from "./ha-conversation";
 import { humanizeActivityName } from "./humanize";
 import { ollamaChat } from "./ollama";
-import { openclawChat } from "./openclaw";
 
 export interface RecommendationFramingInput {
   recommendation: Recommendation;
@@ -60,7 +60,7 @@ export async function frameRecommendationReason(
   const prompt = buildPrompt(input);
 
   if (hasHaConversationProvider()) {
-    const text = await openclawChat(prompt, { timeoutMs: 4_500 });
+    const text = await haConversationChat(prompt, { timeoutMs: 4_500 });
     return text.trim() || null;
   }
 

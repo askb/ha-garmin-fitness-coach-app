@@ -4,12 +4,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  openclawChat: vi.fn(),
+  haConversationChat: vi.fn(),
   ollamaChat: vi.fn(),
 }));
 
-vi.mock("../../lib/openclaw", () => ({
-  openclawChat: mocks.openclawChat,
+vi.mock("../../lib/ha-conversation", () => ({
+  haConversationChat: mocks.haConversationChat,
 }));
 
 vi.mock("../../lib/ollama", () => ({
@@ -107,7 +107,9 @@ function createCaller(db: unknown) {
 describe("chat response post-processing", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.openclawChat.mockResolvedValue("5. Warm up\n6. Build\n10. Cool down");
+    mocks.haConversationChat.mockResolvedValue(
+      "5. Warm up\n6. Build\n10. Cool down",
+    );
   });
 
   it("renumbers LLM ordered lists before persisting and returning", async () => {

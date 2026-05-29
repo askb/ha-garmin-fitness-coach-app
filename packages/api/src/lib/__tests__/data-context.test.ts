@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { buildDataContext } from "../data-context";
+import { buildDataContext, detectAggregateIntent } from "../data-context";
 
 function makeDb() {
   return {
@@ -202,5 +202,158 @@ describe("buildDataContext", () => {
     // garmin_official (priority 0) beats uth_method (priority 4)
     // even though uth_method has a more recent date.
     expect(availability.vo2max).toBe(32.2);
+  });
+});
+
+describe("detectAggregateIntent", () => {
+  it("returns aggregate=true for 'all my runs this year'", () => {
+    const intent = detectAggregateIntent("analyse all my runs done this year");
+    expect(intent.isAggregate).toBe(true);
+    expect(intent.windowDays).toBe(365);
+    expect(intent.activityLimit).toBeGreaterThanOrEqual(100);
+  });
+
+  it("returns aggregate=true for 'give me a report'", () => {
+    expect(detectAggregateIntent("give me a report").isAggregate).toBe(true);
+  });
+
+  it("returns aggregate=true for YTD / lifetime / annual phrasings", () => {
+    expect(detectAggregateIntent("ytd summary please").isAggregate).toBe(true);
+    expect(detectAggregateIntent("lifetime totals").isAggregate).toBe(true);
+    expect(detectAggregateIntent("annual breakdown").isAggregate).toBe(true);
+    expect(detectAggregateIntent("year to date stats").isAggregate).toBe(true);
+  });
+
+  it("returns aggregate=true for 'last year' and 'last 6 months' phrasings", () => {
+    expect(detectAggregateIntent("compare to last year").isAggregate).toBe(
+      true,
+    );
+    expect(
+      detectAggregateIntent("how did I train last 6 months?").isAggregate,
+    ).toBe(true);
+    expect(detectAggregateIntent("last nine months").isAggregate).toBe(true);
+    expect(detectAggregateIntent("last 12 months running").isAggregate).toBe(
+      true,
+    );
+  });
+
+  it("returns aggregate=false for ordinary day-level questions", () => {
+    expect(
+      detectAggregateIntent("how did I sleep last night?").isAggregate,
+    ).toBe(false);
+    expect(
+      detectAggregateIntent("am I ready to train today?").isAggregate,
+    ).toBe(false);
+    expect(detectAggregateIntent("").isAggregate).toBe(false);
+  });
+
+  it("defaults to a 14-day / 10-row window when no intent detected", () => {
+    const intent = detectAggregateIntent("recovery tips");
+    expect(intent.windowDays).toBe(14);
+    expect(intent.activityLimit).toBe(10);
+  });
+});
+
+describe("buildDataContext aggregate intent + YTD summary", () => {
+  it("widens the Recent Activities heading when the user asks an aggregate question", async () => {
+    const db = makeDb() as {
+      query: { Activity: { findMany: ReturnType<typeof vi.fn> } };
+    };
+    db.query.Activity.findMany = vi.fn(async () => [
+      {
+        id: "a1",
+        userId: "user-1",
+        sportType: "running",
+        startedAt: new Date("2026-04-01T08:00:00Z"),
+        durationMinutes: 45,
+        distanceMeters: 8000,
+        avgHr: 150,
+        strainScore: 12.4,
+        trimpScore: 80,
+        hrZoneMinutes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const context = await buildDataContext(db as never, "user-1", {
+      message: "analyse all my runs done this year",
+    });
+    expect(context).toContain("Recent Activities (Last 365 Days");
+    expect(context).toContain("Activity Summary (Year to Date");
+  });
+
+  it("uses the default 14-day heading when no aggregate intent", async () => {
+    const db = makeDb() as {
+      query: { Activity: { findMany: ReturnType<typeof vi.fn> } };
+    };
+    db.query.Activity.findMany = vi.fn(async () => [
+      {
+        id: "a1",
+        userId: "user-1",
+        sportType: "running",
+        startedAt: new Date(),
+        durationMinutes: 30,
+        distanceMeters: 5000,
+        avgHr: 140,
+        strainScore: 8,
+        trimpScore: 50,
+        hrZoneMinutes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const context = await buildDataContext(db as never, "user-1", {
+      message: "how am I doing today?",
+    });
+    expect(context).toContain("Recent Activities (Last 14 Days)");
+  });
+
+  it("emits a YTD summary grouped by sport with totals", async () => {
+    const db = makeDb() as {
+      query: { Activity: { findMany: ReturnType<typeof vi.fn> } };
+    };
+    const ytd = [
+      {
+        sportType: "running",
+        startedAt: new Date(),
+        durationMinutes: 30,
+        distanceMeters: 5000,
+        avgHr: null,
+        strainScore: null,
+        trimpScore: null,
+        hrZoneMinutes: null,
+      },
+      {
+        sportType: "running",
+        startedAt: new Date(),
+        durationMinutes: 45,
+        distanceMeters: 8000,
+        avgHr: null,
+        strainScore: null,
+        trimpScore: null,
+        hrZoneMinutes: null,
+      },
+      {
+        sportType: "cycling",
+        startedAt: new Date(),
+        durationMinutes: 60,
+        distanceMeters: 20000,
+        avgHr: null,
+        strainScore: null,
+        trimpScore: null,
+        hrZoneMinutes: null,
+      },
+    ];
+    db.query.Activity.findMany = vi.fn(async () => ytd);
+    const context = await buildDataContext(db as never, "user-1");
+    expect(context).toMatch(/## Activity Summary \(Year to Date,\s*\d{4}\)/);
+    expect(context).toContain("Total: 3 activities");
+    expect(context).toMatch(/Running:\s*2 sessions/);
+    expect(context).toMatch(/Cycling:\s*1 sessions?/);
+  });
+
+  it("omits YTD summary when there are no activities at all", async () => {
+    const context = await buildDataContext(makeDb(), "user-1");
+    expect(context).not.toContain("Activity Summary (Year to Date");
   });
 });

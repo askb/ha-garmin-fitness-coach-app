@@ -51,6 +51,42 @@ function dateNDaysAgo(n: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
+// ---------------------------------------------------------------------------
+// Intent detection — widen the recent-activities window when the user asks
+// aggregate / historical questions ("this year", "all my runs", "summary",
+// "report", "lifetime", "year to date", etc.). Returns the recommended
+// recent-activities window in days; default 14 preserves prior behavior.
+// ---------------------------------------------------------------------------
+
+const AGGREGATE_INTENT_PATTERNS: RegExp[] = [
+  /\ball (my|of my)\b/i,
+  /\bthis year\b/i,
+  /\byear[\s-]?to[\s-]?date\b/i,
+  /\bytd\b/i,
+  /\blast year\b/i,
+  /\blast (6|six|9|nine|12|twelve) months?\b/i,
+  /\bsince (january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sep|october|oct|november|nov|december|dec|\d{4})\b/i,
+  /\b(annual|yearly|lifetime|all-time|alltime|overall|cumulative)\b/i,
+  /\b(report|summary|breakdown|overview|trend|trends|history|historical)\b/i,
+  /\b(every|each) (run|ride|swim|workout|session|activity)\b/i,
+];
+
+export interface AggregateIntent {
+  isAggregate: boolean;
+  windowDays: number;
+  activityLimit: number;
+}
+
+export function detectAggregateIntent(message: string): AggregateIntent {
+  if (!message) {
+    return { isAggregate: false, windowDays: 14, activityLimit: 10 };
+  }
+  const hit = AGGREGATE_INTENT_PATTERNS.some((re) => re.test(message));
+  return hit
+    ? { isAggregate: true, windowDays: 365, activityLimit: 500 }
+    : { isAggregate: false, windowDays: 14, activityLimit: 10 };
+}
+
 function fmtMin(mins: number | null | undefined): string {
   if (mins == null) return "N/A";
   const h = Math.floor(mins / 60);
@@ -110,7 +146,16 @@ function stringOrUnavailable(value: string | null | undefined): string {
 export async function buildDataContext(
   db: DB,
   userId: string,
+  options?: { message?: string },
 ): Promise<string> {
+  const intent = detectAggregateIntent(options?.message ?? "");
+  const recentWindowMs = intent.windowDays * 86_400_000;
+  const recentLimit = intent.activityLimit;
+
+  // YTD window — always queried (lean projection) so the LLM can answer
+  // aggregate questions even when intent detection misses.
+  const yearStart = new Date(new Date().getFullYear(), 0, 1);
+
   // Parallel queries -------------------------------------------------------
   const [
     metrics14,
@@ -123,6 +168,7 @@ export async function buildDataContext(
     interventions10,
     advancedMetrics42,
     baselines,
+    activitiesYtd,
   ] = await Promise.all([
     // Last 14 days of daily metrics
     db.query.DailyMetric.findMany({
@@ -134,14 +180,19 @@ export async function buildDataContext(
       limit: 14,
     }) as Promise<(typeof DailyMetric.$inferSelect)[]>,
 
-    // Last 10 activities
+    // Recent activities — window widens to 365d / 500 rows when the user
+    // asks an aggregate question (see detectAggregateIntent above).
+    // Exclude heavy jsonb columns (`laps`, `rawGarminData`) that are
+    // never read when building the prompt; keep `hrZoneMinutes` which
+    // is used by the Zones section.
     db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
-        gte(Activity.startedAt, new Date(Date.now() - 14 * 86_400_000)),
+        gte(Activity.startedAt, new Date(Date.now() - recentWindowMs)),
       ),
       orderBy: desc(Activity.startedAt),
-      limit: 10,
+      limit: recentLimit,
+      columns: { laps: false, rawGarminData: false },
     }) as Promise<(typeof Activity.$inferSelect)[]>,
 
     // Profile
@@ -203,6 +254,33 @@ export async function buildDataContext(
     db.query.AthleteBaseline.findMany({
       where: eq(AthleteBaseline.userId, userId),
     }) as Promise<(typeof AthleteBaseline.$inferSelect)[]>,
+
+    // Year-to-date activities — always queried with a lean projection so
+    // the LLM can answer aggregate questions ("all my runs this year",
+    // "annual report", etc.) even when intent detection misses. The
+    // summary section only reads sport / start / duration / distance,
+    // so we select just those columns to avoid hydrating large jsonb
+    // payloads (`laps`, `hrZoneMinutes`, `rawGarminData`) on every
+    // chat request.
+    db.query.Activity.findMany({
+      where: and(
+        eq(Activity.userId, userId),
+        gte(Activity.startedAt, yearStart),
+      ),
+      orderBy: desc(Activity.startedAt),
+      limit: 1000,
+      columns: {
+        sportType: true,
+        startedAt: true,
+        durationMinutes: true,
+        distanceMeters: true,
+      },
+    }) as Promise<
+      Pick<
+        typeof Activity.$inferSelect,
+        "sportType" | "startedAt" | "durationMinutes" | "distanceMeters"
+      >[]
+    >,
   ]);
 
   const humanizedActivities10 = humanizeActivities(activities10);
@@ -214,8 +292,14 @@ export async function buildDataContext(
   // /fitness dashboard's "Current VO2max" number (#154).
   const latestVo2 = pickBestVO2maxEstimate(vo2Estimates);
 
-  // Early exit if no data at all
-  if (!profile && metrics14.length === 0 && activities10.length === 0) {
+  // Early exit if no data at all (including YTD activities for users whose
+  // recent window is empty but who have older history this year).
+  if (
+    !profile &&
+    metrics14.length === 0 &&
+    activities10.length === 0 &&
+    activitiesYtd.length === 0
+  ) {
     return "No athlete data available yet — Garmin has not been synced.";
   }
 
@@ -369,8 +453,15 @@ export async function buildDataContext(
   }
 
   // 2. Training Load -------------------------------------------------------
+  // IMPORTANT: Training-load math (CTL/ATL/ACWR/consecutive hard days)
+  // must use a stable short window regardless of aggregate intent — the
+  // recent-activities query widens to 365d/500 rows when the user asks
+  // "this year" etc., but that would silently change CTL/ATL based on
+  // the user's wording. Slice to the latest 10 sessions for these
+  // calculations to preserve prior behavior.
   {
-    const strainScores = humanizedActivities10.map(
+    const recentForLoad = humanizedActivities10.slice(0, 10);
+    const strainScores = recentForLoad.map(
       (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
     );
     const loads = computeTrainingLoads([...strainScores].reverse());
@@ -389,7 +480,10 @@ export async function buildDataContext(
 
   // 3. Recent Activities ---------------------------------------------------
   if (humanizedActivities10.length > 0) {
-    const lines: string[] = ["## Recent Activities (Last 14 Days)"];
+    const windowLabel = intent.isAggregate
+      ? `Last ${intent.windowDays} Days, up to ${intent.activityLimit} sessions`
+      : "Last 14 Days";
+    const lines: string[] = [`## Recent Activities (${windowLabel})`];
     for (const a of humanizedActivities10) {
       const dur = Math.round(a.durationMinutes);
       const hr = a.avgHr ? `HR ${a.avgHr}` : "no HR";
@@ -399,8 +493,52 @@ export async function buildDataContext(
         a.distanceMeters != null
           ? `${(a.distanceMeters / 1000).toFixed(1)}km`
           : "";
+      const when = a.startedAt
+        ? new Date(a.startedAt).toISOString().split("T")[0]
+        : "";
       lines.push(
-        `- ${a.sportTypeLabel}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
+        `- ${when ? `${when} ` : ""}${a.sportTypeLabel}: ${dur}min${dist ? `, ${dist}` : ""}, ${hr}${strain ? `, ${strain}` : ""}`,
+      );
+    }
+    sections.push(lines.join("\n"));
+  }
+
+  // 3b. Year-To-Date Activity Summary -------------------------------------
+  // Always-on aggregate so the LLM can answer "all my runs this year"
+  // even when the user phrases it in a way intent detection misses.
+  if (activitiesYtd.length > 0) {
+    type Agg = { count: number; durationMin: number; distanceKm: number };
+    const bySport = new Map<string, Agg>();
+    let totalCount = 0;
+    let totalDurMin = 0;
+    let totalDistKm = 0;
+    for (const a of activitiesYtd) {
+      totalCount += 1;
+      totalDurMin += a.durationMinutes ?? 0;
+      const distKm = a.distanceMeters != null ? a.distanceMeters / 1000 : 0;
+      totalDistKm += distKm;
+      const label = prettySport(a.sportType);
+      const cur = bySport.get(label) ?? {
+        count: 0,
+        durationMin: 0,
+        distanceKm: 0,
+      };
+      cur.count += 1;
+      cur.durationMin += a.durationMinutes ?? 0;
+      cur.distanceKm += distKm;
+      bySport.set(label, cur);
+    }
+    const year = new Date().getFullYear();
+    const lines: string[] = [`## Activity Summary (Year to Date, ${year})`];
+    lines.push(
+      `- Total: ${totalCount} activities, ${fmtMin(totalDurMin)}, ${totalDistKm.toFixed(1)}km`,
+    );
+    const ranked = [...bySport.entries()].sort(
+      (a, b) => b[1].count - a[1].count,
+    );
+    for (const [sport, agg] of ranked) {
+      lines.push(
+        `- ${sport}: ${agg.count} sessions, ${fmtMin(agg.durationMin)}${agg.distanceKm > 0 ? `, ${agg.distanceKm.toFixed(1)}km` : ""}`,
       );
     }
     sections.push(lines.join("\n"));

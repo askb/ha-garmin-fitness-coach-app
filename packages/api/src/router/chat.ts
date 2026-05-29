@@ -8,10 +8,10 @@ import type { AgentType } from "../lib/agent-prompts";
 import type { OllamaMessage } from "../lib/ollama";
 import { getAgentPrompt } from "../lib/agent-prompts";
 import { buildDataContext } from "../lib/data-context";
+import { haConversationChat } from "../lib/ha-conversation";
 import { humanizeActivityName } from "../lib/humanize";
 import { renumberOrderedLists } from "../lib/llm-post";
 import { ollamaChat } from "../lib/ollama";
-import { openclawChat } from "../lib/openclaw";
 import { protectedProcedure } from "../trpc";
 
 // ---------------------------------------------------------------------------
@@ -138,8 +138,13 @@ export const chatRouter = {
           context: { agent: input.agent },
         });
 
-        // 2. Build data context from real Garmin data
-        const dataContext = await buildDataContext(ctx.db, userId);
+        // 2. Build data context from real Garmin data — pass the user's
+        //    message so the context builder can widen its activity window
+        //    when the user asks aggregate / historical questions
+        //    ("this year", "all my runs", "summary", etc.).
+        const dataContext = await buildDataContext(ctx.db, userId, {
+          message: input.content,
+        });
 
         // 3. Get agent-specific system prompt (trimmed for low-memory devices)
         const systemPrompt = getAgentPrompt(input.agent);
@@ -151,7 +156,7 @@ export const chatRouter = {
           limit: 5,
         });
 
-        // 5. Call AI backend: OpenClaw (HA) → Ollama → fallback
+        // 5. Call AI backend: HA Conversation → Ollama → fallback
         let responseContent: string;
         const fullPrompt = `${systemPrompt}\n\n## Current Athlete Data\n${dataContext}\n\n## User Question\n${input.content}`;
 
@@ -160,12 +165,12 @@ export const chatRouter = {
         );
 
         try {
-          responseContent = await openclawChat(fullPrompt, {
+          responseContent = await haConversationChat(fullPrompt, {
             timeoutMs: AI_TIMEOUT_MS,
           });
         } catch (e) {
           console.error(
-            `[Chat] OpenClaw failed:`,
+            `[Chat] HA Conversation failed:`,
             e instanceof Error ? e.message : e,
           );
           try {
