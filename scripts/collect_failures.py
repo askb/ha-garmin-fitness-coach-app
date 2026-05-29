@@ -141,11 +141,17 @@ def parse_tsc(text: str) -> list[dict[str, Any]]:
 
 def parse_eslint(text: str) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    # /path/file.ts\n  12:34  error  message  rule-id
+    # ESLint prints a file header (absolute OR relative path ending in
+    # a JS/TS extension) followed by indented "line:col error msg rule"
+    # rows. `turbo run lint` typically emits relative paths.
+    file_header = re.compile(
+        r"^(?:/|\.{0,2}/|[A-Za-z]:[\\/])?[\w./\\@-]+\.(?:ts|tsx|js|jsx|mjs|cjs)$"
+    )
     current_file: str | None = None
     for line in text.splitlines():
-        if line.startswith("/") and (line.endswith(".ts") or line.endswith(".tsx") or line.endswith(".js")):
-            current_file = line.strip()
+        stripped = line.strip()
+        if file_header.match(stripped) and not stripped.startswith(" "):
+            current_file = stripped
             continue
         m = re.match(r"\s+(\d+):(\d+)\s+error\s+(.+?)\s+(\S+)$", line)
         if m and current_file:
@@ -163,6 +169,37 @@ def parse_eslint(text: str) -> list[dict[str, Any]]:
     return out
 
 
+def parse_jest(text: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    # Jest summary: "  ● <describe> > <test name>" and "FAIL <path>".
+    # Pair the FAIL line (which gives the file) with following bullets.
+    file_marker = re.compile(r"^\s*FAIL\s+(\S+)")
+    bullet = re.compile(r"^\s*●\s+(.+?)\s*$")
+    current_file: str | None = None
+    for line in text.splitlines():
+        fm = file_marker.match(line)
+        if fm:
+            current_file = fm.group(1)
+            continue
+        bm = bullet.match(line)
+        if bm and current_file:
+            case = bm.group(1)
+            # Skip "Test suite failed to run" generic headers without ›
+            if case.lower().startswith("test suite failed"):
+                continue
+            key = f"{current_file}::{case}"
+            out.append(
+                {
+                    "component": "jest",
+                    "title": f"jest failure: {case[:80]}",
+                    "key": key,
+                    "signature": sig("jest", key),
+                    "snippet": f"{current_file}: {case}",
+                }
+            )
+    return out
+
+
 PARSERS = {
     "pytest": parse_pytest,
     "precommit": parse_precommit,
@@ -170,6 +207,7 @@ PARSERS = {
     "vitest": parse_vitest,
     "tsc": parse_tsc,
     "eslint": parse_eslint,
+    "jest": parse_jest,
 }
 
 

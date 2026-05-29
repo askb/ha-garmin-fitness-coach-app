@@ -48,32 +48,47 @@ jobs:
         id: typecheck
         continue-on-error: true
         run: |
+          # Use pipefail + PIPESTATUS[0] so the recorded exit code
+          # reflects pnpm typecheck, not tee. Otherwise $? is always 0.
           set +e
+          set -o pipefail
           pnpm typecheck 2>&1 | tee typecheck.log
-          echo "exit=$?" >> "$GITHUB_OUTPUT"
+          rc=${PIPESTATUS[0]}
+          set +o pipefail
+          echo "exit=${rc}" >> "$GITHUB_OUTPUT"
 
       - name: 'Run lint'
         id: lint
         continue-on-error: true
         run: |
           set +e
+          set -o pipefail
           pnpm lint 2>&1 | tee lint.log
-          echo "exit=$?" >> "$GITHUB_OUTPUT"
+          rc=${PIPESTATUS[0]}
+          set +o pipefail
+          echo "exit=${rc}" >> "$GITHUB_OUTPUT"
 
       - name: 'Run vitest'
         id: test
         continue-on-error: true
         run: |
           set +e
+          set -o pipefail
           pnpm test 2>&1 | tee test.log
-          echo "exit=$?" >> "$GITHUB_OUTPUT"
+          rc=${PIPESTATUS[0]}
+          set +o pipefail
+          echo "exit=${rc}" >> "$GITHUB_OUTPUT"
 
       - name: 'Collect failures'
         id: collect
         run: |
           set -euo pipefail
+          # `pnpm test` runs both vitest and jest packages (@acme/nextjs
+          # uses jest); parse the same log through both parsers so jest
+          # failures are not silently dropped.
           failures=$(python scripts/collect_failures.py \
             vitest=test.log \
+            jest=test.log \
             tsc=typecheck.log \
             eslint=lint.log)
           echo "count=$(echo "$failures" | python -c 'import json,sys; print(len(json.load(sys.stdin)))')" >> "$GITHUB_OUTPUT"

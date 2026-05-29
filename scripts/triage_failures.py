@@ -59,7 +59,12 @@ def sanitize_snippet(text: str) -> str:
     return cleaned
 
 
-def gh(*args: str, input_text: str | None = None) -> tuple[int, str]:
+def gh(*args: str, input_text: str | None = None) -> tuple[int, str, str]:
+    """Run `gh` and return (exit_code, stdout, stderr) separately.
+
+    Note: callers that parse JSON MUST use stdout only — gh emits
+    warnings/progress on stderr and concatenating them corrupts JSON.
+    """
     res = subprocess.run(
         ["gh", *args],
         capture_output=True,
@@ -67,21 +72,23 @@ def gh(*args: str, input_text: str | None = None) -> tuple[int, str]:
         input=input_text,
         check=False,
     )
-    return res.returncode, (res.stdout + res.stderr)
+    return res.returncode, res.stdout, res.stderr
 
 
 def existing_signatures(repo: str) -> set[str]:
-    code, out = gh(
+    code, out, err = gh(
         "issue", "list", "--repo", repo,
         "--label", "ai-fix-me", "--state", "open",
         "--limit", "100",
         "--json", "body",
     )
     if code != 0:
+        print(f"warn: gh issue list exited {code}: {err}", file=sys.stderr)
         return set()
     try:
         items = json.loads(out)
-    except Exception:
+    except json.JSONDecodeError as exc:
+        print(f"warn: could not parse gh JSON output: {exc}", file=sys.stderr)
         return set()
     sigs: set[str] = set()
     for it in items:

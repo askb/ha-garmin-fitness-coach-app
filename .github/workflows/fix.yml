@@ -5,7 +5,13 @@ name: 'Self-Healing CI - Fix'
 
 on:
   issues:
-    types: [labeled]
+    # `labeled` fires when a label is applied to an existing issue.
+    # `opened` fires when an issue is created — we still need to react
+    # because scan.yml creates issues *with* the `ai-fix-me` label
+    # in a single API call and GitHub does NOT emit a separate
+    # `labeled` event in that case. The guard below checks for the
+    # label on both event types.
+    types: [opened, labeled]
 
 permissions: {}
 
@@ -19,9 +25,14 @@ jobs:
     # Defense L1: only fire for ai-fix-me label on issues created by
     # the github-actions bot (our scan workflow). Blocks the prompt-
     # injection path of a human filing an issue with ai-fix-me label.
+    # For `labeled` events check `github.event.label.name`; for
+    # `opened` events check the label set on the issue payload.
     if: >
-      github.event.label.name == 'ai-fix-me' &&
-      github.event.issue.user.login == 'github-actions[bot]'
+      github.event.issue.user.login == 'github-actions[bot]' &&
+      (
+        (github.event.action == 'labeled' && github.event.label.name == 'ai-fix-me') ||
+        (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'ai-fix-me'))
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 2
     outputs:

@@ -198,3 +198,73 @@ def test_parsers_handle_clean_output(log_text: str) -> None:
     assert cf.parse_pytest(log_text) == []
     assert cf.parse_precommit(log_text) == []
     assert cf.parse_tsc(log_text) == []
+
+
+# ---------------------------------------------------------------------------
+# Round 2 review fixes
+# ---------------------------------------------------------------------------
+
+
+def test_parse_eslint_accepts_relative_paths() -> None:
+    """`turbo run lint` emits relative paths; the parser must match them.
+
+    Regression guard for the original implementation which only treated
+    file headers starting with `/` as paths.
+    """
+    text = (
+        "packages/api/src/foo.ts\n"
+        "  12:34  error  Unexpected any. Specify a different type  no-explicit-any\n"
+        "src/bar.tsx\n"
+        "  5:1  error  Missing return type on function  explicit-function-return-type\n"
+    )
+    out = cf.parse_eslint(text)
+    assert len(out) == 2
+    assert any(o["key"].startswith("packages/api/src/foo.ts") for o in out)
+    assert any(o["key"].startswith("src/bar.tsx") for o in out)
+
+
+def test_parse_eslint_still_accepts_absolute_paths() -> None:
+    text = (
+        "/home/runner/work/repo/repo/src/baz.ts\n"
+        "  3:7  error  Unused variable  no-unused-vars\n"
+    )
+    out = cf.parse_eslint(text)
+    assert len(out) == 1
+    assert "no-unused-vars" in out[0]["key"]
+
+
+def test_parse_jest_extracts_failures() -> None:
+    """@acme/nextjs uses jest; failures must not be silently dropped."""
+    text = (
+        " FAIL  src/components/Foo.test.tsx\n"
+        "  ● Foo > renders without props\n"
+        "    Expected: true\n"
+        "    Received: false\n"
+        " FAIL  src/utils/bar.test.ts\n"
+        "  ● bar utility > handles empty input\n"
+    )
+    out = cf.parse_jest(text)
+    assert len(out) == 2
+    assert out[0]["component"] == "jest"
+    assert "Foo > renders" in out[0]["key"]
+    assert "bar utility" in out[1]["key"]
+
+
+def test_parse_jest_skips_test_suite_failed_to_run() -> None:
+    """Generic suite-load failures should not produce per-case entries."""
+    text = (
+        " FAIL  src/broken.test.ts\n"
+        "  ● Test suite failed to run\n"
+        "    Cannot find module 'foo'\n"
+    )
+    assert cf.parse_jest(text) == []
+
+
+def test_parse_jest_clean_run_returns_empty() -> None:
+    assert cf.parse_jest("PASS src/foo.test.ts\nTests: 5 passed\n") == []
+
+
+def test_jest_parser_registered() -> None:
+    """Guard against re-introducing a regression where the dispatcher
+    table forgot to register the jest parser."""
+    assert "jest" in cf.PARSERS
