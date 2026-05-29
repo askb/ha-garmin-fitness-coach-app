@@ -462,8 +462,9 @@ function isActionableWorkoutPlan(
     "partial",
     "missed",
   ];
+  if (!workout.status) return false;
   return (
-    historicalStatuses.includes(workout.status ?? "") &&
+    historicalStatuses.includes(workout.status) &&
     hasStructuredWorkoutPlan(workout)
   );
 }
