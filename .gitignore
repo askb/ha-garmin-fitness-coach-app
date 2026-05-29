@@ -56,3 +56,7 @@ dist/
 scripts/data/
 logs/
 # test
+
+# Python
+__pycache__/
+*.pyc
