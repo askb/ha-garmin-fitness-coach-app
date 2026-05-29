@@ -63,7 +63,8 @@ const AGGREGATE_INTENT_PATTERNS: RegExp[] = [
   /\bthis year\b/i,
   /\byear[\s-]?to[\s-]?date\b/i,
   /\bytd\b/i,
-  /\blast (year|6|six|nine|9|12|twelve) (months?|year)\b/i,
+  /\blast year\b/i,
+  /\blast (6|six|9|nine|12|twelve) months?\b/i,
   /\bsince (january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sep|october|oct|november|nov|december|dec|\d{4})\b/i,
   /\b(annual|yearly|lifetime|all-time|alltime|overall|cumulative)\b/i,
   /\b(report|summary|breakdown|overview|trend|trends|history|historical)\b/i,
@@ -274,8 +275,14 @@ export async function buildDataContext(
   // /fitness dashboard's "Current VO2max" number (#154).
   const latestVo2 = pickBestVO2maxEstimate(vo2Estimates);
 
-  // Early exit if no data at all
-  if (!profile && metrics14.length === 0 && activities10.length === 0) {
+  // Early exit if no data at all (including YTD activities for users whose
+  // recent window is empty but who have older history this year).
+  if (
+    !profile &&
+    metrics14.length === 0 &&
+    activities10.length === 0 &&
+    activitiesYtd.length === 0
+  ) {
     return "No athlete data available yet — Garmin has not been synced.";
   }
 
@@ -429,8 +436,15 @@ export async function buildDataContext(
   }
 
   // 2. Training Load -------------------------------------------------------
+  // IMPORTANT: Training-load math (CTL/ATL/ACWR/consecutive hard days)
+  // must use a stable short window regardless of aggregate intent — the
+  // recent-activities query widens to 365d/500 rows when the user asks
+  // "this year" etc., but that would silently change CTL/ATL based on
+  // the user's wording. Slice to the latest 10 sessions for these
+  // calculations to preserve prior behavior.
   {
-    const strainScores = humanizedActivities10.map(
+    const recentForLoad = humanizedActivities10.slice(0, 10);
+    const strainScores = recentForLoad.map(
       (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
     );
     const loads = computeTrainingLoads([...strainScores].reverse());

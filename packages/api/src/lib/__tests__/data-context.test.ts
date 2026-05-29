@@ -224,6 +224,19 @@ describe("detectAggregateIntent", () => {
     expect(detectAggregateIntent("year to date stats").isAggregate).toBe(true);
   });
 
+  it("returns aggregate=true for 'last year' and 'last 6 months' phrasings", () => {
+    expect(detectAggregateIntent("compare to last year").isAggregate).toBe(
+      true,
+    );
+    expect(
+      detectAggregateIntent("how did I train last 6 months?").isAggregate,
+    ).toBe(true);
+    expect(detectAggregateIntent("last nine months").isAggregate).toBe(true);
+    expect(detectAggregateIntent("last 12 months running").isAggregate).toBe(
+      true,
+    );
+  });
+
   it("returns aggregate=false for ordinary day-level questions", () => {
     expect(
       detectAggregateIntent("how did I sleep last night?").isAggregate,
