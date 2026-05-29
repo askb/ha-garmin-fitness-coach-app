@@ -182,6 +182,9 @@ export async function buildDataContext(
 
     // Recent activities — window widens to 365d / 500 rows when the user
     // asks an aggregate question (see detectAggregateIntent above).
+    // Exclude heavy jsonb columns (`laps`, `rawGarminData`) that are
+    // never read when building the prompt; keep `hrZoneMinutes` which
+    // is used by the Zones section.
     db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
@@ -189,6 +192,7 @@ export async function buildDataContext(
       ),
       orderBy: desc(Activity.startedAt),
       limit: recentLimit,
+      columns: { laps: false, rawGarminData: false },
     }) as Promise<(typeof Activity.$inferSelect)[]>,
 
     // Profile
@@ -253,9 +257,11 @@ export async function buildDataContext(
 
     // Year-to-date activities — always queried with a lean projection so
     // the LLM can answer aggregate questions ("all my runs this year",
-    // "annual report", etc.) even when intent detection misses. Drizzle
-    // findMany hydrates the full row, but Activity rows are small enough
-    // that ~500/yr is well under 1 MB.
+    // "annual report", etc.) even when intent detection misses. The
+    // summary section only reads sport / start / duration / distance,
+    // so we select just those columns to avoid hydrating large jsonb
+    // payloads (`laps`, `hrZoneMinutes`, `rawGarminData`) on every
+    // chat request.
     db.query.Activity.findMany({
       where: and(
         eq(Activity.userId, userId),
@@ -263,7 +269,18 @@ export async function buildDataContext(
       ),
       orderBy: desc(Activity.startedAt),
       limit: 1000,
-    }) as Promise<(typeof Activity.$inferSelect)[]>,
+      columns: {
+        sportType: true,
+        startedAt: true,
+        durationMinutes: true,
+        distanceMeters: true,
+      },
+    }) as Promise<
+      Pick<
+        typeof Activity.$inferSelect,
+        "sportType" | "startedAt" | "durationMinutes" | "distanceMeters"
+      >[]
+    >,
   ]);
 
   const humanizedActivities10 = humanizeActivities(activities10);
