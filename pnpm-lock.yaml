@@ -49,8 +49,8 @@ catalogs:
       specifier: ^3.6.2
       version: 3.6.2
     tailwindcss:
-      specifier: ^4.1.16
-      version: 4.1.16
+      specifier: ^4.3.0
+      version: 4.3.0
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
@@ -222,7 +222,7 @@ importers:
         version: 3.6.2
       tailwindcss:
         specifier: 'catalog:'
-        version: 4.1.16
+        version: 4.3.0
       ts-jest:
         specifier: ^29.4.11
         version: 29.4.11(@babel/core@7.28.5)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.28.5))(esbuild@0.28.0)(jest-util@30.3.0)(jest@30.3.0(@types/node@22.18.12)(esbuild-register@3.6.0(esbuild@0.28.0))(ts-node@10.9.2(@types/node@22.18.12)(typescript@5.9.3)))(typescript@5.9.3)
@@ -337,7 +337,7 @@ importers:
         version: 3.6.2
       tailwindcss:
         specifier: 'catalog:'
-        version: 4.1.16
+        version: 4.3.0
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -704,7 +704,7 @@ importers:
         version: 8.5.15
       tailwindcss:
         specifier: 'catalog:'
-        version: 4.1.16
+        version: 4.3.0
     devDependencies:
       '@acme/eslint-config':
         specifier: workspace:*
@@ -9425,6 +9425,9 @@ packages:
 
   tailwindcss@4.1.16:
     resolution: {integrity: sha512-pONL5awpaQX4LN5eiv7moSiSPd/DLDzKVRJz8Q9PgzmAdd1R4307GQS2ZpfiN7ZmekdQrfhZZiSE5jkLR4WNaA==}
+
+  tailwindcss@4.3.0:
+    resolution: {integrity: sha512-y6nxMGB1nMW9R6k96e5gdIFzcfL/gTJRNaqGes1YvkLnPVXzWgbqFF2yLC0T8G774n24cx3Pe8XrKoniCOAH+Q==}
 
   tapable@2.3.0:
     resolution: {integrity: sha512-g9ljZiwki/LfxmQADO3dEY1CbpmXT5Hm2fJ+QaGKwSXUylMybePR7/67YW7jOrrvjEgL1Fmz5kzyAjWVWLlucg==}
@@ -20309,6 +20312,8 @@ snapshots:
   tailwind-merge@3.3.1: {}
 
   tailwindcss@4.1.16: {}
+
+  tailwindcss@4.3.0: {}
 
   tapable@2.3.0: {}
 
