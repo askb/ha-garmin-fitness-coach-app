@@ -20,6 +20,7 @@ import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
+import { LoadForecastCard } from "../_components/load-forecast-card";
 
 /* ─────────────── constants ─────────────── */
 
@@ -457,6 +458,9 @@ export default function FitnessPage() {
           </p>
         </div>
       )}
+
+      {/* ── Forward-looking load & VO2max forecast ── */}
+      <LoadForecastCard />
 
       {/* ── Garmin VO2 Max Chart ── */}
       {garminChartData.length > 0 ? (

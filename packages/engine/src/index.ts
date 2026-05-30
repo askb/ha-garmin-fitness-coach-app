@@ -68,6 +68,21 @@ export {
 export { detectAnomalies } from "./anomalies";
 
 export {
+  projectPMC,
+  buildScenarioLoads,
+  linearForecast,
+  findRaceReadinessWindow,
+} from "./forecasting";
+export type {
+  LoadScenario,
+  ProjectedPMCDay,
+  PMCForecast,
+  LinearForecastPoint,
+  LinearForecast,
+  RaceReadinessWindow,
+} from "./forecasting";
+
+export {
   generateDailyWorkout,
   modulateWorkout,
   selectWeeklyTemplate,
