@@ -128,3 +128,13 @@ export {
   type ReconcileStatus,
   type ReconcileDeviation,
 } from "./planned-vs-actual";
+
+export {
+  attributeOutcomes,
+  summarizeRuleEffectiveness,
+  DECISION_RULE_ID,
+  type DecisionInput,
+  type MetricPoint,
+  type Attribution,
+  type RuleEffectiveness,
+} from "./learning";

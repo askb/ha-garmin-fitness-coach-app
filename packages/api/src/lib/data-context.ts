@@ -22,6 +22,7 @@ import {
 } from "@acme/engine";
 
 import { humanizeActivityName } from "./humanize";
+import { isMemoryEnabled, renderHistoryBlock, retrieveHistory } from "./memory";
 import { pickBestVO2maxEstimate } from "./vo2max";
 
 // Drizzle db type — keep generic to avoid coupling to the concrete client
@@ -370,6 +371,22 @@ export async function buildDataContext(
       "```",
     ].join("\n"),
   ];
+
+  // RAG / coach memory (spec 007): for aggregate / long-range questions, pull
+  // semantically relevant historical summaries + a deterministic year rollup
+  // and inject them up front so multi-year questions are grounded. Gated and
+  // best-effort — a miss never blocks the turn. Only runs for aggregate intent
+  // so recent precise questions stay fast (no extra embedding round-trip).
+  let historyBlock = "";
+  if (intent.isAggregate && isMemoryEnabled()) {
+    try {
+      const retrieval = await retrieveHistory(userId, options?.message ?? "");
+      historyBlock = renderHistoryBlock(retrieval);
+    } catch {
+      historyBlock = "";
+    }
+    if (historyBlock) sections.push(historyBlock);
+  }
 
   // 1. Athlete Profile -----------------------------------------------------
   {
@@ -1138,9 +1155,12 @@ export async function buildDataContext(
 
   const result = sections.join("\n\n");
 
-  // Cap context size to prevent OOM — LLMs work fine with summarized data
-  if (result.length > 4000) {
-    return result.slice(0, 4000) + "\n\n[... context trimmed for performance]";
+  // Cap context size to prevent OOM — LLMs work fine with summarized data.
+  // Allow a larger budget when a history block is present so multi-year
+  // grounding isn't truncated away.
+  const cap = historyBlock ? 6000 : 4000;
+  if (result.length > cap) {
+    return result.slice(0, cap) + "\n\n[... context trimmed for performance]";
   }
 
   return result;
