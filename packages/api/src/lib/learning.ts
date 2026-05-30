@@ -83,8 +83,8 @@ export async function recomputeOutcomeAttribution(
   const horizonDays = opts?.horizonDays ?? 3;
   const lookbackDays = opts?.lookbackDays ?? 180;
   const since = dateNDaysAgo(lookbackDays);
-  // Pull metrics out to horizon beyond today so recent decisions can resolve.
-  const metricsSince = since;
+  // Metrics share the same lower bound as the audits; the queries have no upper
+  // bound, so a decision near `today` still resolves once its horizon lands.
 
   const [audits, readiness, daily, advanced] = await Promise.all([
     db.query.RecommendationAudit.findMany({
@@ -97,21 +97,18 @@ export async function recomputeOutcomeAttribution(
     db.query.ReadinessScore.findMany({
       where: and(
         eq(ReadinessScore.userId, userId),
-        gte(ReadinessScore.date, metricsSince),
+        gte(ReadinessScore.date, since),
       ),
       columns: { date: true, score: true },
     }),
     db.query.DailyMetric.findMany({
-      where: and(
-        eq(DailyMetric.userId, userId),
-        gte(DailyMetric.date, metricsSince),
-      ),
+      where: and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
       columns: { date: true, hrv: true },
     }),
     db.query.AdvancedMetric.findMany({
       where: and(
         eq(AdvancedMetric.userId, userId),
-        gte(AdvancedMetric.date, metricsSince),
+        gte(AdvancedMetric.date, since),
       ),
       columns: { date: true, tsb: true },
     }),

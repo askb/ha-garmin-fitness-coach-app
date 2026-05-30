@@ -1101,15 +1101,9 @@ export const coachRouter = {
   // informs a "what worked for you" view and feeds displayed confidence; it
   // does NOT tune any thresholds in this release.
   ruleEffectiveness: protectedProcedure
-    .input(z.object({ userId: z.string().optional() }).optional())
-    .query(async ({ ctx, input }) => {
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
       const userId = ctx.session.user.id;
-      if (input?.userId && input.userId !== userId) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Cannot request effectiveness for another user",
-        });
-      }
       const rules = await getRuleEffectiveness(userId);
       return { rules };
     }),

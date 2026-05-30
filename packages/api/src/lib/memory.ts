@@ -14,7 +14,7 @@
 // unavailable, retrieval falls back to deterministic rollups (or nothing), and
 // the coach turn proceeds with the existing recent-window context.
 
-import { and, eq, gte, notInArray } from "@acme/db";
+import { and, eq, gte, inArray, notInArray } from "@acme/db";
 import { db } from "@acme/db/client";
 import { Activity, HistoryEmbedding } from "@acme/db/schema";
 
@@ -248,21 +248,21 @@ export async function summarizeAndEmbedHistory(
 
   // Prune embeddings for periods that no longer have any activity (e.g. an
   // activity was deleted/re-synced), so stale summaries can't be retrieved.
+  // Constrained to the period types this function actually maintains so it can
+  // never touch other period types stored elsewhere.
+  const managedTypes = ["week", "month"] as const;
   const liveKeys = summaries.map((s) => s.periodKey);
-  if (liveKeys.length > 0) {
-    await db
-      .delete(HistoryEmbedding)
-      .where(
-        and(
-          eq(HistoryEmbedding.userId, userId),
-          notInArray(HistoryEmbedding.periodKey, liveKeys),
-        ),
-      );
-  } else {
-    await db
-      .delete(HistoryEmbedding)
-      .where(eq(HistoryEmbedding.userId, userId));
-  }
+  await db
+    .delete(HistoryEmbedding)
+    .where(
+      and(
+        eq(HistoryEmbedding.userId, userId),
+        inArray(HistoryEmbedding.periodType, [...managedTypes]),
+        liveKeys.length > 0
+          ? notInArray(HistoryEmbedding.periodKey, liveKeys)
+          : undefined,
+      ),
+    );
 
   return { written, embedded };
 }
