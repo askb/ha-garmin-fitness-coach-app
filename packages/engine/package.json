@@ -36,7 +36,7 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "typescript": "catalog:",
-    "vitest": "^3.2.1"
+    "vitest": "^4.1.7"
   },
   "prettier": "@acme/prettier-config"
 }
