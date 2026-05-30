@@ -2,7 +2,13 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
 import { and, count, desc, eq, gte, sql } from "@acme/db";
-import { DataQualityLog } from "@acme/db/schema";
+import {
+  AdvancedMetric,
+  DailyMetric,
+  DataQualityLog,
+  ReadinessScore,
+  VO2maxEstimate,
+} from "@acme/db/schema";
 
 import { protectedProcedure } from "../trpc";
 
@@ -10,6 +16,33 @@ function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString().split("T")[0]!;
+}
+
+interface RawVsComputedRow {
+  date: string;
+  raw: number;
+  computed: number;
+  deltaPct: number | null;
+  status: "match" | "minor" | "diverged";
+}
+
+function classify(raw: number, computed: number): RawVsComputedRow["status"] {
+  if (raw === 0) return computed === 0 ? "match" : "diverged";
+  const pct = Math.abs((computed - raw) / raw) * 100;
+  if (pct < 5) return "match";
+  if (pct < 15) return "minor";
+  return "diverged";
+}
+
+function pairRow(date: string, raw: number, computed: number): RawVsComputedRow {
+  const deltaPct = raw === 0 ? null : ((computed - raw) / raw) * 100;
+  return {
+    date,
+    raw,
+    computed,
+    deltaPct: deltaPct === null ? null : Math.round(deltaPct * 10) / 10,
+    status: classify(raw, computed),
+  };
 }
 
 export const dataQualityRouter = {
@@ -71,6 +104,98 @@ export const dataQualityRouter = {
 
     return { errors, warnings, infos, total, score, byDate };
   }),
+
+  getRawVsComputed: protectedProcedure
+    .input(z.object({ days: z.number().min(7).max(90).default(30) }).optional())
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const since = dateNDaysAgo(input?.days ?? 30);
+
+      // Readiness: Garmin native vs engine-computed score.
+      const dailyRows = await ctx.db
+        .select({
+          date: DailyMetric.date,
+          garminReadiness: DailyMetric.garminTrainingReadiness,
+        })
+        .from(DailyMetric)
+        .where(
+          and(eq(DailyMetric.userId, userId), gte(DailyMetric.date, since)),
+        );
+      const readinessRows = await ctx.db
+        .select({ date: ReadinessScore.date, score: ReadinessScore.score })
+        .from(ReadinessScore)
+        .where(
+          and(
+            eq(ReadinessScore.userId, userId),
+            gte(ReadinessScore.date, since),
+          ),
+        );
+      const garminReadinessByDate = new Map(
+        dailyRows
+          .filter((r) => r.garminReadiness != null)
+          .map((r) => [r.date, r.garminReadiness!]),
+      );
+      const readiness: RawVsComputedRow[] = [];
+      for (const r of readinessRows) {
+        const raw = garminReadinessByDate.get(r.date);
+        if (raw == null) continue;
+        readiness.push(pairRow(r.date, raw, r.score));
+      }
+
+      // VO2max: Garmin official estimate vs engine effective VO2max.
+      const vo2Rows = await ctx.db
+        .select({ date: VO2maxEstimate.date, value: VO2maxEstimate.value })
+        .from(VO2maxEstimate)
+        .where(
+          and(
+            eq(VO2maxEstimate.userId, userId),
+            eq(VO2maxEstimate.source, "garmin_official"),
+            gte(VO2maxEstimate.date, since),
+          ),
+        );
+      const advRows = await ctx.db
+        .select({
+          date: AdvancedMetric.date,
+          effectiveVo2max: AdvancedMetric.effectiveVo2max,
+        })
+        .from(AdvancedMetric)
+        .where(
+          and(
+            eq(AdvancedMetric.userId, userId),
+            gte(AdvancedMetric.date, since),
+          ),
+        );
+      const effectiveByDate = new Map(
+        advRows
+          .filter((r) => r.effectiveVo2max != null)
+          .map((r) => [r.date, r.effectiveVo2max!]),
+      );
+      const vo2max: RawVsComputedRow[] = [];
+      for (const r of vo2Rows) {
+        const computed = effectiveByDate.get(r.date);
+        if (computed == null) continue;
+        vo2max.push(pairRow(r.date, r.value, computed));
+      }
+
+      readiness.sort((a, b) => b.date.localeCompare(a.date));
+      vo2max.sort((a, b) => b.date.localeCompare(a.date));
+
+      const all = [...readiness, ...vo2max];
+      const diverged = all.filter((r) => r.status === "diverged").length;
+      const matched = all.filter((r) => r.status === "match").length;
+
+      return {
+        readiness: readiness.slice(0, 30),
+        vo2max: vo2max.slice(0, 30),
+        summary: {
+          comparedPairs: all.length,
+          matched,
+          diverged,
+          agreementPct:
+            all.length > 0 ? Math.round((matched / all.length) * 100) : null,
+        },
+      };
+    }),
 
   resolve: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))

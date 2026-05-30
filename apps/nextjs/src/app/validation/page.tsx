@@ -83,6 +83,86 @@ function deviationBadge(pct: number | null | undefined): React.ReactNode {
 // Page
 // ---------------------------------------------------------------------------
 
+interface RvcRow {
+  date: string;
+  raw: number;
+  computed: number;
+  deltaPct: number | null;
+  status: "match" | "minor" | "diverged";
+}
+
+const RVC_STATUS_STYLE: Record<RvcRow["status"], string> = {
+  match: "bg-green-100 text-green-700",
+  minor: "bg-yellow-100 text-yellow-700",
+  diverged: "bg-red-100 text-red-700",
+};
+
+const RVC_STATUS_LABEL: Record<RvcRow["status"], string> = {
+  match: "🟢 Match",
+  minor: "🟡 Minor",
+  diverged: "🔴 Diverged",
+};
+
+function RawVsComputedTable({
+  title,
+  hint,
+  rows,
+  unit,
+}: {
+  title: string;
+  hint: string;
+  rows: RvcRow[];
+  unit: string;
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <div>
+      <h3 className="text-foreground text-sm font-semibold">{title}</h3>
+      <p className="text-muted-foreground mb-2 text-xs">{hint}</p>
+      <div className="overflow-hidden rounded-lg border">
+        <table className="w-full text-xs">
+          <thead className="bg-muted/50 text-muted-foreground">
+            <tr>
+              <th className="px-2 py-1.5 text-left font-medium">Date</th>
+              <th className="px-2 py-1.5 text-right font-medium">Garmin</th>
+              <th className="px-2 py-1.5 text-right font-medium">Engine</th>
+              <th className="px-2 py-1.5 text-right font-medium">Δ</th>
+              <th className="px-2 py-1.5 text-right font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.slice(0, 10).map((r) => (
+              <tr key={r.date} className="border-t">
+                <td className="px-2 py-1.5">{r.date}</td>
+                <td className="px-2 py-1.5 text-right tabular-nums">
+                  {r.raw.toFixed(1)}
+                  {unit}
+                </td>
+                <td className="px-2 py-1.5 text-right tabular-nums">
+                  {r.computed.toFixed(1)}
+                  {unit}
+                </td>
+                <td className="px-2 py-1.5 text-right tabular-nums">
+                  {r.deltaPct == null
+                    ? "—"
+                    : `${r.deltaPct >= 0 ? "+" : ""}${r.deltaPct.toFixed(1)}%`}
+                </td>
+                <td className="px-2 py-1.5 text-right">
+                  <span
+                    className={`rounded-full px-2 py-0.5 font-medium ${RVC_STATUS_STYLE[r.status]}`}
+                  >
+                    {RVC_STATUS_LABEL[r.status]}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function ValidationPage() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
@@ -99,6 +179,10 @@ export default function ValidationPage() {
 
   const { data: measurements = [], isLoading } = useQuery(
     trpc.reference.list.queryOptions(),
+  );
+
+  const { data: rawVsComputed } = useQuery(
+    trpc.dataQuality.getRawVsComputed.queryOptions({ days: 30 }),
   );
 
   const createMutation = useMutation(
@@ -163,6 +247,43 @@ export default function ValidationPage() {
       </div>
 
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-4">
+        {/* Engine vs Garmin — raw vs computed transparency */}
+        {rawVsComputed && rawVsComputed.summary.comparedPairs > 0 && (
+          <div className="bg-card rounded-xl border p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-foreground font-semibold">
+                Engine vs Garmin
+              </h2>
+              {rawVsComputed.summary.agreementPct != null && (
+                <span className="text-muted-foreground text-xs">
+                  {rawVsComputed.summary.agreementPct}% agreement ·{" "}
+                  {rawVsComputed.summary.comparedPairs} pairs
+                </span>
+              )}
+            </div>
+            <p className="text-muted-foreground mb-3 text-xs">
+              How PulseCoach&apos;s computed metrics compare to the raw values
+              Garmin provides, over the last 30 days. Large divergences flag
+              where the engine&apos;s model differs from Garmin&apos;s — useful
+              for trust and debugging.
+            </p>
+            <div className="space-y-4">
+              <RawVsComputedTable
+                title="Readiness"
+                hint="Garmin Training Readiness vs the Buchheit composite score."
+                rows={rawVsComputed.readiness}
+                unit=""
+              />
+              <RawVsComputedTable
+                title="VO2max"
+                hint="Garmin official VO2max vs engine effective VO2max."
+                rows={rawVsComputed.vo2max}
+                unit=""
+              />
+            </div>
+          </div>
+        )}
+
         {/* Add Reference Measurement */}
         <div className="bg-card rounded-xl border p-4 shadow-sm">
           <h2 className="text-foreground mb-3 font-semibold">
