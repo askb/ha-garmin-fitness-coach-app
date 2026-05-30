@@ -32,7 +32,7 @@ jobs:
         with:
           egress-policy: 'audit'
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - uses: pnpm/action-setup@v5
 
@@ -75,7 +75,7 @@ jobs:
         with:
           egress-policy: 'audit'
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - uses: pnpm/action-setup@v5
 
