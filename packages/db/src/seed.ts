@@ -207,6 +207,13 @@ const personaWeeklyDays = persona.trainingDows.map(
   (d) => DOW_ABBREV[d] as string,
 );
 
+// The activity and daily-metric heart-rate ranges below are tuned to the
+// reference athlete (maxHr 192). Scale them by each persona's configured
+// maxHr so generated observations never exceed the profile maximum.
+// Athlete (192/192 = 1.0) is unchanged, preserving byte-identical output.
+const HR_REF_MAX = 192;
+const hrScale = persona.maxHr / HR_REF_MAX;
+
 // Per-day-of-week activity template (load ranges are scaled by the persona).
 const DOW_PLAN: Record<
   number,
@@ -409,6 +416,10 @@ async function seed() {
         anaerobicTE = rng.float(0.5, 2.0, 1);
     }
 
+    // Scale the athlete-tuned HR values to the persona's max (see hrScale).
+    avgHr = Math.round(avgHr * hrScale);
+    maxHr = Math.round(maxHr * hrScale);
+
     const startTime = dateAt(daysAgo, 7, 0);
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
 
@@ -523,8 +534,8 @@ async function seed() {
       maxHr: isRestDay
         ? null
         : isHardDay
-          ? rng.int(178, 189)
-          : rng.int(155, 172),
+          ? Math.round(rng.int(178, 189) * hrScale)
+          : Math.round(rng.int(155, 172) * hrScale),
       sleepStartTime: `${rng.int(21, 23)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
       sleepEndTime: `${rng.int(5, 7)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
     });
