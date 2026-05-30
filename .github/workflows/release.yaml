@@ -80,7 +80,7 @@ jobs:
           npx @cyclonedx/cyclonedx-npm --ignore-npm-errors --output-file sbom-cyclonedx.xml --output-format xml
 
       - name: 'Upload SBOM artifacts'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: sbom-files
           path: |
