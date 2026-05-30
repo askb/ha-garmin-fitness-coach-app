@@ -396,7 +396,7 @@ export default function CoachPage() {
       </header>
 
       {/* Agent Selector Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-zinc-800 bg-zinc-900/60 px-3 py-2 [scrollbar-width:thin]">
+      <div className="flex [scrollbar-width:thin] gap-1 overflow-x-auto border-b border-zinc-800 bg-zinc-900/60 px-3 py-2">
         {AGENTS.map((agent) => (
           <button
             key={agent.id}
