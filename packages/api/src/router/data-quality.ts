@@ -18,7 +18,7 @@ function dateNDaysAgo(n: number): string {
   return d.toISOString().split("T")[0]!;
 }
 
-interface RawVsComputedRow {
+export interface RawVsComputedRow {
   date: string;
   raw: number;
   computed: number;

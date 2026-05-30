@@ -169,6 +169,54 @@ describe("buildDataContext", () => {
     expect(context).toContain("Cycling");
   });
 
+  it("Training Load prose uses the stored engine-conformant advanced_metric (single source of truth)", async () => {
+    // The addon computes advanced_metric with the same engine algorithm the
+    // charts use. The coach prose must surface those stored values rather
+    // than recomputing from the last 10 sessions, so the prompt cannot carry
+    // two contradictory CTL/ATL/ACWR figures.
+    const db = makeDb() as {
+      query: {
+        AdvancedMetric: { findMany: ReturnType<typeof vi.fn> };
+        Activity: { findMany: ReturnType<typeof vi.fn> };
+      };
+    };
+    db.query.AdvancedMetric.findMany = vi.fn(async () => [
+      {
+        date: "2026-03-24",
+        ctl: 61.3,
+        atl: 70.8,
+        tsb: -9.5,
+        acwr: 1.12,
+        rampRate: 4.7,
+      },
+    ]);
+    db.query.Activity.findMany = vi.fn(async () => [
+      {
+        id: "a1",
+        userId: "user-1",
+        sportType: "running",
+        startedAt: new Date(),
+        durationMinutes: 30,
+        distanceMeters: 5000,
+        avgHr: 140,
+        strainScore: 8,
+        trimpScore: 50,
+        hrZoneMinutes: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+    const context = await buildDataContext(db as never, "user-1");
+    expect(context).toContain("- CTL (Fitness): 61.3");
+    expect(context).toContain("- ATL (Fatigue): 70.8");
+    expect(context).toContain("- TSB (Form): -9.5");
+    expect(context).toContain("- Ramp Rate: 4.7 pts/week");
+    expect(context).toContain("- ACWR: 1.12");
+    const availability = extractAvailabilityJson(context);
+    expect(availability.ctl).toBe(61.3);
+    expect(availability.acwr).toBe(1.12);
+  });
+
   it("coachContext.vo2max matches the highest-priority estimate (garmin_official wins over uth_method)", async () => {
     const db = makeDb() as {
       query: {
