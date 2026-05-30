@@ -52,7 +52,7 @@ function startPostgres(): string {
   ]);
   containerName = name;
 
-  let lastReadinessOutput = "";
+  let lastReadinessOutput: string;
   for (let attempt = 0; attempt < 60; attempt += 1) {
     const result = spawnSync(
       "docker",

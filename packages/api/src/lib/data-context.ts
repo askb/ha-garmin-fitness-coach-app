@@ -1096,7 +1096,7 @@ export async function buildDataContext(
         const pctZ3 = (totalZ3 / total) * 100;
         const pctZ45 = ((totalZ4 + totalZ5) / total) * 100;
         const pct = (v: number) => ((v / total) * 100).toFixed(0);
-        let advice = "";
+        let advice: string;
         if (pctZ3 > 25) {
           advice = ` Too much Zone 3 (no man's land) at ${pctZ3.toFixed(0)}%. Target: 75-80% Zone 1-2, 15-20% Zone 4-5, <5% Zone 3.`;
         } else if (pctZ12 < 70) {

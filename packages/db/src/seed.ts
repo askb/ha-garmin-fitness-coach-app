@@ -321,7 +321,7 @@ async function seed() {
     const garminId = `seed-${date}-${actType}`;
 
     let sportType: string;
-    let subType: string | null = null;
+    let subType: string | null;
     let durationMinutes: number;
     let distanceMeters: number | null = null;
     let avgHr: number;
@@ -332,8 +332,8 @@ async function seed() {
     let normalizedPower: number | null = null;
     let elevationGain: number | null = null;
     let avgCadence: number | null = null;
-    let aerobicTE: number | null = null;
-    let anaerobicTE: number | null = null;
+    let aerobicTE: number | null;
+    let anaerobicTE: number | null;
 
     switch (actType) {
       case "easy_run":
