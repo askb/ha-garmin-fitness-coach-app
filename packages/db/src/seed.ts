@@ -89,6 +89,144 @@ interface DayPlan {
 }
 
 // ---------------------------------------------------------------------------
+// Persona archetypes
+// ---------------------------------------------------------------------------
+// The seed can emulate different athlete profiles via the PERSONA env var
+// (PERSONA=athlete|recreational|beginner|detrained). This powers the E2E
+// screenshot matrix: each persona produces visibly different readiness,
+// training-load and vitals screens. The default "athlete" persona is
+// byte-for-byte identical to the historical seed so `db:seed` is unchanged.
+interface Persona {
+  label: string;
+  age: number;
+  massKg: number;
+  experienceLevel: "beginner" | "intermediate" | "advanced";
+  maxHr: number;
+  restingHrBaseline: number;
+  hrvBaseline: number;
+  sleepBaseline: number;
+  vo2maxRunning: number;
+  functionalThresholdPower: number;
+  // Weekly training days (0=Sun … 6=Sat) that carry an activity.
+  trainingDows: number[];
+  // Multiplier applied to each day's training load.
+  loadScale: number;
+  // Additive shifts to the daily-metric baselines (fitter ⇒ lower RHR,
+  // higher HRV). Zero for the reference athlete.
+  rhrShift: number;
+  hrvShift: number;
+}
+
+const PERSONAS: Record<string, Persona> = {
+  athlete: {
+    label: "athlete",
+    age: 32,
+    massKg: 72,
+    experienceLevel: "intermediate",
+    maxHr: 192,
+    restingHrBaseline: 53,
+    hrvBaseline: 65,
+    sleepBaseline: 430,
+    vo2maxRunning: 52.0,
+    functionalThresholdPower: 280,
+    trainingDows: [1, 2, 3, 6, 0],
+    loadScale: 1.0,
+    rhrShift: 0,
+    hrvShift: 0,
+  },
+  recreational: {
+    label: "recreational",
+    age: 38,
+    massKg: 76,
+    experienceLevel: "intermediate",
+    maxHr: 185,
+    restingHrBaseline: 58,
+    hrvBaseline: 55,
+    sleepBaseline: 415,
+    vo2maxRunning: 45.0,
+    functionalThresholdPower: 220,
+    trainingDows: [1, 3, 6, 0],
+    loadScale: 0.75,
+    rhrShift: 5,
+    hrvShift: -10,
+  },
+  beginner: {
+    label: "beginner",
+    age: 45,
+    massKg: 83,
+    experienceLevel: "beginner",
+    maxHr: 178,
+    restingHrBaseline: 64,
+    hrvBaseline: 45,
+    sleepBaseline: 400,
+    vo2maxRunning: 38.0,
+    functionalThresholdPower: 160,
+    trainingDows: [1, 3, 6],
+    loadScale: 0.5,
+    rhrShift: 11,
+    hrvShift: -20,
+  },
+  detrained: {
+    label: "detrained",
+    age: 50,
+    massKg: 88,
+    experienceLevel: "beginner",
+    maxHr: 172,
+    restingHrBaseline: 68,
+    hrvBaseline: 40,
+    sleepBaseline: 390,
+    vo2maxRunning: 34.0,
+    functionalThresholdPower: 140,
+    trainingDows: [1, 6],
+    loadScale: 0.4,
+    rhrShift: 15,
+    hrvShift: -25,
+  },
+};
+
+function resolvePersona(): Persona {
+  const key = (process.env.PERSONA ?? "athlete").toLowerCase();
+  const p = PERSONAS[key];
+  if (!p) {
+    console.error(
+      `❌ Unknown PERSONA="${key}". ` +
+        `Valid values: ${Object.keys(PERSONAS).join(", ")}`,
+    );
+    process.exit(1);
+  }
+  return p;
+}
+
+const persona = resolvePersona();
+
+// Map day-of-week index (0=Sun … 6=Sat) to the abbreviations the Profile
+// schema stores in weeklyDays, so the advertised training days stay
+// consistent with each persona's actual activity schedule.
+const DOW_ABBREV = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const personaWeeklyDays = persona.trainingDows.map(
+  (d) => DOW_ABBREV[d] as string,
+);
+
+// The activity and daily-metric heart-rate ranges below are tuned to the
+// reference athlete (maxHr 192). Scale them by each persona's configured
+// maxHr so generated observations never exceed the profile maximum.
+// Athlete (192/192 = 1.0) is unchanged, preserving byte-identical output.
+const HR_REF_MAX = 192;
+const hrScale = persona.maxHr / HR_REF_MAX;
+
+// Per-day-of-week activity template (load ranges are scaled by the persona).
+const DOW_PLAN: Record<
+  number,
+  { actType: Exclude<ActivityType, null>; loadMin: number; loadMax: number }
+> = {
+  1: { actType: "easy_run", loadMin: 42, loadMax: 58 },
+  2: { actType: "strength", loadMin: 28, loadMax: 42 },
+  3: { actType: "threshold_run", loadMin: 72, loadMax: 98 },
+  6: { actType: "long_run", loadMin: 85, loadMax: 120 },
+  0: { actType: "bike", loadMin: 60, loadMax: 88 },
+};
+
+// ---------------------------------------------------------------------------
 // Main seed
 // ---------------------------------------------------------------------------
 async function seed() {
@@ -111,32 +249,32 @@ async function seed() {
       "⚠️  FORCE_SEED=1 set — seeding anyway (may mix with real data)",
     );
   }
-  console.log("🌱 Seeding 90 days of realistic athlete data…");
+  console.log(`🌱 Seeding 90 days of realistic ${persona.label} data…`);
 
   // --- Profile ---
   await db
     .insert(Profile)
     .values({
       userId: USER_ID,
-      age: 32,
+      age: persona.age,
       sex: "male",
-      massKg: 72,
+      massKg: persona.massKg,
       heightCm: 178,
       timezone: "America/New_York",
-      experienceLevel: "intermediate",
+      experienceLevel: persona.experienceLevel,
       primarySports: ["running", "cycling", "strength_training"],
       goals: [
         { sport: "running", goalType: "performance", target: "sub-40 10K" },
         { sport: "cycling", goalType: "endurance", target: "3hr gran fondo" },
       ],
-      weeklyDays: ["mon", "tue", "wed", "sat", "sun"],
+      weeklyDays: personaWeeklyDays,
       minutesPerDay: 55,
-      maxHr: 192,
-      restingHrBaseline: 53,
-      hrvBaseline: 65,
-      sleepBaseline: 430,
-      vo2maxRunning: 52.0,
-      functionalThresholdPower: 280,
+      maxHr: persona.maxHr,
+      restingHrBaseline: persona.restingHrBaseline,
+      hrvBaseline: persona.hrvBaseline,
+      sleepBaseline: persona.sleepBaseline,
+      vo2maxRunning: persona.vo2maxRunning,
+      functionalThresholdPower: persona.functionalThresholdPower,
     })
     .onConflictDoNothing();
 
@@ -153,26 +291,12 @@ async function seed() {
     let actType: ActivityType = null;
     let load = 0;
 
-    if (dow === 1) {
-      // Monday: easy run ~45 min
-      actType = "easy_run";
-      load = rng.int(42, 58);
-    } else if (dow === 2) {
-      // Tuesday: strength
-      actType = "strength";
-      load = rng.int(28, 42);
-    } else if (dow === 3) {
-      // Wednesday: threshold run
-      actType = "threshold_run";
-      load = rng.int(72, 98);
-    } else if (dow === 6) {
-      // Saturday: long run
-      actType = "long_run";
-      load = rng.int(85, 120);
-    } else if (dow === 0) {
-      // Sunday: bike
-      actType = "bike";
-      load = rng.int(60, 88);
+    const plan = DOW_PLAN[dow];
+    if (plan && persona.trainingDows.includes(dow)) {
+      actType = plan.actType;
+      load = Math.round(
+        rng.int(plan.loadMin, plan.loadMax) * persona.loadScale,
+      );
     }
 
     days.push({
@@ -292,6 +416,10 @@ async function seed() {
         anaerobicTE = rng.float(0.5, 2.0, 1);
     }
 
+    // Scale the athlete-tuned HR values to the persona's max (see hrScale).
+    avgHr = Math.round(avgHr * hrScale);
+    maxHr = Math.round(maxHr * hrScale);
+
     const startTime = dateAt(daysAgo, 7, 0);
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
 
@@ -356,10 +484,10 @@ async function seed() {
     const isRestDay = actType === null;
     const isHardDay = actType === "threshold_run" || actType === "long_run";
 
-    const hrvBase = isRestDay ? 68 : isHardDay ? 54 : 62;
+    const hrvBase = (isRestDay ? 68 : isHardDay ? 54 : 62) + persona.hrvShift;
     const hrv = rng.float(hrvBase - 7, hrvBase + 7, 1);
 
-    const rhrBase = isRestDay ? 49 : isHardDay ? 56 : 52;
+    const rhrBase = (isRestDay ? 49 : isHardDay ? 56 : 52) + persona.rhrShift;
     const restingHr = rng.int(rhrBase - 2, rhrBase + 3);
 
     const sleepBase = isHardDay ? 68 : isRestDay ? 82 : 76;
@@ -406,8 +534,8 @@ async function seed() {
       maxHr: isRestDay
         ? null
         : isHardDay
-          ? rng.int(178, 189)
-          : rng.int(155, 172),
+          ? Math.round(rng.int(178, 189) * hrScale)
+          : Math.round(rng.int(155, 172) * hrScale),
       sleepStartTime: `${rng.int(21, 23)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
       sleepEndTime: `${rng.int(5, 7)}:${rng.int(0, 59).toString().padStart(2, "0")}`,
     });
@@ -567,7 +695,7 @@ async function seed() {
           tsb: parseFloat(tsb.toFixed(2)),
           acwr: parseFloat(acwr.toFixed(3)),
           rampRate: parseFloat(rampRate.toFixed(2)),
-          cp: 280,
+          cp: persona.functionalThresholdPower,
         })
         .onConflictDoNothing();
       advancedCount++;
