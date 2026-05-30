@@ -199,6 +199,14 @@ function resolvePersona(): Persona {
 
 const persona = resolvePersona();
 
+// Map day-of-week index (0=Sun … 6=Sat) to the abbreviations the Profile
+// schema stores in weeklyDays, so the advertised training days stay
+// consistent with each persona's actual activity schedule.
+const DOW_ABBREV = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+const personaWeeklyDays = persona.trainingDows.map(
+  (d) => DOW_ABBREV[d] as string,
+);
+
 // Per-day-of-week activity template (load ranges are scaled by the persona).
 const DOW_PLAN: Record<
   number,
@@ -252,7 +260,7 @@ async function seed() {
         { sport: "running", goalType: "performance", target: "sub-40 10K" },
         { sport: "cycling", goalType: "endurance", target: "3hr gran fondo" },
       ],
-      weeklyDays: ["mon", "tue", "wed", "sat", "sun"],
+      weeklyDays: personaWeeklyDays,
       minutesPerDay: 55,
       maxHr: persona.maxHr,
       restingHrBaseline: persona.restingHrBaseline,
@@ -676,7 +684,7 @@ async function seed() {
           tsb: parseFloat(tsb.toFixed(2)),
           acwr: parseFloat(acwr.toFixed(3)),
           rampRate: parseFloat(rampRate.toFixed(2)),
-          cp: 280,
+          cp: persona.functionalThresholdPower,
         })
         .onConflictDoNothing();
       advancedCount++;
