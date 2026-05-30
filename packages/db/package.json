@@ -31,7 +31,7 @@
     "db:seed:e2e": "tsx src/seed-e2e.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.7",
+    "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.8.3",
     "pg": "^8.20.0",
     "zod": "catalog:"
