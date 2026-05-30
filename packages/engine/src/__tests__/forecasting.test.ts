@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildScenarioLoads,
+  buildWhatIfOptions,
   findRaceReadinessWindow,
   linearForecast,
   projectPMC,
+  simulateWhatIf,
 } from "../forecasting";
 
 describe("buildScenarioLoads", () => {
@@ -132,5 +134,68 @@ describe("findRaceReadinessWindow", () => {
     const fc = projectPMC(history, 10, "maintain"); // TSB hovers ~0
     const window = findRaceReadinessWindow(fc.days, { min: 30, max: 50 });
     expect(window).toBeNull();
+  });
+});
+
+describe("buildWhatIfOptions", () => {
+  const recent = Array.from({ length: 14 }, () => 50);
+
+  it("always includes rest, easy and hard", () => {
+    const opts = buildWhatIfOptions(recent);
+    const ids = opts.map((o) => o.id);
+    expect(ids).toContain("rest");
+    expect(ids).toContain("easy");
+    expect(ids).toContain("hard");
+    expect(ids).not.toContain("planned");
+  });
+
+  it("adds a planned option when a planned load is supplied", () => {
+    const opts = buildWhatIfOptions(recent, 65);
+    const planned = opts.find((o) => o.id === "planned");
+    expect(planned).toBeDefined();
+    expect(planned!.todayLoad).toBe(65);
+  });
+
+  it("orders load rest < easy < hard", () => {
+    const opts = buildWhatIfOptions(recent);
+    const byId = Object.fromEntries(opts.map((o) => [o.id, o.todayLoad]));
+    expect(byId.rest!).toBeLessThan(byId.easy!);
+    expect(byId.easy!).toBeLessThan(byId.hard!);
+  });
+});
+
+describe("simulateWhatIf", () => {
+  const recent = Array.from({ length: 30 }, () => 50);
+
+  it("returns one outcome per option", () => {
+    const opts = buildWhatIfOptions(recent, 60);
+    const outcomes = simulateWhatIf(recent, opts, 7);
+    expect(outcomes).toHaveLength(opts.length);
+  });
+
+  it("leaves more form (higher TSB) after rest than after a hard day", () => {
+    const opts = buildWhatIfOptions(recent);
+    const outcomes = simulateWhatIf(recent, opts, 7);
+    const rest = outcomes.find((o) => o.id === "rest")!;
+    const hard = outcomes.find((o) => o.id === "hard")!;
+    expect(rest.tomorrow.tsb).toBeGreaterThan(hard.tomorrow.tsb);
+  });
+
+  it("flags a very hard day as elevated injury risk", () => {
+    // Low chronic baseline, then a big spike today.
+    const lowBaseline = Array.from({ length: 30 }, () => 10);
+    const outcomes = simulateWhatIf(
+      lowBaseline,
+      [{ id: "spike", label: "Spike", todayLoad: 120 }],
+      7,
+    );
+    expect(outcomes[0]!.acwrFlag).not.toBe("safe");
+    expect(outcomes[0]!.peakAcwr).toBeGreaterThan(1.3);
+  });
+
+  it("keeps rest within a safe ACWR", () => {
+    const opts = buildWhatIfOptions(recent);
+    const outcomes = simulateWhatIf(recent, opts, 7);
+    expect(outcomes.find((o) => o.id === "rest")!.acwrFlag).toBe("safe");
   });
 });

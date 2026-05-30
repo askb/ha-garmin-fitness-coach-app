@@ -292,3 +292,112 @@ export function findRaceReadinessWindow(
   }
   return null;
 }
+
+export interface WhatIfOption {
+  /** Stable id, e.g. "rest" | "easy" | "planned" | "hard". */
+  id: string;
+  label: string;
+  /** Training load (strain score) applied to "today" under this choice. */
+  todayLoad: number;
+}
+
+export interface WhatIfOutcome {
+  id: string;
+  label: string;
+  todayLoad: number;
+  /** Projected PMC one day out (i.e. tomorrow). */
+  tomorrow: { ctl: number; atl: number; tsb: number; acwr: number };
+  /** Projected PMC at the end of the horizon. */
+  endOfHorizon: { ctl: number; atl: number; tsb: number; acwr: number };
+  /** Peak ACWR seen across the horizon — the injury-risk signal. */
+  peakAcwr: number;
+  acwrFlag: "safe" | "caution" | "high";
+}
+
+/**
+ * Build sensible default what-if options from the recent load baseline and an
+ * optional planned-session load. "easy"/"hard" are scaled off the recent
+ * 7-day average so the choices stay personalised.
+ */
+export function buildWhatIfOptions(
+  recentDailyLoads: number[],
+  plannedTodayLoad?: number | null,
+): WhatIfOption[] {
+  const window = recentDailyLoads.slice(-7);
+  const baseline =
+    window.length > 0 ? window.reduce((s, v) => s + v, 0) / window.length : 0;
+
+  const options: WhatIfOption[] = [
+    { id: "rest", label: "Rest today", todayLoad: 0 },
+    {
+      id: "easy",
+      label: "Easy session",
+      todayLoad: Math.round(baseline * 0.6 * 100) / 100,
+    },
+  ];
+  if (plannedTodayLoad && plannedTodayLoad > 0) {
+    options.push({
+      id: "planned",
+      label: "Planned session",
+      todayLoad: Math.round(plannedTodayLoad * 100) / 100,
+    });
+  }
+  options.push({
+    id: "hard",
+    label: "Hard session",
+    todayLoad: Math.round(Math.max(baseline * 1.4, baseline + 10) * 100) / 100,
+  });
+  return options;
+}
+
+function classifyAcwr(acwr: number): WhatIfOutcome["acwrFlag"] {
+  if (acwr >= 1.5) return "high";
+  if (acwr >= 1.3) return "caution";
+  return "safe";
+}
+
+/**
+ * "What if I do / skip / change today's workout?" — project each candidate
+ * choice forward and report the downstream form (TSB) and injury-risk (ACWR)
+ * consequences. Today's load is the only thing that varies; the remaining
+ * horizon assumes maintenance of the recent baseline so the options are
+ * compared on equal footing.
+ */
+export function simulateWhatIf(
+  recentDailyLoads: number[],
+  options: WhatIfOption[],
+  horizonDays = 7,
+): WhatIfOutcome[] {
+  const tail = buildScenarioLoads(
+    recentDailyLoads,
+    Math.max(0, horizonDays - 1),
+    "maintain",
+  );
+
+  return options.map((opt) => {
+    const futureLoads = [opt.todayLoad, ...tail].slice(0, horizonDays);
+    const fc = projectPMC(recentDailyLoads, horizonDays, futureLoads);
+    const first = fc.days[0]!;
+    const last = fc.days[fc.days.length - 1]!;
+    const peakAcwr = fc.days.reduce((m, d) => Math.max(m, d.acwr), 0);
+    return {
+      id: opt.id,
+      label: opt.label,
+      todayLoad: opt.todayLoad,
+      tomorrow: {
+        ctl: first.ctl,
+        atl: first.atl,
+        tsb: first.tsb,
+        acwr: first.acwr,
+      },
+      endOfHorizon: {
+        ctl: last.ctl,
+        atl: last.atl,
+        tsb: last.tsb,
+        acwr: last.acwr,
+      },
+      peakAcwr: Math.round(peakAcwr * 1000) / 1000,
+      acwrFlag: classifyAcwr(peakAcwr),
+    };
+  });
+}

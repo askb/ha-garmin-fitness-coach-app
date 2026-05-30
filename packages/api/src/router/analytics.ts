@@ -21,10 +21,12 @@ import {
   computeTrainingLoads,
   computeVO2maxTrend,
   estimateRecoveryTime,
+  buildWhatIfOptions,
   findRaceReadinessWindow,
   linearForecast,
   predictRaceTimesFromVO2max,
   projectPMC,
+  simulateWhatIf,
 } from "@acme/engine";
 
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
@@ -226,6 +228,44 @@ export const analyticsRouter = {
         computedAt: new Date().toISOString(),
       };
     }),
+
+  getWhatIfToday: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    const cutoffMs = Date.now() - 35 * 86400000;
+    const cutoff = Number.isFinite(cutoffMs) ? new Date(cutoffMs) : new Date(0);
+
+    const [profile, activitiesRaw] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
+
+    const activities = activitiesRaw.filter(
+      (a) =>
+        a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+    );
+    const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
+      activities,
+      35,
+      profile?.timezone,
+    );
+
+    const options = buildWhatIfOptions(dailyLoadsChrono);
+    const outcomes = simulateWhatIf(dailyLoadsChrono, options, 7);
+
+    return {
+      hasData: dailyLoadsRecent.some((v) => v > 0),
+      outcomes,
+      timezone: profile?.timezone ?? "UTC",
+      computedAt: new Date().toISOString(),
+    };
+  }),
 
   getTrainingStatus: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;

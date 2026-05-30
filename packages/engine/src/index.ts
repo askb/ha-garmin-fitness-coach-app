@@ -72,6 +72,8 @@ export {
   buildScenarioLoads,
   linearForecast,
   findRaceReadinessWindow,
+  buildWhatIfOptions,
+  simulateWhatIf,
 } from "./forecasting";
 export type {
   LoadScenario,
@@ -80,6 +82,8 @@ export type {
   LinearForecastPoint,
   LinearForecast,
   RaceReadinessWindow,
+  WhatIfOption,
+  WhatIfOutcome,
 } from "./forecasting";
 
 export {
