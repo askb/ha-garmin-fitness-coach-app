@@ -207,7 +207,10 @@ export const chatRouter = {
         // COACH_QUALITY_GATE_ENABLED=false to disable.
         if (process.env.COACH_QUALITY_GATE_ENABLED !== "false") {
           try {
-            const quality = evaluateResponseQuality(responseContent, dataContext);
+            const quality = evaluateResponseQuality(
+              responseContent,
+              dataContext,
+            );
             if (quality.confidence !== "high") {
               console.log(
                 `[Chat] Quality gate: ${quality.confidence} confidence, ` +

@@ -19,11 +19,12 @@ interface Outcome {
   acwrFlag: "safe" | "caution" | "high";
 }
 
-const FLAG_STYLE: Record<Outcome["acwrFlag"], { label: string; cls: string }> = {
-  safe: { label: "Safe load", cls: "text-emerald-400" },
-  caution: { label: "Watch load", cls: "text-amber-400" },
-  high: { label: "High risk", cls: "text-rose-400" },
-};
+const FLAG_STYLE: Record<Outcome["acwrFlag"], { label: string; cls: string }> =
+  {
+    safe: { label: "Safe load", cls: "text-emerald-400" },
+    caution: { label: "Watch load", cls: "text-amber-400" },
+    high: { label: "High risk", cls: "text-rose-400" },
+  };
 
 function tsbSign(tsb: number): string {
   return `${tsb > 0 ? "+" : ""}${tsb}`;
@@ -74,14 +75,16 @@ export function WhatIfCard() {
               data-testid={`whatif-${o.id}`}
               className={cn(
                 "rounded-xl px-3 py-2",
-                isSafest ? "bg-emerald-500/10 ring-emerald-500/30 ring-1" : "bg-muted/40",
+                isSafest
+                  ? "bg-emerald-500/10 ring-1 ring-emerald-500/30"
+                  : "bg-muted/40",
               )}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium">
                   {o.label}
                   {isSafest ? (
-                    <span className="text-emerald-400 ml-2 text-[10px] font-semibold uppercase tracking-wider">
+                    <span className="ml-2 text-[10px] font-semibold tracking-wider text-emerald-400 uppercase">
                       best form
                     </span>
                   ) : null}

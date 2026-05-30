@@ -822,10 +822,7 @@ export const HistoryEmbedding = pgTable(
       table.periodType,
       table.periodKey,
     ),
-    index("history_embedding_user_type_idx").on(
-      table.userId,
-      table.periodType,
-    ),
+    index("history_embedding_user_type_idx").on(table.userId, table.periodType),
   ],
 );
 
@@ -861,7 +858,6 @@ export const OutcomeAttribution = pgTable(
     // The engine ruleId that fired (e.g. "low-readiness-blocks-hard"), or
     // "__decision__" for whole-recommendation attribution.
     ruleId: t.varchar({ length: 64 }).notNull(),
-    auditId: t.uuid(), // RecommendationAudit.id this was derived from
     decisionKind: t
       .varchar({ length: 32 })
       .notNull()

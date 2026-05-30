@@ -25,7 +25,8 @@ const RULE_LABELS: Record<string, string> = {
   "acwr-spike-blocks-hard": "Reining in load on ACWR spikes",
   "acwr-very-low-suggests-light-build": "Rebuilding from a very low load",
   "tsb-overreaching-suggests-deload": "Deloading when overreaching",
-  "consecutive-hard-suggests-recovery": "Recovering after back-to-back hard days",
+  "consecutive-hard-suggests-recovery":
+    "Recovering after back-to-back hard days",
   "race-week-protects-taper": "Protecting your race-week taper",
   "race-day-rest": "Resting on race day",
   "intervention-recent-respects": "Respecting a recent recovery nudge",
@@ -54,7 +55,7 @@ export function WhatsWorkingCard() {
   const rules = useMemo(() => {
     const all = (query.data?.rules ?? []) as RuleEffectiveness[];
     return all
-      .filter((r) => r.n > 0)
+      .filter((r) => r.n > 0 && r.ruleId !== "__decision__")
       .sort((a, b) => b.score - a.score);
   }, [query.data]);
 
@@ -69,7 +70,9 @@ export function WhatsWorkingCard() {
         <p className="text-muted-foreground text-sm font-medium">
           Learned from your outcomes
         </p>
-        <h2 className="mt-1 text-xl font-semibold">What&apos;s working for you</h2>
+        <h2 className="mt-1 text-xl font-semibold">
+          What&apos;s working for you
+        </h2>
         <p className="text-muted-foreground mt-1 text-xs">
           How recovery markers moved after each coaching decision.
         </p>

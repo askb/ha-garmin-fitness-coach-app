@@ -10,17 +10,24 @@
 
 import { NextResponse } from "next/server";
 
-import { db } from "@acme/db/client";
-
+import {
+  isLearningEnabled,
+  recomputeOutcomeAttribution,
+} from "@acme/api/learning";
 import { isMemoryEnabled, summarizeAndEmbedHistory } from "@acme/api/memory";
+import { db } from "@acme/db/client";
 
 export const dynamic = "force-dynamic";
 
 function authorized(req: Request): boolean {
   // eslint-disable-next-line no-restricted-properties
   const expected = process.env.INTERNAL_TASK_TOKEN;
-  if (!expected) return true; // local-first default: no token required
-  return req.headers.get("x-internal-token") === expected;
+  if (expected) return req.headers.get("x-internal-token") === expected;
+  // Fail closed when no token is configured. The addon injects
+  // INTERNAL_TASK_TOKEN automatically; the only way to run this unauthenticated
+  // is an explicit opt-in for bare local-dev setups.
+  // eslint-disable-next-line no-restricted-properties
+  return process.env.INTERNAL_TASK_ALLOW_INSECURE === "true";
 }
 
 export async function POST(req: Request) {
@@ -30,20 +37,33 @@ export async function POST(req: Request) {
       { status: 401 },
     );
   }
-  if (!isMemoryEnabled()) {
+  const memoryEnabled = isMemoryEnabled();
+  const learningEnabled = isLearningEnabled();
+  if (!memoryEnabled && !learningEnabled) {
     return NextResponse.json({
       success: true,
       skipped: true,
-      message: "Coach memory disabled (no OLLAMA_URL / COACH_MEMORY_ENABLED).",
+      message:
+        "Coach memory + learning disabled (no OLLAMA_URL / COACH_MEMORY_ENABLED / LEARNING_ATTRIBUTION_ENABLED).",
     });
   }
 
   try {
     const users = await db.query.user.findMany({ columns: { id: true } });
-    const results: { userId: string; written: number; embedded: number }[] = [];
+    const results: {
+      userId: string;
+      written: number;
+      embedded: number;
+      rulesScored: number;
+    }[] = [];
     for (const u of users) {
-      const r = await summarizeAndEmbedHistory(u.id);
-      results.push({ userId: u.id, ...r });
+      const mem = memoryEnabled
+        ? await summarizeAndEmbedHistory(u.id)
+        : { written: 0, embedded: 0 };
+      const rules = learningEnabled
+        ? await recomputeOutcomeAttribution(u.id)
+        : [];
+      results.push({ userId: u.id, ...mem, rulesScored: rules.length });
     }
     return NextResponse.json({ success: true, users: results.length, results });
   } catch (err) {

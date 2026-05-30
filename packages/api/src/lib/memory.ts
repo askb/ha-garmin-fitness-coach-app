@@ -14,9 +14,9 @@
 // unavailable, retrieval falls back to deterministic rollups (or nothing), and
 // the coach turn proceeds with the existing recent-window context.
 
-import { and, eq, gte } from "@acme/db";
+import { and, eq, gte, notInArray } from "@acme/db";
 import { db } from "@acme/db/client";
-import { Activity, DailyMetric, HistoryEmbedding } from "@acme/db/schema";
+import { Activity, HistoryEmbedding } from "@acme/db/schema";
 
 import { ollamaEmbed } from "./ollama";
 
@@ -63,7 +63,9 @@ export function cosineSim(a: number[], b: number[]): number {
 /** ISO-8601 week key, e.g. "2024-W07". */
 export function isoWeekKey(d: Date): string {
   // Copy date, shift to Thursday of the current week (ISO weeks anchor on it).
-  const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const date = new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+  );
   const dayNum = (date.getUTCDay() + 6) % 7; // Mon=0..Sun=6
   date.setUTCDate(date.getUTCDate() - dayNum + 3);
   const firstThursday = new Date(Date.UTC(date.getUTCFullYear(), 0, 4));
@@ -87,7 +89,7 @@ export function monthKey(d: Date): string {
 // ---------------------------------------------------------------------------
 
 export interface PeriodSummary {
-  periodType: "week" | "month";
+  periodType: "week" | "month" | "year";
   periodKey: string;
   summaryText: string;
   metrics: Record<string, number | string | null>;
@@ -107,18 +109,22 @@ function km(meters: number): number {
 }
 
 function summarizeBucket(
-  periodType: "week" | "month",
+  periodType: "week" | "month" | "year",
   periodKey: string,
   rows: ActivityRow[],
 ): PeriodSummary {
   const count = rows.length;
-  const totalMin = Math.round(rows.reduce((s, r) => s + (r.durationMinutes || 0), 0));
+  const totalMin = Math.round(
+    rows.reduce((s, r) => s + (r.durationMinutes || 0), 0),
+  );
   const totalKm = km(rows.reduce((s, r) => s + (r.distanceMeters ?? 0), 0));
   const totalLoad =
-    Math.round(rows.reduce((s, r) => s + (r.strainScore ?? r.trimpScore ?? 0), 0) * 10) /
-    10;
+    Math.round(
+      rows.reduce((s, r) => s + (r.strainScore ?? r.trimpScore ?? 0), 0) * 10,
+    ) / 10;
   const bySport = new Map<string, number>();
-  for (const r of rows) bySport.set(r.sportType, (bySport.get(r.sportType) ?? 0) + 1);
+  for (const r of rows)
+    bySport.set(r.sportType, (bySport.get(r.sportType) ?? 0) + 1);
   const sportBreakdown = [...bySport.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([sport, n]) => `${n} ${sport}`)
@@ -127,7 +133,8 @@ function summarizeBucket(
     rows.reduce((m, r) => Math.max(m, r.distanceMeters ?? 0), 0),
   );
 
-  const label = periodType === "week" ? "Week" : "Month";
+  const label =
+    periodType === "week" ? "Week" : periodType === "year" ? "Year" : "Month";
   const summaryText =
     `${label} ${periodKey}: ${count} activities (${sportBreakdown}), ` +
     `${totalKm} km, ${Math.floor(totalMin / 60)}h ${totalMin % 60}m, ` +
@@ -238,6 +245,25 @@ export async function summarizeAndEmbedHistory(
       });
     written++;
   }
+
+  // Prune embeddings for periods that no longer have any activity (e.g. an
+  // activity was deleted/re-synced), so stale summaries can't be retrieved.
+  const liveKeys = summaries.map((s) => s.periodKey);
+  if (liveKeys.length > 0) {
+    await db
+      .delete(HistoryEmbedding)
+      .where(
+        and(
+          eq(HistoryEmbedding.userId, userId),
+          notInArray(HistoryEmbedding.periodKey, liveKeys),
+        ),
+      );
+  } else {
+    await db
+      .delete(HistoryEmbedding)
+      .where(eq(HistoryEmbedding.userId, userId));
+  }
+
   return { written, embedded };
 }
 
@@ -257,7 +283,8 @@ export interface HistoryRetrieval {
  * ground aggregate claims ("X runs, Y km this year").
  */
 async function yearRollup(userId: string): Promise<string | null> {
-  const yearStart = new Date(new Date().getFullYear(), 0, 1);
+  const now = new Date();
+  const yearStart = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
   const rows = (await db.query.Activity.findMany({
     where: and(eq(Activity.userId, userId), gte(Activity.startedAt, yearStart)),
     columns: {
@@ -270,8 +297,8 @@ async function yearRollup(userId: string): Promise<string | null> {
     },
   })) as ActivityRow[];
   if (rows.length === 0) return null;
-  const s = summarizeBucket("year" as "month", String(yearStart.getFullYear()), rows);
-  return s.summaryText.replace(/^Month /, "Year ");
+  return summarizeBucket("year", String(yearStart.getUTCFullYear()), rows)
+    .summaryText;
 }
 
 /**
@@ -302,7 +329,9 @@ export async function retrieveHistory(
 
   const scored = rows
     .filter(
-      (r): r is { summaryText: string; embedding: number[]; periodKey: string } =>
+      (
+        r,
+      ): r is { summaryText: string; embedding: number[]; periodKey: string } =>
         Array.isArray(r.embedding) && r.embedding.length === queryVec.length,
     )
     .map((r) => ({

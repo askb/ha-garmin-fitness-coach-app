@@ -12,6 +12,7 @@ import {
 } from "@acme/db/schema";
 import {
   analyzeRunningForm,
+  buildWhatIfOptions,
   classifyLoadFocus,
   classifyTrainingStatus,
   computeACWR,
@@ -21,7 +22,6 @@ import {
   computeTrainingLoads,
   computeVO2maxTrend,
   estimateRecoveryTime,
-  buildWhatIfOptions,
   findRaceReadinessWindow,
   linearForecast,
   predictRaceTimesFromVO2max,
@@ -241,7 +241,10 @@ export const analyticsRouter = {
         columns: { timezone: true },
       }),
       ctx.db.query.Activity.findMany({
-        where: and(eq(Activity.userId, userId), gte(Activity.startedAt, cutoff)),
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, cutoff),
+        ),
         orderBy: desc(Activity.startedAt),
       }),
     ]);

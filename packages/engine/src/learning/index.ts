@@ -109,7 +109,12 @@ export function attributeOutcomes(
     const outcome = pointAtOrAfter(byDate, addDays(d.date, horizonDays));
     if (!baseline && !outcome) continue;
 
-    const base = baseline ?? { readiness: null, hrv: null, tsb: null, date: d.date };
+    const base = baseline ?? {
+      readiness: null,
+      hrv: null,
+      tsb: null,
+      date: d.date,
+    };
     const res = outcome ?? {
       readiness: null,
       hrv: null,
@@ -151,7 +156,9 @@ export function attributeOutcomes(
 function mean(values: (number | null)[]): number | null {
   const nums = values.filter((v): v is number => v != null);
   if (nums.length === 0) return null;
-  return Math.round((nums.reduce((s, v) => s + v, 0) / nums.length) * 100) / 100;
+  return (
+    Math.round((nums.reduce((s, v) => s + v, 0) / nums.length) * 100) / 100
+  );
 }
 
 /** Squash a raw mean delta to [-1, 1] with a gentle scale per metric. */

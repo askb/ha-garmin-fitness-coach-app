@@ -34,7 +34,11 @@ function classify(raw: number, computed: number): RawVsComputedRow["status"] {
   return "diverged";
 }
 
-function pairRow(date: string, raw: number, computed: number): RawVsComputedRow {
+function pairRow(
+  date: string,
+  raw: number,
+  computed: number,
+): RawVsComputedRow {
   const deltaPct = raw === 0 ? null : ((computed - raw) / raw) * 100;
   return {
     date,

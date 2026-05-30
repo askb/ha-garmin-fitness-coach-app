@@ -11,7 +11,13 @@
 // Gated by LEARNING_ATTRIBUTION_ENABLED (default on). Best-effort and
 // idempotent on (userId, ruleId, decisionDate, horizonDays).
 
-import { and, eq, gte } from "@acme/db";
+import type {
+  Attribution,
+  DecisionInput,
+  MetricPoint,
+  RuleEffectiveness,
+} from "@acme/engine";
+import { and, eq, gte, sql } from "@acme/db";
 import { db } from "@acme/db/client";
 import {
   AdvancedMetric,
@@ -20,13 +26,11 @@ import {
   ReadinessScore,
   RecommendationAudit,
 } from "@acme/db/schema";
-import type {
-  Attribution,
-  DecisionInput,
-  MetricPoint,
-  RuleEffectiveness,
+import {
+  attributeOutcomes,
+  DECISION_RULE_ID,
+  summarizeRuleEffectiveness,
 } from "@acme/engine";
-import { attributeOutcomes, summarizeRuleEffectiveness } from "@acme/engine";
 
 const ATTRIBUTED_KINDS = [
   "recommendation",
@@ -145,53 +149,61 @@ export async function recomputeOutcomeAttribution(
 
   await persistAttributions(userId, attributions);
 
-  return summarizeRuleEffectiveness(attributions);
+  // Exclude the decision-level sentinel from the surfaced summary; it is
+  // persisted for aggregate analysis but is not a real coaching rule.
+  return summarizeRuleEffectiveness(attributions).filter(
+    (r) => r.ruleId !== DECISION_RULE_ID,
+  );
 }
 
 async function persistAttributions(
   userId: string,
   attributions: Attribution[],
 ): Promise<void> {
-  for (const a of attributions) {
-    await db
-      .insert(OutcomeAttribution)
-      .values({
-        userId,
-        ruleId: a.ruleId,
-        decisionKind: a.decisionKind as (typeof ATTRIBUTED_KINDS)[number],
-        decisionDate: a.decisionDate,
-        horizonDays: a.horizonDays,
-        baselineReadiness: a.baselineReadiness,
-        baselineHrv: a.baselineHrv,
-        baselineTsb: a.baselineTsb,
-        outcomeReadiness: a.outcomeReadiness,
-        outcomeHrv: a.outcomeHrv,
-        outcomeTsb: a.outcomeTsb,
-        deltaReadiness: a.deltaReadiness,
-        deltaHrv: a.deltaHrv,
-        deltaTsb: a.deltaTsb,
-      })
-      .onConflictDoUpdate({
-        target: [
-          OutcomeAttribution.userId,
-          OutcomeAttribution.ruleId,
-          OutcomeAttribution.decisionDate,
-          OutcomeAttribution.horizonDays,
-        ],
-        set: {
-          decisionKind: a.decisionKind as (typeof ATTRIBUTED_KINDS)[number],
-          baselineReadiness: a.baselineReadiness,
-          baselineHrv: a.baselineHrv,
-          baselineTsb: a.baselineTsb,
-          outcomeReadiness: a.outcomeReadiness,
-          outcomeHrv: a.outcomeHrv,
-          outcomeTsb: a.outcomeTsb,
-          deltaReadiness: a.deltaReadiness,
-          deltaHrv: a.deltaHrv,
-          deltaTsb: a.deltaTsb,
-        },
-      });
-  }
+  if (attributions.length === 0) return;
+
+  const values = attributions.map((a) => ({
+    userId,
+    ruleId: a.ruleId,
+    decisionKind: a.decisionKind as (typeof ATTRIBUTED_KINDS)[number],
+    decisionDate: a.decisionDate,
+    horizonDays: a.horizonDays,
+    baselineReadiness: a.baselineReadiness,
+    baselineHrv: a.baselineHrv,
+    baselineTsb: a.baselineTsb,
+    outcomeReadiness: a.outcomeReadiness,
+    outcomeHrv: a.outcomeHrv,
+    outcomeTsb: a.outcomeTsb,
+    deltaReadiness: a.deltaReadiness,
+    deltaHrv: a.deltaHrv,
+    deltaTsb: a.deltaTsb,
+  }));
+
+  // Single multi-row upsert (vs one round-trip per attribution). On conflict,
+  // overwrite the mutable columns from the incoming row via `excluded`.
+  await db
+    .insert(OutcomeAttribution)
+    .values(values)
+    .onConflictDoUpdate({
+      target: [
+        OutcomeAttribution.userId,
+        OutcomeAttribution.ruleId,
+        OutcomeAttribution.decisionDate,
+        OutcomeAttribution.horizonDays,
+      ],
+      set: {
+        decisionKind: sql`excluded.decision_kind`,
+        baselineReadiness: sql`excluded.baseline_readiness`,
+        baselineHrv: sql`excluded.baseline_hrv`,
+        baselineTsb: sql`excluded.baseline_tsb`,
+        outcomeReadiness: sql`excluded.outcome_readiness`,
+        outcomeHrv: sql`excluded.outcome_hrv`,
+        outcomeTsb: sql`excluded.outcome_tsb`,
+        deltaReadiness: sql`excluded.delta_readiness`,
+        deltaHrv: sql`excluded.delta_hrv`,
+        deltaTsb: sql`excluded.delta_tsb`,
+      },
+    });
 }
 
 /**
@@ -220,5 +232,7 @@ export async function getRuleEffectiveness(
     deltaHrv: r.deltaHrv,
     deltaTsb: r.deltaTsb,
   }));
-  return summarizeRuleEffectiveness(attributions);
+  return summarizeRuleEffectiveness(attributions).filter(
+    (r) => r.ruleId !== DECISION_RULE_ID,
+  );
 }

@@ -121,7 +121,7 @@ export function LoadForecastCard() {
               {data.raceWindow.startDayOffset}–{data.raceWindow.endDayOffset}
             </span>{" "}
             (peak TSB{" "}
-            <span className="text-emerald-400 font-semibold tabular-nums">
+            <span className="font-semibold text-emerald-400 tabular-nums">
               +{data.raceWindow.peakTsb}
             </span>
             ).
@@ -171,10 +171,7 @@ function Stat({
     <div className="bg-muted/40 rounded-xl px-3 py-2 text-center">
       <p className="text-muted-foreground text-[11px]">{label}</p>
       <p
-        className={cn(
-          "mt-0.5 text-lg font-semibold tabular-nums",
-          valueClass,
-        )}
+        className={cn("mt-0.5 text-lg font-semibold tabular-nums", valueClass)}
       >
         {value > 0 && label.includes("TSB") ? "+" : ""}
         {value}

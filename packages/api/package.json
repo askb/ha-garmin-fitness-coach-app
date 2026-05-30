@@ -10,6 +10,10 @@
     "./memory": {
       "types": "./dist/lib/memory.d.ts",
       "default": "./src/lib/memory.ts"
+    },
+    "./learning": {
+      "types": "./dist/lib/learning.d.ts",
+      "default": "./src/lib/learning.ts"
     }
   },
   "license": "MIT",
