@@ -10,6 +10,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-05-31
+
+### Added
+
+- **AI-native closed-loop foundations: RAG memory + learning loop.** The coach now builds and queries a retrieval-augmented memory of multi-year history, enabling token-efficient semantic answers to aggregate questions (e.g. "analyse all my runs this year") instead of raw activity dumps, plus a learning loop that adapts over time.
+- Persona-parameterized database seeding to drive the end-to-end screenshot/QA matrix across recreational, beginner, athlete, and detrained profiles.
+
+### Changed
+
+- Upgraded the lint/typecheck toolchain to ESLint 10, TypeScript 6, and `@eslint/compat` 2 (with `typescript-eslint` 8.60 and `eslint-plugin-turbo` 2.9), clearing the previously deferred majors.
+- Hardened all CI workflows with Zizmor security scanning and SHA-pinned, Node 24 actions.
+- Refreshed runtime and build dependencies (Next.js 16.2, Vite 8, Vitest 4, Tailwind 4.3, Drizzle 0.45, and related bumps).
+
 ## [0.17.8] - 2026-05-29
 
 ### Fixed
