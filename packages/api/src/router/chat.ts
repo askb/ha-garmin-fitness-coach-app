@@ -12,6 +12,7 @@ import { haConversationChat } from "../lib/ha-conversation";
 import { humanizeActivityName } from "../lib/humanize";
 import { renumberOrderedLists } from "../lib/llm-post";
 import { ollamaChat } from "../lib/ollama";
+import { evaluateResponseQuality, qualityBadge } from "../lib/quality-gate";
 import { protectedProcedure } from "../trpc";
 
 // ---------------------------------------------------------------------------
@@ -199,6 +200,32 @@ export const chatRouter = {
 
         // 6. Normalize common LLM markdown issues, then append disclaimer
         responseContent = normalizeAssistantMessageContent(responseContent);
+
+        // 6b. Quality gate: cross-check numeric claims against the data
+        // context the model was given and append an honest caution banner
+        // when figures aren't backed by synced data. Default-on; set
+        // COACH_QUALITY_GATE_ENABLED=false to disable.
+        if (process.env.COACH_QUALITY_GATE_ENABLED !== "false") {
+          try {
+            const quality = evaluateResponseQuality(
+              responseContent,
+              dataContext,
+            );
+            if (quality.confidence !== "high") {
+              console.log(
+                `[Chat] Quality gate: ${quality.confidence} confidence, ` +
+                  `${quality.unsupportedClaims.length}/${quality.claims.length} claims unsupported`,
+              );
+              responseContent += qualityBadge(quality);
+            }
+          } catch (qErr) {
+            console.error(
+              `[Chat] Quality gate error:`,
+              qErr instanceof Error ? qErr.message : qErr,
+            );
+          }
+        }
+
         const disclaimer =
           "\n\n---\n*⚠️ Disclaimer: This is AI-generated guidance, not professional medical advice. " +
           "Individual results may vary. Consult a qualified healthcare professional " +

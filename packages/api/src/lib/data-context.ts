@@ -22,6 +22,7 @@ import {
 } from "@acme/engine";
 
 import { humanizeActivityName } from "./humanize";
+import { isMemoryEnabled, renderHistoryBlock, retrieveHistory } from "./memory";
 import { pickBestVO2maxEstimate } from "./vo2max";
 
 // Drizzle db type — keep generic to avoid coupling to the concrete client
@@ -371,6 +372,22 @@ export async function buildDataContext(
     ].join("\n"),
   ];
 
+  // RAG / coach memory (spec 007): for aggregate / long-range questions, pull
+  // semantically relevant historical summaries + a deterministic year rollup
+  // and inject them up front so multi-year questions are grounded. Gated and
+  // best-effort — a miss never blocks the turn. Only runs for aggregate intent
+  // so recent precise questions stay fast (no extra embedding round-trip).
+  let historyBlock = "";
+  if (intent.isAggregate && isMemoryEnabled()) {
+    try {
+      const retrieval = await retrieveHistory(userId, options?.message ?? "");
+      historyBlock = renderHistoryBlock(retrieval);
+    } catch {
+      historyBlock = "";
+    }
+    if (historyBlock) sections.push(historyBlock);
+  }
+
   // 1. Athlete Profile -----------------------------------------------------
   {
     const lines: string[] = ["## Athlete Profile"];
@@ -464,15 +481,39 @@ export async function buildDataContext(
     const strainScores = recentForLoad.map(
       (a) => a.strainScore ?? computeStrainScore(a.trimpScore ?? 0),
     );
-    const loads = computeTrainingLoads([...strainScores].reverse());
-    const acwr = computeACWR(strainScores);
     const hardDays = countConsecutiveHardDays(strainScores);
 
+    // Single source of truth: prefer the stored advanced_metric values, which
+    // the addon computes over the full daily series with the SAME engine
+    // algorithm the /training and /insights charts use. Falling back to a
+    // live 10-session engine compute only when the addon has not populated
+    // advanced_metric yet keeps the coach working on fresh installs. This
+    // prevents the coach prompt from carrying two contradictory CTL/ATL/ACWR
+    // figures (stored JSON vs recomputed prose).
+    const stored = latestAdvMetric;
+    const storedCtl = stored?.ctl ?? null;
+    const storedAtl = stored?.atl ?? null;
+    const storedTsb = stored?.tsb ?? null;
+    const hasStoredLoads =
+      storedCtl != null && storedAtl != null && storedTsb != null;
+    const fallback = computeTrainingLoads([...strainScores].reverse());
+    const ctl = hasStoredLoads ? storedCtl : fallback.ctl;
+    const atl = hasStoredLoads ? storedAtl : fallback.atl;
+    const tsb = hasStoredLoads ? storedTsb : fallback.tsb;
+    const rampRate =
+      hasStoredLoads && stored?.rampRate != null
+        ? stored.rampRate
+        : fallback.rampRate;
+    const acwr =
+      hasStoredLoads && stored?.acwr != null
+        ? stored.acwr
+        : computeACWR(strainScores);
+
     const lines: string[] = ["## Training Load"];
-    lines.push(`- CTL (Fitness): ${loads.ctl.toFixed(1)}`);
-    lines.push(`- ATL (Fatigue): ${loads.atl.toFixed(1)}`);
-    lines.push(`- TSB (Form): ${loads.tsb.toFixed(1)}`);
-    lines.push(`- Ramp Rate: ${loads.rampRate.toFixed(1)} pts/week`);
+    lines.push(`- CTL (Fitness): ${ctl.toFixed(1)}`);
+    lines.push(`- ATL (Fatigue): ${atl.toFixed(1)}`);
+    lines.push(`- TSB (Form): ${tsb.toFixed(1)}`);
+    lines.push(`- Ramp Rate: ${rampRate.toFixed(1)} pts/week`);
     lines.push(`- ACWR: ${acwr.toFixed(2)} (${acwrStatus(acwr)})`);
     lines.push(`- Consecutive hard days: ${hardDays}`);
     sections.push(lines.join("\n"));
@@ -1138,9 +1179,12 @@ export async function buildDataContext(
 
   const result = sections.join("\n\n");
 
-  // Cap context size to prevent OOM — LLMs work fine with summarized data
-  if (result.length > 4000) {
-    return result.slice(0, 4000) + "\n\n[... context trimmed for performance]";
+  // Cap context size to prevent OOM — LLMs work fine with summarized data.
+  // Allow a larger budget when a history block is present so multi-year
+  // grounding isn't truncated away.
+  const cap = historyBlock ? 6000 : 4000;
+  if (result.length > cap) {
+    return result.slice(0, cap) + "\n\n[... context trimmed for performance]";
   }
 
   return result;

@@ -35,6 +35,7 @@ import {
 } from "@acme/engine";
 
 import { frameRecommendationReason, recordRecommendationAudit } from "../lib";
+import { getRuleEffectiveness } from "../lib/learning";
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
 import { protectedProcedure } from "../trpc";
 
@@ -1093,5 +1094,17 @@ export const coachRouter = {
         source,
         ...(mixedSources ? { mixedSources } : {}),
       };
+    }),
+
+  // Learning loop (ai-loop-close-learning): per-rule effectiveness scored from
+  // the audit trail vs. subsequent recovery outcomes. Surfaced read-only — it
+  // informs a "what worked for you" view and feeds displayed confidence; it
+  // does NOT tune any thresholds in this release.
+  ruleEffectiveness: protectedProcedure
+    .input(z.object({}).optional())
+    .query(async ({ ctx }) => {
+      const userId = ctx.session.user.id;
+      const rules = await getRuleEffectiveness(userId);
+      return { rules };
     }),
 } satisfies TRPCRouterRecord;

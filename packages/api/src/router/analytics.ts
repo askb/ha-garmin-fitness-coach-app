@@ -12,6 +12,7 @@ import {
 } from "@acme/db/schema";
 import {
   analyzeRunningForm,
+  buildWhatIfOptions,
   classifyLoadFocus,
   classifyTrainingStatus,
   computeACWR,
@@ -21,7 +22,11 @@ import {
   computeTrainingLoads,
   computeVO2maxTrend,
   estimateRecoveryTime,
+  findRaceReadinessWindow,
+  linearForecast,
   predictRaceTimesFromVO2max,
+  projectPMC,
+  simulateWhatIf,
 } from "@acme/engine";
 
 import { dayInTimezone, shiftIsoDay, todayInTimezone } from "../lib/timezone";
@@ -138,6 +143,128 @@ export const analyticsRouter = {
       acwrEwma,
       loadFocus,
       rampRate: loadMetrics.rampRate,
+      timezone: profile?.timezone ?? "UTC",
+      computedAt: new Date().toISOString(),
+    };
+  }),
+
+  getLoadForecast: protectedProcedure
+    .input(
+      z
+        .object({ horizonDays: z.number().min(7).max(56).default(28) })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const horizonDays = input?.horizonDays ?? 28;
+
+      // 90-day window gives CTL (42d EWMA) time to settle before projecting.
+      const cutoffMs = Date.now() - 90 * 86400000;
+      const cutoff = Number.isFinite(cutoffMs)
+        ? new Date(cutoffMs)
+        : new Date(0);
+
+      const [profile, activitiesRaw, vo2Estimates] = await Promise.all([
+        ctx.db.query.Profile.findFirst({
+          where: eq(Profile.userId, userId),
+          columns: { timezone: true },
+        }),
+        ctx.db.query.Activity.findMany({
+          where: and(
+            eq(Activity.userId, userId),
+            gte(Activity.startedAt, cutoff),
+          ),
+          orderBy: desc(Activity.startedAt),
+        }),
+        ctx.db.query.VO2maxEstimate.findMany({
+          where: and(
+            eq(VO2maxEstimate.userId, userId),
+            eq(VO2maxEstimate.source, "garmin_official"),
+          ),
+          orderBy: [desc(VO2maxEstimate.date)],
+          limit: 120,
+        }),
+      ]);
+
+      const activities = activitiesRaw.filter(
+        (a) =>
+          a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+      );
+      const { dailyLoadsChrono } = aggregateDailyLoads(
+        activities,
+        90,
+        profile?.timezone,
+      );
+
+      // Project each training-decision scenario forward.
+      const scenarios = (
+        ["maintain", "rest", "rampUp", "rampDown"] as const
+      ).map((s) => {
+        const fc = projectPMC(dailyLoadsChrono, horizonDays, s);
+        return {
+          scenario: fc.scenario,
+          assumedDailyLoad: fc.assumedDailyLoad,
+          days: fc.days,
+        };
+      });
+
+      // Race-readiness window assumes a deliberate taper (rampDown).
+      const taper = projectPMC(dailyLoadsChrono, horizonDays, "rampDown");
+      const raceWindow = findRaceReadinessWindow(taper.days);
+
+      // VO2max trajectory — linear extrapolation of Garmin Firstbeat readings.
+      const vo2Series = [...vo2Estimates]
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map((e) => ({ date: e.date, value: e.value }));
+      const vo2maxForecast = linearForecast(vo2Series, horizonDays);
+
+      return {
+        horizonDays,
+        hasData: dailyLoadsChrono.some((v) => v > 0),
+        scenarios,
+        raceWindow,
+        vo2maxForecast,
+        timezone: profile?.timezone ?? "UTC",
+        computedAt: new Date().toISOString(),
+      };
+    }),
+
+  getWhatIfToday: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    const cutoffMs = Date.now() - 35 * 86400000;
+    const cutoff = Number.isFinite(cutoffMs) ? new Date(cutoffMs) : new Date(0);
+
+    const [profile, activitiesRaw] = await Promise.all([
+      ctx.db.query.Profile.findFirst({
+        where: eq(Profile.userId, userId),
+        columns: { timezone: true },
+      }),
+      ctx.db.query.Activity.findMany({
+        where: and(
+          eq(Activity.userId, userId),
+          gte(Activity.startedAt, cutoff),
+        ),
+        orderBy: desc(Activity.startedAt),
+      }),
+    ]);
+
+    const activities = activitiesRaw.filter(
+      (a) =>
+        a.startedAt instanceof Date && !Number.isNaN(a.startedAt.getTime()),
+    );
+    const { dailyLoadsChrono, dailyLoadsRecent } = aggregateDailyLoads(
+      activities,
+      35,
+      profile?.timezone,
+    );
+
+    const options = buildWhatIfOptions(dailyLoadsChrono);
+    const outcomes = simulateWhatIf(dailyLoadsChrono, options, 7);
+
+    return {
+      hasData: dailyLoadsRecent.some((v) => v > 0),
+      outcomes,
       timezone: profile?.timezone ?? "UTC",
       computedAt: new Date().toISOString(),
     };

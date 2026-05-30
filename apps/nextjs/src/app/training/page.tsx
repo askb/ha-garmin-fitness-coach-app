@@ -28,6 +28,7 @@ import { DataFreshness } from "../_components/data-freshness";
 import { DateRangeSelector } from "../_components/date-range-selector";
 import { GarminTrainingSummary } from "../_components/garmin-training-summary";
 import { SectionHeader } from "../_components/info-button";
+import { WhatIfCard } from "../_components/what-if-card";
 
 /* ─────────────── constants ─────────────── */
 
@@ -147,6 +148,9 @@ export default function TrainingLoadPage() {
 
       {/* ── Garmin Training Summary (native readings) ── */}
       <GarminTrainingSummary />
+
+      {/* ── What-if: today's training-choice simulation ── */}
+      <WhatIfCard />
 
       {/* ── PMC — Performance Management Chart ── */}
       <div className="bg-card rounded-2xl border p-4">

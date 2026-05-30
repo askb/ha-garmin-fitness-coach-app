@@ -772,6 +772,128 @@ export const CreateRecommendationAuditSchema = createInsertSchema(
 // above the DailyWorkout pgTable() call.
 
 // ---------------------------------------------------------------------------
+// History Embedding (RAG / coach memory over full history) — spec 007
+// ---------------------------------------------------------------------------
+//
+// Compact periodic summaries of the athlete's history, embedded once and
+// retrieved semantically so the coach can answer multi-year aggregate /
+// narrative questions without dumping raw rows into the prompt.
+//
+// MVP stores the embedding as a plain `jsonb` number[] (NOT pgvector): this is
+// single-user / local-first with only a few hundred vectors, so brute-force
+// cosine similarity in TS is fast enough and avoids a Postgres extension that
+// is not reliably packaged for the addon's Alpine image. pgvector can replace
+// this column later if scale ever demands it.
+//
+export const HISTORY_PERIOD_TYPES = [
+  "week",
+  "month",
+  "year",
+  "activity",
+] as const;
+
+export type HistoryPeriodType = (typeof HISTORY_PERIOD_TYPES)[number];
+
+export const HistoryEmbedding = pgTable(
+  "history_embedding",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    // "week" | "month" | "year" | "activity"
+    periodType: t.varchar({ length: 16 }).notNull().$type<HistoryPeriodType>(),
+    // Stable key within the period type, e.g. "2024-W12", "2024-03", "2024",
+    // or an activity id. Used for idempotent upserts.
+    periodKey: t.varchar({ length: 64 }).notNull(),
+    summaryText: t.text().notNull(),
+    embedding: t.jsonb().$type<number[]>(),
+    // Deterministic numeric facts behind the summary (counts, totals, deltas)
+    // so the LLM quality gate can ground claims without re-querying.
+    metrics: t.jsonb().$type<Record<string, number | string | null>>(),
+    model: t.varchar({ length: 64 }),
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  }),
+  (table) => [
+    uniqueIndex("history_embedding_user_period_unique").on(
+      table.userId,
+      table.periodType,
+      table.periodKey,
+    ),
+    index("history_embedding_user_type_idx").on(table.userId, table.periodType),
+  ],
+);
+
+export const CreateHistoryEmbeddingSchema = createInsertSchema(HistoryEmbedding)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({ periodType: z.enum(HISTORY_PERIOD_TYPES) });
+
+// ---------------------------------------------------------------------------
+// Outcome Attribution (close the learning loop) — ai-loop-close-learning
+// ---------------------------------------------------------------------------
+//
+// Joins a coach decision (from RecommendationAudit) to the athlete's
+// *subsequent* N-day physiological outcome (readiness / HRV / TSB), so we can
+// score per-rule effectiveness per athlete. Phase 1 only SURFACES this (a
+// "what worked for you" view + a confidence input); per-athlete threshold
+// tuning is a later, guard-railed phase.
+//
+export const OUTCOME_DECISION_KINDS = [
+  "recommendation",
+  "intervention_accept",
+  "intervention_skip",
+  "intervention_defer",
+  "override",
+] as const;
+
+export type OutcomeDecisionKind = (typeof OUTCOME_DECISION_KINDS)[number];
+
+export const OutcomeAttribution = pgTable(
+  "outcome_attribution",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    // The engine ruleId that fired (e.g. "low-readiness-blocks-hard"), or
+    // "__decision__" for whole-recommendation attribution.
+    ruleId: t.varchar({ length: 64 }).notNull(),
+    decisionKind: t
+      .varchar({ length: 32 })
+      .notNull()
+      .$type<OutcomeDecisionKind>(),
+    decisionDate: t.date().notNull(),
+    horizonDays: t.integer().notNull(),
+    // Baseline (decision day) and outcome (decision day + horizon) snapshots.
+    baselineReadiness: t.doublePrecision(),
+    baselineHrv: t.doublePrecision(),
+    baselineTsb: t.doublePrecision(),
+    outcomeReadiness: t.doublePrecision(),
+    outcomeHrv: t.doublePrecision(),
+    outcomeTsb: t.doublePrecision(),
+    deltaReadiness: t.doublePrecision(),
+    deltaHrv: t.doublePrecision(),
+    deltaTsb: t.doublePrecision(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+  }),
+  (table) => [
+    uniqueIndex("outcome_attribution_unique").on(
+      table.userId,
+      table.ruleId,
+      table.decisionDate,
+      table.horizonDays,
+    ),
+    index("outcome_attribution_user_rule_idx").on(table.userId, table.ruleId),
+  ],
+);
+
+export const CreateOutcomeAttributionSchema = createInsertSchema(
+  OutcomeAttribution,
+)
+  .omit({ id: true, createdAt: true })
+  .extend({ decisionKind: z.enum(OUTCOME_DECISION_KINDS) });
+
+// ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
 // ---------------------------------------------------------------------------
 export const Post = pgTable("post", (t) => ({

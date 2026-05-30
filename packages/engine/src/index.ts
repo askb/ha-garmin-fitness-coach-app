@@ -68,6 +68,25 @@ export {
 export { detectAnomalies } from "./anomalies";
 
 export {
+  projectPMC,
+  buildScenarioLoads,
+  linearForecast,
+  findRaceReadinessWindow,
+  buildWhatIfOptions,
+  simulateWhatIf,
+} from "./forecasting";
+export type {
+  LoadScenario,
+  ProjectedPMCDay,
+  PMCForecast,
+  LinearForecastPoint,
+  LinearForecast,
+  RaceReadinessWindow,
+  WhatIfOption,
+  WhatIfOutcome,
+} from "./forecasting";
+
+export {
   generateDailyWorkout,
   modulateWorkout,
   selectWeeklyTemplate,
@@ -128,3 +147,13 @@ export {
   type ReconcileStatus,
   type ReconcileDeviation,
 } from "./planned-vs-actual";
+
+export {
+  attributeOutcomes,
+  summarizeRuleEffectiveness,
+  DECISION_RULE_ID,
+  type DecisionInput,
+  type MetricPoint,
+  type Attribution,
+  type RuleEffectiveness,
+} from "./learning";

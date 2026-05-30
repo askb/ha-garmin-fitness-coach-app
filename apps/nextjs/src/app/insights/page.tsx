@@ -10,6 +10,7 @@ import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
+import { WhatsWorkingCard } from "../_components/whats-working-card";
 
 /* ─────────────── ProactiveInsightCard ─────────────── */
 
@@ -607,6 +608,9 @@ export default function InsightsPage() {
             </div>
           )}
         </div>
+
+        {/* ── What's working for you (learning loop) ── */}
+        <WhatsWorkingCard />
 
         {/* ── Weekly Summary ── */}
         {summary.isLoading ? (
