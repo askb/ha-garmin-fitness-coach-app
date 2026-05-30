@@ -7,6 +7,11 @@
     "pnpm": "^10.19.0"
   },
   "packageManager": "pnpm@10.19.0",
+  "pnpm": {
+    "overrides": {
+      "@types/node": "^22.18.12"
+    }
+  },
   "scripts": {
     "build": "turbo run build",
     "clean": "git clean -xdf node_modules",
