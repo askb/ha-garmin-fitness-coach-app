@@ -548,20 +548,29 @@ export default function SleepDashboard() {
                 />
               )}
               <Bar
+                isAnimationActive={false}
                 dataKey="deep"
                 stackId="sleep"
                 fill="#4338ca"
                 radius={[0, 0, 0, 0]}
                 name="Deep"
               />
-              <Bar dataKey="rem" stackId="sleep" fill="#a855f7" name="REM" />
               <Bar
+                isAnimationActive={false}
+                dataKey="rem"
+                stackId="sleep"
+                fill="#a855f7"
+                name="REM"
+              />
+              <Bar
+                isAnimationActive={false}
                 dataKey="light"
                 stackId="sleep"
                 fill="#60a5fa"
                 name="Light"
               />
               <Bar
+                isAnimationActive={false}
                 dataKey="awake"
                 stackId="sleep"
                 fill="#f87171"
@@ -707,6 +716,7 @@ export default function SleepDashboard() {
                   }
                 />
                 <Bar
+                  isAnimationActive={false}
                   dataKey="actual"
                   fill="#60a5fa"
                   radius={[4, 4, 0, 0]}

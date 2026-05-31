@@ -335,6 +335,7 @@ export default function HrvPage() {
                 />
               )}
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="daily"
                 stroke="#22c55e"

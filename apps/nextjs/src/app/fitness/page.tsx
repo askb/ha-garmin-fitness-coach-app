@@ -527,6 +527,7 @@ export default function FitnessPage() {
                 }}
               />
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="value"
                 stroke="#3b82f6"
@@ -609,6 +610,7 @@ export default function FitnessPage() {
                 }}
               />
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="value"
                 stroke="#f59e0b"
@@ -687,6 +689,7 @@ export default function FitnessPage() {
                   }}
                 />
                 <Area
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey="value"
                   stroke="#3b82f6"

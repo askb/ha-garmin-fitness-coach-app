@@ -553,6 +553,7 @@ export default function TrendsPage() {
                 formatter={(value: string) => METRIC_LABELS[value] ?? value}
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="readiness"
                 type="monotone"
                 dataKey="readiness"
@@ -563,6 +564,7 @@ export default function TrendsPage() {
                 connectNulls
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="sleep"
                 type="monotone"
                 dataKey="sleep"
@@ -573,6 +575,7 @@ export default function TrendsPage() {
                 connectNulls
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="hrv"
                 type="monotone"
                 dataKey="hrv"
@@ -583,6 +586,7 @@ export default function TrendsPage() {
                 connectNulls
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="stress"
                 type="monotone"
                 dataKey="stress"
