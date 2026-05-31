@@ -241,6 +241,7 @@ export default function TrainingLoadPage() {
               />
               {/* TSB filled areas */}
               <Area
+                isAnimationActive={false}
                 yAxisId="left"
                 type="monotone"
                 dataKey="tsbPos"
@@ -250,6 +251,7 @@ export default function TrainingLoadPage() {
                 legendType="none"
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="left"
                 type="monotone"
                 dataKey="tsbNeg"
@@ -416,6 +418,7 @@ export default function TrainingLoadPage() {
                 }}
               />
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="value"
                 stroke="#ef4444"
@@ -473,6 +476,7 @@ export default function TrainingLoadPage() {
                 }}
               />
               <Area
+                isAnimationActive={false}
                 type="monotone"
                 dataKey="value"
                 stroke="#3b82f6"
@@ -660,6 +664,7 @@ export default function TrainingLoadPage() {
                 }}
               />
               <Bar
+                isAnimationActive={false}
                 dataKey="value"
                 fill="#ef4444"
                 radius={[4, 4, 0, 0]}
@@ -707,6 +712,7 @@ export default function TrainingLoadPage() {
                 }}
               />
               <Bar
+                isAnimationActive={false}
                 dataKey="value"
                 fill="#6366f1"
                 radius={[4, 4, 0, 0]}
@@ -860,6 +866,7 @@ function LoadFocusChart({ focus }: { focus: string }) {
       <ResponsiveContainer width="100%" height={140}>
         <PieChart>
           <Pie
+            isAnimationActive={false}
             data={focusData}
             cx="50%"
             cy="50%"

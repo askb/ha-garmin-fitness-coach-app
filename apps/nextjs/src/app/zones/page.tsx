@@ -625,6 +625,7 @@ export default function ZoneAnalysisPage() {
               />
               {(["z1", "z2", "z3", "z4", "z5"] as const).map((z) => (
                 <Bar
+                  isAnimationActive={false}
                   key={z}
                   dataKey={z}
                   stackId="zones"
@@ -727,6 +728,7 @@ export default function ZoneAnalysisPage() {
                 }}
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="pct"
                 type="monotone"
                 dataKey="easyPct"
@@ -736,6 +738,7 @@ export default function ZoneAnalysisPage() {
                 name="Easy %"
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="pct"
                 type="monotone"
                 dataKey="moderatePct"
@@ -745,6 +748,7 @@ export default function ZoneAnalysisPage() {
                 name="Moderate %"
               />
               <Area
+                isAnimationActive={false}
                 yAxisId="pct"
                 type="monotone"
                 dataKey="hardPct"
@@ -842,6 +846,7 @@ export default function ZoneAnalysisPage() {
                   const z = key.replace("Pct", "");
                   return (
                     <Area
+                      isAnimationActive={false}
                       key={key}
                       type="monotone"
                       dataKey={key}
@@ -1037,6 +1042,7 @@ export default function ZoneAnalysisPage() {
               />
               {Object.entries(SPORT_COLORS).map(([key, color]) => (
                 <Bar
+                  isAnimationActive={false}
                   key={key}
                   dataKey={key}
                   stackId="sports"

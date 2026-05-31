@@ -442,6 +442,7 @@ function VitalMetricSection({
                 />
               ))}
               <Area
+                isAnimationActive={false}
                 dataKey="value"
                 fill={color}
                 fillOpacity={0.15}
