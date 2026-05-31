@@ -10,6 +10,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.1] - 2026-05-31
+
+### Fixed
+
+- **Stacked Bar/Area charts no longer render empty (#257).** Recharts creates
+  Bar/Area geometry only after its entry-animation frame fires; under React 19
+  concurrent rendering on chart-heavy pages that frame could be dropped, so the
+  bars/areas never painted (axes and legends still showed). Disabled entry
+  animation (`isAnimationActive={false}`) on all Bar/Area/Pie/Radar series
+  across the zones, sleep, fitness, hrv, vitals, training, and trends pages.
+  Affected stacked charts (e.g. Weekly Time in Zones, Sleep Stages) now render
+  immediately.
+- **Out-of-range readiness values flagged in data validation (#258).** Garmin
+  occasionally returns malformed Training Readiness payloads (e.g. `130`, `530`)
+  outside the 0–100 scale. The Engine-vs-Garmin validation table now classifies
+  readiness/VO2max values outside their valid range as `invalid` ("⚪ Out of
+  range"), excludes them from the agreement percentage, and suppresses a
+  misleading delta, so bad source data no longer inflates the reported
+  agreement.
+
 ## [0.18.0] - 2026-05-31
 
 ### Added
