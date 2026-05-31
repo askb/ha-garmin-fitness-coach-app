@@ -23,10 +23,28 @@ export interface RawVsComputedRow {
   raw: number;
   computed: number;
   deltaPct: number | null;
-  status: "match" | "minor" | "diverged";
+  status: "match" | "minor" | "diverged" | "invalid";
 }
 
-function classify(raw: number, computed: number): RawVsComputedRow["status"] {
+interface ValidRange {
+  min: number;
+  max: number;
+}
+
+function inRange(value: number, range?: ValidRange): boolean {
+  if (!range) return true;
+  return Number.isFinite(value) && value >= range.min && value <= range.max;
+}
+
+function classify(
+  raw: number,
+  computed: number,
+  range?: ValidRange,
+): RawVsComputedRow["status"] {
+  // A physiologically-impossible value on either side means the comparison
+  // itself is meaningless — surface it as "invalid" instead of silently
+  // counting it as a match/divergence (which would pollute the agreement %).
+  if (!inRange(raw, range) || !inRange(computed, range)) return "invalid";
   if (raw === 0) return computed === 0 ? "match" : "diverged";
   const pct = Math.abs((computed - raw) / raw) * 100;
   if (pct < 5) return "match";
@@ -38,6 +56,7 @@ function pairRow(
   date: string,
   raw: number,
   computed: number,
+  range?: ValidRange,
 ): RawVsComputedRow {
   const deltaPct = raw === 0 ? null : ((computed - raw) / raw) * 100;
   return {
@@ -45,9 +64,14 @@ function pairRow(
     raw,
     computed,
     deltaPct: deltaPct === null ? null : Math.round(deltaPct * 10) / 10,
-    status: classify(raw, computed),
+    status: classify(raw, computed, range),
   };
 }
+
+// Readiness is defined on a 0–100 scale; VO2max never physically exceeds
+// ~100 ml/kg/min. Values outside these bounds indicate a sync/parsing bug.
+const READINESS_RANGE: ValidRange = { min: 0, max: 100 };
+const VO2MAX_RANGE: ValidRange = { min: 0, max: 100 };
 
 export const dataQualityRouter = {
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -143,7 +167,7 @@ export const dataQualityRouter = {
       for (const r of readinessRows) {
         const raw = garminReadinessByDate.get(r.date);
         if (raw == null) continue;
-        readiness.push(pairRow(r.date, raw, r.score));
+        readiness.push(pairRow(r.date, raw, r.score, READINESS_RANGE));
       }
 
       // VO2max: Garmin official estimate vs engine effective VO2max.
@@ -178,7 +202,7 @@ export const dataQualityRouter = {
       for (const r of vo2Rows) {
         const computed = effectiveByDate.get(r.date);
         if (computed == null) continue;
-        vo2max.push(pairRow(r.date, r.value, computed));
+        vo2max.push(pairRow(r.date, r.value, computed, VO2MAX_RANGE));
       }
 
       readiness.sort((a, b) => b.date.localeCompare(a.date));
@@ -187,6 +211,10 @@ export const dataQualityRouter = {
       const all = [...readiness, ...vo2max];
       const diverged = all.filter((r) => r.status === "diverged").length;
       const matched = all.filter((r) => r.status === "match").length;
+      const invalid = all.filter((r) => r.status === "invalid").length;
+      // Out-of-range pairs are excluded from the agreement denominator so a
+      // bad sync value can't masquerade as agreement or divergence.
+      const validPairs = all.length - invalid;
 
       return {
         readiness: readiness.slice(0, 30),
@@ -195,8 +223,9 @@ export const dataQualityRouter = {
           comparedPairs: all.length,
           matched,
           diverged,
+          invalid,
           agreementPct:
-            all.length > 0 ? Math.round((matched / all.length) * 100) : null,
+            validPairs > 0 ? Math.round((matched / validPairs) * 100) : null,
         },
       };
     }),

@@ -88,19 +88,21 @@ interface RvcRow {
   raw: number;
   computed: number;
   deltaPct: number | null;
-  status: "match" | "minor" | "diverged";
+  status: "match" | "minor" | "diverged" | "invalid";
 }
 
 const RVC_STATUS_STYLE: Record<RvcRow["status"], string> = {
   match: "bg-green-100 text-green-700",
   minor: "bg-yellow-100 text-yellow-700",
   diverged: "bg-red-100 text-red-700",
+  invalid: "bg-zinc-200 text-zinc-600",
 };
 
 const RVC_STATUS_LABEL: Record<RvcRow["status"], string> = {
   match: "🟢 Match",
   minor: "🟡 Minor",
   diverged: "🔴 Diverged",
+  invalid: "⚪ Out of range",
 };
 
 function RawVsComputedTable({

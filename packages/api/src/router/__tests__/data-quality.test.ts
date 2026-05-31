@@ -121,4 +121,55 @@ describe("dataQuality.getRawVsComputed", () => {
     expect(res.summary.comparedPairs).toBe(0);
     expect(res.summary.agreementPct).toBeNull();
   });
+
+  it("flags out-of-range readiness as invalid and excludes it from agreement", async () => {
+    const d0 = dateString(1);
+    const d1 = dateString(2);
+    const d2 = dateString(3);
+    const caller = createCaller(
+      makeMockDb([
+        // dailyRows (garmin native readiness) — 530 is physiologically impossible
+        [
+          { date: d0, garminReadiness: 80 },
+          { date: d1, garminReadiness: 530 },
+          { date: d2, garminReadiness: 130 },
+        ],
+        // readinessRows (engine computed)
+        [
+          { date: d0, score: 81 }, // match
+          { date: d1, score: 530 }, // both out of range -> invalid
+          { date: d2, score: 46 }, // raw out of range -> invalid
+        ],
+        [], // vo2Rows
+        [], // advRows
+      ]),
+    );
+
+    const res = await caller.dataQuality.getRawVsComputed({ days: 30 });
+    const byDate = Object.fromEntries(res.readiness.map((r) => [r.date, r]));
+    expect(byDate[d0]!.status).toBe("match");
+    expect(byDate[d1]!.status).toBe("invalid");
+    expect(byDate[d2]!.status).toBe("invalid");
+    expect(res.summary.invalid).toBe(2);
+    expect(res.summary.comparedPairs).toBe(3);
+    // Agreement is computed over valid pairs only (1 match / 1 valid = 100%),
+    // not polluted by the 530/530 "Match" it would have produced before.
+    expect(res.summary.agreementPct).toBe(100);
+  });
+
+  it("returns null agreement when every pair is out of range", async () => {
+    const d0 = dateString(1);
+    const caller = createCaller(
+      makeMockDb([
+        [{ date: d0, garminReadiness: 530 }],
+        [{ date: d0, score: 530 }],
+        [],
+        [],
+      ]),
+    );
+    const res = await caller.dataQuality.getRawVsComputed();
+    expect(res.readiness[0]!.status).toBe("invalid");
+    expect(res.summary.invalid).toBe(1);
+    expect(res.summary.agreementPct).toBeNull();
+  });
 });
