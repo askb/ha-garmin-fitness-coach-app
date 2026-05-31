@@ -150,6 +150,9 @@ describe("dataQuality.getRawVsComputed", () => {
     expect(byDate[d0]!.status).toBe("match");
     expect(byDate[d1]!.status).toBe("invalid");
     expect(byDate[d2]!.status).toBe("invalid");
+    // Invalid pairs must not surface a (misleading) delta.
+    expect(byDate[d1]!.deltaPct).toBeNull();
+    expect(byDate[d2]!.deltaPct).toBeNull();
     expect(res.summary.invalid).toBe(2);
     expect(res.summary.comparedPairs).toBe(3);
     // Agreement is computed over valid pairs only (1 match / 1 valid = 100%),

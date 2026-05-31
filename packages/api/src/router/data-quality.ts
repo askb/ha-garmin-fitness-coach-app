@@ -58,13 +58,17 @@ function pairRow(
   computed: number,
   range?: ValidRange,
 ): RawVsComputedRow {
-  const deltaPct = raw === 0 ? null : ((computed - raw) / raw) * 100;
+  const status = classify(raw, computed, range);
+  // A meaningless comparison (out-of-range/non-finite) must not surface a
+  // delta — it would be misleading and can be NaN/Infinity.
+  const deltaPct =
+    status === "invalid" || raw === 0 ? null : ((computed - raw) / raw) * 100;
   return {
     date,
     raw,
     computed,
     deltaPct: deltaPct === null ? null : Math.round(deltaPct * 10) / 10,
-    status: classify(raw, computed, range),
+    status,
   };
 }
 
