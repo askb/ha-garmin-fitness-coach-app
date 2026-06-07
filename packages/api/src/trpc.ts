@@ -117,8 +117,16 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
-      // Dev mode or explicit bypass: use seed user so the app is functional without OAuth
-      if (t._config.isDev || process.env.DEV_BYPASS_AUTH === "true") {
+      // Dev-only bypass: use the seed user so the app is functional without
+      // OAuth during local development / e2e. Mirrors the homepage fallback in
+      // apps/nextjs/src/app/page.tsx exactly: allowed in development, and in
+      // test only when DEV_BYPASS_AUTH is set. Fails closed for production or
+      // any other NODE_ENV, so a leaked flag cannot disable auth there.
+      const nodeEnv = process.env.NODE_ENV;
+      const devFallbackAllowed =
+        nodeEnv === "development" ||
+        (nodeEnv === "test" && process.env.DEV_BYPASS_AUTH === "true");
+      if (devFallbackAllowed) {
         return next({
           ctx: {
             session: {

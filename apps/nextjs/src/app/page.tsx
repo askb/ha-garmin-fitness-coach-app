@@ -10,11 +10,14 @@ const DEV_USER_ID = "seed-user-001";
 
 export default async function HomePage() {
   const session = await getSession();
-  const userId =
-    session?.user.id ??
-    (env.NODE_ENV === "development" || env.DEV_BYPASS_AUTH === "true"
-      ? DEV_USER_ID
-      : null);
+
+  // In development the app is usable without OAuth via a seed user; in test
+  // the same is allowed only when DEV_BYPASS_AUTH is set. Never in production
+  // (or any other NODE_ENV), so the fallback can't leak past local/CI use.
+  const devFallbackAllowed =
+    env.NODE_ENV === "development" ||
+    (env.NODE_ENV === "test" && env.DEV_BYPASS_AUTH === "true");
+  const userId = session?.user.id ?? (devFallbackAllowed ? DEV_USER_ID : null);
 
   if (!userId) {
     return (
