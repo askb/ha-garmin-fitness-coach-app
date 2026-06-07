@@ -1,8 +1,9 @@
 /**
- * Garmin webhook handler stubs.
+ * Garmin webhook payload parsing.
  *
- * TODO: Implement real signature verification using the Garmin-provided
- *       webhook signing secret once the API key is approved.
+ * Signature verification lives in the Next.js route handler
+ * (`apps/nextjs/src/app/api/garmin/webhook/route.ts`), which has access to
+ * Node's crypto APIs. This package stays runtime-agnostic (no node deps).
  */
 
 import type {
@@ -11,20 +12,6 @@ import type {
   GarminSleepData,
   GarminWebhookPayload,
 } from "./types";
-
-/**
- * Verify the webhook signature sent by Garmin.
- *
- * TODO: Replace with real HMAC-SHA256 signature verification using the
- *       webhook signing secret from Garmin developer portal.
- */
-export function verifyWebhookSignature(
-  _body: string,
-  _signature: string,
-): boolean {
-  // Always returns true for now — real impl should verify HMAC
-  return true;
-}
 
 /**
  * Parse a raw webhook body into a typed payload with a discriminated type
