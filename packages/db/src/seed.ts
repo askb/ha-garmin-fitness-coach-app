@@ -15,6 +15,7 @@ import {
   JournalEntry,
   Profile,
   SessionReport,
+  VO2maxEstimate,
 } from "./schema";
 
 const DATABASE_URL = process.env.POSTGRES_URL ?? process.env.DATABASE_URL;
@@ -316,6 +317,17 @@ async function seed() {
     load: number;
   }[] = [];
 
+  // Garmin records a VO2max estimate after a qualifying outdoor run (12+ min
+  // with HR). Collect one reading per such run so the Fitness page renders a
+  // real Garmin VO2max trend, current value, and race predictions instead of
+  // the "No VO2max data" empty state. The series trends gently upward over the
+  // 90-day window to read as improving fitness.
+  const vo2maxBase = persona.vo2maxRunning;
+  const vo2maxAt = (daysAgo: number): number =>
+    vo2maxBase - 2.5 + ((90 - daysAgo) / 90) * 2.5;
+  const vo2maxReadings: { date: string; value: number; activityId: string }[] =
+    [];
+
   for (const day of days.filter((d) => d.actType !== null)) {
     const { daysAgo, date, actType, load } = day;
     const garminId = `seed-${date}-${actType}`;
@@ -423,6 +435,12 @@ async function seed() {
     const startTime = dateAt(daysAgo, 7, 0);
     const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
 
+    // Qualifying outdoor run with HR → Garmin would emit a VO2max estimate.
+    const vo2maxEstimate =
+      sportType === "running" && durationMinutes >= 12
+        ? parseFloat((vo2maxAt(daysAgo) + rng.float(-0.4, 0.4, 1)).toFixed(1))
+        : null;
+
     const numLaps =
       sportType === "running"
         ? Math.ceil(durationMinutes / 5)
@@ -460,6 +478,7 @@ async function seed() {
         aerobicTE,
         anaerobicTE,
         trimpScore: load,
+        vo2maxEstimate,
         laps,
         rawGarminData: { source: "seed", version: "1.0" },
       })
@@ -468,10 +487,53 @@ async function seed() {
 
     if (inserted) {
       insertedActivities.push({ id: inserted.id, date, actType, load });
+      if (vo2maxEstimate !== null) {
+        vo2maxReadings.push({
+          date,
+          value: vo2maxEstimate,
+          activityId: inserted.id,
+        });
+      }
     }
   }
 
   console.log(`✅ ${insertedActivities.length} activities inserted`);
+
+  // --- VO2max estimates (historical tracking) ---
+  // garmin_official readings are tied to qualifying runs (above); a parallel
+  // uth_ratio weekly series gives the Fitness page its second trend line
+  // (analytics.getVO2maxHistory recognises uth_method / uth_ratio).
+  let vo2maxCount = 0;
+  for (const r of vo2maxReadings) {
+    await db
+      .insert(VO2maxEstimate)
+      .values({
+        userId: USER_ID,
+        date: r.date,
+        sport: "running",
+        value: r.value,
+        source: "garmin_official",
+        activityId: r.activityId,
+      })
+      .onConflictDoNothing();
+    vo2maxCount++;
+  }
+  for (const day of days.filter((d) => d.daysAgo % 7 === 0)) {
+    await db
+      .insert(VO2maxEstimate)
+      .values({
+        userId: USER_ID,
+        date: day.date,
+        sport: "running",
+        value: parseFloat(
+          (vo2maxAt(day.daysAgo) - 1 + rng.float(-0.3, 0.3, 1)).toFixed(1),
+        ),
+        source: "uth_ratio",
+      })
+      .onConflictDoNothing();
+    vo2maxCount++;
+  }
+  console.log(`✅ ${vo2maxCount} VO2max estimates inserted`);
 
   // --- Daily Metrics (90 days) ---
   let runningFatigue = 0;
