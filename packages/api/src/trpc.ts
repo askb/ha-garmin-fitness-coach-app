@@ -117,16 +117,15 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
-      // Dev-only bypass: use the seed user so the app is functional without
-      // OAuth during local development / e2e. Mirrors the homepage fallback in
-      // apps/nextjs/src/app/page.tsx exactly: allowed in development, and in
-      // test only when DEV_BYPASS_AUTH is set. Fails closed for production or
-      // any other NODE_ENV, so a leaked flag cannot disable auth there.
-      const nodeEnv = process.env.NODE_ENV;
-      const devFallbackAllowed =
-        nodeEnv === "development" ||
-        (nodeEnv === "test" && process.env.DEV_BYPASS_AUTH === "true");
-      if (devFallbackAllowed) {
+      // Trusted single-user bypass. DEV_BYPASS_AUTH is an explicit opt-in flag
+      // (unset by default). The PulseCoach Home Assistant add-on deliberately
+      // sets it with NODE_ENV=production because it runs as a single user
+      // behind authenticated HA ingress — this is its documented auth model
+      // (see the add-on repository's AGENTS.md, not this repo). It also covers local development and e2e via
+      // `t._config.isDev` (true when NODE_ENV !== "production"). In a
+      // production deployment that does not set the flag, real authentication
+      // is required, so a non-opted-in production stays protected.
+      if (t._config.isDev || process.env.DEV_BYPASS_AUTH === "true") {
         return next({
           ctx: {
             session: {
