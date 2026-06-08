@@ -5,7 +5,7 @@ packages:
 
 catalog:
   "@better-auth/cli": 1.4.0-beta.9
-  "@better-auth/expo": 1.4.0-beta.9
+  "@better-auth/expo": 1.6.11
 
   "@eslint/js": ^10.0.1
   "@tailwindcss/postcss": ^4.1.16
