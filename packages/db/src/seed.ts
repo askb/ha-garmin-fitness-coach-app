@@ -501,7 +501,8 @@ async function seed() {
 
   // --- VO2max estimates (historical tracking) ---
   // garmin_official readings are tied to qualifying runs (above); a parallel
-  // uth_estimated weekly series gives the Fitness page its second trend line.
+  // uth_ratio weekly series gives the Fitness page its second trend line
+  // (analytics.getVO2maxHistory recognises uth_method / uth_ratio).
   let vo2maxCount = 0;
   for (const r of vo2maxReadings) {
     await db
@@ -527,7 +528,7 @@ async function seed() {
         value: parseFloat(
           (vo2maxAt(day.daysAgo) - 1 + rng.float(-0.3, 0.3, 1)).toFixed(1),
         ),
-        source: "uth_estimated",
+        source: "uth_ratio",
       })
       .onConflictDoNothing();
     vo2maxCount++;

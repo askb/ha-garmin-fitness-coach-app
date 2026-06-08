@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /** Idempotent e2e seed for the AI-native coach loop Playwright suite. */
-import { eq, sql } from "drizzle-orm";
+import { and, eq, like, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
@@ -40,18 +40,41 @@ function dateAt(day: string, hour: number): Date {
 }
 
 async function resetSeedData(): Promise<void> {
+  const today = isoDay();
+  // Coach-loop / auth state that this seed fully owns — safe to clear wholesale
+  // so repeated runs (Playwright beforeEach) stay idempotent.
   await db.delete(session).where(eq(session.userId, USER_ID));
   await db.delete(account).where(eq(account.userId, USER_ID));
   await db
     .delete(RecommendationAudit)
     .where(eq(RecommendationAudit.userId, USER_ID));
-  await db.delete(Activity).where(eq(Activity.userId, USER_ID));
-  await db.delete(AdvancedMetric).where(eq(AdvancedMetric.userId, USER_ID));
   await db.delete(DailyWorkout).where(eq(DailyWorkout.userId, USER_ID));
-  await db.delete(ReadinessScore).where(eq(ReadinessScore.userId, USER_ID));
-  await db.delete(DailyMetric).where(eq(DailyMetric.userId, USER_ID));
-  await db.delete(Profile).where(eq(Profile.userId, USER_ID));
-  await db.delete(user).where(eq(user.id, USER_ID));
+  // Historical-demo tables are SHARED with the 90-day seed (seed.ts). Only
+  // remove the rows this e2e seed itself creates — today's single-day metrics
+  // and its `e2e-` prefixed activities — so the rich history survives when both
+  // seeds run (the addon screenshot pipeline). In the standalone coach-loop
+  // test DB these scoped deletes are equivalent to the previous wholesale ones.
+  await db
+    .delete(Activity)
+    .where(
+      and(
+        eq(Activity.userId, USER_ID),
+        like(Activity.garminActivityId, "e2e-%"),
+      ),
+    );
+  await db
+    .delete(AdvancedMetric)
+    .where(
+      and(eq(AdvancedMetric.userId, USER_ID), eq(AdvancedMetric.date, today)),
+    );
+  await db
+    .delete(ReadinessScore)
+    .where(
+      and(eq(ReadinessScore.userId, USER_ID), eq(ReadinessScore.date, today)),
+    );
+  await db
+    .delete(DailyMetric)
+    .where(and(eq(DailyMetric.userId, USER_ID), eq(DailyMetric.date, today)));
 }
 
 async function seed(): Promise<void> {
@@ -59,39 +82,51 @@ async function seed(): Promise<void> {
   const today = isoDay();
   await resetSeedData();
 
-  await db.insert(user).values({
-    id: USER_ID,
-    name: "E2E Coach User",
-    email: "e2e@local",
-    emailVerified: true,
-    image: null,
-    createdAt: now,
-    updatedAt: now,
-  });
-  await db.insert(Profile).values({
-    userId: USER_ID,
-    age: 36,
-    sex: "male",
-    massKg: 72,
-    heightCm: 178,
-    timezone: "UTC",
-    experienceLevel: "intermediate",
-    primarySports: ["running"],
-    goals: [
-      {
-        sport: "running",
-        goalType: "consistency",
-        target: "steady aerobic base",
-      },
-    ],
-    weeklyDays: ["mon", "wed", "fri", "sun"],
-    minutesPerDay: 45,
-    maxHr: 190,
-    restingHrBaseline: 52,
-    hrvBaseline: 64,
-    sleepBaseline: 450,
-    vo2maxRunning: 50,
-  });
+  await db
+    .insert(user)
+    .values({
+      id: USER_ID,
+      name: "E2E Coach User",
+      email: "e2e@local",
+      emailVerified: true,
+      image: null,
+      createdAt: now,
+      updatedAt: now,
+    })
+    .onConflictDoNothing();
+  await db
+    .insert(Profile)
+    .values({
+      userId: USER_ID,
+      age: 36,
+      sex: "male",
+      massKg: 72,
+      heightCm: 178,
+      timezone: "UTC",
+      experienceLevel: "intermediate",
+      primarySports: ["running"],
+      goals: [
+        {
+          sport: "running",
+          goalType: "consistency",
+          target: "steady aerobic base",
+        },
+      ],
+      weeklyDays: ["mon", "wed", "fri", "sun"],
+      minutesPerDay: 45,
+      maxHr: 190,
+      restingHrBaseline: 52,
+      hrvBaseline: 64,
+      sleepBaseline: 450,
+      vo2maxRunning: 50,
+    })
+    // If the 90-day seed already created the profile, keep it but force the
+    // timezone to UTC so it matches the UTC day boundaries this seed uses for
+    // `today` (the coach loop derives "today" from Profile.timezone).
+    .onConflictDoUpdate({
+      target: Profile.userId,
+      set: { timezone: "UTC" },
+    });
   await db.insert(DailyMetric).values({
     userId: USER_ID,
     date: today,
