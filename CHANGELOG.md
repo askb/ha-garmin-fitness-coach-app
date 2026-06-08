@@ -10,6 +10,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-06-08
+
+### Fixed
+
+- **Restore `DEV_BYPASS_AUTH` single-user mode (#278).** The bypass had been
+  gated to non-production environments, which broke the PulseCoach Home
+  Assistant add-on — it runs `NODE_ENV=production` with `DEV_BYPASS_AUTH=true`
+  as its documented single-user auth model (one user behind authenticated HA
+  ingress). With the gate every `protectedProcedure` returned `UNAUTHORIZED`,
+  so all dashboards rendered empty. The bypass is now an explicit opt-in that
+  works in any environment; deployments that do not set the flag still require
+  real authentication. The webhook HMAC verification and tRPC CORS allow-list
+  hardening are retained.
+
+### Added
+
+- **Seed VO2max history (#277).** The 90-day demo seed now writes
+  `garmin_official` VO2max readings per qualifying run plus a weekly
+  `uth_ratio` series, so the Fitness page renders its VO2max trends, current
+  value and race predictions instead of an empty state.
+
+### Changed
+
+- **Stop the e2e seed from wiping the demo history (#277).** `seed-e2e.ts`'s
+  reset is now scoped to the rows it owns (today's metrics and `e2e-`
+  activities) instead of deleting the full per-user history, so the 90-day
+  data created by `seed.ts` survives when both seeds run (the add-on
+  screenshot pipeline). The standalone coach-loop test is unaffected.
+
 ## [0.18.1] - 2026-05-31
 
 ### Fixed
