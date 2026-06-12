@@ -16,7 +16,6 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
-import { computeTRIMP } from "../packages/engine/src/strain/index";
 import {
   Activity,
   DailyMetric,
@@ -24,6 +23,7 @@ import {
   RacePrediction,
   VO2maxEstimate,
 } from "../packages/db/src/schema";
+import { computeStrainScore, computeTRIMP } from "../packages/engine/src/index";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -332,9 +332,8 @@ async function importActivities() {
           avgPaceSecPerKm: avgPace,
           calories: r.calories ? Math.round(r.calories) : null,
           trimpScore,
-          strainScore: trimpScore
-            ? Math.round(Math.min(21, trimpScore / 10) * 10) / 10
-            : null,
+          strainScore:
+            trimpScore !== null ? computeStrainScore(trimpScore) : null,
           hrZoneMinutes: {
             zone1: r.hrTimeInZone_1 ? Math.round(r.hrTimeInZone_1 / 60) : 0,
             zone2: r.hrTimeInZone_2 ? Math.round(r.hrTimeInZone_2 / 60) : 0,
