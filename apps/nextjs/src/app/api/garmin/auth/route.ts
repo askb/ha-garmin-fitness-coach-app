@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { requireSession } from "~/auth/guard";
+
 const AUTH_SERVER = "http://127.0.0.1:8099";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
@@ -51,6 +53,8 @@ async function proxyGet(url: string) {
 
 /** GET /api/garmin/auth — connection status */
 export async function GET() {
+  const denied = await requireSession();
+  if (denied) return denied;
   if (!IS_ADDON) {
     return NextResponse.json(mockStatus);
   }
@@ -59,6 +63,8 @@ export async function GET() {
 
 /** POST /api/garmin/auth — login or MFA verification */
 export async function POST(req: NextRequest) {
+  const denied = await requireSession();
+  if (denied) return denied;
   const body = (await req.json()) as {
     email?: string;
     password?: string;
@@ -81,6 +87,8 @@ export async function POST(req: NextRequest) {
 
 /** DELETE /api/garmin/auth — logout / disconnect */
 export async function DELETE() {
+  const denied = await requireSession();
+  if (denied) return denied;
   if (!IS_ADDON) {
     mockStatus.connected = false;
     mockStatus.email = "";
@@ -92,6 +100,8 @@ export async function DELETE() {
 
 /** PUT /api/garmin/auth — import pre-generated tokens */
 export async function PUT(req: NextRequest) {
+  const denied = await requireSession();
+  if (denied) return denied;
   if (!IS_ADDON) {
     mockStatus.connected = true;
     mockStatus.email = "imported@garmin.com";

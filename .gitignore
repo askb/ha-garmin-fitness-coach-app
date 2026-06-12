@@ -52,9 +52,13 @@ dist/
 .turbo
 
 # tanstack
-.tanstacktest-results/
+.tanstack
+
+# playwright / test artifacts
+test-results/
 scripts/data/
 logs/
+*.pid
 # test
 
 # Python
