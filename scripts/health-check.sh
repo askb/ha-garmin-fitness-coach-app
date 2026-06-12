@@ -13,6 +13,7 @@ RST='\033[0m'
 
 LOG_DIR="${HOME}/.local/share/pulsecoach"
 CRASH_LOG="${LOG_DIR}/crash-history.csv"
+PORT="${PORT:-${PULSECOACH_PORT:-${GARMINCOACH_PORT:-3000}}}"
 mkdir -p "${LOG_DIR}"
 
 # Initialize crash log if missing
@@ -86,11 +87,11 @@ else
 fi
 
 # Next.js dev server
-http_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+http_code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}" 2>/dev/null || echo "000")
 if [ "${http_code}" = "200" ]; then
-    echo -e "  Next.js:    ${GRN}healthy${RST} (port 3000)"
+    echo -e "  Next.js:    ${GRN}healthy${RST} (port ${PORT})"
 else
-    echo -e "  Next.js:    ${RED}DOWN${RST} (port 3000 → HTTP ${http_code})"
+    echo -e "  Next.js:    ${RED}DOWN${RST} (port ${PORT} → HTTP ${http_code})"
 fi
 
 # 6. Power status
@@ -139,7 +140,7 @@ if [ "${1:-}" = "--full" ]; then
     echo -e "${CYN}▸ Recommendations${RST}"
 
     # Check containers without memory limits
-    unlim=$(docker ps -q 2>/dev/null | xargs -I{} docker inspect --format '{{.Name}} {{.HostConfig.Memory}}' {} 2>/dev/null | grep " 0$" | wc -l)
+    unlim=$(docker ps -q 2>/dev/null | xargs -I{} docker inspect --format '{{.Name}} {{.HostConfig.Memory}}' {} 2>/dev/null | grep -c " 0$" || true)
     if [ "$unlim" -gt 0 ]; then
         echo -e "  ${YEL}⚠ ${unlim} containers have no memory limit${RST}"
         docker ps -q 2>/dev/null | xargs -I{} docker inspect --format '{{.Name}} {{.HostConfig.Memory}}' {} 2>/dev/null | grep " 0$" | sed 's/\// /;s/ 0$//' | awk '{printf "    - %s\n", $1}'
