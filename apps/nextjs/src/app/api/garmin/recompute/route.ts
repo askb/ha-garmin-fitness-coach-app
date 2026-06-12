@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { requireSession } from "~/auth/guard";
+
 export const dynamic = "force-dynamic";
 
 function getAuthServerBase() {
@@ -9,6 +11,8 @@ function getAuthServerBase() {
 }
 
 export async function POST() {
+  const denied = await requireSession();
+  if (denied) return denied;
   try {
     const res = await fetch(`${getAuthServerBase()}/auth/recompute`, {
       method: "POST",
@@ -48,6 +52,8 @@ export async function POST() {
 }
 
 export async function GET() {
+  const denied = await requireSession();
+  if (denied) return denied;
   try {
     const res = await fetch(`${getAuthServerBase()}/auth/recompute-status`);
     if (!res.ok) {

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { requireSession } from "~/auth/guard";
+
 const AUTH_SERVER = "http://127.0.0.1:8099";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
@@ -9,6 +11,8 @@ let mockSyncing = false;
 
 /** GET /api/garmin/sync — get sync status */
 export async function GET() {
+  const denied = await requireSession();
+  if (denied) return denied;
   if (!IS_ADDON) {
     return NextResponse.json({
       syncing: mockSyncing,
@@ -33,6 +37,8 @@ export async function GET() {
 
 /** POST /api/garmin/sync — trigger manual sync */
 export async function POST() {
+  const denied = await requireSession();
+  if (denied) return denied;
   if (!IS_ADDON) {
     mockSyncing = true;
     setTimeout(() => {
