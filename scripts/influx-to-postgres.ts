@@ -23,6 +23,7 @@ import {
   RacePrediction,
   VO2maxEstimate,
 } from "../packages/db/src/schema";
+import { computeStrainScore, computeTRIMP } from "../packages/engine/src/index";
 
 // ---------------------------------------------------------------------------
 // Config
@@ -299,22 +300,20 @@ async function importActivities() {
         ? Math.round(durationSec / (distanceM / 1000))
         : null;
 
-    // Simple TRIMP estimate: duration(min) × HR_ratio × gender_factor
-    // Using exponential TRIMP: k * duration * delta_HR_ratio * exp(b * delta_HR_ratio)
     const avgHr = r.averageHR ?? null;
     const maxHr = r.maxHR ?? null;
     let trimpScore: number | null = null;
     if (avgHr && durationMin > 0) {
-      // Rough TRIMP using Banister formula (assume male, max HR ~188, rest HR ~68)
-      const restHr = 68;
-      const estimatedMax = maxHr ?? 188;
-      const deltaRatio = (avgHr - restHr) / (estimatedMax - restHr);
-      if (deltaRatio > 0) {
-        trimpScore =
-          Math.round(
-            durationMin * deltaRatio * 0.64 * Math.exp(1.92 * deltaRatio) * 10,
-          ) / 10;
-      }
+      trimpScore = computeTRIMP(
+        {
+          durationMinutes: durationMin,
+          avgHr,
+          maxHr,
+        },
+        68,
+        maxHr ?? 188,
+        "male",
+      );
     }
 
     try {
@@ -333,9 +332,8 @@ async function importActivities() {
           avgPaceSecPerKm: avgPace,
           calories: r.calories ? Math.round(r.calories) : null,
           trimpScore,
-          strainScore: trimpScore
-            ? Math.round(Math.min(21, trimpScore / 10) * 10) / 10
-            : null,
+          strainScore:
+            trimpScore !== null ? computeStrainScore(trimpScore) : null,
           hrZoneMinutes: {
             zone1: r.hrTimeInZone_1 ? Math.round(r.hrTimeInZone_1 / 60) : 0,
             zone2: r.hrTimeInZone_2 ? Math.round(r.hrTimeInZone_2 / 60) : 0,

@@ -124,62 +124,68 @@ export const CreateDailyMetricSchema = createInsertSchema(DailyMetric).omit({
 // ---------------------------------------------------------------------------
 // Activities (Garmin workout data)
 // ---------------------------------------------------------------------------
-export const Activity = pgTable("activity", (t) => ({
-  id: t.uuid().notNull().primaryKey().defaultRandom(),
-  userId: t.text().notNull(),
-  garminActivityId: t.varchar({ length: 100 }).unique(),
-  sportType: t.varchar({ length: 50 }).notNull(),
-  subType: t.varchar({ length: 50 }),
-  startedAt: t.timestamp({ withTimezone: true }).notNull(),
-  endedAt: t.timestamp({ withTimezone: true }),
-  durationMinutes: t.doublePrecision().notNull(),
-  distanceMeters: t.doublePrecision(),
-  avgHr: t.integer(),
-  maxHr: t.integer(),
-  avgPaceSecPerKm: t.integer(),
-  calories: t.integer(),
-  trimpScore: t.doublePrecision(),
-  strainScore: t.doublePrecision(),
-  vo2maxEstimate: t.doublePrecision(),
-  avgPower: t.doublePrecision(),
-  maxPower: t.doublePrecision(),
-  normalizedPower: t.doublePrecision(),
-  avgCadence: t.doublePrecision(),
-  maxCadence: t.doublePrecision(),
-  elevationGain: t.doublePrecision(),
-  elevationLoss: t.doublePrecision(),
-  aerobicTE: t.doublePrecision(),
-  anaerobicTE: t.doublePrecision(),
-  epocMl: t.doublePrecision(),
-  avgGroundContactTime: t.doublePrecision(),
-  gctBalance: t.doublePrecision(),
-  verticalOscillation: t.doublePrecision(),
-  verticalRatio: t.doublePrecision(),
-  strideLength: t.doublePrecision(),
-  avgRespirationRate: t.doublePrecision(),
-  laps: t.jsonb().$type<
-    {
-      index: number;
-      distanceMeters: number;
-      durationSeconds: number;
-      avgHr?: number;
-      avgPace?: number;
-      avgPower?: number;
-    }[]
-  >(),
-  hrZoneMinutes: t.jsonb().$type<{
-    zone1: number;
-    zone2: number;
-    zone3: number;
-    zone4: number;
-    zone5: number;
-  }>(),
-  rawGarminData: t.jsonb(),
-  syncedAt: t.timestamp().defaultNow().notNull(),
-  garminApiVersion: t.varchar({ length: 20 }),
-  deviceModel: t.varchar({ length: 50 }),
-  rawDataHash: t.varchar({ length: 64 }),
-}));
+export const Activity = pgTable(
+  "activity",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    garminActivityId: t.varchar({ length: 100 }).unique(),
+    sportType: t.varchar({ length: 50 }).notNull(),
+    subType: t.varchar({ length: 50 }),
+    startedAt: t.timestamp({ withTimezone: true }).notNull(),
+    endedAt: t.timestamp({ withTimezone: true }),
+    durationMinutes: t.doublePrecision().notNull(),
+    distanceMeters: t.doublePrecision(),
+    avgHr: t.integer(),
+    maxHr: t.integer(),
+    avgPaceSecPerKm: t.integer(),
+    calories: t.integer(),
+    trimpScore: t.doublePrecision(),
+    strainScore: t.doublePrecision(),
+    vo2maxEstimate: t.doublePrecision(),
+    avgPower: t.doublePrecision(),
+    maxPower: t.doublePrecision(),
+    normalizedPower: t.doublePrecision(),
+    avgCadence: t.doublePrecision(),
+    maxCadence: t.doublePrecision(),
+    elevationGain: t.doublePrecision(),
+    elevationLoss: t.doublePrecision(),
+    aerobicTE: t.doublePrecision(),
+    anaerobicTE: t.doublePrecision(),
+    epocMl: t.doublePrecision(),
+    avgGroundContactTime: t.doublePrecision(),
+    gctBalance: t.doublePrecision(),
+    verticalOscillation: t.doublePrecision(),
+    verticalRatio: t.doublePrecision(),
+    strideLength: t.doublePrecision(),
+    avgRespirationRate: t.doublePrecision(),
+    laps: t.jsonb().$type<
+      {
+        index: number;
+        distanceMeters: number;
+        durationSeconds: number;
+        avgHr?: number;
+        avgPace?: number;
+        avgPower?: number;
+      }[]
+    >(),
+    hrZoneMinutes: t.jsonb().$type<{
+      zone1: number;
+      zone2: number;
+      zone3: number;
+      zone4: number;
+      zone5: number;
+    }>(),
+    rawGarminData: t.jsonb(),
+    syncedAt: t.timestamp().defaultNow().notNull(),
+    garminApiVersion: t.varchar({ length: 20 }),
+    deviceModel: t.varchar({ length: 50 }),
+    rawDataHash: t.varchar({ length: 64 }),
+  }),
+  (table) => [
+    index("activity_user_started_at_idx").on(table.userId, table.startedAt),
+  ],
+);
 
 export const CreateActivitySchema = createInsertSchema(Activity).omit({
   id: true,
