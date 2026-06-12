@@ -16,6 +16,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
+import { computeTRIMP } from "../packages/engine/src/strain/index";
 import {
   Activity,
   DailyMetric,
@@ -299,22 +300,20 @@ async function importActivities() {
         ? Math.round(durationSec / (distanceM / 1000))
         : null;
 
-    // Simple TRIMP estimate: duration(min) × HR_ratio × gender_factor
-    // Using exponential TRIMP: k * duration * delta_HR_ratio * exp(b * delta_HR_ratio)
     const avgHr = r.averageHR ?? null;
     const maxHr = r.maxHR ?? null;
     let trimpScore: number | null = null;
     if (avgHr && durationMin > 0) {
-      // Rough TRIMP using Banister formula (assume male, max HR ~188, rest HR ~68)
-      const restHr = 68;
-      const estimatedMax = maxHr ?? 188;
-      const deltaRatio = (avgHr - restHr) / (estimatedMax - restHr);
-      if (deltaRatio > 0) {
-        trimpScore =
-          Math.round(
-            durationMin * deltaRatio * 0.64 * Math.exp(1.92 * deltaRatio) * 10,
-          ) / 10;
-      }
+      trimpScore = computeTRIMP(
+        {
+          durationMinutes: durationMin,
+          avgHr,
+          maxHr,
+        },
+        68,
+        maxHr ?? 188,
+        "male",
+      );
     }
 
     try {
