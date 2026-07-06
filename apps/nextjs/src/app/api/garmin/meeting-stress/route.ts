@@ -55,11 +55,12 @@ export async function GET() {
       `${getAuthServerBase()}/auth/meeting-stress-status`,
     );
     if (!res.ok) {
-      // Distinguish "addon too old" so the UI can suggest an update.
-      return NextResponse.json({
-        running: false,
-        unsupported: res.status === 404,
-      });
+      // 404 = addon predates the feature; anything else = addon unhealthy.
+      return NextResponse.json(
+        res.status === 404
+          ? { running: false, unsupported: true }
+          : { running: false, unreachable: true },
+      );
     }
     const data = (await res.json()) as Record<string, unknown>;
     return NextResponse.json(data);

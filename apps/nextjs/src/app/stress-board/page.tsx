@@ -58,8 +58,12 @@ function labelColor(label: string): string {
 }
 
 async function fetchStatus(): Promise<StressStatus> {
-  const res = await fetch("/api/garmin/meeting-stress");
-  return (await res.json()) as StressStatus;
+  try {
+    const res = await fetch("/api/garmin/meeting-stress");
+    return (await res.json()) as StressStatus;
+  } catch {
+    return { running: false, unreachable: true };
+  }
 }
 
 /* ─────────────── page ─────────────── */
@@ -96,8 +100,9 @@ export default function StressBoardPage() {
     [results],
   );
   const hasSource = !!(status?.calendar_linked ?? status?.events_file);
-  // Only claim "no source" once the status has actually loaded.
-  const showSetup = !isLoading && !!status && !hasSource;
+  const broken = !!(status?.unsupported ?? status?.unreachable);
+  // Setup guidance only when status loaded, addon healthy, and no source.
+  const showSetup = !isLoading && !!status && !broken && !hasSource;
 
   return (
     <main className="min-h-screen bg-zinc-950 pb-24 font-mono text-sm text-zinc-200">
