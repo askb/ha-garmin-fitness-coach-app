@@ -69,8 +69,7 @@ export default function StressBoardPage() {
   const { data: status } = useQuery({
     queryKey: ["meeting-stress"],
     queryFn: fetchStatus,
-    refetchInterval: (query) =>
-      query.state.data?.running ? 5_000 : false,
+    refetchInterval: (query) => (query.state.data?.running ? 5_000 : false),
   });
 
   const run = useMutation({
@@ -91,8 +90,7 @@ export default function StressBoardPage() {
 
   const results = status?.results;
   const maxAbsRidge = useMemo(
-    () =>
-      Math.max(1, ...(results?.people ?? []).map((p) => Math.abs(p.ridge))),
+    () => Math.max(1, ...(results?.people ?? []).map((p) => Math.abs(p.ridge))),
     [results],
   );
   const hasSource = !!(status?.calendar_linked ?? status?.events_file);
