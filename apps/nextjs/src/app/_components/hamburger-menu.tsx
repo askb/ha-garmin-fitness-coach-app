@@ -45,6 +45,7 @@ const menuSections: NavSection[] = [
       { href: "/coach", label: "AI Coach", icon: "🤖" },
       { href: "/insights", label: "Insights", icon: "💡" },
       { href: "/correlations", label: "Correlations", icon: "🔗" },
+      { href: "/stress-board", label: "Stress Board", icon: "🚨" },
     ],
   },
   {
