@@ -42,6 +42,16 @@ interface StressStatus {
 
 /* ─────────────── helpers ─────────────── */
 
+// Ingress detection: under HA the app lives at /api/hassio_ingress/<token>/,
+// so absolute /api/* paths must be prefixed or they hit HA core instead.
+function apiUrl(path: string): string {
+  if (typeof window === "undefined") return path;
+  const match = /^(\/api\/hassio_ingress\/[^/]+)/.exec(
+    window.location.pathname,
+  );
+  return match ? match[1] + path : path;
+}
+
 function dbpmColor(v: number): string {
   if (v >= 5) return "text-red-400";
   if (v >= 2) return "text-orange-400";
@@ -59,7 +69,7 @@ function labelColor(label: string): string {
 
 async function fetchStatus(): Promise<StressStatus> {
   try {
-    const res = await fetch("/api/garmin/meeting-stress");
+    const res = await fetch(apiUrl("/api/garmin/meeting-stress"));
     return (await res.json()) as StressStatus;
   } catch {
     return { running: false, unreachable: true };
@@ -80,7 +90,7 @@ export default function StressBoardPage() {
 
   const run = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/garmin/meeting-stress", {
+      const res = await fetch(apiUrl("/api/garmin/meeting-stress"), {
         method: "POST",
       });
       const data = (await res.json()) as { success: boolean; message?: string };
