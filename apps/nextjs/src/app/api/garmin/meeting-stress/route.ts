@@ -14,10 +14,13 @@ export async function POST() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
-    const data = (await res.json().catch(() => ({}))) as Record<
-      string,
-      unknown
-    >;
+    const text = await res.text();
+    let data: Record<string, unknown> = {};
+    try {
+      data = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      if (text) data = { message: text.slice(0, 300) };
+    }
     if (!res.ok) {
       if (res.status === 404) {
         return NextResponse.json(
@@ -52,11 +55,15 @@ export async function GET() {
       `${getAuthServerBase()}/auth/meeting-stress-status`,
     );
     if (!res.ok) {
-      return NextResponse.json({ running: false });
+      // Distinguish "addon too old" so the UI can suggest an update.
+      return NextResponse.json({
+        running: false,
+        unsupported: res.status === 404,
+      });
     }
     const data = (await res.json()) as Record<string, unknown>;
     return NextResponse.json(data);
   } catch {
-    return NextResponse.json({ running: false });
+    return NextResponse.json({ running: false, unreachable: true });
   }
 }

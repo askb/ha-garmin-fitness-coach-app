@@ -29,6 +29,8 @@ interface PersonRow {
 interface StressStatus {
   running?: boolean;
   error?: string;
+  unsupported?: boolean;
+  unreachable?: boolean;
   calendar_linked?: boolean;
   events_file?: boolean;
   results?: {
@@ -66,7 +68,7 @@ export default function StressBoardPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
 
-  const { data: status } = useQuery({
+  const { data: status, isLoading } = useQuery({
     queryKey: ["meeting-stress"],
     queryFn: fetchStatus,
     refetchInterval: (query) => (query.state.data?.running ? 5_000 : false),
@@ -94,6 +96,8 @@ export default function StressBoardPage() {
     [results],
   );
   const hasSource = !!(status?.calendar_linked ?? status?.events_file);
+  // Only claim "no source" once the status has actually loaded.
+  const showSetup = !isLoading && !!status && !hasSource;
 
   return (
     <main className="min-h-screen bg-zinc-950 pb-24 font-mono text-sm text-zinc-200">
@@ -107,11 +111,13 @@ export default function StressBoardPage() {
               </span>
             </h1>
             <p className="text-xs text-zinc-500">
-              {status?.calendar_linked
-                ? "calendar: linked (Google)"
-                : status?.events_file
-                  ? "calendar: file (/share/pulsecoach)"
-                  : "calendar: not connected"}
+              {isLoading || !status
+                ? "calendar: checking…"
+                : status.calendar_linked
+                  ? "calendar: linked (Google)"
+                  : status.events_file
+                    ? "calendar: file (/share/pulsecoach)"
+                    : "calendar: not connected"}
               {results?.generated
                 ? ` · last run ${new Date(results.generated).toLocaleString()}`
                 : ""}
@@ -137,7 +143,17 @@ export default function StressBoardPage() {
           </p>
         )}
 
-        {!hasSource && (
+        {!showSetup && !results && !isLoading && (
+          <p className="rounded border border-zinc-800 bg-zinc-900 p-4 text-xs text-zinc-400">
+            {status?.unsupported
+              ? "Addon does not expose meeting stress yet — update to v0.20.0+."
+              : status?.unreachable
+                ? "Cannot reach the addon auth server."
+                : "No results yet — hit ▶ run."}
+          </p>
+        )}
+
+        {showSetup && (
           <div className="rounded border border-zinc-800 bg-zinc-900 p-4 text-xs text-zinc-400">
             <p className="mb-2 font-bold text-zinc-300">
               No calendar connected
