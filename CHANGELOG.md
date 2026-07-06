@@ -10,6 +10,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-07-06
+
+### Added
+
+- **Stress Board screen (#320).** New `/stress-board` page: the meeting
+  stress leaderboard — per-person ridge marginal effects with
+  calming↔stress bars and a per-meeting dbpm/z/elev table, matching the
+  addon's meeting-stress output. Proxies the addon auth server via
+  `/api/garmin/meeting-stress`, polls while a run is active, and guides
+  setup when no calendar (linked Google Calendar or events file) is
+  connected. Registered under Intelligence in the navigation menu.
+
+### Fixed
+
+- **Engine TRIMP in ETL, activity index, P1 cleanups (#289).**
+- **Security: require session on garmin routes; untrack runtime
+  artifacts (#288).**
+
 ## [0.19.0] - 2026-06-08
 
 ### Fixed
