@@ -67,11 +67,12 @@ async function fetchStatus(): Promise<StressStatus> {
   }
 }
 
-/** Stable short alias per attendee: "Casey Cain" → CC, "mwatkins" → MW. */
+/** Stable short alias per attendee: "Casey Cain" → CC, "mwatkins" → MW.
+ * Names are sorted first so collision suffixes don't depend on rank order. */
 function buildMaskMap(people: string[]): Map<string, string> {
   const map = new Map<string, string>();
   const used = new Set<string>();
-  for (const name of people) {
+  for (const name of [...people].sort()) {
     const words = name.split(/[\s._-]+/).filter(Boolean);
     let alias =
       words.length > 1
