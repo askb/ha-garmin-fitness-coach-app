@@ -67,11 +67,33 @@ async function fetchStatus(): Promise<StressStatus> {
   }
 }
 
+/** Stable short alias per attendee: "Casey Cain" → CC, "mwatkins" → MW.
+ * Names are sorted first so collision suffixes don't depend on rank order. */
+function buildMaskMap(people: string[]): Map<string, string> {
+  const map = new Map<string, string>();
+  const used = new Set<string>();
+  for (const name of [...people].sort()) {
+    const words = name.split(/[\s._-]+/).filter(Boolean);
+    let alias =
+      words.length > 1
+        ? words.map((w) => (w[0] ?? "").toUpperCase()).join("")
+        : name.slice(0, 2).toUpperCase();
+    let candidate = alias;
+    let i = 2;
+    while (used.has(candidate)) candidate = `${alias}${i++}`;
+    alias = candidate;
+    used.add(alias);
+    map.set(name, alias);
+  }
+  return map;
+}
+
 /* ─────────────── page ─────────────── */
 
 export default function StressBoardPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
+  const [masked, setMasked] = useState(false);
 
   const { data: status, isLoading } = useQuery({
     queryKey: ["meeting-stress"],
@@ -100,6 +122,14 @@ export default function StressBoardPage() {
     () => Math.max(1, ...(results?.people ?? []).map((p) => Math.abs(p.ridge))),
     [results],
   );
+  const maskMap = useMemo(
+    () => buildMaskMap((results?.people ?? []).map((p) => p.attendee)),
+    [results],
+  );
+  // Screenshot mode: alias people, hide meeting titles (titles leak names too).
+  const person = (name: string) =>
+    masked ? (maskMap.get(name) ?? "??") : name;
+  const title = (t: string, i: number) => (masked ? `meeting #${i + 1}` : t);
   const hasSource = !!(status?.calendar_linked ?? status?.events_file);
   const broken = !!(status?.unsupported ?? status?.unreachable);
   // Setup guidance only when status loaded, addon healthy, and no source.
@@ -129,18 +159,32 @@ export default function StressBoardPage() {
                 : ""}
             </p>
           </div>
-          <button
-            onClick={() => run.mutate()}
-            disabled={status?.running || run.isPending || !hasSource}
-            className={cn(
-              "rounded border border-zinc-700 px-3 py-1.5 text-xs",
-              status?.running || run.isPending
-                ? "cursor-wait text-zinc-500"
-                : "text-zinc-200 hover:bg-zinc-800",
-            )}
-          >
-            {status?.running ? "running…" : "▶ run"}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setMasked((m) => !m)}
+              title="Mask names for screenshots"
+              className={cn(
+                "rounded border px-3 py-1.5 text-xs",
+                masked
+                  ? "border-yellow-600 text-yellow-400"
+                  : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+              )}
+            >
+              {masked ? "🙈 masked" : "👁 names"}
+            </button>
+            <button
+              onClick={() => run.mutate()}
+              disabled={status?.running || run.isPending || !hasSource}
+              className={cn(
+                "rounded border border-zinc-700 px-3 py-1.5 text-xs",
+                status?.running || run.isPending
+                  ? "cursor-wait text-zinc-500"
+                  : "text-zinc-200 hover:bg-zinc-800",
+              )}
+            >
+              {status?.running ? "running…" : "▶ run"}
+            </button>
+          </div>
         </div>
 
         {message && (
@@ -207,7 +251,7 @@ export default function StressBoardPage() {
                     return (
                       <tr key={p.attendee} className="align-middle">
                         <td className="py-0.5 pr-2 font-bold text-zinc-100">
-                          {p.attendee}
+                          {person(p.attendee)}
                         </td>
                         <td className="pr-2 text-right">{p.n}</td>
                         <td className="pr-2 text-right">
@@ -286,10 +330,10 @@ export default function StressBoardPage() {
                         {Math.round(m.elev * 100)}%
                       </td>
                       <td className="max-w-40 truncate pr-2 text-zinc-100">
-                        {m.title}
+                        {title(m.title, i)}
                       </td>
                       <td className="text-zinc-500">
-                        {m.attendees.join(", ")}
+                        {m.attendees.map(person).join(", ")}
                       </td>
                     </tr>
                   ))}
