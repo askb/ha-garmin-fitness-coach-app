@@ -30,26 +30,26 @@ privacy but render with the same layout conventions.
 ## Architecture
 
 ```mermaid
-graph TD
-    subgraph "PulseCoach App (Next.js Monorepo)"
-        User([User / Browser])
-        NextJS["Next.js 16<br/>Turbopack"]
-        tRPC["tRPC API<br/>20 routers · ~150 endpoints"]
-        Drizzle["Drizzle ORM"]
-        Engine["Engine<br/>Pure TS computation"]
-        AICtx["AI Context Builder<br/>10 structured sections"]
-        LLM["Ollama / OpenAI"]
+flowchart TD
+    subgraph APP["🟣 PulseCoach App · Next.js Monorepo"]
+        User(["🧑 User / Browser"])
+        NextJS["▲ Next.js 16<br/>Turbopack"]
+        tRPC["🔌 tRPC API<br/>20 routers · ~150 endpoints"]
+        Drizzle["🗄️ Drizzle ORM"]
+        Engine["⚙️ Engine<br/>pure-TS computation"]
+        AICtx["🧠 AI Context Builder<br/>10 structured sections"]
+        LLM["🤖 Ollama / OpenAI"]
     end
 
-    subgraph "PulseCoach Addon (HA)"
-        Sync["garmin-sync.py"]
-        Compute["metrics-compute.py"]
-        Notify["ha-notify.py"]
-        GarminAPI["Garmin Connect API"]
-        HAAPI["HA REST API<br/>7 sensors"]
+    subgraph ADDON["📦 PulseCoach Addon · HA"]
+        Sync["🔄 garmin-sync.py"]
+        Compute["📊 metrics-compute.py"]
+        Notify["🔔 ha-notify.py"]
+        GarminAPI["⌚ Garmin Connect API"]
+        HAAPI["🏡 HA REST API<br/>7 sensors"]
     end
 
-    PG[("PostgreSQL 16")]
+    PG[("🐘 PostgreSQL 16")]
 
     User --> NextJS
     NextJS --> tRPC
@@ -65,6 +65,29 @@ graph TD
     Compute --> PG
     PG --> Notify
     Notify --> HAAPI
+
+    classDef user fill:#6366f1,stroke:#4338ca,color:#eef2ff,stroke-width:1px;
+    classDef frontend fill:#8b5cf6,stroke:#6d28d9,color:#f5f3ff,stroke-width:1px;
+    classDef api fill:#f59e0b,stroke:#b45309,color:#1a1200,stroke-width:1px;
+    classDef orm fill:#0d9488,stroke:#0f766e,color:#ecfeff,stroke-width:1px;
+    classDef compute fill:#22c55e,stroke:#15803d,color:#04240f,stroke-width:1px;
+    classDef ai fill:#ec4899,stroke:#be185d,color:#fdf2f8,stroke-width:1px;
+    classDef external fill:#f43f5e,stroke:#be123c,color:#fff1f2,stroke-width:1px;
+    classDef store fill:#2563eb,stroke:#1e40af,color:#eff6ff,stroke-width:1px;
+    classDef ha fill:#03a9f4,stroke:#0277bd,color:#e1f5fe,stroke-width:1px;
+
+    class User user;
+    class NextJS frontend;
+    class tRPC api;
+    class Drizzle orm;
+    class Engine,Sync,Compute,Notify compute;
+    class AICtx ai;
+    class LLM,GarminAPI external;
+    class PG store;
+    class HAAPI ha;
+
+    style APP fill:#111827,stroke:#374151,color:#e5e7eb;
+    style ADDON fill:#0f172a,stroke:#334155,color:#e2e8f0;
 ```
 
 ## Tech Stack
