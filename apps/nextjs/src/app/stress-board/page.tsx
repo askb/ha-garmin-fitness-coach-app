@@ -38,6 +38,13 @@ interface StressStatus {
     generated: string;
     meetings: MeetingRow[];
     people: PersonRow[];
+    skipped?: {
+      total: number;
+      no_hr: number;
+      interactions_no_hr: number;
+      no_hr_titles: string[];
+      by_reason?: Record<string, number>;
+    };
   };
 }
 
@@ -135,6 +142,25 @@ export default function StressBoardPage() {
   // Setup guidance only when status loaded, addon healthy, and no source.
   const showSetup = !isLoading && !!status && !broken && !hasSource;
 
+  // Notice for events dropped because Garmin hadn't synced HR for that window
+  // (often a just-logged interaction). Built as one string so JSX whitespace
+  // can't inject a stray space before punctuation; names only when unmasked.
+  const skip = status?.results?.skipped;
+  const noHrTitles = Array.isArray(skip?.no_hr_titles) ? skip.no_hr_titles : [];
+  const skipNote =
+    skip && skip.no_hr > 0
+      ? `⚠ ${skip.no_hr} event${skip.no_hr === 1 ? "" : "s"} had no heart-rate coverage yet` +
+        (skip.interactions_no_hr > 0
+          ? ` (incl. ${skip.interactions_no_hr} logged interaction${
+              skip.interactions_no_hr === 1 ? "" : "s"
+            })`
+          : "") +
+        (!masked && noHrTitles.length > 0
+          ? ` — ${noHrTitles.join(", ")}`
+          : "") +
+        `. They'll show once Garmin syncs that time window — then hit ▶ run again.`
+      : null;
+
   return (
     <main className="min-h-screen bg-zinc-950 pb-24 font-mono text-sm text-zinc-200">
       <div className="mx-auto max-w-3xl px-4 pt-6">
@@ -190,6 +216,12 @@ export default function StressBoardPage() {
         {message && (
           <p className="mb-3 rounded border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-400">
             {message}
+          </p>
+        )}
+
+        {skipNote && (
+          <p className="mb-3 rounded border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-300">
+            {skipNote}
           </p>
         )}
 
