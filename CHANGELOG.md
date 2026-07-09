@@ -10,6 +10,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-07-09
+
+### Added
+
+- **In-UI Google Calendar setup.** Connect a Google Calendar for the Stress
+  Board from the dashboard by pasting the token from
+  `generate-gcal-token.py` — no more copying the file into `/share`. An
+  Unlink button clears it again.
+- **Multiple calendars.** Once linked, a 📅 calendars panel lets you choose
+  which of your Google calendars feed the board; events shared across
+  calendars are counted once. Requires addon v0.22.0+ (older addons keep
+  the file-drop flow).
+
 ## [0.21.0] - 2026-07-07
 
 ### Added

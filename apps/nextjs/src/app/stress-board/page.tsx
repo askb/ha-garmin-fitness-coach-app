@@ -27,6 +27,13 @@ interface PersonRow {
   label: string;
 }
 
+interface GcalCalendar {
+  id: string;
+  summary: string;
+  primary?: boolean;
+  selected?: boolean;
+}
+
 interface StressStatus {
   running?: boolean;
   error?: string;
@@ -124,6 +131,116 @@ export default function StressBoardPage() {
     onError: (err) => setMessage(err.message),
   });
 
+  /* ─────────────── Google Calendar linking ─────────────── */
+  const [tokenText, setTokenText] = useState("");
+  const [showCals, setShowCals] = useState(false);
+  // null = follow the server's saved selection; a Set = the user's edits.
+  const [selectedOverride, setSelectedOverride] = useState<Set<string> | null>(
+    null,
+  );
+
+  const link = useMutation({
+    mutationFn: async () => {
+      let payload: unknown;
+      try {
+        payload = JSON.parse(tokenText);
+      } catch {
+        throw new Error(
+          "That isn't valid JSON — paste the whole gcal-token.json file.",
+        );
+      }
+      const res = await fetch(getIngressUrl("/api/garmin/gcal-link"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as { success: boolean; message?: string };
+      if (!data.success) throw new Error(data.message ?? "Failed to link");
+      return data;
+    },
+    onSuccess: () => {
+      setTokenText("");
+      setMessage(null);
+      setShowCals(true);
+      void queryClient.invalidateQueries({ queryKey: ["meeting-stress"] });
+      void queryClient.invalidateQueries({ queryKey: ["gcal-calendars"] });
+    },
+    onError: (err) => setMessage(err.message),
+  });
+
+  const unlink = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(getIngressUrl("/api/garmin/gcal-link"), {
+        method: "DELETE",
+      });
+      const data = (await res.json()) as { success: boolean; message?: string };
+      if (!data.success) throw new Error(data.message ?? "Failed to unlink");
+      return data;
+    },
+    onSuccess: () => {
+      setMessage(null);
+      setShowCals(false);
+      setSelectedOverride(null);
+      void queryClient.invalidateQueries({ queryKey: ["meeting-stress"] });
+      void queryClient.invalidateQueries({ queryKey: ["gcal-calendars"] });
+    },
+    onError: (err) => setMessage(err.message),
+  });
+
+  const { data: calData, isLoading: calLoading } = useQuery({
+    queryKey: ["gcal-calendars"],
+    queryFn: async (): Promise<{
+      calendars?: GcalCalendar[];
+      success?: boolean;
+      message?: string;
+    }> => {
+      try {
+        const res = await fetch(getIngressUrl("/api/garmin/gcal-calendars"));
+        return (await res.json()) as {
+          calendars?: GcalCalendar[];
+          success?: boolean;
+          message?: string;
+        };
+      } catch {
+        return { success: false, message: "Cannot reach the addon." };
+      }
+    },
+    // Only hit the addon once the panel is actually open.
+    enabled: !!status?.calendar_linked && showCals,
+  });
+
+  const calendars = useMemo(() => calData?.calendars ?? [], [calData]);
+  const calError =
+    calData?.success === false
+      ? (calData.message ?? "Could not load calendars.")
+      : null;
+  // Effective selection: the user's edits if any, else the server's saved set.
+  const serverSelected = useMemo(
+    () => new Set(calendars.filter((c) => c.selected).map((c) => c.id)),
+    [calendars],
+  );
+  const selected = selectedOverride ?? serverSelected;
+
+  const saveCals = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(getIngressUrl("/api/garmin/gcal-calendars"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ calendar_ids: [...selected] }),
+      });
+      const data = (await res.json()) as { success: boolean; message?: string };
+      if (!data.success) throw new Error(data.message ?? "Failed to save");
+      return data;
+    },
+    onSuccess: () => {
+      setMessage("Calendar selection saved — hit ▶ run to refresh.");
+      setSelectedOverride(null);
+      void queryClient.invalidateQueries({ queryKey: ["meeting-stress"] });
+      void queryClient.invalidateQueries({ queryKey: ["gcal-calendars"] });
+    },
+    onError: (err) => setMessage(err.message),
+  });
+
   const results = status?.results;
   const maxAbsRidge = useMemo(
     () => Math.max(1, ...(results?.people ?? []).map((p) => Math.abs(p.ridge))),
@@ -186,6 +303,20 @@ export default function StressBoardPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            {status?.calendar_linked && (
+              <button
+                onClick={() => setShowCals((s) => !s)}
+                title="Choose calendars / unlink"
+                className={cn(
+                  "rounded border px-3 py-1.5 text-xs",
+                  showCals
+                    ? "border-sky-600 text-sky-400"
+                    : "border-zinc-700 text-zinc-400 hover:bg-zinc-800",
+                )}
+              >
+                📅 calendars
+              </button>
+            )}
             <button
               onClick={() => setMasked((m) => !m)}
               title="Mask names for screenshots"
@@ -225,6 +356,71 @@ export default function StressBoardPage() {
           </p>
         )}
 
+        {status?.calendar_linked && showCals && (
+          <div className="mb-3 rounded border border-sky-500/30 bg-sky-500/5 p-3 text-xs">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="font-bold text-zinc-200">Google Calendars</p>
+              <button
+                onClick={() => unlink.mutate()}
+                disabled={unlink.isPending}
+                className="rounded border border-red-500/40 px-2 py-1 text-red-400 hover:bg-red-500/10"
+              >
+                {unlink.isPending ? "unlinking…" : "Unlink"}
+              </button>
+            </div>
+            {calError ? (
+              <p className="text-amber-400">{calError}</p>
+            ) : calLoading ? (
+              <p className="text-zinc-500">Loading calendars…</p>
+            ) : calendars.length === 0 ? (
+              <p className="text-zinc-500">
+                No calendars found on this account.
+              </p>
+            ) : (
+              <>
+                <p className="mb-2 text-zinc-400">
+                  Pick which calendars feed the board (events shared across
+                  calendars are counted once).
+                </p>
+                <div className="mb-2 max-h-48 space-y-1 overflow-y-auto">
+                  {calendars.map((c) => (
+                    <label
+                      key={c.id}
+                      className="flex cursor-pointer items-center gap-2 text-zinc-300"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected.has(c.id)}
+                        onChange={(e) =>
+                          setSelectedOverride((prev) => {
+                            // Build from the latest state (prev), falling back
+                            // to the server set, so rapid toggles never drop.
+                            const next = new Set(prev ?? serverSelected);
+                            if (e.target.checked) next.add(c.id);
+                            else next.delete(c.id);
+                            return next;
+                          })
+                        }
+                      />
+                      <span>{c.summary}</span>
+                      {c.primary && (
+                        <span className="text-zinc-600">(primary)</span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+                <button
+                  onClick={() => saveCals.mutate()}
+                  disabled={saveCals.isPending || selected.size === 0}
+                  className="rounded border border-zinc-700 px-3 py-1.5 text-zinc-200 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:text-zinc-600"
+                >
+                  {saveCals.isPending ? "saving…" : "Save selection"}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         {!showSetup && !results && !isLoading && (
           <p className="rounded border border-zinc-800 bg-zinc-900 p-4 text-xs text-zinc-400">
             {status?.unsupported
@@ -238,17 +434,41 @@ export default function StressBoardPage() {
         {showSetup && (
           <div className="rounded border border-zinc-800 bg-zinc-900 p-4 text-xs text-zinc-400">
             <p className="mb-2 font-bold text-zinc-300">
-              No calendar connected
+              Connect Google Calendar
             </p>
-            <p>
-              Link Google Calendar with{" "}
+            <p className="mb-2">
+              On your computer, mint a read-only token with{" "}
               <code className="text-zinc-200">
                 scripts/generate-gcal-token.py
               </code>{" "}
-              (addon repo) and drop the token in{" "}
-              <code className="text-zinc-200">/share/pulsecoach/</code> — or
+              (addon repo), then paste the contents of the resulting{" "}
+              <code className="text-zinc-200">gcal-token.json</code> here:
+            </p>
+            <textarea
+              value={tokenText}
+              onChange={(e) => setTokenText(e.target.value)}
+              rows={4}
+              spellCheck={false}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              data-1p-ignore
+              data-lpignore="true"
+              placeholder='{"client_id":"…","client_secret":"…","refresh_token":"…"}'
+              className="mb-2 w-full rounded border border-zinc-700 bg-zinc-950 p-2 font-mono text-[11px] text-zinc-200 placeholder:text-zinc-600"
+            />
+            <button
+              onClick={() => link.mutate()}
+              disabled={link.isPending || tokenText.trim().length === 0}
+              className="rounded border border-zinc-700 px-3 py-1.5 text-zinc-200 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:text-zinc-600"
+            >
+              {link.isPending ? "connecting…" : "Connect"}
+            </button>
+            <p className="mt-3 text-zinc-500">
+              Prefer files? Drop the token in{" "}
+              <code className="text-zinc-400">/share/pulsecoach/</code>, or
               export an ICS and convert it with{" "}
-              <code className="text-zinc-200">scripts/ics_to_events.py</code>.
+              <code className="text-zinc-400">scripts/ics_to_events.py</code>.
             </p>
           </div>
         )}
