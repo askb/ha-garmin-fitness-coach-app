@@ -1,0 +1,88 @@
+# SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+#
+# Manual Vercel deploy. Never runs automatically — trigger from the
+# Actions tab. Requires repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID,
+# VERCEL_PROJECT_ID.
+---
+name: Vercel Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deploy target"
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: ${{ inputs.environment }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      # Pinned for reproducible deploys; bump deliberately.
+      VERCEL_CLI: vercel@55.0.0
+    steps:
+      - uses: step-security/harden-runner@9af89fc71515a100421586dfdb3dc9c984fbf411  # v2.19.4
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: ./tooling/github/setup
+
+      - name: Verify required secrets
+        run: |
+          set -euo pipefail
+          missing=""
+          [ -n "$VERCEL_TOKEN" ] || missing="$missing VERCEL_TOKEN"
+          [ -n "$VERCEL_ORG_ID" ] || missing="$missing VERCEL_ORG_ID"
+          [ -n "$VERCEL_PROJECT_ID" ] || missing="$missing VERCEL_PROJECT_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required repo secret(s):$missing" \
+              "— set them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - name: Pull Vercel environment
+        run: |
+          set -euo pipefail
+          pnpm dlx "$VERCEL_CLI" pull --yes --environment="$DEPLOY_ENV"
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          if [ "$DEPLOY_ENV" = "production" ]; then
+            pnpm dlx "$VERCEL_CLI" build --prod
+          else
+            pnpm dlx "$VERCEL_CLI" build
+          fi
+
+      - name: Deploy prebuilt output
+        run: |
+          set -euo pipefail
+          if [ "$DEPLOY_ENV" = "production" ]; then
+            url=$(pnpm dlx "$VERCEL_CLI" deploy --prebuilt --prod)
+          else
+            url=$(pnpm dlx "$VERCEL_CLI" deploy --prebuilt)
+          fi
+          {
+            echo "## Vercel deploy (${DEPLOY_ENV})"
+            echo ""
+            echo "${url}"
+          } >> "$GITHUB_STEP_SUMMARY"

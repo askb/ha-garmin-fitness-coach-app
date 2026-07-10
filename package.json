@@ -29,7 +29,10 @@
     "postinstall": "pnpm lint:ws",
     "typecheck": "turbo run typecheck",
     "ui-add": "turbo run ui-add",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "vercel:pull": "pnpm dlx vercel@55.0.0 pull --yes --environment=production",
+    "vercel:deploy": "pnpm dlx vercel@55.0.0 deploy",
+    "vercel:deploy:prod": "pnpm dlx vercel@55.0.0 deploy --prod"
   },
   "devDependencies": {
     "@acme/prettier-config": "workspace:*",
