@@ -255,7 +255,7 @@ export default function StressBoardPage() {
   const [endChoice, setEndChoice] = useState<EndChoice>("now");
 
   const addonHealthy =
-    !isLoading && !!status && !(status.unsupported ?? status.unreachable);
+    !isLoading && !!status && !status.unsupported && !status.unreachable;
 
   const { data: ixData } = useQuery({
     queryKey: ["interactions"],
@@ -282,7 +282,9 @@ export default function StressBoardPage() {
     enabled: addonHealthy,
   });
   const recent = ixData?.interactions ?? [];
-  const ixSupported = !ixData?.unsupported;
+  // Only show the panel once the probe has answered — defaulting to
+  // "supported" would flash the form on addons that predate the endpoint.
+  const ixSupported = !!ixData && !ixData.unsupported;
 
   const addInteraction = useMutation({
     mutationFn: async () => {
