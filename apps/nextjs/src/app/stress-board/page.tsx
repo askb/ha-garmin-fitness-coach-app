@@ -266,10 +266,12 @@ export default function StressBoardPage() {
     }> => {
       try {
         const res = await fetch(getIngressUrl("/api/garmin/interactions"));
-        if (res.status === 404) return { success: false, unsupported: true };
+        // The proxy marks addon-predates-endpoint 404s with an explicit
+        // `unsupported` flag; a plain JSON 404 is a real answer.
         return (await res.json()) as {
           interactions?: InteractionRec[];
           success?: boolean;
+          unsupported?: boolean;
         };
       } catch {
         return { success: false };
@@ -586,7 +588,7 @@ export default function StressBoardPage() {
                       onClick={() => deleteInteraction.mutate(r.id)}
                       disabled={deleteInteraction.isPending}
                       title="Remove this interaction"
-                      aria-label={`Remove interaction with ${r.person}`}
+                      aria-label={`Remove interaction with ${person(r.person)}`}
                       className="rounded px-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
                     >
                       ×

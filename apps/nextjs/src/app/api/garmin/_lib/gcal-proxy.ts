@@ -37,10 +37,12 @@ export async function authForward(
     }
     if (!res.ok) {
       // A JSON 404 is an endpoint answering (e.g. "not found" for an id);
-      // an HTML 404 means the addon predates the endpoint entirely.
+      // an HTML 404 means the addon predates the endpoint entirely. The
+      // explicit `unsupported` flag lets clients detect this case without
+      // sniffing status codes or message strings.
       if (res.status === 404 && !isJson) {
         return NextResponse.json(
-          { success: false, message: unsupportedMessage },
+          { success: false, unsupported: true, message: unsupportedMessage },
           { status: 404 },
         );
       }
