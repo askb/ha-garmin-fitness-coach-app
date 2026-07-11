@@ -586,6 +586,7 @@ export default function StressBoardPage() {
                       onClick={() => deleteInteraction.mutate(r.id)}
                       disabled={deleteInteraction.isPending}
                       title="Remove this interaction"
+                      aria-label={`Remove interaction with ${r.person}`}
                       className="rounded px-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
                     >
                       ×
