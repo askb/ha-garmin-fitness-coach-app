@@ -263,6 +263,7 @@ export default function StressBoardPage() {
       interactions?: InteractionRec[];
       success?: boolean;
       unsupported?: boolean;
+      message?: string;
     }> => {
       try {
         const res = await fetch(getIngressUrl("/api/garmin/interactions"));
@@ -272,6 +273,7 @@ export default function StressBoardPage() {
           interactions?: InteractionRec[];
           success?: boolean;
           unsupported?: boolean;
+          message?: string;
         };
       } catch {
         return { success: false };
@@ -528,6 +530,7 @@ export default function StressBoardPage() {
                 onChange={(e) => setPersonInput(e.target.value)}
                 list="known-people"
                 placeholder="who?"
+                aria-label="Person you interacted with"
                 autoComplete="off"
                 autoCapitalize="off"
                 className="w-36 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-200 placeholder:text-zinc-600"
@@ -557,6 +560,7 @@ export default function StressBoardPage() {
               <select
                 value={endChoice}
                 onChange={(e) => setEndChoice(e.target.value as EndChoice)}
+                aria-label="When the interaction ended"
                 className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-300"
               >
                 {END_CHOICES.map((c) => (
