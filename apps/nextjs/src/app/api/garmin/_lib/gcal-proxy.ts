@@ -23,8 +23,15 @@ export async function authForward(
     let data: Record<string, unknown> = {};
     let isJson = false;
     try {
-      data = JSON.parse(text) as Record<string, unknown>;
-      isJson = true;
+      // Only accept a JSON object — a primitive or array would spread into
+      // a malformed proxy response, so treat it like a non-JSON body.
+      const parsed: unknown = JSON.parse(text);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        data = parsed as Record<string, unknown>;
+        isJson = true;
+      } else if (text) {
+        data = { message: text.slice(0, 300) };
+      }
     } catch {
       if (text) data = { message: text.slice(0, 300) };
     }

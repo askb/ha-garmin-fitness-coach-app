@@ -13,6 +13,7 @@ import {
   END_CHOICES,
   endIsoFromChoice,
   fmtEnd,
+  parseApiResponse,
 } from "./quick-add-lib";
 
 /* ─────────────── types (shape of meeting_stress.json) ─────────────── */
@@ -290,7 +291,7 @@ export default function StressBoardPage() {
           end: endIsoFromChoice(endChoice),
         }),
       });
-      const data = (await res.json()) as { success: boolean; message?: string };
+      const data = await parseApiResponse(res);
       if (!data.success) throw new Error(data.message ?? "Failed to log");
       return data;
     },
@@ -309,7 +310,7 @@ export default function StressBoardPage() {
         getIngressUrl(`/api/garmin/interactions/${encodeURIComponent(id)}`),
         { method: "DELETE" },
       );
-      const data = (await res.json()) as { success: boolean; message?: string };
+      const data = await parseApiResponse(res);
       if (!data.success) throw new Error(data.message ?? "Failed to delete");
       return data;
     },

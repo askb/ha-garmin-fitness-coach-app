@@ -3,6 +3,7 @@ import {
   END_CHOICES,
   endIsoFromChoice,
   fmtEnd,
+  parseApiResponse,
 } from "../app/stress-board/quick-add-lib";
 
 describe("endIsoFromChoice", () => {
@@ -30,18 +31,46 @@ describe("endIsoFromChoice", () => {
 
 describe("fmtEnd", () => {
   const now = new Date("2026-07-11T22:00:00");
+  // Derive expectations with the same Intl options fmtEnd uses, so the
+  // assertions hold in any CI locale / hour-cycle.
+  const timeOf = (d: Date) =>
+    d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const dateOf = (d: Date) =>
+    d.toLocaleDateString([], { month: "short", day: "numeric" });
 
   it("shows time only for same-day ends", () => {
-    expect(fmtEnd("2026-07-11T14:15:00", now)).toMatch(/2:15/);
-    expect(fmtEnd("2026-07-11T14:15:00", now)).not.toMatch(/Jul/);
+    const end = new Date("2026-07-11T14:15:00");
+    expect(fmtEnd("2026-07-11T14:15:00", now)).toBe(timeOf(end));
   });
 
   it("adds the date for older ends", () => {
-    expect(fmtEnd("2026-07-09T14:15:00", now)).toMatch(/Jul 9/);
+    const end = new Date("2026-07-09T14:15:00");
+    expect(fmtEnd("2026-07-09T14:15:00", now)).toBe(
+      `${dateOf(end)} ${timeOf(end)}`,
+    );
   });
 
   it("falls back to the raw string when unparseable", () => {
     expect(fmtEnd("garbage", now)).toBe("garbage");
+  });
+});
+
+describe("parseApiResponse", () => {
+  // jsdom has no global Response; a {json, status} stub is all it needs.
+  it("returns the parsed body for JSON responses", async () => {
+    const res = { status: 200, json: () => Promise.resolve({ success: true }) };
+    await expect(parseApiResponse(res)).resolves.toEqual({ success: true });
+  });
+
+  it("degrades non-JSON bodies to an HTTP-status message", async () => {
+    const res = {
+      status: 500,
+      json: () => Promise.reject(new SyntaxError("Unexpected token <")),
+    };
+    await expect(parseApiResponse(res)).resolves.toEqual({
+      success: false,
+      message: "Unexpected response (HTTP 500)",
+    });
   });
 });
 

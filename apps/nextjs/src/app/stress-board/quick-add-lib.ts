@@ -7,6 +7,23 @@ export interface InteractionRec {
   end: string;
 }
 
+/**
+ * Parse a mutation response without letting a non-JSON body (e.g. an HTML
+ * 500 page) surface as a SyntaxError — fall back to the HTTP status.
+ */
+export async function parseApiResponse(
+  res: Pick<Response, "json" | "status">,
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    return (await res.json()) as { success: boolean; message?: string };
+  } catch {
+    return {
+      success: false,
+      message: `Unexpected response (HTTP ${res.status})`,
+    };
+  }
+}
+
 /** "Ended…" choices: key → minutes ago. "now" is the server default. */
 export const END_CHOICES = [
   { key: "now", label: "just now", minutesAgo: 0 },
