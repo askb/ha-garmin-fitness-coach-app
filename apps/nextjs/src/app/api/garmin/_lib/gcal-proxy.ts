@@ -7,28 +7,42 @@ function getAuthServerBase() {
 }
 
 /**
- * Forward a Google Calendar request to the addon auth server and normalise the
- * response. Shared by the gcal-link and gcal-calendars proxy routes so the
- * 404-degradation and success-flag contract stay in one place.
+ * Forward a request to the addon auth server and normalise the response.
+ * Shared by the gcal-* and interactions proxy routes so the 404-degradation
+ * and success-flag contract stay in one place. `unsupportedMessage` is
+ * returned when the addon predates the endpoint (auth server 404s).
  */
-export async function gcalForward(path: string, init?: RequestInit) {
+export async function authForward(
+  path: string,
+  init: RequestInit | undefined,
+  unsupportedMessage: string,
+) {
   try {
     const res = await fetch(`${getAuthServerBase()}${path}`, init);
     const text = await res.text();
     let data: Record<string, unknown> = {};
+    let isJson = false;
     try {
-      data = JSON.parse(text) as Record<string, unknown>;
+      // Only accept a JSON object — a primitive or array would spread into
+      // a malformed proxy response, so treat it like a non-JSON body.
+      const parsed: unknown = JSON.parse(text);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        data = parsed as Record<string, unknown>;
+        isJson = true;
+      } else if (text) {
+        data = { message: text.slice(0, 300) };
+      }
     } catch {
       if (text) data = { message: text.slice(0, 300) };
     }
     if (!res.ok) {
-      if (res.status === 404) {
+      // A JSON 404 is an endpoint answering (e.g. "not found" for an id);
+      // an HTML 404 means the addon predates the endpoint entirely. The
+      // explicit `unsupported` flag lets clients detect this case without
+      // sniffing status codes or message strings.
+      if (res.status === 404 && !isJson) {
         return NextResponse.json(
-          {
-            success: false,
-            message:
-              "Google Calendar linking not available. Update addon to v0.22.0+",
-          },
+          { success: false, unsupported: true, message: unsupportedMessage },
           { status: 404 },
         );
       }
@@ -47,4 +61,12 @@ export async function gcalForward(path: string, init?: RequestInit) {
       { status: 502 },
     );
   }
+}
+
+export async function gcalForward(path: string, init?: RequestInit) {
+  return authForward(
+    path,
+    init,
+    "Google Calendar linking not available. Update addon to v0.22.0+",
+  );
 }

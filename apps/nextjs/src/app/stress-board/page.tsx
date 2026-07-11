@@ -5,8 +5,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
 
+import type { EndChoice, InteractionRec } from "./quick-add-lib";
 import { BottomNav } from "../_components/bottom-nav";
 import { getIngressUrl } from "../_components/ingress-provider";
+import {
+  DURATION_CHIPS,
+  END_CHOICES,
+  endIsoFromChoice,
+  fmtEnd,
+  parseApiResponse,
+} from "./quick-add-lib";
 
 /* ─────────────── types (shape of meeting_stress.json) ─────────────── */
 
@@ -241,6 +249,89 @@ export default function StressBoardPage() {
     onError: (err) => setMessage(err.message),
   });
 
+  /* ─────────────── interaction quick-add ─────────────── */
+  const [personInput, setPersonInput] = useState("");
+  const [minutes, setMinutes] = useState<number>(30);
+  const [endChoice, setEndChoice] = useState<EndChoice>("now");
+
+  const addonHealthy =
+    !isLoading && !!status && !status.unsupported && !status.unreachable;
+
+  const { data: ixData } = useQuery({
+    queryKey: ["interactions"],
+    queryFn: async (): Promise<{
+      interactions?: InteractionRec[];
+      success?: boolean;
+      unsupported?: boolean;
+      message?: string;
+    }> => {
+      try {
+        const res = await fetch(getIngressUrl("/api/garmin/interactions"));
+        // The proxy marks addon-predates-endpoint 404s with an explicit
+        // `unsupported` flag; a plain JSON 404 is a real answer.
+        return (await res.json()) as {
+          interactions?: InteractionRec[];
+          success?: boolean;
+          unsupported?: boolean;
+          message?: string;
+        };
+      } catch {
+        return { success: false };
+      }
+    },
+    enabled: addonHealthy,
+  });
+  const recent = ixData?.interactions ?? [];
+  // Only show the panel once the probe has answered — defaulting to
+  // "supported" would flash the form on addons that predate the endpoint.
+  const ixSupported = !!ixData && !ixData.unsupported;
+
+  const addInteraction = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(getIngressUrl("/api/garmin/interactions"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          person: personInput.trim(),
+          minutes,
+          end: endIsoFromChoice(endChoice),
+        }),
+      });
+      const data = await parseApiResponse(res);
+      if (!data.success) throw new Error(data.message ?? "Failed to log");
+      return data;
+    },
+    onSuccess: () => {
+      setPersonInput("");
+      setEndChoice("now");
+      setMessage("Logged — hit ▶ run to score it against your heart rate.");
+      void queryClient.invalidateQueries({ queryKey: ["interactions"] });
+    },
+    onError: (err) => setMessage(err.message),
+  });
+
+  const deleteInteraction = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(
+        getIngressUrl(`/api/garmin/interactions/${encodeURIComponent(id)}`),
+        { method: "DELETE" },
+      );
+      const data = await parseApiResponse(res);
+      if (!data.success) throw new Error(data.message ?? "Failed to delete");
+      return data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["interactions"] });
+    },
+    onError: (err) => setMessage(err.message),
+  });
+
+  const canLog =
+    personInput.trim().length > 0 &&
+    !addInteraction.isPending &&
+    minutes > 0 &&
+    minutes <= 1440;
+
   const results = status?.results;
   const maxAbsRidge = useMemo(
     () => Math.max(1, ...(results?.people ?? []).map((p) => Math.abs(p.ridge))),
@@ -417,6 +508,100 @@ export default function StressBoardPage() {
                   {saveCals.isPending ? "saving…" : "Save selection"}
                 </button>
               </>
+            )}
+          </div>
+        )}
+
+        {addonHealthy && ixSupported && (
+          <div className="mb-3 rounded border border-zinc-800 bg-zinc-900 p-3 text-xs">
+            <p className="mb-2 font-bold tracking-widest text-zinc-100">
+              LOG INTERACTION{" "}
+              <span className="font-normal tracking-normal text-zinc-500">
+                off-calendar chat, call, drop-by
+              </span>
+            </p>
+            <form
+              className="flex flex-wrap items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (canLog) addInteraction.mutate();
+              }}
+            >
+              <input
+                value={personInput}
+                onChange={(e) => setPersonInput(e.target.value)}
+                list="known-people"
+                placeholder="who?"
+                aria-label="Person you interacted with"
+                autoComplete="off"
+                autoCapitalize="off"
+                className="w-36 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-200 placeholder:text-zinc-600"
+              />
+              <datalist id="known-people">
+                {(results?.people ?? []).map((p) => (
+                  <option key={p.attendee} value={p.attendee} />
+                ))}
+              </datalist>
+              <span className="flex overflow-hidden rounded border border-zinc-700">
+                {DURATION_CHIPS.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMinutes(m)}
+                    className={cn(
+                      "px-2 py-1.5",
+                      minutes === m
+                        ? "bg-zinc-700 font-bold text-zinc-100"
+                        : "text-zinc-400 hover:bg-zinc-800",
+                    )}
+                  >
+                    {m}m
+                  </button>
+                ))}
+              </span>
+              <select
+                value={endChoice}
+                onChange={(e) => setEndChoice(e.target.value as EndChoice)}
+                aria-label="When the interaction ended"
+                className="rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-300"
+              >
+                {END_CHOICES.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    ended {c.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                disabled={!canLog}
+                className="rounded border border-zinc-700 px-3 py-1.5 text-zinc-200 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:text-zinc-600"
+              >
+                {addInteraction.isPending ? "logging…" : "+ log"}
+              </button>
+            </form>
+            {recent.length > 0 && (
+              <ul className="mt-2 space-y-0.5">
+                {recent.slice(0, 6).map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-center gap-2 text-zinc-500"
+                  >
+                    <span className="text-zinc-300">{person(r.person)}</span>
+                    <span>
+                      {r.minutes}m · ended {fmtEnd(r.end)}
+                    </span>
+                    <button
+                      onClick={() => deleteInteraction.mutate(r.id)}
+                      disabled={deleteInteraction.isPending}
+                      title="Remove this interaction"
+                      aria-label={`Remove interaction with ${person(r.person)}`}
+                      className="rounded px-1 text-zinc-600 hover:bg-red-500/10 hover:text-red-400"
+                    >
+                      ×
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         )}
