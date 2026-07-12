@@ -10,6 +10,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-07-12
+
+### Added
+
+- **Stress Board interaction quick-add.** Log an out-of-calendar contact
+  directly on the board: person input with attendee autocomplete, duration
+  chips (15/30/45/60m), an "ended just now / N ago" selector, and a recent
+  list with per-entry delete. Names respect screenshot mask mode; the panel
+  hides itself on addons older than v0.26.0. Replaces hand-writing JSONL
+  into `/share/pulsecoach/interactions.jsonl` via an HA shell_command.
+
 ## [0.23.0] - 2026-07-10
 
 ### Changed
