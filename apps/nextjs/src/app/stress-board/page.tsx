@@ -115,7 +115,9 @@ function buildMaskMap(people: string[]): Map<string, string> {
 export default function StressBoardPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
-  const [masked, setMasked] = useState(false);
+  // Default masked: third-party names must not appear until the user opts in
+  // (privacy §3 — anonymize by default; real names stay local).
+  const [masked, setMasked] = useState(true);
 
   const { data: status, isLoading } = useQuery({
     queryKey: ["meeting-stress"],
