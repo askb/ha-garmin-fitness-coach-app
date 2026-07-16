@@ -5,27 +5,38 @@ training analysis, and recovery optimization.
 
 ## Screenshots
 
-A walkthrough of the main dashboards (captured from v0.2.13). Sleep,
-HRV, vitals, and validation pages are omitted from the README for
-privacy but render with the same layout conventions.
+A walkthrough of the main dashboards (captured from v0.24.0 with real
+Garmin data).
 
 ### Home — readiness, today's plan, recent activity
 ![Home dashboard](docs/screenshots/home-desktop.png)
 
-### Fitness — VO2max, racing shape, race predictions
-![Fitness dashboard](docs/screenshots/fitness-desktop.png)
+### Fitness — VO2max, race predictions, training pace, running shape
+![Fitness dashboard](docs/screenshots/fitness-28d-desktop.png)
 
 ### Training — CTL / ATL / TSB, ACWR, ramp rate, Garmin Firstbeat
 ![Training dashboard](docs/screenshots/training-desktop.png)
 
-### Zones — HR zone distribution, polarization, consistency heatmap
-![Zones dashboard](docs/screenshots/zones-desktop.png)
+### Activities — full activity log with distance, duration, HR
+![Activities dashboard](docs/screenshots/activities-desktop.png)
 
-### Trends — multi-year multi-metric overlays + correlations
+### Trends — multi-metric overlays + correlations
 ![Trends dashboard](docs/screenshots/trends-desktop.png)
+
+### Insights — AI rule-based proactive recommendations
+![Insights dashboard](docs/screenshots/insights-desktop.png)
+
+### Sleep — sleep stages, debt, consistency, coach
+![Sleep dashboard](docs/screenshots/sleep-desktop.png)
+
+### HRV — baseline tracking, z-scores, trend analysis
+![HRV dashboard](docs/screenshots/hrv-desktop.png)
 
 ### Coach — persona AI agents (HA Conversation / Ollama)
 ![AI Coach dashboard](docs/screenshots/coach-desktop.png)
+
+### Stress Board — life-stress calendar + interactions
+![Stress Board](docs/screenshots/stress-board-desktop.png)
 
 ## Architecture
 
