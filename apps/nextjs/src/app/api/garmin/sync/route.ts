@@ -4,6 +4,8 @@ import { requireSession } from "~/auth/guard";
 import { garminUserHeaders, getAuthServerBase } from "../_lib/auth-server";
 
 const AUTH_SERVER = getAuthServerBase();
+// Per-user header is forwarded below, so never statically cache this route.
+export const dynamic = "force-dynamic";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
 const IS_ADDON = process.env.NODE_ENV === "production";

@@ -18,7 +18,7 @@ export function getAuthServerBase(): string {
   return configured ? configured : "http://127.0.0.1:8099";
 }
 
-/** Header the backend reads to scope tokens/sync per user (see request_user.py). */
+/** Header that the backend reads to scope tokens/sync per user (see request_user.py). */
 export const GARMIN_USER_HEADER = "X-PulseCoach-User";
 
 /**

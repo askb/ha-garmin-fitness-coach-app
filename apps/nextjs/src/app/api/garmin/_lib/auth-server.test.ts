@@ -3,6 +3,14 @@
 /* eslint-disable no-restricted-properties -- test manipulates the raw GARMIN_AUTH_SERVER env by design */
 import { garminUserHeaders, getAuthServerBase } from "./auth-server";
 
+jest.mock("~/auth/server", () => ({
+  getSession: jest.fn(),
+}));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getSession } = require("~/auth/server") as {
+  getSession: jest.Mock;
+};
+
 const LOCAL = "http://127.0.0.1:8099";
 
 describe("getAuthServerBase", () => {
@@ -46,6 +54,20 @@ describe("garminUserHeaders", () => {
     process.env.DEV_BYPASS_AUTH = "true";
     // Must not forward a user id — the addon keeps its shared token dir. This
     // path returns before importing the session module, so no mocking needed.
+    await expect(garminUserHeaders()).resolves.toEqual({});
+  });
+
+  it("forwards the session user id when not in bypass mode", async () => {
+    delete process.env.DEV_BYPASS_AUTH;
+    getSession.mockResolvedValue({ user: { id: "user-42" } });
+    await expect(garminUserHeaders()).resolves.toEqual({
+      "X-PulseCoach-User": "user-42",
+    });
+  });
+
+  it("sends no header when there is no session", async () => {
+    delete process.env.DEV_BYPASS_AUTH;
+    getSession.mockResolvedValue(null);
     await expect(garminUserHeaders()).resolves.toEqual({});
   });
 });
