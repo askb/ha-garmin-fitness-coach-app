@@ -284,6 +284,9 @@ export default function StressBoardPage() {
       };
     },
     enabled: addonHealthy,
+    // A capability probe shouldn't retry — a failure just hides the panel;
+    // retrying would add request/log noise during an addon outage.
+    retry: false,
   });
   const recent = ixData?.interactions ?? [];
   // Only show the panel once the probe has answered — defaulting to
