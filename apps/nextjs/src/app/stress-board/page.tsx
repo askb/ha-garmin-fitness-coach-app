@@ -115,7 +115,9 @@ function buildMaskMap(people: string[]): Map<string, string> {
 export default function StressBoardPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
-  const [masked, setMasked] = useState(false);
+  // Default masked: third-party names must not appear until the user opts in
+  // (privacy §3 — anonymize by default; real names stay local).
+  const [masked, setMasked] = useState(true);
 
   const { data: status, isLoading } = useQuery({
     queryKey: ["meeting-stress"],
@@ -265,21 +267,26 @@ export default function StressBoardPage() {
       unsupported?: boolean;
       message?: string;
     }> => {
-      try {
-        const res = await fetch(getIngressUrl("/api/garmin/interactions"));
-        // The proxy marks addon-predates-endpoint 404s with an explicit
-        // `unsupported` flag; a plain JSON 404 is a real answer.
-        return (await res.json()) as {
-          interactions?: InteractionRec[];
-          success?: boolean;
-          unsupported?: boolean;
-          message?: string;
-        };
-      } catch {
-        return { success: false };
+      const res = await fetch(getIngressUrl("/api/garmin/interactions"));
+      // The proxy marks addon-predates-endpoint 404s with an explicit
+      // `unsupported` flag; a plain JSON 404 is a real answer. Any other
+      // error status (5xx, etc.) is a genuine failure — let it bubble so
+      // React Query keeps ixData undefined and the quick-add panel stays
+      // hidden rather than treating error JSON as "supported".
+      if (!res.ok && res.status !== 404) {
+        throw new Error(`interactions probe failed: ${res.status}`);
       }
+      return (await res.json()) as {
+        interactions?: InteractionRec[];
+        success?: boolean;
+        unsupported?: boolean;
+        message?: string;
+      };
     },
     enabled: addonHealthy,
+    // A capability probe shouldn't retry — a failure just hides the panel;
+    // retrying would add request/log noise during an addon outage.
+    retry: false,
   });
   const recent = ixData?.interactions ?? [];
   // Only show the panel once the probe has answered — defaulting to
@@ -538,7 +545,8 @@ export default function StressBoardPage() {
                 className="w-36 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-200 placeholder:text-zinc-600"
               />
               <datalist id="known-people">
-                {(results?.people ?? []).map((p) => (
+                {/* Don't leak real names via autocomplete while masked (privacy §3) */}
+                {(masked ? [] : (results?.people ?? [])).map((p) => (
                   <option key={p.attendee} value={p.attendee} />
                 ))}
               </datalist>
