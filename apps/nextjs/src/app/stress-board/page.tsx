@@ -270,7 +270,12 @@ export default function StressBoardPage() {
       try {
         const res = await fetch(getIngressUrl("/api/garmin/interactions"));
         // The proxy marks addon-predates-endpoint 404s with an explicit
-        // `unsupported` flag; a plain JSON 404 is a real answer.
+        // `unsupported` flag; a plain JSON 404 is a real answer. Any other
+        // error status (5xx, etc.) is a genuine failure — bubble it so the
+        // panel stays hidden rather than treating error JSON as "supported".
+        if (!res.ok && res.status !== 404) {
+          throw new Error(`interactions probe failed: ${res.status}`);
+        }
         return (await res.json()) as {
           interactions?: InteractionRec[];
           success?: boolean;
