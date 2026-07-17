@@ -53,25 +53,3 @@ export function createPkceStart(): PkceStart {
     state: generateState(),
   };
 }
-
-function demo(): void {
-  const assert = (c: boolean, m: string) => {
-    if (!c) throw new Error("FAIL: " + m);
-  };
-  const v = generateCodeVerifier();
-  assert(v.length >= 43 && v.length <= 128, "verifier length in [43,128]");
-  assert(/^[A-Za-z0-9\-._~]+$/.test(v), "verifier is unreserved charset");
-  const c = codeChallengeS256(v);
-  assert(codeChallengeS256(v) === c, "challenge is deterministic");
-  assert(!c.includes("=") && !c.includes("+") && !c.includes("/"), "url-safe");
-  assert(generateCodeVerifier() !== generateCodeVerifier(), "verifier random");
-  assert(generateState() !== generateState(), "state random");
-  // Known-answer vector from RFC 7636 §A.
-  const kav = codeChallengeS256("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk");
-  assert(kav === "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM", "RFC 7636 KAV");
-  // eslint-disable-next-line no-console
-  console.log("oauth-pkce: all checks passed");
-}
-
-// Run as a script for a quick self-check: `npx tsx oauth-pkce.ts`.
-if (process.argv[1]?.endsWith("oauth-pkce.ts")) demo();
