@@ -65,7 +65,12 @@ export async function GET(req: NextRequest) {
     // session doesn't consume it for nothing.
     const { getSession } = await import("~/auth/server");
     const session = await getSession();
-    const userId = session?.user?.id;
+    // Mirror the app's auth bypass: fall back to the seed user when
+    // DEV_BYPASS_AUTH is on (parity with trpc.ts / the home page).
+    const userId =
+      session?.user?.id ??
+      // eslint-disable-next-line no-restricted-properties -- server route: `~/env` shim unavailable
+      (process.env.DEV_BYPASS_AUTH === "true" ? "seed-user-001" : null);
     if (!userId) {
       return NextResponse.redirect(new URL("/", req.url));
     }

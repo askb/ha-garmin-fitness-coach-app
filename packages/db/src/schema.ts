@@ -901,8 +901,8 @@ export const CreateOutcomeAttributionSchema = createInsertSchema(
 
 // ---------------------------------------------------------------------------
 // Garmin OAuth tokens (Path B — official API). Per-user, ENCRYPTED AT REST.
-// The token columns hold AES-256-GCM ciphertext (see oauth/token-crypto.ts);
-// never store plaintext Garmin tokens here.
+// The token columns hold AES-256-GCM ciphertext (encrypted by the Next.js app's
+// oauth token-crypto module before insert); never store plaintext tokens here.
 // ---------------------------------------------------------------------------
 export const GarminOAuthToken = pgTable(
   "garmin_oauth_token",
