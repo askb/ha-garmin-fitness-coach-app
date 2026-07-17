@@ -15,6 +15,7 @@ import {
   fmtEnd,
   parseApiResponse,
 } from "./quick-add-lib";
+import { StressBoardConsent } from "./stress-board-consent";
 
 /* ─────────────── types (shape of meeting_stress.json) ─────────────── */
 
@@ -379,6 +380,7 @@ export default function StressBoardPage() {
   return (
     <main className="min-h-screen bg-zinc-950 pb-24 font-mono text-sm text-zinc-200">
       <div className="mx-auto max-w-3xl px-4 pt-6">
+        <StressBoardConsent />
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold text-zinc-100">
