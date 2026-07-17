@@ -540,7 +540,8 @@ export default function StressBoardPage() {
                 className="w-36 rounded border border-zinc-700 bg-zinc-950 px-2 py-1.5 text-zinc-200 placeholder:text-zinc-600"
               />
               <datalist id="known-people">
-                {(results?.people ?? []).map((p) => (
+                {/* Don't leak real names via autocomplete while masked (privacy §3) */}
+                {(masked ? [] : (results?.people ?? [])).map((p) => (
                   <option key={p.attendee} value={p.attendee} />
                 ))}
               </datalist>
