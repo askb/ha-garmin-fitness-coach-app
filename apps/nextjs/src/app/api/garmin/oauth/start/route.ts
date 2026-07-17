@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
+import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -22,7 +23,17 @@ export const dynamic = "force-dynamic";
  * verifier/challenge + CSRF state, stashes verifier+state in short-lived
  * httpOnly cookies, and redirects the user to Garmin's consent screen.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Defense-in-depth: don't let another origin initiate an OAuth flow for a
+  // logged-in user via a cross-site top-level GET. Same-origin/same-site and
+  // direct navigation (`none`) are allowed; browsers without the header pass.
+  if (req.headers.get("sec-fetch-site") === "cross-site") {
+    return NextResponse.json(
+      { error: "Cross-site request rejected" },
+      { status: 403 },
+    );
+  }
+
   const denied = await requireSession();
   if (denied) return denied;
 

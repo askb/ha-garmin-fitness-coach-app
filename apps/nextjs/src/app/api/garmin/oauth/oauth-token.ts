@@ -58,7 +58,13 @@ export async function exchangeCodeForTokens(
   return (await res.json()) as OAuthTokenResponse;
 }
 
-/** application/x-www-form-urlencoded encoding (space → `+`). */
+/** application/x-www-form-urlencoded encoding (space → `+`, escaping the
+ * sub-delims `encodeURIComponent` leaves: `! ' ( ) *`). */
 function formUrlEncode(s: string): string {
-  return encodeURIComponent(s).replace(/%20/g, "+");
+  return encodeURIComponent(s)
+    .replace(/%20/g, "+")
+    .replace(
+      /[!'()*]/g,
+      (ch) => "%" + ch.charCodeAt(0).toString(16).toUpperCase(),
+    );
 }

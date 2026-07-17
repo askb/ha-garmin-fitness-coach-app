@@ -68,6 +68,23 @@ describe("exchangeCodeForTokens", () => {
     expect(headers.Authorization).toBe(expected);
   });
 
+  it("form-urlencodes basic-auth credentials with special chars (RFC 6749 §2.3.1)", async () => {
+    const cap: { url?: string; init?: RequestInit } = {};
+    await exchangeCodeForTokens(
+      { ...baseConfig, clientId: "id a", clientSecret: "s!'()*+/=" },
+      "C",
+      "V",
+      okFetch(cap),
+    );
+    const headers = cap.init?.headers as Record<string, string>;
+    const decoded = Buffer.from(
+      (headers.Authorization ?? "").replace("Basic ", ""),
+      "base64",
+    ).toString();
+    // space→+, and !'()* / = escaped; no raw sub-delims survive.
+    expect(decoded).toBe("id+a:s%21%27%28%29%2A%2B%2F%3D");
+  });
+
   it("throws on a non-ok token response", async () => {
     const failFetch = (async () =>
       ({
