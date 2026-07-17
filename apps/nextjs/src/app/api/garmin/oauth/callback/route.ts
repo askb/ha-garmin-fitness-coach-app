@@ -53,19 +53,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/settings?garmin=denied", req.url));
   }
   if (!code || !state || !verifier || !savedState || state !== savedState) {
-    return NextResponse.json(
-      { error: "Invalid or expired OAuth callback" },
-      { status: 400 },
-    );
+    return NextResponse.redirect(new URL("/settings?garmin=invalid", req.url));
   }
 
   try {
     const tokens = await exchangeCodeForTokens(config, code, verifier);
     if (!tokens.access_token) {
-      return NextResponse.json(
-        { error: "No access token returned" },
-        { status: 502 },
-      );
+      return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
     }
     // TODO(B2): persist `tokens` encrypted, keyed by getSession().user.id.
     return NextResponse.redirect(
