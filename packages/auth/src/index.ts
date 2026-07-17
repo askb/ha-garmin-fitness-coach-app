@@ -37,6 +37,12 @@ export function initAuth<
         redirectURI: `${options.productionUrl}/api/auth/callback/discord`,
       },
     },
+    // Email/password sign-in for the standalone consumer deployment (Path B).
+    // The HA addon uses DEV_BYPASS_AUTH and is unaffected. Uses the existing
+    // Better-Auth user/account tables — no schema change.
+    emailAndPassword: {
+      enabled: true,
+    },
     trustedOrigins: ["expo://"],
     onAPIError: {
       onError(error, ctx) {
