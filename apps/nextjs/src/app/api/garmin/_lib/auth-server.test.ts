@@ -1,12 +1,16 @@
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable no-restricted-properties -- test manipulates the raw GARMIN_AUTH_SERVER env by design */
 import { getAuthServerBase } from "./auth-server";
 
 const LOCAL = "http://127.0.0.1:8099";
 
 describe("getAuthServerBase", () => {
+  const original = process.env.GARMIN_AUTH_SERVER;
+
   afterEach(() => {
-    delete process.env.GARMIN_AUTH_SERVER;
+    if (original === undefined) delete process.env.GARMIN_AUTH_SERVER;
+    else process.env.GARMIN_AUTH_SERVER = original;
   });
 
   it("defaults to the local addon service when unset", () => {
