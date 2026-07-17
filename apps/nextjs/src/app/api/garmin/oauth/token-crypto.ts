@@ -1,11 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-import {
-  createCipheriv,
-  createDecipheriv,
-  randomBytes,
-  timingSafeEqual,
-} from "node:crypto";
+import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 
 /**
  * Authenticated at-rest encryption for Garmin OAuth tokens (AES-256-GCM).
@@ -84,12 +79,4 @@ export function decryptToken(
   return Buffer.concat([decipher.update(ct), decipher.final()]).toString(
     "utf8",
   );
-}
-
-/** Constant-time equality for opaque token/secret comparisons. */
-export function safeEqual(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return timingSafeEqual(ab, bb);
 }

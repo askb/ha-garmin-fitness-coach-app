@@ -8,7 +8,6 @@ import {
   encryptToken,
   isTokenEncryptionConfigured,
   loadTokenKey,
-  safeEqual,
 } from "./token-crypto";
 
 const KEY_B64 = randomBytes(32).toString("base64");
@@ -53,11 +52,5 @@ describe("token-crypto", () => {
     expect(isTokenEncryptionConfigured()).toBe(false);
     process.env.GARMIN_TOKEN_ENC_KEY = KEY_B64;
     expect(isTokenEncryptionConfigured()).toBe(true);
-  });
-
-  it("safeEqual compares in constant time by value", () => {
-    expect(safeEqual("abc", "abc")).toBe(true);
-    expect(safeEqual("abc", "abd")).toBe(false);
-    expect(safeEqual("abc", "abcd")).toBe(false);
   });
 });

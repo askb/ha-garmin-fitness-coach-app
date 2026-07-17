@@ -61,16 +61,18 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const tokens = await exchangeCodeForTokens(config, code, verifier);
-    if (!tokens.access_token) {
-      return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
-    }
-    // Associate the tokens with the logged-in user and persist encrypted.
+    // Confirm the user *before* spending the one-time code, so a missing
+    // session doesn't consume it for nothing.
     const { getSession } = await import("~/auth/server");
     const session = await getSession();
     const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    const tokens = await exchangeCodeForTokens(config, code, verifier);
+    if (!tokens.access_token) {
+      return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
     }
     const { persistGarminOAuthTokens } = await import("../garmin-oauth-store");
     await persistGarminOAuthTokens(userId, tokens);
