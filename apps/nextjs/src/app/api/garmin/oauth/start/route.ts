@@ -35,7 +35,10 @@ export async function GET(req: NextRequest) {
   }
 
   const denied = await requireSession();
-  if (denied) return denied;
+  if (denied) {
+    // Browser navigation, not an XHR — send unauthenticated users to login.
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   const config = getGarminOAuthConfig();
   if (!config) {

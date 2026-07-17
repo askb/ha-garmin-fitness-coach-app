@@ -38,11 +38,16 @@ function nonBlank(v: string | undefined): string | undefined {
   return t ? t : undefined;
 }
 
-/** Accept only well-formed http(s) URLs so a typo can't throw mid-flow. */
+/** Accept only well-formed **https** URLs (loopback http allowed for local dev
+ * redirect URIs) so OAuth never runs over plaintext and a typo can't throw. */
 function validHttpUrl(u: string): boolean {
   try {
     const p = new URL(u);
-    return p.protocol === "http:" || p.protocol === "https:";
+    if (p.protocol === "https:") return true;
+    return (
+      p.protocol === "http:" &&
+      (p.hostname === "localhost" || p.hostname === "127.0.0.1")
+    );
   } catch {
     return false;
   }

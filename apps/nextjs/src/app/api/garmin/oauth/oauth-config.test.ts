@@ -52,13 +52,23 @@ describe("getGarminOAuthConfig", () => {
     expect(getGarminOAuthConfig()).toBeNull();
   });
 
-  it("is null (inert) when a URL var is malformed", () => {
+  it("is null (inert) when a URL var is malformed or non-TLS", () => {
     configure();
     process.env.GARMIN_OAUTH_AUTHORIZE_URL = "not-a-url";
     expect(getGarminOAuthConfig()).toBeNull();
     configure();
     process.env.GARMIN_OAUTH_TOKEN_URL = "ftp://garmin.example/token";
     expect(getGarminOAuthConfig()).toBeNull();
+    configure();
+    process.env.GARMIN_OAUTH_AUTHORIZE_URL = "http://garmin.example/authorize";
+    expect(getGarminOAuthConfig()).toBeNull(); // plain http (non-loopback) rejected
+  });
+
+  it("allows loopback http for local-dev redirect URIs", () => {
+    configure();
+    process.env.GARMIN_OAUTH_REDIRECT_URI =
+      "http://localhost:3000/api/garmin/oauth/callback";
+    expect(getGarminOAuthConfig()).not.toBeNull();
   });
 
   it("returns config when required vars are set", () => {

@@ -27,7 +27,11 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   const denied = await requireSession();
-  if (denied) return denied;
+  if (denied) {
+    // Reached via Garmin's browser redirect — send unauthenticated users to
+    // login rather than returning a raw 401.
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   const config = getGarminOAuthConfig();
   if (!config) {
