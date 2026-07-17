@@ -52,6 +52,15 @@ describe("getGarminOAuthConfig", () => {
     expect(getGarminOAuthConfig()).toBeNull();
   });
 
+  it("is null (inert) when a URL var is malformed", () => {
+    configure();
+    process.env.GARMIN_OAUTH_AUTHORIZE_URL = "not-a-url";
+    expect(getGarminOAuthConfig()).toBeNull();
+    configure();
+    process.env.GARMIN_OAUTH_TOKEN_URL = "ftp://garmin.example/token";
+    expect(getGarminOAuthConfig()).toBeNull();
+  });
+
   it("returns config when required vars are set", () => {
     configure();
     const c = getGarminOAuthConfig();

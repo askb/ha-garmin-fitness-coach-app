@@ -38,11 +38,23 @@ function nonBlank(v: string | undefined): string | undefined {
   return t ? t : undefined;
 }
 
+/** Accept only well-formed http(s) URLs so a typo can't throw mid-flow. */
+function validHttpUrl(u: string): boolean {
+  try {
+    const p = new URL(u);
+    return p.protocol === "http:" || p.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Resolve the Garmin OAuth config, or `null` if the flow isn't configured.
  *
- * Requires client id + authorize/token URLs + redirect URI. `clientSecret` and
- * `scopes` are optional (public PKCE client / provider default scopes).
+ * Requires client id + valid authorize/token/redirect URLs. `clientSecret` and
+ * `scopes` are optional (public PKCE client / provider default scopes). A
+ * malformed URL is treated as "not configured" (stays inert / 501) rather than
+ * throwing later when the URL is used.
  */
 export function getGarminOAuthConfig(): GarminOAuthConfig | null {
   const e = env();
@@ -52,6 +64,7 @@ export function getGarminOAuthConfig(): GarminOAuthConfig | null {
   const redirectUri = nonBlank(e.GARMIN_OAUTH_REDIRECT_URI);
 
   if (!clientId || !authorizeUrl || !tokenUrl || !redirectUri) return null;
+  if (![authorizeUrl, tokenUrl, redirectUri].every(validHttpUrl)) return null;
 
   return {
     clientId,

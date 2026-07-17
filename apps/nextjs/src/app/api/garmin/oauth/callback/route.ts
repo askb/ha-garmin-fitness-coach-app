@@ -7,7 +7,11 @@ import { NextResponse } from "next/server";
 import { requireSession } from "~/auth/guard";
 import { getGarminOAuthConfig } from "../oauth-config";
 import { exchangeCodeForTokens } from "../oauth-token";
-import { STATE_COOKIE, VERIFIER_COOKIE } from "../start/route";
+import {
+  OAUTH_COOKIE_PATH,
+  STATE_COOKIE,
+  VERIFIER_COOKIE,
+} from "../start/route";
 
 export const dynamic = "force-dynamic";
 
@@ -41,9 +45,9 @@ export async function GET(req: NextRequest) {
   const jar = await cookies();
   const verifier = jar.get(VERIFIER_COOKIE)?.value;
   const savedState = jar.get(STATE_COOKIE)?.value;
-  // One-shot: clear the flow cookies regardless of outcome.
-  jar.delete(VERIFIER_COOKIE);
-  jar.delete(STATE_COOKIE);
+  // One-shot: clear the flow cookies (matching the path they were set with).
+  jar.delete({ name: VERIFIER_COOKIE, path: OAUTH_COOKIE_PATH });
+  jar.delete({ name: STATE_COOKIE, path: OAUTH_COOKIE_PATH });
 
   if (oauthError) {
     return NextResponse.redirect(new URL("/settings?garmin=denied", req.url));

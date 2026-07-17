@@ -12,6 +12,9 @@ export const dynamic = "force-dynamic";
 
 export const VERIFIER_COOKIE = "garmin_oauth_verifier";
 export const STATE_COOKIE = "garmin_oauth_state";
+/** Cookie path — start sets and callback clears the flow cookies here; they
+ * must match or the delete won't target the right cookie. */
+export const OAUTH_COOKIE_PATH = "/api/garmin/oauth";
 
 /**
  * GET /api/garmin/oauth/start — begin the Garmin OAuth 2.0 + PKCE flow.
@@ -40,7 +43,7 @@ export async function GET() {
     httpOnly: true,
     secure,
     sameSite: "lax" as const, // survive the top-level GET redirect back from Garmin
-    path: "/api/garmin/oauth",
+    path: OAUTH_COOKIE_PATH,
     maxAge: 600,
   };
   jar.set(VERIFIER_COOKIE, verifier, opts);
