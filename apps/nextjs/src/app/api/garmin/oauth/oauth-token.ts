@@ -38,10 +38,9 @@ export async function exchangeCodeForTokens(
     Accept: "application/json",
   };
   if (config.clientSecret) {
-    const basic = Buffer.from(
-      `${config.clientId}:${config.clientSecret}`,
-    ).toString("base64");
-    headers.Authorization = `Basic ${basic}`;
+    // RFC 6749 §2.3.1: form-urlencode the id and secret before base64.
+    const cred = `${formUrlEncode(config.clientId)}:${formUrlEncode(config.clientSecret)}`;
+    headers.Authorization = `Basic ${Buffer.from(cred).toString("base64")}`;
   }
 
   const res = await fetchImpl(config.tokenUrl, {
@@ -50,10 +49,16 @@ export async function exchangeCodeForTokens(
     body: body.toString(),
   });
   if (!res.ok) {
-    const detail = await res.text().catch(() => "");
+    // Cap the detail — token endpoints can return large HTML error pages.
+    const detail = (await res.text().catch(() => "")).slice(0, 200);
     throw new Error(
       `Garmin token exchange failed: ${res.status}${detail ? ` ${detail}` : ""}`,
     );
   }
   return (await res.json()) as OAuthTokenResponse;
+}
+
+/** application/x-www-form-urlencoded encoding (space → `+`). */
+function formUrlEncode(s: string): string {
+  return encodeURIComponent(s).replace(/%20/g, "+");
 }

@@ -5,16 +5,15 @@ import { NextResponse } from "next/server";
 
 import { requireSession } from "~/auth/guard";
 import { buildAuthorizeUrl, getGarminOAuthConfig } from "../oauth-config";
+import {
+  OAUTH_COOKIE_PATH,
+  STATE_COOKIE,
+  VERIFIER_COOKIE,
+} from "../oauth-cookies";
 import { createPkceStart } from "../oauth-pkce";
 
 // User-specific redirect; never cache.
 export const dynamic = "force-dynamic";
-
-export const VERIFIER_COOKIE = "garmin_oauth_verifier";
-export const STATE_COOKIE = "garmin_oauth_state";
-/** Cookie path — start sets and callback clears the flow cookies here; they
- * must match or the delete won't target the right cookie. */
-export const OAUTH_COOKIE_PATH = "/api/garmin/oauth";
 
 /**
  * GET /api/garmin/oauth/start — begin the Garmin OAuth 2.0 + PKCE flow.

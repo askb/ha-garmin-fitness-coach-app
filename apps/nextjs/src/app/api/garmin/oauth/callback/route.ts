@@ -6,12 +6,12 @@ import { NextResponse } from "next/server";
 
 import { requireSession } from "~/auth/guard";
 import { getGarminOAuthConfig } from "../oauth-config";
-import { exchangeCodeForTokens } from "../oauth-token";
 import {
   OAUTH_COOKIE_PATH,
   STATE_COOKIE,
   VERIFIER_COOKIE,
-} from "../start/route";
+} from "../oauth-cookies";
+import { exchangeCodeForTokens } from "../oauth-token";
 
 export const dynamic = "force-dynamic";
 
