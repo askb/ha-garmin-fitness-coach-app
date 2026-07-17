@@ -267,27 +267,21 @@ export default function StressBoardPage() {
       unsupported?: boolean;
       message?: string;
     }> => {
-      try {
-        const res = await fetch(getIngressUrl("/api/garmin/interactions"));
-        // The proxy marks addon-predates-endpoint 404s with an explicit
-        // `unsupported` flag; a plain JSON 404 is a real answer. Any other
-        // error status (5xx, etc.) is a genuine failure — bubble it so the
-        // panel stays hidden rather than treating error JSON as "supported".
-        if (!res.ok && res.status !== 404) {
-          throw new Error(`interactions probe failed: ${res.status}`);
-        }
-        return (await res.json()) as {
-          interactions?: InteractionRec[];
-          success?: boolean;
-          unsupported?: boolean;
-          message?: string;
-        };
-      } catch {
-        // Let the failure bubble: React Query keeps ixData undefined and sets
-        // an error state, so a failed probe doesn't read as "supported" and
-        // render a broken quick-add panel.
-        throw new Error("interactions probe failed");
+      const res = await fetch(getIngressUrl("/api/garmin/interactions"));
+      // The proxy marks addon-predates-endpoint 404s with an explicit
+      // `unsupported` flag; a plain JSON 404 is a real answer. Any other
+      // error status (5xx, etc.) is a genuine failure — let it bubble so
+      // React Query keeps ixData undefined and the quick-add panel stays
+      // hidden rather than treating error JSON as "supported".
+      if (!res.ok && res.status !== 404) {
+        throw new Error(`interactions probe failed: ${res.status}`);
       }
+      return (await res.json()) as {
+        interactions?: InteractionRec[];
+        success?: boolean;
+        unsupported?: boolean;
+        message?: string;
+      };
     },
     enabled: addonHealthy,
   });
