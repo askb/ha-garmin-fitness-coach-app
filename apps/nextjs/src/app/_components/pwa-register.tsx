@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 // Registers the minimal service worker so the app is installable as a PWA.
 // Silent-fails under HA ingress (non-root base path) — harmless, the SW is
-// a no-op. ponytail: no next-pwa dependency; five lines cover the need.
+// a no-op. Note: no next-pwa dependency; five lines cover the need.
 export function PwaRegister() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {

@@ -4,7 +4,7 @@ import type { MetadataRoute } from "next";
 
 // Native Next metadata route → serves /manifest.webmanifest and auto-injects
 // <link rel="manifest">. Makes the app an installable PWA (TWA prerequisite).
-// ponytail: name stays "PulseCoach" until G1 clearance; rename here on rebrand.
+// Note: name stays "PulseCoach" until G1 clearance; rename here on rebrand.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "PulseCoach — Your Personal Training Coach",
