@@ -278,7 +278,10 @@ export default function StressBoardPage() {
           message?: string;
         };
       } catch {
-        return { success: false };
+        // Let the failure bubble: React Query keeps ixData undefined and sets
+        // an error state, so a failed probe doesn't read as "supported" and
+        // render a broken quick-add panel.
+        throw new Error("interactions probe failed");
       }
     },
     enabled: addonHealthy,
