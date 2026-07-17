@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 
 import { requireSession } from "~/auth/guard";
 
-const AUTH_SERVER = "http://127.0.0.1:8099";
+const AUTH_SERVER =
+  // Configurable so the app can point at a hosted Garmin backend outside the
+  // addon; defaults to the addon's local service so addon behavior is unchanged.
+  // eslint-disable-next-line no-restricted-properties
+  process.env.GARMIN_AUTH_SERVER ?? "http://127.0.0.1:8099";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
 const IS_ADDON = process.env.NODE_ENV === "production";
