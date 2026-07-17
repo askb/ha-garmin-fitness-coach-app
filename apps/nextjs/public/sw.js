@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable no-undef, @typescript-eslint/no-empty-function -- service worker: `self` is the SW global; empty fetch handler is intentional */
 // @ts-nocheck -- service-worker globals (self.skipWaiting, clients) aren't in the DOM lib
 // Minimal service worker: exists only so the site is an installable PWA
 // (Bubblewrap/TWA prerequisite). No offline caching — out of MVP scope.
