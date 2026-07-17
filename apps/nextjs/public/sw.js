@@ -4,6 +4,6 @@
 // Minimal service worker: exists only so the site is an installable PWA
 // (Bubblewrap/TWA prerequisite). No offline caching — out of MVP scope.
 // ponytail: no-op fetch handler, add real caching only if offline is needed.
-self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("install", (e) => e.waitUntil(self.skipWaiting()));
 self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener("fetch", () => {});
