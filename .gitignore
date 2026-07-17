@@ -64,3 +64,17 @@ logs/
 # Python
 __pycache__/
 *.pyc
+
+# Bubblewrap / Android TWA build artifacts (do NOT commit — keystore is secret)
+*.keystore
+*.apk
+*.apk.idsig
+*.aab
+/app/
+/.gradle/
+/gradle/
+/gradlew
+/gradlew.bat
+/build.gradle
+/gradle.properties
+/manifest-checksum.txt

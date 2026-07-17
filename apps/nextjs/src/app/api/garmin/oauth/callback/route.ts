@@ -65,12 +65,20 @@ export async function GET(req: NextRequest) {
     if (!tokens.access_token) {
       return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
     }
-    // TODO(B2): persist `tokens` encrypted, keyed by getSession().user.id.
+    // Associate the tokens with the logged-in user and persist encrypted.
+    const { getSession } = await import("~/auth/server");
+    const session = await getSession();
+    const userId = session?.user?.id;
+    if (!userId) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+    const { persistGarminOAuthTokens } = await import("../garmin-oauth-store");
+    await persistGarminOAuthTokens(userId, tokens);
     return NextResponse.redirect(
       new URL("/settings?garmin=connected", req.url),
     );
   } catch {
-    // Never surface token-endpoint detail to the client.
+    // Never surface token-endpoint/DB detail to the client.
     return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
   }
 }
