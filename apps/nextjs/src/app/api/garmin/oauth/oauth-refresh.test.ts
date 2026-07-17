@@ -48,6 +48,33 @@ describe("refreshAccessToken", () => {
     );
   });
 
+  it("form-urlencodes the refresh token and client id in the body", async () => {
+    const cap: { init?: RequestInit } = {};
+    await refreshAccessToken(
+      { ...config, clientId: "id with+space&x" },
+      "a b+c&d",
+      okFetch(cap),
+    );
+    const body = String(cap.init?.body);
+    // spaces → `+`, reserved chars percent-escaped (never raw).
+    expect(body).toContain("refresh_token=a+b%2Bc%26d");
+    expect(body).toContain("client_id=id+with%2Bspace%26x");
+    expect(body).not.toContain("a b+c&d");
+  });
+
+  it("form-urlencodes credentials in the Basic auth header", async () => {
+    const cap: { init?: RequestInit } = {};
+    await refreshAccessToken(
+      { ...config, clientId: "us er", clientSecret: "p@ss:w+d" },
+      "RT",
+      okFetch(cap),
+    );
+    const headers = cap.init?.headers as Record<string, string>;
+    expect(headers.Authorization).toBe(
+      "Basic " + Buffer.from("us+er:p%40ss%3Aw%2Bd").toString("base64"),
+    );
+  });
+
   it("throws on a non-ok refresh response", async () => {
     const fail = (async () =>
       ({

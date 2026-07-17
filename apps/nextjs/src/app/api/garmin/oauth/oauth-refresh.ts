@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { GarminOAuthConfig } from "./oauth-config";
 import type { OAuthTokenResponse } from "./oauth-token";
+import { formUrlEncode } from "./oauth-form";
 
 /**
  * Refresh an access token using a stored refresh token (RFC 6749 §6).
@@ -57,14 +58,4 @@ export function needsRefresh(
 ): boolean {
   if (!expiresAt) return true;
   return expiresAt.getTime() - now.getTime() <= skewSeconds * 1000;
-}
-
-/** application/x-www-form-urlencoded encoding (space → `+`, escaping sub-delims). */
-function formUrlEncode(s: string): string {
-  return encodeURIComponent(s)
-    .replace(/%20/g, "+")
-    .replace(
-      /[!'()*]/g,
-      (ch) => "%" + ch.charCodeAt(0).toString(16).toUpperCase(),
-    );
 }

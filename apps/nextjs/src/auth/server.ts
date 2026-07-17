@@ -21,6 +21,10 @@ export const auth = initAuth({
   secret: env.AUTH_SECRET,
   discordClientId: env.AUTH_DISCORD_ID,
   discordClientSecret: env.AUTH_DISCORD_SECRET,
+  // Consumer (Path B) deployments enable email/password with a dedicated flag.
+  // Kept independent of DEV_BYPASS_AUTH so social-only deployments don't have to
+  // weaken auth to turn credentials off.
+  enableEmailPassword: env.AUTH_ENABLE_EMAIL_PASSWORD === "true",
   extraPlugins: [nextCookies()],
 });
 

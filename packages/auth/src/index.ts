@@ -16,6 +16,12 @@ export function initAuth<
   discordClientId: string;
   discordClientSecret: string;
   extraPlugins?: TExtraPlugins;
+  /**
+   * Enable Better-Auth email/password sign-in. Off by default so deployments
+   * that only use social/bypass auth (e.g. the HA addon running with
+   * DEV_BYPASS_AUTH) don't expose credential endpoints.
+   */
+  enableEmailPassword?: boolean;
 }) {
   const config = {
     database: drizzleAdapter(db, {
@@ -38,10 +44,11 @@ export function initAuth<
       },
     },
     // Email/password sign-in for the standalone consumer deployment (Path B).
-    // The HA addon uses DEV_BYPASS_AUTH and is unaffected. Uses the existing
-    // Better-Auth user/account tables — no schema change.
+    // Gated by the caller: the HA addon (DEV_BYPASS_AUTH) leaves this off so it
+    // never exposes credential endpoints. Uses the existing Better-Auth
+    // user/account tables — no schema change.
     emailAndPassword: {
-      enabled: true,
+      enabled: options.enableEmailPassword ?? false,
     },
     trustedOrigins: ["expo://"],
     onAPIError: {

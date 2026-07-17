@@ -78,3 +78,14 @@ __pycache__/
 /build.gradle
 /gradle.properties
 /manifest-checksum.txt
+
+# Bubblewrap / TWA packaging artifacts (generated locally; keep out of app repo)
+# Root-anchored so they never shadow apps/nextjs/src/app etc.
+/twa-manifest.json
+/settings.gradle
+/store_icon.png
+/gradle/
+/gradlew
+/gradlew.bat
+/build.gradle
+/app/
