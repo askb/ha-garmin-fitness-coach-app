@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { requireSession } from "~/auth/guard";
-import { getAuthServerBase } from "../_lib/auth-server";
+import { garminUserHeaders, getAuthServerBase } from "../_lib/auth-server";
 
 const AUTH_SERVER = getAuthServerBase();
+// Per-user header is forwarded below, so never statically cache this route.
+export const dynamic = "force-dynamic";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
 const IS_ADDON = process.env.NODE_ENV === "production";
@@ -23,7 +25,9 @@ export async function GET() {
     });
   }
   try {
-    const res = await fetch(`${AUTH_SERVER}/auth/sync-status`);
+    const res = await fetch(`${AUTH_SERVER}/auth/sync-status`, {
+      headers: await garminUserHeaders(),
+    });
     const data: unknown = await res.json();
     return NextResponse.json(data);
   } catch {
@@ -50,7 +54,10 @@ export async function POST() {
   try {
     const res = await fetch(`${AUTH_SERVER}/auth/sync`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(await garminUserHeaders()),
+      },
     });
     const data: unknown = await res.json();
     return NextResponse.json(data, { status: res.status });

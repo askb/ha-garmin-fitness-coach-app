@@ -2,9 +2,11 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { requireSession } from "~/auth/guard";
-import { getAuthServerBase } from "../_lib/auth-server";
+import { garminUserHeaders, getAuthServerBase } from "../_lib/auth-server";
 
 const AUTH_SERVER = getAuthServerBase();
+// Per-user header is forwarded below, so never statically cache this route.
+export const dynamic = "force-dynamic";
 // Server-side route: `~/env` shim isn't available here; NODE_ENV is safe.
 // eslint-disable-next-line no-restricted-properties
 const IS_ADDON = process.env.NODE_ENV === "production";
@@ -37,7 +39,10 @@ function mockMfa() {
 async function proxyPost(url: string, body: unknown) {
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(await garminUserHeaders()),
+    },
     body: JSON.stringify(body),
   });
   const data: unknown = await res.json();
@@ -45,7 +50,7 @@ async function proxyPost(url: string, body: unknown) {
 }
 
 async function proxyGet(url: string) {
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: await garminUserHeaders() });
   const data: unknown = await res.json();
   return NextResponse.json(data, { status: res.status });
 }
