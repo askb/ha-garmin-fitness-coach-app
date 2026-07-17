@@ -900,6 +900,33 @@ export const CreateOutcomeAttributionSchema = createInsertSchema(
   .extend({ decisionKind: z.enum(OUTCOME_DECISION_KINDS) });
 
 // ---------------------------------------------------------------------------
+// Garmin OAuth tokens (Path B — official API). Per-user, ENCRYPTED AT REST.
+// The token columns hold AES-256-GCM ciphertext (encrypted by the Next.js app's
+// oauth token-crypto module before insert); never store plaintext tokens here.
+// ---------------------------------------------------------------------------
+export const GarminOAuthToken = pgTable(
+  "garmin_oauth_token",
+  (t) => ({
+    id: t.uuid().notNull().primaryKey().defaultRandom(),
+    userId: t.text().notNull(),
+    // AES-256-GCM ciphertext (base64), not plaintext tokens.
+    accessTokenEnc: t.text().notNull(),
+    refreshTokenEnc: t.text(),
+    expiresAt: t.timestamp({ mode: "date", withTimezone: true }),
+    scope: t.text(),
+    createdAt: t.timestamp().defaultNow().notNull(),
+    updatedAt: t
+      .timestamp({ mode: "date", withTimezone: true })
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  }),
+  (table) => [
+    // One Garmin connection per user.
+    uniqueIndex("garmin_oauth_token_user_unique").on(table.userId),
+  ],
+);
+
+// ---------------------------------------------------------------------------
 // Legacy Post table (keep for reference, can remove later)
 // ---------------------------------------------------------------------------
 export const Post = pgTable("post", (t) => ({

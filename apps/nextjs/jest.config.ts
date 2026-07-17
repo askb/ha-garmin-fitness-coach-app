@@ -17,6 +17,7 @@ const config: Config = {
   },
   moduleNameMapper: {
     "^~/(.*)$": "<rootDir>/src/$1",
+    "^server-only$": "<rootDir>/__mocks__/serverOnlyMock.js",
     "^@acme/ui(.*)$": "<rootDir>/../../packages/ui/src$1",
     "^@acme/db(.*)$": "<rootDir>/../../packages/db/src$1",
     "^@acme/engine(.*)$": "<rootDir>/../../packages/engine/src$1",

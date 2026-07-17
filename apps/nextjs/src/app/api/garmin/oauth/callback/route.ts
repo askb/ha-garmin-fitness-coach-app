@@ -61,16 +61,31 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Confirm the user *before* spending the one-time code, so a missing
+    // session doesn't consume it for nothing.
+    const { getSession } = await import("~/auth/server");
+    const session = await getSession();
+    // Mirror the app's auth bypass: fall back to the seed user when
+    // DEV_BYPASS_AUTH is on (parity with trpc.ts / the home page).
+    const userId =
+      session?.user?.id ??
+      // eslint-disable-next-line no-restricted-properties -- server route: `~/env` shim unavailable
+      (process.env.DEV_BYPASS_AUTH === "true" ? "seed-user-001" : null);
+    if (!userId) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
     const tokens = await exchangeCodeForTokens(config, code, verifier);
     if (!tokens.access_token) {
       return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
     }
-    // TODO(B2): persist `tokens` encrypted, keyed by getSession().user.id.
+    const { persistGarminOAuthTokens } = await import("../garmin-oauth-store");
+    await persistGarminOAuthTokens(userId, tokens);
     return NextResponse.redirect(
       new URL("/settings?garmin=connected", req.url),
     );
   } catch {
-    // Never surface token-endpoint detail to the client.
+    // Never surface token-endpoint/DB detail to the client.
     return NextResponse.redirect(new URL("/settings?garmin=error", req.url));
   }
 }
