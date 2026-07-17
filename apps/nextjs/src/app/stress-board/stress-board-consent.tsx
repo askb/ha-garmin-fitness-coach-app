@@ -41,8 +41,7 @@ export function StressBoardConsent() {
 
   return (
     <div
-      role="dialog"
-      aria-modal="false"
+      role="region"
       aria-label="Third-party data notice"
       className="mb-4 rounded border border-yellow-700 bg-yellow-950/40 p-3 text-xs text-yellow-100"
     >

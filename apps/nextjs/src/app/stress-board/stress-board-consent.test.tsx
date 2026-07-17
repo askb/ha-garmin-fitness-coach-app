@@ -3,7 +3,13 @@
  */
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 import { StressBoardConsent } from "./stress-board-consent";
 
@@ -35,9 +41,11 @@ describe("StressBoardConsent", () => {
 
   it("does not show once already acknowledged", async () => {
     localStorage.setItem(ACK_KEY, "1");
-    const { container } = render(<StressBoardConsent />);
-    // Give the effect a tick; the notice must never appear.
-    await waitFor(() => expect(container).toBeInTheDocument());
+    render(<StressBoardConsent />);
+    // Flush the effect that reads localStorage; the notice must never appear.
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(
       screen.queryByRole("button", { name: /i understand/i }),
     ).not.toBeInTheDocument();
