@@ -56,7 +56,8 @@ function isRecord(v: unknown): v is Record<string, unknown> {
  * Flatten a Health API push envelope into a list of `{ garminUserId, type,
  * summary }`. Unknown collection keys and entries missing a `userId` are
  * skipped rather than throwing, so a payload shape we don't recognise yet can't
- * take the receiver down. Throws only when the top-level JSON isn't an object.
+ * take the receiver down. Throws (SyntaxError) on invalid JSON, and (Error) when
+ * the top-level JSON is valid but not an object.
  */
 export function parseGarminPush(body: string): GarminPushSummary[] {
   const parsed: unknown = JSON.parse(body);

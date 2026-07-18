@@ -31,6 +31,9 @@ import { parseGarminPush } from "../webhook-parse";
 // eslint-disable-next-line no-restricted-properties -- server route: `~/env` shim unavailable
 const env = () => process.env;
 
+/** Reject pushes larger than this before parsing (unsigned endpoint → DoS guard). */
+const MAX_BODY_BYTES = 1_000_000; // 1 MB
+
 function isEnabled(): boolean {
   return env().GARMIN_HEALTH_WEBHOOK_ENABLED === "true";
 }
@@ -71,7 +74,16 @@ export async function POST(request: Request) {
   const denied = tokenGuard(request);
   if (denied) return denied;
 
+  // Size guard before reading/parsing (endpoint is unsigned).
+  const declared = Number(request.headers.get("content-length") ?? "");
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+
   const body = await request.text();
+  if (Buffer.byteLength(body) > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
 
   let summaries;
   try {
@@ -95,20 +107,22 @@ export async function POST(request: Request) {
 
   let matched = 0;
   let skipped = 0;
-  for (const { garminUserId, type } of summaries) {
+  for (const { garminUserId } of summaries) {
     const userId = await resolveUserId(garminUserId);
     if (!userId) {
       skipped++;
       continue;
     }
     matched++;
-    // TODO(B4): once payload shapes are validated in the eval env, map
-    // `summary` fields into our schema (Activity / DailyMetric / …) keyed by
+    // TODO(B4): once payload shapes are validated in the eval env, map each
+    // `summary`'s fields into our schema (Activity / DailyMetric / …) keyed by
     // `type` and `userId`, mirroring the addon webhook's normalize+insert path.
-    console.info(
-      `[garmin/oauth/webhook] ${type} for user ${userId} (persist pending B4 validation)`,
-    );
   }
+
+  // One aggregated line, no user identifiers.
+  console.info(
+    `[garmin/oauth/webhook] processed ${summaries.length} summaries: ${matched} matched, ${skipped} skipped (persist pending B4 validation)`,
+  );
 
   // Ack quickly (Garmin retries on non-2xx). Nothing is persisted yet.
   return NextResponse.json({ received: summaries.length, matched, skipped });

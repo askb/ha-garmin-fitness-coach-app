@@ -63,4 +63,8 @@ describe("parseGarminPush", () => {
     expect(() => parseGarminPush(JSON.stringify([1, 2]))).toThrow();
     expect(() => parseGarminPush(JSON.stringify("nope"))).toThrow();
   });
+
+  it("throws (SyntaxError) on invalid JSON", () => {
+    expect(() => parseGarminPush("{not valid json")).toThrow(SyntaxError);
+  });
 });
