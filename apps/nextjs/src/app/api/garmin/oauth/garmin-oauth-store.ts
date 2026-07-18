@@ -80,3 +80,39 @@ export async function getGarminOAuthTokens(
 export async function deleteGarminOAuthTokens(userId: string): Promise<void> {
   await db.delete(GarminOAuthToken).where(eq(GarminOAuthToken.userId, userId));
 }
+
+/**
+ * Record Garmin's own user id for a connected user, so incoming push/webhook
+ * payloads can be mapped back to our user (Path B, B4). Populated once the
+ * Garmin "User ID" endpoint has been queried after token exchange.
+ */
+export async function setGarminUserId(
+  userId: string,
+  garminUserId: string,
+): Promise<void> {
+  const trimmed = garminUserId.trim();
+  if (!trimmed) {
+    throw new Error("setGarminUserId: garminUserId must be non-empty");
+  }
+  await db
+    .update(GarminOAuthToken)
+    .set({ garminUserId: trimmed, updatedAt: new Date() })
+    .where(eq(GarminOAuthToken.userId, userId));
+}
+
+/**
+ * Reverse lookup: resolve our internal userId from Garmin's user id, or null
+ * if no connected user matches. Used by the official-API webhook receiver.
+ */
+export async function findUserIdByGarminUserId(
+  garminUserId: string,
+): Promise<string | null> {
+  const trimmed = garminUserId.trim();
+  if (!trimmed) return null;
+  const rows = await db
+    .select({ userId: GarminOAuthToken.userId })
+    .from(GarminOAuthToken)
+    .where(eq(GarminOAuthToken.garminUserId, trimmed))
+    .limit(1);
+  return rows[0]?.userId ?? null;
+}
