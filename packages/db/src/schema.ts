@@ -909,6 +909,10 @@ export const GarminOAuthToken = pgTable(
   (t) => ({
     id: t.uuid().notNull().primaryKey().defaultRandom(),
     userId: t.text().notNull(),
+    // Garmin's own user identifier (from the Health API "User ID" endpoint),
+    // used to map incoming push/webhook payloads back to our user. Nullable:
+    // populated only once Path B is live and the id has been fetched.
+    garminUserId: t.text(),
     // AES-256-GCM ciphertext (base64), not plaintext tokens.
     accessTokenEnc: t.text().notNull(),
     refreshTokenEnc: t.text(),
@@ -923,6 +927,8 @@ export const GarminOAuthToken = pgTable(
   (table) => [
     // One Garmin connection per user.
     uniqueIndex("garmin_oauth_token_user_unique").on(table.userId),
+    // Reverse lookup for incoming Garmin push payloads (garminUserId → user).
+    uniqueIndex("garmin_oauth_token_garmin_user_unique").on(table.garminUserId),
   ],
 );
 
