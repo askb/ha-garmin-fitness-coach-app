@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Anil Belur <askb23@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 import type { GarminOAuthConfig } from "./oauth-config";
+import { formUrlEncode } from "./oauth-form";
 
 /** Standard OAuth 2.0 token response (RFC 6749 §5.1). */
 export interface OAuthTokenResponse {
@@ -56,15 +57,4 @@ export async function exchangeCodeForTokens(
     );
   }
   return (await res.json()) as OAuthTokenResponse;
-}
-
-/** application/x-www-form-urlencoded encoding (space → `+`, escaping the
- * sub-delims `encodeURIComponent` leaves: `! ' ( ) *`). */
-function formUrlEncode(s: string): string {
-  return encodeURIComponent(s)
-    .replace(/%20/g, "+")
-    .replace(
-      /[!'()*]/g,
-      (ch) => "%" + ch.charCodeAt(0).toString(16).toUpperCase(),
-    );
 }

@@ -18,6 +18,7 @@ export const env = createEnv({
   server: {
     POSTGRES_URL: z.string().optional(),
     DEV_BYPASS_AUTH: z.string().optional(),
+    AUTH_ENABLE_EMAIL_PASSWORD: z.string().optional(),
     GARMIN_WEBHOOK_SECRET: z.string().optional(),
   },
 
