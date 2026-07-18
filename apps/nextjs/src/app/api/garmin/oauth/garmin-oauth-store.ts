@@ -90,9 +90,13 @@ export async function setGarminUserId(
   userId: string,
   garminUserId: string,
 ): Promise<void> {
+  const trimmed = garminUserId.trim();
+  if (!trimmed) {
+    throw new Error("setGarminUserId: garminUserId must be non-empty");
+  }
   await db
     .update(GarminOAuthToken)
-    .set({ garminUserId, updatedAt: new Date() })
+    .set({ garminUserId: trimmed, updatedAt: new Date() })
     .where(eq(GarminOAuthToken.userId, userId));
 }
 
@@ -103,11 +107,12 @@ export async function setGarminUserId(
 export async function findUserIdByGarminUserId(
   garminUserId: string,
 ): Promise<string | null> {
-  if (!garminUserId) return null;
+  const trimmed = garminUserId.trim();
+  if (!trimmed) return null;
   const rows = await db
     .select({ userId: GarminOAuthToken.userId })
     .from(GarminOAuthToken)
-    .where(eq(GarminOAuthToken.garminUserId, garminUserId))
+    .where(eq(GarminOAuthToken.garminUserId, trimmed))
     .limit(1);
   return rows[0]?.userId ?? null;
 }

@@ -39,18 +39,27 @@ function isEnabled(): boolean {
 function tokenMatches(provided: string | null): boolean {
   const expected = env().GARMIN_HEALTH_WEBHOOK_TOKEN?.trim();
   if (!expected) return true; // no token configured → this check is a no-op
-  if (!provided) return false;
+  // Cheap length gate first so a huge `?token=` can't force Buffer allocation.
+  if (!provided || provided.length !== expected.length) return false;
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** 401 response if the optional shared secret is set and doesn't match. */
+function tokenGuard(request: Request): NextResponse | null {
+  const token = new URL(request.url).searchParams.get("token");
+  return tokenMatches(token)
+    ? null
+    : NextResponse.json({ error: "Invalid token" }, { status: 401 });
+}
+
 /** Endpoint reachability / verification check. */
-export function GET() {
+export function GET(request: Request) {
   if (!isEnabled()) {
     return NextResponse.json({ error: "Not enabled" }, { status: 503 });
   }
-  return NextResponse.json({ status: "ok" });
+  return tokenGuard(request) ?? NextResponse.json({ status: "ok" });
 }
 
 /** Garmin Health API push handler. */
@@ -59,10 +68,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not enabled" }, { status: 503 });
   }
 
-  const token = new URL(request.url).searchParams.get("token");
-  if (!tokenMatches(token)) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-  }
+  const denied = tokenGuard(request);
+  if (denied) return denied;
 
   const body = await request.text();
 
@@ -74,10 +81,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
 
+  // Cache lookups per request so repeated garminUserIds hit the DB once.
+  const userIdCache = new Map<string, string | null>();
+  const resolveUserId = async (
+    garminUserId: string,
+  ): Promise<string | null> => {
+    const cached = userIdCache.get(garminUserId);
+    if (cached !== undefined) return cached;
+    const userId = await findUserIdByGarminUserId(garminUserId);
+    userIdCache.set(garminUserId, userId);
+    return userId;
+  };
+
   let matched = 0;
   let skipped = 0;
   for (const { garminUserId, type } of summaries) {
-    const userId = await findUserIdByGarminUserId(garminUserId);
+    const userId = await resolveUserId(garminUserId);
     if (!userId) {
       skipped++;
       continue;
