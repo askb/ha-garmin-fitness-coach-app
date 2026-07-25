@@ -1,7 +1,3 @@
-// ---------------------------------------------------------------------------
-// Build a structured text summary of the athlete's Garmin data for the LLM.
-// ---------------------------------------------------------------------------
-
 import { and, desc, eq, gte } from "@acme/db";
 import {
   Activity,
@@ -42,22 +38,11 @@ export function humanizeActivities<
   }));
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function dateNDaysAgo(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() - n);
   return d.toISOString().split("T")[0]!;
 }
-
-// ---------------------------------------------------------------------------
-// Intent detection — widen the recent-activities window when the user asks
-// aggregate / historical questions ("this year", "all my runs", "summary",
-// "report", "lifetime", "year to date", etc.). Returns the recommended
-// recent-activities window in days; default 14 preserves prior behavior.
-// ---------------------------------------------------------------------------
 
 const AGGREGATE_INTENT_PATTERNS: RegExp[] = [
   /\ball (my|of my)\b/i,
@@ -134,10 +119,6 @@ function numericOrNull(value: number | null | undefined): number | null {
 function stringOrUnavailable(value: string | null | undefined): string {
   return value == null || value === "" ? "unavailable" : value;
 }
-
-// ---------------------------------------------------------------------------
-// Main context builder
-// ---------------------------------------------------------------------------
 
 /**
  * Gathers the athlete's Garmin data from the database and formats it as a

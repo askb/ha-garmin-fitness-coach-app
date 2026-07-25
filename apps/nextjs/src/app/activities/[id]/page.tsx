@@ -2,17 +2,6 @@
 
 import { use, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
@@ -26,10 +15,6 @@ import {
 } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../../_components/bottom-nav";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function formatDuration(minutes: number | null): string {
   if (minutes == null) return "—";
@@ -149,10 +134,6 @@ function ratingColor(rating: string): string {
 function ratingLabel(rating: string): string {
   return rating.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
 
 function MetricCard({
   label,
@@ -415,10 +396,6 @@ function LapTable({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function ActivityDetailPage({
   params,

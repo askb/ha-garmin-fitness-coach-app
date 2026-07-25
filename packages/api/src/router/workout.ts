@@ -10,7 +10,6 @@ import {
   DailyWorkout,
   Profile,
   ReadinessScore,
-  WeeklyPlan,
 } from "@acme/db/schema";
 import {
   adjustDifficulty,

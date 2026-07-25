@@ -4,15 +4,10 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { cn } from "@acme/ui";
-import { Button } from "@acme/ui/button";
 
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
-
-// ---------------------------------------------------------------------------
-// Types & constants
-// ---------------------------------------------------------------------------
 
 type Period = "30d" | "90d" | "180d";
 
@@ -41,10 +36,6 @@ const METRIC_LABELS: Record<string, string> = {
   strain: "Strain",
   readiness: "Readiness",
 };
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function rValueColor(r: number): string {
   const abs = Math.abs(r);
@@ -110,10 +101,6 @@ function sentimentColor(s: "beneficial" | "detrimental" | "neutral"): string {
   if (s === "detrimental") return "border-red-500/40 bg-red-500/5";
   return "border-zinc-700 bg-zinc-800/30";
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function CorrelationsPage() {
   const trpc = useTRPC();

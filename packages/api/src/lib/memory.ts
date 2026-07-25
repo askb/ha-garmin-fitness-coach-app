@@ -20,10 +20,6 @@ import { Activity, HistoryEmbedding } from "@acme/db/schema";
 
 import { ollamaEmbed } from "./ollama";
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
-
 /**
  * Whether coach memory is enabled. Defaults ON when an Ollama URL is
  * configured (the addon sets OLLAMA_URL when the user wires Ollama), so it
@@ -35,10 +31,6 @@ export function isMemoryEnabled(): boolean {
   if (flag === "false" || flag === "0") return false;
   return Boolean(process.env.OLLAMA_URL);
 }
-
-// ---------------------------------------------------------------------------
-// Math
-// ---------------------------------------------------------------------------
 
 export function cosineSim(a: number[], b: number[]): number {
   if (a.length === 0 || a.length !== b.length) return 0;
@@ -55,10 +47,6 @@ export function cosineSim(a: number[], b: number[]): number {
   if (na === 0 || nb === 0) return 0;
   return dot / (Math.sqrt(na) * Math.sqrt(nb));
 }
-
-// ---------------------------------------------------------------------------
-// Period keys
-// ---------------------------------------------------------------------------
 
 /** ISO-8601 week key, e.g. "2024-W07". */
 export function isoWeekKey(d: Date): string {
@@ -83,10 +71,6 @@ export function isoWeekKey(d: Date): string {
 export function monthKey(d: Date): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
-
-// ---------------------------------------------------------------------------
-// Summary building
-// ---------------------------------------------------------------------------
 
 export interface PeriodSummary {
   periodType: "week" | "month" | "year";
@@ -196,10 +180,6 @@ export async function buildPeriodSummaries(
   return summaries;
 }
 
-// ---------------------------------------------------------------------------
-// Embedding population
-// ---------------------------------------------------------------------------
-
 /**
  * Recompute and embed periodic summaries for the athlete, upserting into
  * `history_embedding`. Returns the number of rows written. Safe to run
@@ -266,10 +246,6 @@ export async function summarizeAndEmbedHistory(
 
   return { written, embedded };
 }
-
-// ---------------------------------------------------------------------------
-// Retrieval
-// ---------------------------------------------------------------------------
 
 export interface HistoryRetrieval {
   /** Top-K semantically relevant period summaries (newest-biased on ties). */

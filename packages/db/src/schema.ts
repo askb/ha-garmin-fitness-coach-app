@@ -6,9 +6,6 @@ import { z } from "zod/v4";
 // Re-export auth schema tables
 export * from "./auth-schema";
 
-// ---------------------------------------------------------------------------
-// User Profile (extends auth user)
-// ---------------------------------------------------------------------------
 export const Profile = pgTable("profile", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull().unique(),
@@ -64,9 +61,6 @@ export const CreateProfileSchema = createInsertSchema(Profile, {
   updatedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Daily Metrics (Garmin health data)
-// ---------------------------------------------------------------------------
 export const DailyMetric = pgTable(
   "daily_metric",
   (t) => ({
@@ -121,9 +115,6 @@ export const CreateDailyMetricSchema = createInsertSchema(DailyMetric).omit({
   syncedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Activities (Garmin workout data)
-// ---------------------------------------------------------------------------
 export const Activity = pgTable(
   "activity",
   (t) => ({
@@ -192,9 +183,6 @@ export const CreateActivitySchema = createInsertSchema(Activity).omit({
   syncedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Readiness Scores (computed daily)
-// ---------------------------------------------------------------------------
 export const ReadinessScore = pgTable(
   "readiness_score",
   (t) => ({
@@ -221,9 +209,6 @@ export const ReadinessScore = pgTable(
   ],
 );
 
-// ---------------------------------------------------------------------------
-// Weekly Plans
-// ---------------------------------------------------------------------------
 export const WeeklyPlan = pgTable("weekly_plan", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -233,10 +218,6 @@ export const WeeklyPlan = pgTable("weekly_plan", (t) => ({
   template: t.jsonb(),
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
-
-// ---------------------------------------------------------------------------
-// Daily Workouts (generated recommendations)
-// ---------------------------------------------------------------------------
 
 // DailyWorkout.status legal value space. Declared here so the `status`
 // column below can narrow its TypeScript type to the tuple via $type().
@@ -280,9 +261,6 @@ export const DailyWorkout = pgTable("daily_workout", (t) => ({
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
 
-// ---------------------------------------------------------------------------
-// Chat Messages
-// ---------------------------------------------------------------------------
 export const ChatMessage = pgTable("chat_message", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -292,9 +270,6 @@ export const ChatMessage = pgTable("chat_message", (t) => ({
   createdAt: t.timestamp().defaultNow().notNull(),
 }));
 
-// ---------------------------------------------------------------------------
-// VO2max Estimates (historical tracking)
-// ---------------------------------------------------------------------------
 export const VO2maxEstimate = pgTable("vo2max_estimate", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -310,9 +285,6 @@ export const CreateVO2maxEstimateSchema = createInsertSchema(
   VO2maxEstimate,
 ).omit({ id: true, createdAt: true });
 
-// ---------------------------------------------------------------------------
-// Training Status (daily training load analysis)
-// ---------------------------------------------------------------------------
 export const TrainingStatus = pgTable(
   "training_status",
   (t) => ({
@@ -341,9 +313,6 @@ export const CreateTrainingStatusSchema = createInsertSchema(
   TrainingStatus,
 ).omit({ id: true, createdAt: true });
 
-// ---------------------------------------------------------------------------
-// Journal Entries (subjective daily logging)
-// ---------------------------------------------------------------------------
 export const JournalEntry = pgTable(
   "journal_entry",
   (t) => ({
@@ -395,9 +364,6 @@ export const CreateJournalEntrySchema = createInsertSchema(JournalEntry, {
   updatedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Session Reports (post-session RPE + tagging)
-// ---------------------------------------------------------------------------
 export const SessionReport = pgTable(
   "session_report",
   (t) => ({
@@ -434,9 +400,6 @@ export const SessionReportRelations = relations(SessionReport, ({ one }) => ({
   }),
 }));
 
-// ---------------------------------------------------------------------------
-// Interventions (recovery actions + outcome tracking)
-// ---------------------------------------------------------------------------
 export const Intervention = pgTable(
   "intervention",
   (t) => ({
@@ -469,9 +432,6 @@ export const CreateInterventionSchema = createInsertSchema(Intervention).omit({
   updatedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Advanced Metrics (computed CTL/ATL/ACWR/CP)
-// ---------------------------------------------------------------------------
 export const AdvancedMetric = pgTable(
   "advanced_metric",
   (t) => ({
@@ -503,9 +463,6 @@ export const CreateAdvancedMetricSchema = createInsertSchema(
   AdvancedMetric,
 ).omit({ id: true, computedAt: true });
 
-// ---------------------------------------------------------------------------
-// Correlation Results (computed metric correlations)
-// ---------------------------------------------------------------------------
 export const CorrelationResult = pgTable("correlation_result", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -524,9 +481,6 @@ export const CreateCorrelationResultSchema = createInsertSchema(
   CorrelationResult,
 ).omit({ id: true, computedAt: true });
 
-// ---------------------------------------------------------------------------
-// Race Predictions
-// ---------------------------------------------------------------------------
 export const RacePrediction = pgTable("race_prediction", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -542,9 +496,6 @@ export const CreateRacePredictionSchema = createInsertSchema(
   RacePrediction,
 ).omit({ id: true, createdAt: true });
 
-// ---------------------------------------------------------------------------
-// Workout Time Series (per-workout chart data)
-// ---------------------------------------------------------------------------
 export const WorkoutTimeSeries = pgTable("workout_time_series", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   activityId: t
@@ -564,9 +515,6 @@ export const CreateWorkoutTimeSeriesSchema = createInsertSchema(
   WorkoutTimeSeries,
 ).omit({ id: true });
 
-// ---------------------------------------------------------------------------
-// Athlete Baselines (computed personal norms)
-// ---------------------------------------------------------------------------
 export const AthleteBaseline = pgTable(
   "athlete_baseline",
   (t) => ({
@@ -592,9 +540,6 @@ export const CreateAthleteBaselineSchema = createInsertSchema(
   AthleteBaseline,
 ).omit({ id: true, computedAt: true });
 
-// ---------------------------------------------------------------------------
-// Data Quality Log (ingestion validation issues)
-// ---------------------------------------------------------------------------
 export const DataQualityLog = pgTable("data_quality_log", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -612,9 +557,6 @@ export const CreateDataQualityLogSchema = createInsertSchema(
   DataQualityLog,
 ).omit({ id: true, createdAt: true });
 
-// ---------------------------------------------------------------------------
-// Audit Log (data lineage / provenance)
-// ---------------------------------------------------------------------------
 export const AuditLog = pgTable("audit_log", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -633,9 +575,6 @@ export const CreateAuditLogSchema = createInsertSchema(AuditLog).omit({
   syncedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Reference Measurements (lab/device vs Garmin comparison)
-// ---------------------------------------------------------------------------
 export const ReferenceMeasurement = pgTable("reference_measurement", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   userId: t.text().notNull(),
@@ -654,9 +593,6 @@ export const CreateReferenceMeasurementSchema = createInsertSchema(
   ReferenceMeasurement,
 ).omit({ id: true, userId: true, createdAt: true });
 
-// ---------------------------------------------------------------------------
-// AI Insights (proactive rules-based and LLM-generated recommendations)
-// ---------------------------------------------------------------------------
 export const AiInsight = pgTable(
   "ai_insight",
   (t) => ({
@@ -696,25 +632,6 @@ export const CreateAiInsightSchema = createInsertSchema(AiInsight).omit({
   updatedAt: true,
 });
 
-// ---------------------------------------------------------------------------
-// Recommendation Audit (v0.17.0 AI-native coaching decision log)
-// ---------------------------------------------------------------------------
-//
-// Inescapable audit trail for every state-changing event in the coach loop:
-//   - "recommendation": engine produced a daily recommendation
-//   - "intervention_accept": user accepted today's recommendation
-//   - "intervention_skip": user skipped today's recommendation
-//   - "intervention_defer": user deferred today's recommendation
-//   - "reconciliation": planned-vs-actual reconciliation result
-//   - "workout_complete": legacy reconciliation matched a workout
-//   - "workout_missed": legacy reconciliation found no matching activity
-//   - "override": user manually overrode the recommendation
-//
-// `ruleTrace` is the full rule-by-rule output from
-// `@acme/engine.recommendDay()`. `llmExplanation` is the optional
-// natural-language framing produced by the AI backend; it is NEVER
-// allowed to mutate the structured action/intensity/hardBlocks fields.
-//
 export const RECOMMENDATION_AUDIT_KINDS = [
   "recommendation",
   "intervention_accept",
@@ -777,20 +694,6 @@ export const CreateRecommendationAuditSchema = createInsertSchema(
 // section). DO NOT re-declare the tuple; the canonical definition lives
 // above the DailyWorkout pgTable() call.
 
-// ---------------------------------------------------------------------------
-// History Embedding (RAG / coach memory over full history) — spec 007
-// ---------------------------------------------------------------------------
-//
-// Compact periodic summaries of the athlete's history, embedded once and
-// retrieved semantically so the coach can answer multi-year aggregate /
-// narrative questions without dumping raw rows into the prompt.
-//
-// MVP stores the embedding as a plain `jsonb` number[] (NOT pgvector): this is
-// single-user / local-first with only a few hundred vectors, so brute-force
-// cosine similarity in TS is fast enough and avoids a Postgres extension that
-// is not reliably packaged for the addon's Alpine image. pgvector can replace
-// this column later if scale ever demands it.
-//
 export const HISTORY_PERIOD_TYPES = [
   "week",
   "month",
@@ -836,16 +739,6 @@ export const CreateHistoryEmbeddingSchema = createInsertSchema(HistoryEmbedding)
   .omit({ id: true, createdAt: true, updatedAt: true })
   .extend({ periodType: z.enum(HISTORY_PERIOD_TYPES) });
 
-// ---------------------------------------------------------------------------
-// Outcome Attribution (close the learning loop) — ai-loop-close-learning
-// ---------------------------------------------------------------------------
-//
-// Joins a coach decision (from RecommendationAudit) to the athlete's
-// *subsequent* N-day physiological outcome (readiness / HRV / TSB), so we can
-// score per-rule effectiveness per athlete. Phase 1 only SURFACES this (a
-// "what worked for you" view + a confidence input); per-athlete threshold
-// tuning is a later, guard-railed phase.
-//
 export const OUTCOME_DECISION_KINDS = [
   "recommendation",
   "intervention_accept",
@@ -899,11 +792,6 @@ export const CreateOutcomeAttributionSchema = createInsertSchema(
   .omit({ id: true, createdAt: true })
   .extend({ decisionKind: z.enum(OUTCOME_DECISION_KINDS) });
 
-// ---------------------------------------------------------------------------
-// Garmin OAuth tokens (Path B — official API). Per-user, ENCRYPTED AT REST.
-// The token columns hold AES-256-GCM ciphertext (encrypted by the Next.js app's
-// oauth token-crypto module before insert); never store plaintext tokens here.
-// ---------------------------------------------------------------------------
 export const GarminOAuthToken = pgTable(
   "garmin_oauth_token",
   (t) => ({
@@ -932,9 +820,6 @@ export const GarminOAuthToken = pgTable(
   ],
 );
 
-// ---------------------------------------------------------------------------
-// Legacy Post table (keep for reference, can remove later)
-// ---------------------------------------------------------------------------
 export const Post = pgTable("post", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   title: t.varchar({ length: 256 }).notNull(),

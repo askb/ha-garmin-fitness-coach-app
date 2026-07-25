@@ -2,7 +2,7 @@ import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
 import type { Baselines, DailyMetricInput, ReadinessZone } from "@acme/engine";
-import { and, desc, eq, gte, lte } from "@acme/db";
+import { and, desc, eq, gte } from "@acme/db";
 import {
   Activity,
   DailyMetric,
@@ -14,7 +14,6 @@ import {
   computeBaselines,
   computeStrainScore,
   computeTargetStrain,
-  computeTRIMP,
   detectAnomalies,
   getReadinessZone,
 } from "@acme/engine";

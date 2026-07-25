@@ -100,10 +100,6 @@ export async function setGarminUserId(
     .where(eq(GarminOAuthToken.userId, userId));
 }
 
-/**
- * Reverse lookup: resolve our internal userId from Garmin's user id, or null
- * if no connected user matches. Used by the official-API webhook receiver.
- */
 export async function findUserIdByGarminUserId(
   garminUserId: string,
 ): Promise<string | null> {

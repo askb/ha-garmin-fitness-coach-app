@@ -1,7 +1,7 @@
 import type { TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
 
-import { and, asc, desc, eq, gte, lte } from "@acme/db";
+import { and, desc, eq, gte, lte } from "@acme/db";
 import {
   Activity,
   DailyMetric,

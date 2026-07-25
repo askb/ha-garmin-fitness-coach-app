@@ -40,8 +40,6 @@ import { computeACWR, countConsecutiveHardDays } from "../strain";
  * classification by more than 1 zone in 95% of cases.
  */
 
-// ---- Component Scorers (each returns 0–100) ----
-
 /**
  * Sleep Quantity Score
  *
@@ -284,8 +282,6 @@ export function scoreStressAndBattery(
   return stressNormalized * 0.4 + batteryScore * 0.6;
 }
 
-// ---- Zone Classification ----
-
 /**
  * Zone thresholds based on composite score distribution.
  *
@@ -320,8 +316,6 @@ export function getZoneColor(zone: ReadinessZone): string {
       return "#ef4444"; // red-500
   }
 }
-
-// ---- Explanation Generator ----
 
 function generateExplanation(
   components: ReadinessComponents,
@@ -435,8 +429,6 @@ function generateExplanation(
 
   return `${parts.join(" and ")} → ${zoneAdvice[zone]}.`;
 }
-
-// ---- Main Calculator ----
 
 const WEIGHTS = {
   sleepQuantity: 0.2,

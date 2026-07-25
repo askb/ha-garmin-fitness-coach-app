@@ -1,6 +1,3 @@
-// ---------------------------------------------------------------------------
-// Garmin API Response Types (as returned by Garmin Health API)
-// ---------------------------------------------------------------------------
 
 /** Raw Garmin daily summary from the Health API / webhook push */
 export interface GarminDailySummary {
@@ -60,10 +57,6 @@ export interface GarminSleepData {
   restingHeartRateInBeatsPerMinute: number | null;
 }
 
-// ---------------------------------------------------------------------------
-// Webhook payload types
-// ---------------------------------------------------------------------------
-
 export interface GarminWebhookPayload {
   type: "dailySummary" | "activity" | "sleep";
   userId: string;
@@ -72,19 +65,11 @@ export interface GarminWebhookPayload {
   data: GarminDailySummary | GarminActivity | GarminSleepData;
 }
 
-// ---------------------------------------------------------------------------
-// OAuth types
-// ---------------------------------------------------------------------------
-
 export interface GarminOAuthTokens {
   accessToken: string;
   refreshToken: string;
   garminUserId: string;
 }
-
-// ---------------------------------------------------------------------------
-// Normalized types (matching our DB schema fields)
-// ---------------------------------------------------------------------------
 
 export interface NormalizedDailyMetric {
   date: string;

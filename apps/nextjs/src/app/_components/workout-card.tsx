@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 
 import { IngressLink as Link } from "./ingress-link";

@@ -1,17 +1,3 @@
-// ---------------------------------------------------------------------------
-// ha-conversation.ts — Home Assistant Conversation API client
-// ---------------------------------------------------------------------------
-// Uses the HA Supervisor REST API to send prompts to whichever conversation
-// agent the user has configured in HA (Google Generative AI / Gemini,
-// Anthropic / Claude, OpenAI, or the built-in Assist agent) via
-// /api/conversation/process.
-//
-// Requires: homeassistant_api: true in addon config.json
-// Environment: SUPERVISOR_TOKEN          — auto-injected by HA Supervisor
-//              HA_CONVERSATION_AGENT_ID  — explicit agent override (optional)
-//              OPENCLAW_AGENT_ID         — legacy env name, still honored
-// ---------------------------------------------------------------------------
-
 export interface HaConversationOptions {
   agentId?: string;
   timeoutMs?: number;

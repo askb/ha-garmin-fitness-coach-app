@@ -28,9 +28,6 @@ const nonPoolingUrl = DATABASE_URL.replace(":6543", ":5432");
 const pool = new pg.Pool({ connectionString: nonPoolingUrl });
 const db = drizzle(pool, { casing: "snake_case" });
 
-// ---------------------------------------------------------------------------
-// Deterministic pseudo-random number generator
-// ---------------------------------------------------------------------------
 function makeRng(seed: number) {
   let s = seed;
   return {
@@ -53,9 +50,6 @@ function makeRng(seed: number) {
 const rng = makeRng(42);
 const USER_ID = "seed-user-001";
 
-// ---------------------------------------------------------------------------
-// Date helpers
-// ---------------------------------------------------------------------------
 function dateStr(daysAgo: number): string {
   const d = new Date();
   d.setHours(0, 0, 0, 0);
@@ -70,9 +64,6 @@ function dateAt(daysAgo: number, hour: number, minute = 0): Date {
   return d;
 }
 
-// ---------------------------------------------------------------------------
-// Day plan types
-// ---------------------------------------------------------------------------
 type ActivityType =
   | "easy_run"
   | "threshold_run"
@@ -89,14 +80,6 @@ interface DayPlan {
   load: number; // TSS-like training load
 }
 
-// ---------------------------------------------------------------------------
-// Persona archetypes
-// ---------------------------------------------------------------------------
-// The seed can emulate different athlete profiles via the PERSONA env var
-// (PERSONA=athlete|recreational|beginner|detrained). This powers the E2E
-// screenshot matrix: each persona produces visibly different readiness,
-// training-load and vitals screens. The default "athlete" persona is
-// byte-for-byte identical to the historical seed so `db:seed` is unchanged.
 interface Persona {
   label: string;
   age: number;
@@ -227,9 +210,6 @@ const DOW_PLAN: Record<
   0: { actType: "bike", loadMin: 60, loadMax: 88 },
 };
 
-// ---------------------------------------------------------------------------
-// Main seed
-// ---------------------------------------------------------------------------
 async function seed() {
   // Safety check: refuse to seed if real data exists
   const existing = await db
@@ -252,7 +232,6 @@ async function seed() {
   }
   console.log(`🌱 Seeding 90 days of realistic ${persona.label} data…`);
 
-  // --- Profile ---
   await db
     .insert(Profile)
     .values({
@@ -279,8 +258,6 @@ async function seed() {
     })
     .onConflictDoNothing();
 
-  // --- Build 90-day schedule ---
-  // Mon=easy run, Tue=strength, Wed=threshold, Thu=rest, Fri=rest, Sat=long run, Sun=bike
   const days: DayPlan[] = [];
 
   for (let daysAgo = 89; daysAgo >= 0; daysAgo--) {
@@ -309,7 +286,6 @@ async function seed() {
     });
   }
 
-  // --- Insert activities ---
   const insertedActivities: {
     id: string;
     date: string;
@@ -499,10 +475,6 @@ async function seed() {
 
   console.log(`✅ ${insertedActivities.length} activities inserted`);
 
-  // --- VO2max estimates (historical tracking) ---
-  // garmin_official readings are tied to qualifying runs (above); a parallel
-  // uth_ratio weekly series gives the Fitness page its second trend line
-  // (analytics.getVO2maxHistory recognises uth_method / uth_ratio).
   let vo2maxCount = 0;
   for (const r of vo2maxReadings) {
     await db
@@ -535,7 +507,6 @@ async function seed() {
   }
   console.log(`✅ ${vo2maxCount} VO2max estimates inserted`);
 
-  // --- Daily Metrics (90 days) ---
   let runningFatigue = 0;
   const dailyMetrics = [];
 
@@ -608,7 +579,6 @@ async function seed() {
   }
   console.log(`✅ ${dailyMetrics.length} daily metrics inserted`);
 
-  // --- Journal Entries (~5x/week: skip Thu & Fri) ---
   const journalDays = days.filter(
     (d) => d.dayOfWeek !== 4 && d.dayOfWeek !== 5,
   );
@@ -636,7 +606,6 @@ async function seed() {
   }
   console.log(`✅ ${journalCount} journal entries inserted`);
 
-  // --- Session Reports (one per activity) ---
   let sessionCount = 0;
   for (const act of insertedActivities) {
     const { id: activityId, actType, load } = act;
@@ -666,7 +635,6 @@ async function seed() {
   }
   console.log(`✅ ${sessionCount} session reports inserted`);
 
-  // --- Interventions (4 over 90 days) ---
   const interventions = [
     {
       userId: USER_ID,
@@ -718,11 +686,6 @@ async function seed() {
   }
   console.log(`✅ ${interventions.length} interventions inserted`);
 
-  // --- Advanced Metrics: CTL/ATL/TSB (from day 42 of data) ---
-  // Formulas:
-  //   CTL(t) = CTL(t-1) * exp(-1/42) + load * (1 - exp(-1/42))
-  //   ATL(t) = ATL(t-1) * exp(-1/7)  + load * (1 - exp(-1/7))
-  //   TSB(t) = CTL(t-1) - ATL(t-1)   [yesterday's values]
   const k42 = Math.exp(-1 / 42);
   const g42 = 1 - k42;
   const k7 = Math.exp(-1 / 7);
@@ -773,7 +736,6 @@ async function seed() {
     `   Final CTL: ${ctl.toFixed(1)} | ATL: ${atl.toFixed(1)} | TSB: ${finalTsb}`,
   );
 
-  // --- Summary ---
   console.log(
     `\n🎉 Seeded ${insertedActivities.length} activities, ${dailyMetrics.length} daily metrics, ${journalCount} journal entries`,
   );

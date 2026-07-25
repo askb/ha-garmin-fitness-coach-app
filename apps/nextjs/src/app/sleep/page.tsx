@@ -26,10 +26,6 @@ import { BottomNav } from "../_components/bottom-nav";
 import { DateRangeSelector } from "../_components/date-range-selector";
 import { SectionHeader } from "../_components/info-button";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 /** Convert minutes to "Xh Ym" display string */
 function fmtDuration(minutes: number | null | undefined): string {
   if (minutes == null || isNaN(minutes)) return "—";
@@ -95,16 +91,11 @@ function debtTextColor(debt: number): string {
   return "text-red-400";
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export default function SleepDashboard() {
   const trpc = useTRPC();
   const timezone = useUserTimezone();
   const [sleepDays, setSleepDays] = useState(28);
 
-  // ---- Data queries ----
   const coach = useQuery(trpc.sleep.getCoach.queryOptions());
 
   // Surface coach data early so it can be referenced by derived data
@@ -126,7 +117,6 @@ export default function SleepDashboard() {
     trpc.sleep.getHistory.queryOptions({ days: sleepDays }),
   );
 
-  // ---- Derived: Key stats ----
   const stats = useMemo(() => {
     const data = history.data as
       | {
@@ -182,7 +172,6 @@ export default function SleepDashboard() {
     return { avgDuration, avgScore, currentDebt, avgEfficiency };
   }, [history.data, timezone]);
 
-  // ---- Derived: Sleep stages chart data ----
   const stagesChartData = useMemo(() => {
     const raw = stages.data as
       | {
@@ -220,7 +209,6 @@ export default function SleepDashboard() {
     [stagesChartData],
   );
 
-  // ---- Derived: Sleep score trend with moving average ----
   const scoreChartData = useMemo(() => {
     const raw = history.data as
       | { date: string; sleepScore: number | null }[]
@@ -236,7 +224,6 @@ export default function SleepDashboard() {
     }));
   }, [history.data, timezone]);
 
-  // ---- Derived: Sleep vs Need chart ----
   const vsNeedChartData = useMemo(() => {
     const raw = history.data as
       | {
@@ -256,12 +243,6 @@ export default function SleepDashboard() {
     }));
   }, [history.data, timezone]);
 
-  // ---- Derived: Sleep debt tracker (last 7 days) ----
-  // Daily debt = max(0, sleepNeed - actualSleep). The historic
-  // DailyMetric.sleepDebtMinutes and sleepNeedMinutes columns are
-  // not backfilled by the ETL, so we fall back to the coach's
-  // computed need (constant across the 7-day window) and compute
-  // each day's debt from totalSleepMinutes (which IS populated).
   const debtChartData = useMemo(() => {
     const raw = history.data as
       | {
@@ -288,7 +269,6 @@ export default function SleepDashboard() {
     });
   }, [history.data, coachData?.recommendedDurationMinutes, timezone]);
 
-  // ---- Derived: Sleep timing range chart ----
   const timingChartData = useMemo(() => {
     const raw = history.data as
       | {
@@ -317,7 +297,6 @@ export default function SleepDashboard() {
     });
   }, [history.data, timezone]);
 
-  // ---------------------------------------------------------------------------
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* ================================================================== */}
@@ -934,10 +913,6 @@ export default function SleepDashboard() {
     </main>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Stat Card component
-// ---------------------------------------------------------------------------
 
 function StatCard({
   label,

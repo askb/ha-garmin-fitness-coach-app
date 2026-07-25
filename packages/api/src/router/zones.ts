@@ -67,12 +67,6 @@ function normalizeSportType(
 }
 
 export const zonesRouter = {
-  // Distinct sportType strings the user has logged in the window,
-  // each paired with how many activities they've done of that
-  // sport. Powers the Zones page sport dropdown — replaces the
-  // previous hardcoded "all / running / walking" list so users
-  // who do tennis, swimming, strength, hiking, etc see those
-  // sports in the dropdown automatically.
   listSportTypes: protectedProcedure
     .input(
       z

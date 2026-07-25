@@ -156,7 +156,6 @@ export default function OnboardingPage() {
   };
 
   const steps = [
-    // Step 0: Profile
     <div key="profile" className="space-y-4">
       <h2 className="text-xl font-bold">About You</h2>
       <p className="text-muted-foreground text-sm">
@@ -212,7 +211,6 @@ export default function OnboardingPage() {
       </div>
     </div>,
 
-    // Step 1: Sports
     <div key="sports" className="space-y-4">
       <h2 className="text-xl font-bold">Your Sports</h2>
       <p className="text-muted-foreground text-sm">
@@ -272,7 +270,6 @@ export default function OnboardingPage() {
       )}
     </div>,
 
-    // Step 2: Availability
     <div key="availability" className="space-y-4">
       <h2 className="text-xl font-bold">Weekly Schedule</h2>
       <p className="text-muted-foreground text-sm">Which days can you train?</p>
@@ -310,7 +307,6 @@ export default function OnboardingPage() {
       </div>
     </div>,
 
-    // Step 3: Health & Safety
     <div key="health" className="space-y-4">
       <h2 className="text-xl font-bold">Health & Safety</h2>
       <p className="text-muted-foreground text-sm">

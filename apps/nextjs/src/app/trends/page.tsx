@@ -21,10 +21,6 @@ import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 import { SectionHeader } from "../_components/info-button";
 
-// ---------------------------------------------------------------------------
-// Types & constants
-// ---------------------------------------------------------------------------
-
 type Period = "7d" | "28d" | "90d" | "180d" | "365d";
 
 const PERIODS: { value: Period; label: string; days: number }[] = [
@@ -92,10 +88,6 @@ type TrendPeriod = "30d" | "90d" | "180d" | "365d";
 type CorrelationPeriod = "30d" | "90d" | "180d";
 
 const CHART_METRICS: TrendMetric[] = ["readiness", "sleep", "hrv", "stress"];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function daysFor(p: Period): number {
   return PERIODS.find((x) => x.value === p)!.days;
@@ -170,10 +162,6 @@ function strengthColor(s: string | undefined): string {
   return "border-zinc-700 bg-zinc-800/50";
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export default function TrendsPage() {
   const [period, setPeriod] = useState<Period>("28d");
   const days = daysFor(period);
@@ -181,12 +169,10 @@ export default function TrendsPage() {
   const timezone = useUserTimezone();
   const useSmoothed = days > 90;
 
-  // ---- Summary stats ----
   const summary = useQuery(
     trpc.trends.getSummary.queryOptions({ period: summaryPeriod(period) }),
   );
 
-  // ---- Multi-metric overlay chart (raw or smoothed) ----
   const multiChart = useQuery({
     ...trpc.trends.getMultiMetricChart.queryOptions({
       metrics: CHART_METRICS,
@@ -228,7 +214,6 @@ export default function TrendsPage() {
     enabled: useSmoothed,
   });
 
-  // ---- Trend analysis per metric ----
   const trendReadiness = useQuery(
     trpc.trends.getLongTermTrend.queryOptions({
       metric: "readiness",
@@ -260,7 +245,6 @@ export default function TrendsPage() {
     }),
   );
 
-  // ---- Notable changes ----
   const notableChanges = useQuery(
     trpc.trends.getNotableChanges.queryOptions({
       metric: "readiness",
@@ -268,7 +252,6 @@ export default function TrendsPage() {
     }),
   );
 
-  // ---- Correlations (only when enough data) ----
   const correlations = useQuery({
     ...trpc.analytics.getCorrelations.queryOptions({
       period: correlationPeriod(period),
@@ -276,7 +259,6 @@ export default function TrendsPage() {
     enabled: days >= 28,
   });
 
-  // ---- Build unified chart data ----
   const chartData = useMemo(() => {
     if (useSmoothed) {
       const readinessArr = rollingReadiness.data ?? [];
@@ -365,7 +347,6 @@ export default function TrendsPage() {
     .filter((c) => c.pValue < 0.05)
     .slice(0, 6);
 
-  // ---------------------------------------------------------------------------
   return (
     <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 pb-24">
       {/* Header */}
@@ -824,10 +805,6 @@ export default function TrendsPage() {
     </main>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Summary Card component
-// ---------------------------------------------------------------------------
 
 function SummaryCard({
   label,

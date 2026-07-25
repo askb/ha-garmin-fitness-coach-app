@@ -1,7 +1,3 @@
-// ---------------------------------------------------------------------------
-// Ollama chat client — zero-dependency, uses native fetch
-// ---------------------------------------------------------------------------
-
 export interface OllamaMessage {
   role: "system" | "user" | "assistant";
   content: string;
