@@ -21,7 +21,8 @@ import { initAuth } from "../src/index";
 export const auth = initAuth({
   baseUrl: "http://localhost:3000",
   productionUrl: "http://localhost:3000",
-  secret: process.env.AUTH_SECRET ?? "secret",
-  discordClientId: process.env.AUTH_DISCORD_ID ?? "1234567890",
-  discordClientSecret: process.env.AUTH_DISCORD_SECRET ?? "1234567890",
+  secret: process.env.AUTH_SECRET ?? "dev-placeholder-not-a-real-secret",
+  discordClientId: process.env.AUTH_DISCORD_ID ?? "placeholder-discord-id",
+  discordClientSecret:
+    process.env.AUTH_DISCORD_SECRET ?? "placeholder-discord-secret",
 });
