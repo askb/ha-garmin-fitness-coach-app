@@ -15,10 +15,6 @@ import { ollamaChat } from "../lib/ollama";
 import { evaluateResponseQuality, qualityBadge } from "../lib/quality-gate";
 import { protectedProcedure } from "../trpc";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const AGENT_LABELS: Record<AgentType, string> = {
   "sport-scientist": "Sport Scientist",
   psychologist: "Sport Psychologist",
@@ -79,10 +75,6 @@ function mapChatMessage<T extends { role: string; content: string }>(
     content: normalizeAssistantMessageContent(message.content),
   };
 }
-
-// ---------------------------------------------------------------------------
-// Router
-// ---------------------------------------------------------------------------
 
 export const chatRouter = {
   getHistory: protectedProcedure

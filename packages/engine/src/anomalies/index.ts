@@ -20,18 +20,6 @@ export function detectAnomalies(
 ): AnomalyAlert[] {
   const alerts: AnomalyAlert[] = [];
 
-  // ---------- HRV Crash ----------
-  // Trigger: HRV > 1.5 SD below baseline for 2+ consecutive days
-  //
-  // Ref: Buchheit M. Monitoring training status with HR measures.
-  //      IJSPP. 2014;9:883-895.
-  //   → "A meaningful change in lnRMSSD requires >1 × CV (≈1 SD)"
-  //
-  // Ref: Plews DJ et al. (2013) — sustained HRV depression in elite
-  //      rowers correlated with maladaptive training response.
-  //
-  // Using 1.5 SD (more conservative than Buchheit's 1 SD SWC)
-  // to reduce false positives.
   const hrvCrashDays =
     baselines.hrvSD > 0
       ? countConsecutiveDaysBelowZScore(
@@ -59,17 +47,6 @@ export function detectAnomalies(
     });
   }
 
-  // ---------- RHR Spike ----------
-  // Trigger: RHR > 1.5 SD above baseline for 2+ days
-  //
-  // Ref: Meeusen R et al. Prevention, diagnosis, and treatment of the
-  //      overtraining syndrome: ECSS position statement.
-  //      Eur J Sport Sci. 2013;13(1):1-24.
-  //   → "Elevated resting heart rate is one of the most commonly cited
-  //      indicators of overtraining or illness."
-  //   → Clinical significance typically at 5-10 bpm above baseline
-  //
-  // Using z-score when SD available, otherwise fallback to +5 bpm
   const rhrSpikeDays =
     baselines.restingHrSD > 0
       ? countConsecutiveDaysAboveZScore(
@@ -94,15 +71,6 @@ export function detectAnomalies(
     });
   }
 
-  // ---------- Sleep Deficit ----------
-  // Trigger: < 6h for 3+ consecutive nights
-  //
-  // Ref: Hirshkowitz M et al. National Sleep Foundation's sleep time
-  //      duration recommendations. Sleep Health. 2015;1(1):40-43.
-  //   → <6 hours is "not recommended" for any adult age group
-  //
-  // Ref: Mah CD et al. (2011) — sleep restriction impairs sprint times,
-  //      reaction time, and mood in athletes.
   const sleepDeficitDays = countConsecutiveDaysBelow(
     recentMetrics.map((m) => m.totalSleepMinutes),
     360, // 6 hours (Hirshkowitz: "not recommended" threshold)
@@ -119,15 +87,6 @@ export function detectAnomalies(
     });
   }
 
-  // ---------- Overreaching (ACWR) ----------
-  // Trigger: ACWR > 1.5
-  //
-  // Ref: Hulin BT et al. The acute:chronic workload ratio predicts injury.
-  //      Br J Sports Med. 2016;50(4):231-236.
-  //   → ACWR > 1.5 = significantly elevated injury risk
-  //
-  // Ref: Gabbett TJ. The training—injury prevention paradox.
-  //      Br J Sports Med. 2016;50(5):273-280.
   if (recentStrainScores.length >= 7) {
     const acuteDays = Math.min(recentStrainScores.length, 7);
     const acute =
@@ -152,8 +111,6 @@ export function detectAnomalies(
 
   return alerts;
 }
-
-// ---------- Helper functions ----------
 
 function countConsecutiveDaysBelow(
   values: (number | null)[],

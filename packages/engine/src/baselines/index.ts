@@ -23,10 +23,6 @@ import type { Baselines, DailyMetricInput } from "../types";
  *   → Age-stratified sleep duration recommendations
  */
 
-// ---------------------------------------------------------------------------
-// Population defaults — age and sex stratified
-// Sources: Shaffer & Ginsberg 2017 (HRV), Hirshkowitz et al. 2015 (sleep)
-// ---------------------------------------------------------------------------
 interface PopulationDefaults {
   hrv: number;
   hrvSD: number;

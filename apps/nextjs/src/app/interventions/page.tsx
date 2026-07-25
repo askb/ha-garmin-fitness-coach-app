@@ -11,10 +11,6 @@ import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const INTERVENTION_TYPES = [
   { key: "reduced_load", emoji: "😴", label: "Reduced Load" },
   { key: "extra_sleep", emoji: "🛌", label: "Extra Sleep" },
@@ -30,10 +26,6 @@ const INTERVENTION_TYPES = [
 ] as const;
 
 type InterventionType = (typeof INTERVENTION_TYPES)[number]["key"];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function toDateStr(d: Date): string {
   return d.toISOString().slice(0, 10);
@@ -56,10 +48,6 @@ function getTypeInfo(key: string) {
     }
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function InterventionsPage() {
   const trpc = useTRPC();

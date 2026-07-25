@@ -5,9 +5,6 @@
  * See docs/sport-science-reference.md for full citations.
  */
 
-// ---------------------------------------------------------------------------
-// Daily Metrics (from Garmin sync)
-// ---------------------------------------------------------------------------
 export interface DailyMetricInput {
   date: string;
   sleepScore: number | null;
@@ -41,9 +38,6 @@ export interface DailyMetricInput {
   sleepDebtMinutes: number | null;
 }
 
-// ---------------------------------------------------------------------------
-// Activity (from Garmin sync)
-// ---------------------------------------------------------------------------
 export interface ActivityInput {
   sportType: string;
   subType: string | null;
@@ -89,10 +83,6 @@ export interface ActivityInput {
   }> | null;
 }
 
-// ---------------------------------------------------------------------------
-// Baselines — now includes standard deviation for z-score calculations
-// Ref: Buchheit M. Monitoring training status with HR measures. IJSPP. 2014;9:883-895.
-// ---------------------------------------------------------------------------
 export interface Baselines {
   hrv: number;
   hrvSD: number; // standard deviation for z-score
@@ -104,9 +94,6 @@ export interface Baselines {
   daysOfData: number; // for confidence tracking
 }
 
-// ---------------------------------------------------------------------------
-// Readiness
-// ---------------------------------------------------------------------------
 export type ReadinessZone = "prime" | "high" | "moderate" | "low" | "poor";
 
 export interface ReadinessComponents {
@@ -127,11 +114,6 @@ export interface ReadinessResult {
   confidence: "low" | "medium" | "high"; // based on data availability
 }
 
-// ---------------------------------------------------------------------------
-// Training Load — Banister Fitness-Fatigue Model
-// Ref: Banister EW et al. A systems model of training for athletic performance.
-//      Aust J Sci Med Sport. 1975;7:57-61.
-// ---------------------------------------------------------------------------
 export interface TrainingLoadMetrics {
   ctl: number; // Chronic Training Load (42-day EMA = "fitness")
   atl: number; // Acute Training Load (7-day EMA = "fatigue")
@@ -141,11 +123,6 @@ export interface TrainingLoadMetrics {
   rampRate: number; // weekly CTL change (safe: <5-8 pts/week)
 }
 
-// ---------------------------------------------------------------------------
-// Training Status — based on VO2max trend + training load
-// Ref: Meeusen R et al. Prevention, diagnosis, and treatment of overtraining
-//      syndrome: ECSS position statement. Eur J Sport Sci. 2013;13(1):1-24.
-// ---------------------------------------------------------------------------
 export type TrainingStatusType =
   | "productive"
   | "maintaining"
@@ -162,19 +139,12 @@ export interface TrainingStatusResult {
   recommendation: string;
 }
 
-// ---------------------------------------------------------------------------
-// VO2max — ACSM running equation + Uth et al. (2004) estimate
-// ---------------------------------------------------------------------------
 export interface VO2maxEstimateResult {
   value: number; // ml/kg/min
   source: "running_pace_hr" | "uth_ratio" | "cooper" | "manual";
   confidence: "low" | "medium" | "high";
 }
 
-// ---------------------------------------------------------------------------
-// Race Prediction — Riegel (1981) + Daniels VDOT
-// Ref: Riegel PS. Athletic Records and Human Endurance. Am Sci. 1981;69(3):285-290.
-// ---------------------------------------------------------------------------
 export interface RacePredictionResult {
   distance: "5K" | "10K" | "half_marathon" | "marathon";
   distanceMeters: number;
@@ -184,18 +154,12 @@ export interface RacePredictionResult {
   vo2maxUsed: number;
 }
 
-// ---------------------------------------------------------------------------
-// Recovery — Hausswirth & Mujika (2013)
-// ---------------------------------------------------------------------------
 export interface RecoveryEstimate {
   hoursUntilRecovered: number;
   readyAt: string; // ISO datetime
   factors: string[]; // what's influencing recovery time
 }
 
-// ---------------------------------------------------------------------------
-// Sleep Coach — Hirshkowitz et al. (2015), Bird (2013)
-// ---------------------------------------------------------------------------
 export interface SleepCoachResult {
   recommendedMinutes: number;
   recommendedBedtime: string | null; // "22:00"
@@ -204,9 +168,6 @@ export interface SleepCoachResult {
   insight: string;
 }
 
-// ---------------------------------------------------------------------------
-// Long-term Trend Analysis
-// ---------------------------------------------------------------------------
 export type TrendDirection = "improving" | "stable" | "declining";
 
 export interface TrendAnalysis {
@@ -220,9 +181,6 @@ export interface TrendAnalysis {
   significance: "high" | "medium" | "low"; // based on sample size + variance
 }
 
-// ---------------------------------------------------------------------------
-// Correlation Analysis — Pearson r
-// ---------------------------------------------------------------------------
 export interface CorrelationPair {
   metricA: string;
   metricB: string;
@@ -234,9 +192,6 @@ export interface CorrelationPair {
   insight: string;
 }
 
-// ---------------------------------------------------------------------------
-// Running Form — Santos-Concejero et al. (2014), Cavanagh & Williams (1982)
-// ---------------------------------------------------------------------------
 export interface RunningFormScore {
   overall: number; // 0-100
   groundContactTime: {
@@ -258,9 +213,6 @@ export interface RunningFormScore {
   cadence: { value: number; rating: "optimal" | "low" | "high" };
 }
 
-// ---------------------------------------------------------------------------
-// Sport Types & Goals
-// ---------------------------------------------------------------------------
 export type SportType =
   | "running"
   | "cycling"
@@ -275,9 +227,6 @@ export type GoalType =
   | "body_composition"
   | "return_from_injury";
 
-// ---------------------------------------------------------------------------
-// User Profile
-// ---------------------------------------------------------------------------
 export interface UserProfile {
   age: number | null;
   sex: string | null;
@@ -299,10 +248,6 @@ export interface UserProfile {
   audienceMode: "athlete" | "health" | "all";
 }
 
-// ---------------------------------------------------------------------------
-// Recovery Context — optional signals for smarter workout modulation
-// Ref: Hulin 2016 (ACWR), Meeusen 2013 (TSB overreaching), Kellmann 2010
-// ---------------------------------------------------------------------------
 export interface RecoveryContext {
   acwr: number | null; // Acute:Chronic Workload Ratio (sweet spot: 0.8-1.3)
   tsb: number | null; // Training Stress Balance (CTL - ATL)
@@ -311,9 +256,6 @@ export interface RecoveryContext {
   stressScore: number | null; // Garmin daily stress (0-100)
 }
 
-// ---------------------------------------------------------------------------
-// Workout Types
-// ---------------------------------------------------------------------------
 export interface WorkoutStructureBlock {
   phase: "warmup" | "main" | "cooldown";
   description: string;
@@ -338,9 +280,6 @@ export interface WorkoutRecommendation {
   explanation: string;
 }
 
-// ---------------------------------------------------------------------------
-// Anomalies & Alerts
-// ---------------------------------------------------------------------------
 export interface AnomalyAlert {
   type:
     | "hrv_crash"
@@ -354,9 +293,6 @@ export interface AnomalyAlert {
   citation?: string; // sport science reference
 }
 
-// ---------------------------------------------------------------------------
-// Journal Entry (for correlation analysis)
-// ---------------------------------------------------------------------------
 export interface JournalEntryInput {
   date: string;
   tags: Record<string, number | boolean | string>;

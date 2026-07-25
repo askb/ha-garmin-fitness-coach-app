@@ -9,10 +9,6 @@ import { IngressLink as Link } from "~/app/_components/ingress-link";
 import { formatTimeInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 
-// ---------------------------------------------------------------------------
-// Agent configuration
-// ---------------------------------------------------------------------------
-
 type AgentType =
   | "sport-scientist"
   | "psychologist"
@@ -160,10 +156,6 @@ function getAgentConfig(id: AgentType): AgentConfig {
   return AGENTS.find((a) => a.id === id)!;
 }
 
-// ---------------------------------------------------------------------------
-// Markdown renderer (simple: bold, lists, headers)
-// ---------------------------------------------------------------------------
-
 function renderMarkdown(text: string) {
   const lines = text.split("\n");
   return lines.map((line, li) => {
@@ -250,10 +242,6 @@ function renderInline(text: string) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Chat Bubble
-// ---------------------------------------------------------------------------
-
 function ChatBubble({
   role,
   content,
@@ -307,10 +295,6 @@ function ChatBubble({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function CoachPage() {
   const trpc = useTRPC();

@@ -5,14 +5,7 @@ import type {
   WorkoutRecommendation,
 } from "../types";
 import type { WorkoutTemplate } from "./templates";
-import {
-  allTemplates,
-  cyclingTemplates,
-  runningTemplates,
-  strengthTemplates,
-} from "./templates";
-
-// ---- Weekly Plan Templates ----
+import { allTemplates, runningTemplates } from "./templates";
 
 interface WeekSlot {
   dayIndex: number; // 0-6 (Mon-Sun)

@@ -14,10 +14,6 @@ import {
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const SPORT_FILTERS = [
   { value: undefined, label: "All" },
   { value: "running", label: "Running" },
@@ -58,10 +54,6 @@ const SPORT_ICONS: Record<string, string> = {
   other: "🏅",
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function sportIcon(sportType: string | null): string {
   if (!sportType) return "🏅";
   const key = sportType.toLowerCase();
@@ -100,10 +92,6 @@ function sportLabel(sportType: string | null): string {
   if (!sportType) return "Activity";
   return sportType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function ActivitiesPage() {
   const trpc = useTRPC();

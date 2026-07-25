@@ -9,10 +9,6 @@ import { toast } from "@acme/ui/toast";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const MEASUREMENT_TYPES = [
   { key: "lab_vo2max", emoji: "🔬", label: "Lab VO2max" },
   { key: "lactate_threshold", emoji: "🩸", label: "Lactate Threshold" },
@@ -78,10 +74,6 @@ function deviationBadge(pct: number | null | undefined): React.ReactNode {
     </span>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 interface RvcRow {
   date: string;

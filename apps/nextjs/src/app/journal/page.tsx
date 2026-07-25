@@ -12,10 +12,6 @@ import { formatDateInTz, useUserTimezone } from "~/lib/format-date";
 import { useTRPC } from "~/trpc/react";
 import { BottomNav } from "../_components/bottom-nav";
 
-// ---------------------------------------------------------------------------
-// Tag definitions (legacy lifestyle tags)
-// ---------------------------------------------------------------------------
-
 interface TagDef {
   key: string;
   emoji: string;
@@ -66,10 +62,6 @@ const TAG_COLORS: Record<string, string> = {
   supplements: "bg-green-500/20 text-green-400 border-green-500/30",
 };
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const SORENESS_REGIONS = [
   "quads",
   "hamstrings",
@@ -96,10 +88,6 @@ type MenstrualPhase = "follicular" | "ovulation" | "luteal" | "menstrual";
 const CAFFEINE_OPTIONS = [0, 100, 200, 300, 400];
 const ALCOHOL_OPTIONS = [0, 1, 2, 3, 4, 5];
 const NAP_OPTIONS = [0, 15, 20, 30, 45, 60, 90];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 function toDateStr(d: Date, timezone?: string): string {
   if (!timezone) return d.toISOString().slice(0, 10);
@@ -164,10 +152,6 @@ function ScoreSlider({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function JournalPage() {
   const trpc = useTRPC();
