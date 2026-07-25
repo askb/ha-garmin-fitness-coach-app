@@ -2,7 +2,6 @@
 
 import { use, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bar } from "recharts";
 
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
