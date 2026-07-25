@@ -71,7 +71,9 @@ async function importLegacyDaily() {
   console.log(`   Found ${rows.length} legacy days`);
 
   let imported = 0;
+  let processed = 0;
   for (const r of rows) {
+    processed++;
     const date = r.time.split("T")[0];
     const intensityMin =
       (r.moderate_minutes ? Math.round(r.moderate_minutes) : 0) +
@@ -97,7 +99,9 @@ async function importLegacyDaily() {
       console.warn(`   ⚠️  skipped legacy daily record for ${date}:`, e);
     }
   }
-  console.log(`   ✅ ${imported} legacy daily records processed (2020-2025)`);
+  console.log(
+    `   ✅ ${processed} legacy daily records processed, ${imported} without error (2020-2025)`,
+  );
 }
 
 // ---------------------------------------------------------------------------

@@ -134,15 +134,15 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
         toggleMode,
       }}
     >
-      {/* themeDetectorScript is a static, build-time constant (see line 75):
-          the injected string is `themeFn.toString()` with no user- or
-          request-derived interpolation. At runtime the script reads the
-          persisted "theme-mode" from localStorage, but validates it against
-          a fixed allowlist (["light","dark","auto"]) before using it as a
-          class name, so no attacker-controlled value reaches the DOM. It is
-          injected once to set the initial theme class before hydration and
-          avoid a flash of incorrect theme. Safe by construction; not an XSS
-          sink. */}
+      {/* themeDetectorScript (see its definition above) is a static,
+          build-time constant: the injected string is `themeFn.toString()`
+          with no user- or request-derived interpolation. At runtime the
+          script reads the persisted "theme-mode" from localStorage, but
+          validates it against a fixed allowlist (["light","dark","auto"])
+          before using it as a class name, so no attacker-controlled value
+          reaches the DOM. It is injected once to set the initial theme
+          class before hydration and avoid a flash of incorrect theme. Safe
+          by construction; not an XSS sink. */}
       {/* eslint-disable-next-line react/no-danger */}
       <script
         dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
