@@ -94,12 +94,10 @@ async function importLegacyDaily() {
       // Duplicates are already handled by onConflictDoNothing(); log any
       // other error (e.g. connection/constraint) instead of swallowing it,
       // then continue importing the remaining records.
-      console.warn(
-        `   ⚠️  skipped a legacy daily record: ${e instanceof Error ? e.message : String(e)}`,
-      );
+      console.warn(`   ⚠️  skipped legacy daily record for ${date}:`, e);
     }
   }
-  console.log(`   ✅ ${imported} legacy daily records imported (2020-2025)`);
+  console.log(`   ✅ ${imported} legacy daily records processed (2020-2025)`);
 }
 
 // ---------------------------------------------------------------------------
