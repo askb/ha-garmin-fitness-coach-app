@@ -20,9 +20,9 @@ export default defineConfig({
   webServer: {
     command: "pnpm --filter @acme/nextjs exec -- next dev --hostname 127.0.0.1",
     env: {
-      AUTH_DISCORD_ID: "ci-placeholder",
-      AUTH_DISCORD_SECRET: "ci-placeholder",
-      AUTH_SECRET: "ci-secret",
+      AUTH_DISCORD_ID: process.env.AUTH_DISCORD_ID ?? "ci-placeholder",
+      AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET ?? "ci-placeholder",
+      AUTH_SECRET: process.env.AUTH_SECRET ?? "ci-secret",
       DEV_BYPASS_AUTH: "true",
       NODE_ENV: "development",
       DATABASE_URL:
