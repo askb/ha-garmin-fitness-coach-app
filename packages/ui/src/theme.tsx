@@ -134,6 +134,12 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
         toggleMode,
       }}
     >
+      {/* themeDetectorScript is a static, build-time constant (see line 75):
+          a self-contained IIFE string with no user- or request-derived
+          input, injected once to set the initial theme class before
+          hydration and avoid a flash of incorrect theme. Safe by
+          construction; not an XSS sink. */}
+      {/* eslint-disable-next-line react/no-danger */}
       <script
         dangerouslySetInnerHTML={{ __html: themeDetectorScript }}
         suppressHydrationWarning
