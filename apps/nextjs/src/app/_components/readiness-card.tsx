@@ -220,7 +220,7 @@ export function ReadinessCard({
 
       {/* Action suggestion */}
       {actionSuggestion && (
-        <div className="mt-4 rounded-xl bg-white/5 px-4 py-3 text-sm">
+        <div className="mt-4 rounded-xl bg-muted/50 px-4 py-3 text-sm">
           <span className="mr-1">💡</span>
           <span className="text-foreground/80">{actionSuggestion}</span>
         </div>

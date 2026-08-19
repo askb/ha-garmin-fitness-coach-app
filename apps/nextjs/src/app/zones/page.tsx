@@ -72,8 +72,9 @@ const SPORT_COLORS: Record<string, string> = {
 };
 
 const TOOLTIP_STYLE = {
-  backgroundColor: "#18181b",
-  border: "1px solid #333",
+  backgroundColor: "var(--popover)",
+  color: "var(--popover-foreground)",
+  border: "1px solid var(--border)",
   borderRadius: 8,
   fontSize: 12,
 };
@@ -585,21 +586,21 @@ export default function ZoneAnalysisPage() {
         ) : weeklyZoneChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={weeklyZoneChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="week"
                 tickFormatter={formatWeek}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={40}
                 label={{
                   value: "min",
                   angle: -90,
                   position: "insideLeft",
-                  fill: "#666",
+                  fill: "var(--muted-foreground)",
                   fontSize: 10,
                 }}
               />
@@ -669,16 +670,16 @@ export default function ZoneAnalysisPage() {
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="week"
                 tickFormatter={formatWeek}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
                 yAxisId="pct"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
                 ticks={[0, 25, 50, 75, 100]}
@@ -688,14 +689,14 @@ export default function ZoneAnalysisPage() {
               <YAxis
                 yAxisId="pi"
                 orientation="right"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={36}
                 domain={[0, 4]}
                 label={{
                   value: "PI",
                   angle: 90,
                   position: "insideRight",
-                  fill: "#666",
+                  fill: "var(--muted-foreground)",
                   fontSize: 10,
                 }}
               />
@@ -761,7 +762,7 @@ export default function ZoneAnalysisPage() {
                 yAxisId="pi"
                 type="monotone"
                 dataKey="polarizationIndex"
-                stroke="#ffffff"
+                stroke="var(--foreground)"
                 strokeWidth={2}
                 strokeDasharray="6 3"
                 dot={false}
@@ -811,14 +812,14 @@ export default function ZoneAnalysisPage() {
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="month"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={48}
                 domain={[0, 100]}
                 ticks={[0, 25, 50, 75, 100]}
@@ -889,24 +890,24 @@ export default function ZoneAnalysisPage() {
         ) : efficiencyChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={efficiencyChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatWeek}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
                 name="Date"
               />
               <YAxis
                 dataKey="efficiencyIndex"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={48}
                 name="Efficiency"
                 label={{
                   value: "Efficiency Index (m·bpm⁻¹ × 1000)",
                   angle: -90,
                   position: "insideLeft",
-                  fill: "#666",
+                  fill: "var(--muted-foreground)",
                   fontSize: 10,
                   offset: 0,
                   style: { textAnchor: "middle" },
@@ -958,7 +959,7 @@ export default function ZoneAnalysisPage() {
                           ? efficiencyTrendLine.last.y
                           : null,
                   }))}
-                  stroke="#ffffff"
+                  stroke="var(--foreground)"
                   strokeWidth={2}
                   strokeDasharray="6 3"
                   dot={false}
@@ -1005,21 +1006,21 @@ export default function ZoneAnalysisPage() {
         ) : volumeChartData.length > 0 ? (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={volumeChartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="week"
                 tickFormatter={formatWeek}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={40}
                 label={{
                   value: "min",
                   angle: -90,
                   position: "insideLeft",
-                  fill: "#666",
+                  fill: "var(--muted-foreground)",
                   fontSize: 10,
                 }}
               />
