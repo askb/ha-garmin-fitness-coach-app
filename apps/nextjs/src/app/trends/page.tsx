@@ -509,7 +509,8 @@ export default function TrendsPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
                   border: "1px solid #3f3f46",
                   borderRadius: 8,
                   fontSize: 12,

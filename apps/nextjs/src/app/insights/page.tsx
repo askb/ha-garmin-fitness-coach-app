@@ -154,7 +154,7 @@ function ProactiveInsightCard({
 
       {/* Action suggestion */}
       {insight.actionSuggestion && (
-        <div className="mt-3 rounded-xl bg-white/5 px-3 py-2 text-sm">
+        <div className="mt-3 rounded-xl bg-muted/50 px-3 py-2 text-sm">
           <span className="mr-1">💡</span>
           <span className="text-foreground/80">
             Suggested action: {insight.actionSuggestion}

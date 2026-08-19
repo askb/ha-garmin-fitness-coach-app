@@ -47,7 +47,7 @@ function delta(
 function statusBadge(d: number | null, tolerance: number): React.ReactNode {
   if (d == null) {
     return (
-      <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
+      <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
         ⚪ N/A
       </span>
     );
@@ -132,7 +132,7 @@ export default function DebugPage() {
 
       {!isLoading && !error && (
         <>
-          <section className="rounded-lg border bg-white p-4">
+          <section className="rounded-lg border bg-card p-4">
             <h2 className="text-lg font-semibold">
               ACWR (Acute:Chronic Workload Ratio)
             </h2>
@@ -164,7 +164,7 @@ export default function DebugPage() {
                     {fmt(cachedAcwr)}
                   </td>
                 </tr>
-                <tr className="border-t bg-gray-50">
+                <tr className="border-t bg-muted/50">
                   <td className="py-1 font-semibold">Delta</td>
                   <td className="py-1"></td>
                   <td className="py-1 text-right">
@@ -175,7 +175,7 @@ export default function DebugPage() {
             </table>
           </section>
 
-          <section className="rounded-lg border bg-white p-4">
+          <section className="rounded-lg border bg-card p-4">
             <h2 className="text-lg font-semibold">
               CTL (Chronic Training Load)
             </h2>
@@ -196,7 +196,7 @@ export default function DebugPage() {
                     {fmt(cachedCtl, 1)}
                   </td>
                 </tr>
-                <tr className="border-t bg-gray-50">
+                <tr className="border-t bg-muted/50">
                   <td className="py-1 font-semibold">Delta</td>
                   <td className="py-1 text-right">
                     {statusBadge(ctlDelta, 1.0)}
@@ -206,7 +206,7 @@ export default function DebugPage() {
             </table>
           </section>
 
-          <section className="rounded-lg border bg-white p-4">
+          <section className="rounded-lg border bg-card p-4">
             <h2 className="text-lg font-semibold">ATL (Acute Training Load)</h2>
             <p className="mb-3 text-xs text-gray-500">
               Tolerance: ±1.0 TSS-equivalent units.
@@ -225,7 +225,7 @@ export default function DebugPage() {
                     {fmt(cachedAtl, 1)}
                   </td>
                 </tr>
-                <tr className="border-t bg-gray-50">
+                <tr className="border-t bg-muted/50">
                   <td className="py-1 font-semibold">Delta</td>
                   <td className="py-1 text-right">
                     {statusBadge(atlDelta, 1.0)}

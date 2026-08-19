@@ -188,15 +188,15 @@ export default function TrainingLoadPage() {
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0.3} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval={0}
               />
               <YAxis
                 yAxisId="left"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={32}
                 domain={[
                   (dataMin: number) => Math.floor(dataMin) - 5,
@@ -218,8 +218,9 @@ export default function TrainingLoadPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 11,
                 }}
@@ -397,22 +398,23 @@ export default function TrainingLoadPage() {
                   <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={32}
                 domain={[0, 21]}
                 ticks={[0, 5, 10, 15, 20]}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -460,17 +462,18 @@ export default function TrainingLoadPage() {
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={32} />
+              <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} width={32} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -642,14 +645,14 @@ export default function TrainingLoadPage() {
                 value: d.value ?? 0,
               }))}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 width={28}
                 domain={[0, 21]}
                 ticks={[0, 5, 10, 15, 20]}
@@ -657,8 +660,9 @@ export default function TrainingLoadPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -696,17 +700,18 @@ export default function TrainingLoadPage() {
                 value: d.value ?? 0,
               }))}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 interval="preserveStartEnd"
               />
-              <YAxis tick={{ fill: "#888", fontSize: 10 }} width={28} />
+              <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} width={28} />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#18181b",
-                  border: "1px solid #333",
+                  backgroundColor: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -881,8 +886,9 @@ function LoadFocusChart({ focus }: { focus: string }) {
           </Pie>
           <Tooltip
             contentStyle={{
-              backgroundColor: "#18181b",
-              border: "1px solid #333",
+              backgroundColor: "var(--popover)",
+              color: "var(--popover-foreground)",
+              border: "1px solid var(--border)",
               borderRadius: 8,
               fontSize: 12,
             }}

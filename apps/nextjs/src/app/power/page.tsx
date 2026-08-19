@@ -233,20 +233,21 @@ export default function PowerPage() {
                   data={pdCurveData}
                   margin={{ top: 5, right: 5, left: -10, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "#888", fontSize: 10 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                   />
                   <YAxis
-                    tick={{ fill: "#888", fontSize: 10 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                     width={40}
                     unit="W"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#18181b",
-                      border: "1px solid #333",
+                      backgroundColor: "var(--popover)",
+                      color: "var(--popover-foreground)",
+                      border: "1px solid var(--border)",
                       borderRadius: 8,
                       fontSize: 12,
                     }}
@@ -291,24 +292,25 @@ export default function PowerPage() {
               />
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart margin={{ top: 5, right: 5, left: -5, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis
                     type="number"
                     dataKey="t"
                     name="Time"
                     unit="s"
-                    tick={{ fill: "#888", fontSize: 10 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                     allowDuplicatedCategory={false}
                   />
                   <YAxis
-                    tick={{ fill: "#888", fontSize: 10 }}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                     width={36}
                     unit="kJ"
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#18181b",
-                      border: "1px solid #333",
+                      backgroundColor: "var(--popover)",
+                      color: "var(--popover-foreground)",
+                      border: "1px solid var(--border)",
                       borderRadius: 8,
                       fontSize: 12,
                     }}
