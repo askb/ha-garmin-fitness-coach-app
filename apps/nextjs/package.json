@@ -55,7 +55,7 @@
     "@types/react-dom": "catalog:react19",
     "eslint": "catalog:",
     "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
+    "jest-environment-jsdom": "^30.4.1",
     "jiti": "^2.5.1",
     "prettier": "catalog:",
     "tailwindcss": "catalog:",
