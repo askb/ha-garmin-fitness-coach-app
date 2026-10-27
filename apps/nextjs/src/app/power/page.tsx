@@ -313,7 +313,7 @@ export default function PowerPage() {
                       fontSize: 12,
                     }}
                     formatter={(v: unknown) => `${Number(v).toFixed(1)} kJ`}
-                    labelFormatter={(label) => `Time: ${label}s`}
+                    labelFormatter={(label) => `Time: ${Number(label)}s`}
                   />
                   {wPrimeData.map((series) => (
                     <Line
