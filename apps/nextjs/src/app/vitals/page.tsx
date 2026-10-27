@@ -391,18 +391,18 @@ function VitalMetricSection({
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#333"
+                stroke="var(--border)"
                 vertical={false}
               />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatDate}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 axisLine={false}
               />
               <YAxis
                 domain={yDomain}
-                tick={{ fill: "#888", fontSize: 10 }}
+                tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                 axisLine={false}
                 width={35}
               />
@@ -413,8 +413,9 @@ function VitalMetricSection({
                   "",
                 ]}
                 contentStyle={{
-                  background: "#1a1a2e",
-                  border: "1px solid #333",
+                  background: "var(--popover)",
+                  color: "var(--popover-foreground)",
+                  border: "1px solid var(--border)",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
@@ -422,11 +423,11 @@ function VitalMetricSection({
               {metric.baseline !== null && (
                 <ReferenceLine
                   y={metric.baseline}
-                  stroke="#666"
+                  stroke="var(--muted-foreground)"
                   strokeDasharray="4 4"
                   label={{
                     value: "baseline",
-                    fill: "#666",
+                    fill: "var(--muted-foreground)",
                     fontSize: 10,
                     position: "insideTopRight",
                   }}
