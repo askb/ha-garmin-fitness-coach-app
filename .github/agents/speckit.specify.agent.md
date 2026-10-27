@@ -146,6 +146,5 @@ This project is a T3 Turbo monorepo with these packages:
 - `@acme/ui` — Shared React components (shadcn/ui)
 - `@acme/validators` — Shared Zod v4 schemas
 - `apps/nextjs` — Main Next.js 16 web application
-- `apps/tanstack-start` — Secondary TanStack Start app
 
 Use this context internally to understand domain concepts but keep the spec language non-technical.

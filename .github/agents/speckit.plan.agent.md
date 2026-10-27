@@ -120,7 +120,6 @@ When filling the Technical Context section of the plan, use these known stack de
 | `@acme/ui` | Shared React components | shadcn/ui, Tailwind v4 |
 | `@acme/validators` | Shared Zod v4 schemas | Used by api, engine, ui |
 | `apps/nextjs` | Main Next.js 16 web application | App Router, RSC |
-| `apps/tanstack-start` | Secondary TanStack Start app | Alternative frontend |
 
 ### Constitution Gates
 
