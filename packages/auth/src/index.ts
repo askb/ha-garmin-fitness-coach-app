@@ -1,5 +1,4 @@
 import type { BetterAuthOptions, BetterAuthPlugin } from "better-auth";
-import { expo } from "@better-auth/expo";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { oAuthProxy } from "better-auth/plugins";
@@ -33,7 +32,6 @@ export function initAuth<
       oAuthProxy({
         productionURL: options.productionUrl,
       }),
-      expo(),
       ...(options.extraPlugins ?? []),
     ],
     socialProviders: {
@@ -50,7 +48,6 @@ export function initAuth<
     emailAndPassword: {
       enabled: options.enableEmailPassword ?? false,
     },
-    trustedOrigins: ["expo://"],
     onAPIError: {
       onError(error, ctx) {
         console.error("BETTER AUTH API ERROR", error, ctx);
