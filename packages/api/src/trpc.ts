@@ -28,7 +28,10 @@ import { db } from "@acme/db/client";
 
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  auth: Auth;
+  // Only `api` is used here. Taking the whole `Auth` would make this
+  // invariant over the plugin tuple, so an instance configured with extra
+  // plugins (e.g. next-cookies) would no longer be assignable.
+  auth: Pick<Auth, "api">;
 }) => {
   const authApi = opts.auth.api;
   const session = await authApi.getSession({
