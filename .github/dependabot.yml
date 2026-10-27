@@ -13,6 +13,12 @@ updates:
     commit-message:
       prefix: "Chore"
     open-pull-requests-limit: 15
+    groups:
+      # init/autobuild/analyze must move together: CodeQL refuses to run
+      # when the config version and the running version disagree.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
     ignore:
       # Managed by `gh aw compile`; version-locked to the gh-aw compiler.
       - dependency-name: "github/gh-aw-actions/**"
