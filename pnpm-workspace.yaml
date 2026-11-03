@@ -8,7 +8,7 @@ catalog:
   "@better-auth/expo": 1.7.14
 
   "@eslint/js": ^10.0.1
-  "@tailwindcss/postcss": ^4.1.16
+  "@tailwindcss/postcss": ^4.3.3
   "@tailwindcss/vite": ^4.3.0
   "@tanstack/react-form": ^1.23.8
   "@tanstack/react-query": ^5.100.14
